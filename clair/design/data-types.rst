@@ -58,6 +58,7 @@ ProductDescription
     not need to be positive terms. The product name is also added to the
     vocabulary.
 * description
+* categories : list[string]
 * product specific fields
 
 DetectedProduct

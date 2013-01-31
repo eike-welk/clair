@@ -39,6 +39,10 @@ Apache License, Version 2.0
 https://github.com/timotheus/ebaysdk-python
 Apache License, Version 2.0
 
+https://github.com/anentropic/ebaysuds 
+Extremely small library. Calls are automatically generated from an XML document.
+LGPL v3
+
 
 ql.io
 ----------------------------------------

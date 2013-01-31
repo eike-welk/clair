@@ -28,3 +28,13 @@ from __future__ import division
 from __future__ import absolute_import              
 
 import pytest #contains `skip`, `fail`, `raises`, `config`
+
+
+def test_fooBar():
+    assert "foo" != "bar"
+
+
+if __name__ == '__main__':
+    test_fooBar()
+    
+    pass #pylint: disable=W0107
