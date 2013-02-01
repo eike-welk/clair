@@ -33,21 +33,43 @@ Common Development and Distribution License (CDDL)
 Python
 ----------------------------------------
 
+Python-Ebay                         **Dependency**
+..................................................
+
+Seems to be the most popular Ebay library for Python. Classical library, not
+object oriented, with global configuration. Code looks a bit messy.
+Not much documentation, but tests and examples.
+
+Apache License, Version 2.0
+
 https://github.com/roopeshvaddepally/python-ebay
+
+Ebaysdk-Python
+........................................
+
 Apache License, Version 2.0
 
 https://github.com/timotheus/ebaysdk-python
-Apache License, Version 2.0
+
+Ebaysuds 
+........................................
+
+New library, where the Python glue code is automatically generated from a
+machine readable description (in XML). This mechanism is called SOAP.
+Object oriented, no central configuration. Library is very small, and a thin
+wrapper on top of the ``suds`` library. Currently no documentation.
+
+LGPL v3
 
 https://github.com/anentropic/ebaysuds 
-Extremely small library. Calls are automatically generated from an XML document.
-LGPL v3
 
 
 ql.io
 ----------------------------------------
 
-ql.io is a declarative language for querying Ebay and possibly other web services. Using it reduces the size of the program's source code, and the numbers of calls to the Ebay API.
+ql.io is a declarative language for querying Ebay and possibly other web
+services. Using it reduces the size of the program's source code, and the
+numbers of calls to the Ebay API.
 
 Apache License, Version 2.0
 
@@ -172,6 +194,23 @@ hierarchical datasets and is designed to cope with extremely large amounts of
 data.
 
 http://www.pytables.org
+
+
+Requests - HTTP for Humans          **Dependency**
+--------------------------------------------------
+
+Python. Simple HTTP library. Used by: Python-Ebay library.
+
+http://docs.python-requests.org/en/latest/
+
+
+LXML - XML parsing library          **Dependency**
+--------------------------------------------------
+
+Python. Fast XML parsing library, that uses a very similar API as ElementTree.
+Used by: Python-Ebay library.
+
+http://lxml.de/
 
 
 Theano - Speed up Numerical Computations
