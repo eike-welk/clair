@@ -50,8 +50,11 @@ A specific product.
 ProductDescription
 ----------------------------------------
 
+* id : string
+    Unique identification string for a product. Must not contain spaces, to
+    avoid confusion with names.  Must not be changed ever.
 * name
-    Unique name of the product.
+    Name of the product. Should/must be unique too. Can be changed.
 * important_words : list of strings
     Additional words that are important in conjunction with this product. These
     words are added to the vocabulary of the learning algorithm, but they do
@@ -63,11 +66,14 @@ ProductDescription
 
 DetectedProduct
 ---------------------------------------
+* id
 * name
 * quantity
 * product_state : new, like_new, used, degraded, broken, unknown
+  Or maybe number in range 1...0.
 * recognition_quality
-    The automatic recognition algorithm returns a certainty value.
+    Measure of the certainty that the automatic recognition algorithm has
+    correctly identified the product. 
 
 
 Listing
@@ -83,10 +89,10 @@ Listing
     Internal unique ID of each listing.
 
 * training_sample : bool
-* expected_products : list of DetectedProduct
+* expected_products : list of ProductDescription / product IDs
 * query_string 
 
-* titile
+* title
 * description
 * products : list of DetectedProduct
 * price
