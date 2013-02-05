@@ -99,8 +99,13 @@ Listing
 * shipping
 * type : auction, fixed_price
 * time_finished : date_time 
+* condition
+* location
 
 * server
+* id_server
+    ID of the item on the server.
+* server_xml
 * data_directory
 * url_webui
 * server specific fields

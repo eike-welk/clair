@@ -1,12 +1,12 @@
-########################################
-              Libraries
-########################################
+#########
+Libraries
+#########
 
 Online Price Discovery Project
 
 
 Ebay API
-========================================
+========
 
 https://www.x.com/developers/ebay
 
@@ -25,13 +25,13 @@ Ebay seems not to like programs that gather statistical information. But gatheri
 The API is available in different programming languages:
 
 Java
-----------------------------------------
+----
 
 https://www.x.com/developers/ebay/documentation-tools/sdks/java
 Common Development and Distribution License (CDDL)
 
 Python
-----------------------------------------
+------
 
 Python-Ebay                         **Dependency**
 ..................................................
@@ -45,14 +45,14 @@ Apache License, Version 2.0
 https://github.com/roopeshvaddepally/python-ebay
 
 Ebaysdk-Python
-........................................
+..............
 
 Apache License, Version 2.0
 
 https://github.com/timotheus/ebaysdk-python
 
-Ebaysuds 
-........................................
+Ebaysuds
+........
 
 New library, where the Python glue code is automatically generated from a
 machine readable description (in XML). This mechanism is called SOAP.
@@ -65,7 +65,7 @@ https://github.com/anentropic/ebaysuds
 
 
 ql.io
-----------------------------------------
+-----
 
 ql.io is a declarative language for querying Ebay and possibly other web
 services. Using it reduces the size of the program's source code, and the
@@ -77,19 +77,19 @@ https://www.x.com/developers/ebay/documentation-tools/ql.io
 
 
 JavaScript
-----------------------------------------
+----------
 
 PHP
-----------------------------------------
+---
 
 Proprietary Languages
-----------------------------------------
+---------------------
 
 Flash, .Net languages
 
 
 Amazon API
-========================================
+==========
 
 Amazon has an API with fairly restrictive usage terms.
 
@@ -97,13 +97,13 @@ https://affiliate-program.amazon.com/gp/advertising/api/detail/main.html
 
 
 Hood API
-========================================
+========
 
 There seems to be an API but nearly no information about it is published.
 
 
 Machine Learning Libraries
-========================================
+==========================
 
 Slides and video of tutorial talk on text classification and machine learning with Python:
 http://www.slideshare.net/ogrisel/statistical-machine-learning-for-text-classification-with-scikitlearn-and-nltk
@@ -113,7 +113,7 @@ http://thinknook.com/10-ways-to-improve-your-classification-algorithm-performanc
 
 
 Scikit-Learn
-----------------------------------------
+------------
 
 Machine learning library. Library for Python, implementation probably partially
 in compiled languages, associated with Numpy and Scipy.
@@ -128,7 +128,7 @@ http://peekaboo-vision.blogspot.de/2013/01/machine-learning-cheat-sheet-for-scik
 
 
 NLTK - Natural Language Toolkit
-----------------------------------------
+-------------------------------
 
 Specialized library for processing text in natural languages. Library for
 Python, implementation probably partially in compiled languages.
@@ -139,7 +139,7 @@ The library is accompanied by an online book. Chapter 6 is about machine learnin
 http://nltk.org/book/
 
 Pattern
-----------------------------------------
+-------
 
 Python, supposedly contains out-of-the-box solutions, seems to include parser for German.
 
@@ -147,7 +147,7 @@ http://www.clips.ua.ac.be/pages/pattern
 
 
 Gensim
-----------------------------------------
+------
 
 Python, specialized for natural language processing, maybe only for unsupervised learning.
 
@@ -155,7 +155,7 @@ http://radimrehurek.com/gensim/
 
 
 Orange
-----------------------------------------
+------
 
 Python, mainly for biologists, but with components for text mining. Supposedly scales well.
 
@@ -163,7 +163,7 @@ http://orange.biolab.si/
 
 
 Shogun
-----------------------------------------
+------
 
 Large scale machine learning toolbox with bindings for Python, Java, among others.
 Implementation seems to be in C++, with some Python on the top level.
@@ -172,7 +172,7 @@ http://www.shogun-toolbox.org/
 
 
 Additional Libraries
-========================================
+====================
 
 
 Pandas - Data analysis toolkit for time series
@@ -186,12 +186,12 @@ Special plotting algorithms. Stores data in HDF5 format.
 http://pandas.pydata.org/pandas-docs/stable/index.html
 
 
-PyTables - HDF5 library 
-----------------------------------------
+PyTables - HDF5 library
+-----------------------
 
 Python. PyTables is a library to store data in the HDF5 format. It can manage
 hierarchical datasets and is designed to cope with extremely large amounts of
-data.
+data. Used by Pandas.
 
 http://www.pytables.org
 
