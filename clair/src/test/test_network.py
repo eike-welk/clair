@@ -27,8 +27,9 @@ Put module description here.
 from __future__ import division
 from __future__ import absolute_import              
 
-import pytest #contains `skip`, `fail`, `raises`, `config`
+#import pytest #contains `skip`, `fail`, `raises`, `config`
 
+from os.path import join, dirname, abspath
 from datetime import datetime, timedelta
 from lxml import etree
 
@@ -140,22 +141,27 @@ EBAY_findItemsByKeywords_RESPONSE = \
 """
 
 
-def test_EbayFindItems_1():
-    """Test access to Ebay site and download of XML."""
-    from clair.network import EbayFindItems
+def relative(*paths):
+    "Create file paths that are relative to the location of this file."
+    return abspath(join(dirname(abspath(__file__)), *paths))
+
+
+def test_EbayFindListings_download():
+    """Test access to Ebay site and download_xml of XML."""
+    from clair.network import EbayFindListings
     from ebay.utils import set_config_file
     
-    set_config_file("../python-ebay.apikey")
+    set_config_file(relative("../python-ebay.apikey"))
     
-    f = EbayFindItems()
-    xml = f.call_ebay(keywords="ipod", 
-                      entries_per_page=2, 
-                      page_number=1, 
-                      min_price=50, 
-                      max_price=100, 
-                      currency="USD", 
-                      time_from=datetime.utcnow() + timedelta(minutes=10), 
-                      time_to=  datetime.utcnow() + timedelta(days=2))
+    f = EbayFindListings()
+    xml = f.download_xml(keywords="ipod", 
+                         entries_per_page=2, 
+                         page_number=1, 
+                         min_price=50, 
+                         max_price=100, 
+                         currency="EUR", 
+                         time_from=datetime.utcnow() + timedelta(minutes=10), 
+                         time_to=  datetime.utcnow() + timedelta(days=2))
 #    print xml
     
     root = etree.fromstring(xml)
@@ -164,22 +170,58 @@ def test_EbayFindItems_1():
     assert ack == "Success"
 
 
-def test_EbayFindItems_2():
-    """Test test parsing of XML response."""
-    from clair.network import EbayFindItems
+def test_EbayFindListings_parse():
+    """Test parsing of XML response."""
+    from clair.network import EbayFindListings
     
-    f = EbayFindItems()
+    f = EbayFindListings()
     listings = f.parse_xml(EBAY_findItemsByKeywords_RESPONSE)
     
     print listings
     print
-    print listings[["title", "price"]]
+    print listings[["title", "price", "currency"]]
     
     #There are two listings (items) in the response
     assert len(listings) == 2
 
 
+def test_EbayFindListings_find():
+    """Test higher level interface to find listings on Ebay by keyword."""
+    from clair.network import EbayFindListings
+    from ebay.utils import set_config_file
+    
+    set_config_file(relative("../python-ebay.apikey"))
+    
+    f = EbayFindListings()
+    
+    listings = f.find(keywords="ipod", n_listings=5)
+    print listings[["title", "price", "currency"]].to_string()
+    print
+    assert len(listings) == 5
+    
+    listings = f.find(keywords="ipod", n_listings=305)
+    print listings
+    assert 305 <= len(listings) == 305 + 3
+    
+    
+def test_EbayConnector_find_listings():
+    """Test finding listings by keyword through the high level interface."""
+    from clair.network import EbayConnector
+    
+    c = EbayConnector(relative("../python-ebay.apikey"))
+    listings = c.find_listings(keywords="Nikon D90", n_listings=5)
+    
+#    print listings
+    print listings[["title", "price", "currency"]].to_string()
+    print
+    assert len(listings) == 5
+
+
+
 if __name__ == '__main__':
-    test_EbayFindItems_2()
+#    test_EbayFindListings_download()
+#    test_EbayFindListings_parse()
+#    test_EbayFindListings_find()
+    test_EbayConnector_find_listings()
     
     pass #pylint: disable=W0107
