@@ -201,7 +201,8 @@ def test_EbayFindListings_find():
     
     listings = f.find(keywords="ipod", n_listings=305)
     print listings
-    assert 305 <= len(listings) == 305 + 3
+#    listings.to_csv("listings.csv", encoding="utf8")
+    assert 305 <= len(listings) <= 305 + 3
     
     
 def test_EbayConnector_find_listings():
@@ -221,7 +222,7 @@ def test_EbayConnector_find_listings():
 if __name__ == '__main__':
 #    test_EbayFindListings_download()
 #    test_EbayFindListings_parse()
-#    test_EbayFindListings_find()
-    test_EbayConnector_find_listings()
+    test_EbayFindListings_find()
+#    test_EbayConnector_find_listings()
     
     pass #pylint: disable=W0107

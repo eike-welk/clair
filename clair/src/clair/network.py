@@ -27,7 +27,7 @@ Put module description here.
 from __future__ import division
 from __future__ import absolute_import              
 
-
+#import os
 import math
 from types import NoneType
 #import time
@@ -149,6 +149,7 @@ class EbayFindListings(object):
         nrows = len(item)
         listings = make_listing_frame(nrows)
         for i, itemi in enumerate(item):
+            #TODO: use df.set_value(...) for speed.
             listings["title"][i] = itemi.title.text
             #img_thumb = itemi.galleryURL
             #bid_count???
@@ -168,12 +169,9 @@ class EbayFindListings(object):
             listings["server_id"][i] = itemi.itemId.text
             listings["url_webui"][i] = itemi.viewItemURL.text
             
-        #Create internal IDs - Ebay IDs are unique and do not repeat
+        #Create internal IDs - Ebay IDs are unique (except for variants)
         listings["id"] = "eb-" + listings["server_id"]
-        #Put internal IDs into index
-        listings.set_index("id", drop=False, inplace=True, 
-                           verify_integrity=True)
-        
+#        listings.to_csv("listings0.csv")
 #        print listings
         return listings
      
@@ -186,11 +184,14 @@ class EbayFindListings(object):
         
         time_from, time_to: datetime in UTC
         """
-        #Compute number of calls to Ebay and number of listings per call
+        #Ebay returns a maximum of 100 listings per call (pagination).
+        #Compute necessary number of calls to Ebay and number of 
+        #listings per call. 
         max_per_page = 100 #max number of listings per call - Ebay limit
         n_pages = math.ceil(n_listings / max_per_page)
         n_per_page = math.ceil(n_listings / n_pages)
         
+        #Call Ebay repeatedly and concatenate results
         listings = make_listing_frame(0)
         for i_page in range(1, int(n_pages + 1)):
             xml = self.download_xml(keywords=keywords, 
@@ -200,9 +201,15 @@ class EbayFindListings(object):
                                     currency=currency, 
                                     time_from=time_from, time_to=time_to)
             listings_part = self.parse_xml(xml)
-            listings = listings.combine_first(listings_part)
-            
-        #TODO: remove extraneous rows?
+            listings = listings.append(listings_part, ignore_index=True, 
+                                       verify_integrity=False)
+
+        #Remove duplicate rows: Ebay uses the same ID for variants of the 
+        #same product.
+        listings = listings.drop_duplicates(cols="id") 
+        #Put internal IDs into index
+        listings.set_index("id", drop=False, inplace=True, 
+                           verify_integrity=True)
         return listings
         
 
