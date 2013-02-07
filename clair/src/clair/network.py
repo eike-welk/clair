@@ -30,6 +30,7 @@ from __future__ import absolute_import
 #import os
 import math
 from types import NoneType
+from collections import defaultdict
 #import time
 from datetime import datetime
 import dateutil.parser as dprs 
@@ -50,33 +51,34 @@ def make_listing_frame(nrows):
     index=[str(i) for i in range(nrows)]
     
     listings = pd.DataFrame(index=index)
-    listings["id"]                = "" #internal unique ID of each listing.
-    listings["training_sample"]   = False
-    #list of product IDs
-    listings["expected_products"] = [[] for i in range(nrows)]
-    listings["query_string"]      = ""
+    listings["id"]                = nan   #internal unique ID of each listing.
+    listings["training_sample"]   = False #This is training sample if True
+    listings["expected_products"] = nan   #list of product IDs
+    listings["query_string"]      = nan   #String with search keywords
     
-    #img_thumb ???
-    #bid_count ???
-    listings["title"]       = ""
-    listings["description"] = ""
-    listings["sold"]        = False    #successful sale if True
-    listings["currency"]    = ""
-    listings["price"]       = nan
-    listings["shipping"]    = nan
-    listings["type"]        = ""       #auction, fixed-price
-    listings["time"] = datetime(1,1,1) #end time in case of auctions
-    listings["location"]    = ""
-    listings["country"]     = ""
-    listings["condition"]   = nan      #1.: new, 0.: completely unusable
-    #list of DetectedProduct
-    listings["products"]    = [[] for i in range(nrows)]
+    listings["thumbnail"]   = nan          
+    listings["image"]       = nan          
     
-    listings["server"]      = ""      #string to identify the server
-    listings["server_id"]   = ""      #ID of listing on the server
-#    listings["data_directory"] = ""
-    listings["url_webui"]   = ""
-    listings["server_repr"] = ""      #representation of listing on server (XML)
+    listings["title"]       = nan
+    listings["description"] = nan
+    #TODO: ItemSpecifics: name value pairs eg.: {"megapixel": "12"}
+    #TODO: bid_count ???
+    listings["active"]      = nan  #you can still buy it if True
+    listings["sold"]        = nan  #successful sale if True
+    listings["currency"]    = nan  #currency for price EUR, USD, ...
+    listings["price"]       = nan  #price of all items in listing
+    listings["shipping"]    = nan  #shipping cost
+    listings["type"]        = nan  #auction, fixed-price, unknown
+    listings["time"]        = nan  #Time when price is valid. End time in case of auctions
+    listings["location"]    = nan  #Location of item (pre sale)
+    listings["country"]     = nan  #Country of item location
+    listings["condition"]   = nan  #1.: new, 0.: completely unusable
+    listings["products"]    = nan  #Products in this listing. List of DetectedProduct
+    listings["server"]      = nan  #string to identify the server
+    listings["server_id"]   = nan  #ID of listing on the server
+#    listings["data_dir"]    = nan
+    listings["url_webui"]   = nan  #Link to web representation of listing.
+#    listings["server_repr"] = nan  #representation of listing on server (XML)
 
     return  listings
     
@@ -149,18 +151,19 @@ class EbayFindListings(object):
         nrows = len(item)
         listings = make_listing_frame(nrows)
         for i, itemi in enumerate(item):
-            #TODO: use df.set_value(...) for speed.
+            listings["img_thumb"][i] = itemi.galleryURL
+            
             listings["title"][i] = itemi.title.text
-            #img_thumb = itemi.galleryURL
             #bid_count???
             #successful sale
-            #finished??? = itemi.sellingStatus.sellingState.text
-            listings["price"][i] = itemi.sellingStatus.currentPrice.text
+            #you can still buy item if True (findItemsByKeywords only returns active listings)
+            listings.set_value(i, "active", True)  
             listings["currency"][i] = itemi.sellingStatus.currentPrice \
                                                             .get("currencyId")
+            listings["price"][i] = itemi.sellingStatus.currentPrice.text
             listings["shipping"][i] = itemi.shippingInfo.shippingServiceCost \
                                                             .text
-            listings["type"][i] = itemi.listingInfo.listingType.text
+            #TODO: convert to standard format: listings["type"][i] = itemi.listingInfo.listingType.text
             listings["time"][i] = dprs.parse(itemi.listingInfo.endTime.text) 
             listings["location"][i] = itemi.location.text
             listings["country"][i] = itemi.country.text
@@ -210,8 +213,10 @@ class EbayFindListings(object):
         #Put internal IDs into index
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
+        #Store the query string
+        listings["query_string"] = keywords
         return listings
-        
+
 
 
 class EbayGetListings(object):
@@ -219,7 +224,84 @@ class EbayGetListings(object):
     Get full information on ebay listings, needs information (IDs) 
     from Ebay's finding functionality.
     """
+    def download_xml(self, ids):
+        """
+        Call ``GetMultipleItems`` from Ebay's shopping API.
+        Return the XML response.
+        
+        ids : list of strings
+        """
+        assert len(ids) <= 20 # Ebay limitation
+        ids_str = ",".join(ids)
+        res_xml = eb_shop.GetMultipleItems(
+                    item_id=ids_str, 
+                    include_selector=
+                    "TextDescription,Details,ItemSpecifics,ShippingCosts", 
+                    encoding="XML")
+#        print res_xml
+        
+        return res_xml
+    
+        
+    def parse_xml(self, xml):
+        """
+        Parse the XML response from Ebay's shopping API.
+        """
+        root = objectify.fromstring(xml)
+#        print etree.tostring(root, pretty_print=True)
+        if root.Ack.text != "Success":
+            #TODO: logging, better error message
+            raise EbayError(etree.tostring(root, pretty_print=True))
+        
+        item = root.Item
+        nrows = len(item)
+        listings = make_listing_frame(nrows)
+        for i, itemi in enumerate(item):
+            listings["training_sample"][i] = False #This is training sample if True
+            listings["expected_products"][i] = nan #list of product IDs
+            listings["query_string"][i] = nan      #String with search keywords
+            
+            listings["thumbnail"][i] = itemi.GalleryURL.text
+            listings["image"][i] =     itemi.PictureURL.text
+            
+            listings["title"][i] =       itemi.Title.text 
+            listings["description"][i] = itemi.Description.text
+            #you can still buy item if True
+            listings["active"][i] =   itemi.ListingStatus.text == "Active"
+            #successful sale if True
+            listings["sold"][i] =     int(itemi.QuantitySold.text) > 0
+            #Currency of price: EUR, USD, ...
+            listings["currency"][i] = itemi.ConvertedCurrentPrice.get("currencyID")
+            listings["price"][i]    = itemi.ConvertedCurrentPrice.text
+            listings["shipping"][i] = float(itemi.ShippingCostSummary.
+                                            ListedShippingServiceCost)
+            #Type of listing: auction, fixed-price, unknown
+            l_type = defaultdict(lambda: "unknown",
+                                 {"Chinese"         : "auction",
+                                  "FixedPriceItem"  : "fixed-price",
+                                  "StoresFixedPrice": "fixed-price" })
+            listings["type"][i]      = l_type[itemi.ListingType.text]
+            #Approximate time when price is/was valid, end time in case of auctions
+            listings["time"][i] = dprs.parse(itemi.EndTime.text) 
+            listings["location"]     = itemi.Location.text
+            listings["country"]      = itemi.Country.text
+            #http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
+            #TODO: convert `ConditionID` to 0..1 listings["condition"][i] = itemi.ConditionID.text      #1.: new, 0.: completely unusable
+            
+            listings["server"]      = itemi.Site.text    #string to identify the server
+            listings["server_id"][i] = itemi.ItemID.text #ID of item on server
+#            listings["data_directory"] = ""
+            listings["url_webui"] = itemi.ViewItemURLForNaturalSearch.text
+#            listings["server_repr"] = nan      #representation of listing on server (XML)
+        
+        return listings
 
+
+    def update_listings(self, listings):
+        """
+        """
+        
+        
 
 class EbayConnector(object):
     """
@@ -293,4 +375,5 @@ class EbayConnector(object):
     
     
     def update_listings(self, listings):
+        raise Exception("Not implemented")
         pass
