@@ -151,18 +151,17 @@ class EbayFindListings(object):
         nrows = len(item)
         listings = make_listing_frame(nrows)
         for i, itemi in enumerate(item):
-            listings["img_thumb"][i] = itemi.galleryURL
-            
+            listings["training_sample"][i] = False #This is training sample if True
+            try: listings["thumbnail"][i] = itemi.galleryURL.text
+            except: pass
             listings["title"][i] = itemi.title.text
-            #bid_count???
-            #successful sale
-            #you can still buy item if True (findItemsByKeywords only returns active listings)
-            listings.set_value(i, "active", True)  
+            listings["active"][i] = True #findItemsByKeywords only returns active listings
             listings["currency"][i] = itemi.sellingStatus.currentPrice \
                                                             .get("currencyId")
             listings["price"][i] = itemi.sellingStatus.currentPrice.text
-            listings["shipping"][i] = itemi.shippingInfo.shippingServiceCost \
-                                                            .text
+            try: listings["shipping"][i] = itemi.shippingInfo \
+                                                .shippingServiceCost.text
+            except: pass
             #TODO: convert to standard format: listings["type"][i] = itemi.listingInfo.listingType.text
             listings["time"][i] = dprs.parse(itemi.listingInfo.endTime.text) 
             listings["location"][i] = itemi.location.text
@@ -256,43 +255,42 @@ class EbayGetListings(object):
         item = root.Item
         nrows = len(item)
         listings = make_listing_frame(nrows)
-        for i, itemi in enumerate(item):
-            listings["training_sample"][i] = False #This is training sample if True
-            listings["expected_products"][i] = nan #list of product IDs
-            listings["query_string"][i] = nan      #String with search keywords
+        for i, itemi in enumerate(item):            
+            try: listings["thumbnail"][i] = itemi.GalleryURL.text
+            except: pass
+            try: listings["image"][i] = itemi.PictureURL.text
+            except: pass
             
-            listings["thumbnail"][i] = itemi.GalleryURL.text
-            listings["image"][i] =     itemi.PictureURL.text
-            
-            listings["title"][i] =       itemi.Title.text 
+            listings["title"][i] = itemi.Title.text 
             listings["description"][i] = itemi.Description.text
             #you can still buy item if True
-            listings["active"][i] =   itemi.ListingStatus.text == "Active"
+            listings["active"][i] = itemi.ListingStatus.text == "Active"
             #successful sale if True
-            listings["sold"][i] =     int(itemi.QuantitySold.text) > 0
+            listings["sold"][i] = int(itemi.QuantitySold.text) > 0
             #Currency of price: EUR, USD, ...
             listings["currency"][i] = itemi.ConvertedCurrentPrice.get("currencyID")
             listings["price"][i]    = itemi.ConvertedCurrentPrice.text
-            listings["shipping"][i] = float(itemi.ShippingCostSummary.
-                                            ListedShippingServiceCost)
+            try: listings["shipping"][i] = itemi.ShippingCostSummary \
+                                                .ListedShippingServiceCost.text
+            except: pass
             #Type of listing: auction, fixed-price, unknown
             l_type = defaultdict(lambda: "unknown",
                                  {"Chinese"         : "auction",
                                   "FixedPriceItem"  : "fixed-price",
                                   "StoresFixedPrice": "fixed-price" })
-            listings["type"][i]      = l_type[itemi.ListingType.text]
+            listings["type"][i] = l_type[itemi.ListingType.text]
             #Approximate time when price is/was valid, end time in case of auctions
             listings["time"][i] = dprs.parse(itemi.EndTime.text) 
-            listings["location"]     = itemi.Location.text
-            listings["country"]      = itemi.Country.text
+            listings["location"][i] = itemi.Location.text
+            listings["country"][i] = itemi.Country.text
             #http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
             #TODO: convert `ConditionID` to 0..1 listings["condition"][i] = itemi.ConditionID.text      #1.: new, 0.: completely unusable
             
-            listings["server"]      = itemi.Site.text    #string to identify the server
+            listings["server"][i] = itemi.Site.text   #string to identify the server
             listings["server_id"][i] = itemi.ItemID.text #ID of item on server
 #            listings["data_directory"] = ""
-            listings["url_webui"] = itemi.ViewItemURLForNaturalSearch.text
-#            listings["server_repr"] = nan      #representation of listing on server (XML)
+            listings["url_webui"][i] = itemi.ViewItemURLForNaturalSearch.text
+#            listings["server_repr"][i] = nan      #representation of listing on server (XML)
         
         return listings
 

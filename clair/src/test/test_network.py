@@ -203,10 +203,13 @@ def test_EbayFindListings_find():
     print
     assert len(listings) == 5
     
-    listings = f.find(keywords="ipod", n_listings=305)
+    #Four calls necessary
+    n = 305
+    listings = f.find(keywords="ipod", n_listings=n)
     print listings
 #    listings.to_csv("listings.csv", encoding="utf8")
-    assert 305 <= len(listings) <= 305 + 3
+    #Duplicates are removed, algorithm might return slightly more listings
+    assert n * 0.8 <= len(listings) <= n + 1.01 
     
 #---- EbayGetListings --------------------------------------------------------- 
 
@@ -742,7 +745,7 @@ def test_EbayConnector_find_listings():
 #    print listings
     print listings[["title", "price", "currency"]].to_string()
     print
-    assert len(listings) == 5
+    assert 0.8 * 5 <= len(listings) <= 5 #Duplicates are removed
 
 
 
