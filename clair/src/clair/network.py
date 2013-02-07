@@ -51,34 +51,34 @@ def make_listing_frame(nrows):
     index=[str(i) for i in range(nrows)]
     
     listings = pd.DataFrame(index=index)
-    listings["id"]                = nan   #internal unique ID of each listing.
+    listings["id"]                = None  #internal unique ID of each listing.
     listings["training_sample"]   = False #This is training sample if True
-    listings["expected_products"] = nan   #list of product IDs
-    listings["query_string"]      = nan   #String with search keywords
+    listings["expected_products"] = None  #list of product IDs
+    listings["query_string"]      = None  #String with search keywords
     
-    listings["thumbnail"]   = nan          
-    listings["image"]       = nan          
+    listings["thumbnail"]   = None          
+    listings["image"]       = None          
     
-    listings["title"]       = nan
-    listings["description"] = nan
+    listings["title"]       = None
+    listings["description"] = None
     #TODO: ItemSpecifics: name value pairs eg.: {"megapixel": "12"}
     #TODO: bid_count ???
     listings["active"]      = nan  #you can still buy it if True
     listings["sold"]        = nan  #successful sale if True
-    listings["currency"]    = nan  #currency for price EUR, USD, ...
+    listings["currency"]    = None  #currency for price EUR, USD, ...
     listings["price"]       = nan  #price of all items in listing
     listings["shipping"]    = nan  #shipping cost
-    listings["type"]        = nan  #auction, fixed-price, unknown
-    listings["time"]        = nan  #Time when price is valid. End time in case of auctions
-    listings["location"]    = nan  #Location of item (pre sale)
-    listings["country"]     = nan  #Country of item location
+    listings["type"]        = None  #auction, fixed-price, unknown
+    listings["time"]        = None  #Time when price is valid. End time in case of auctions
+    listings["location"]    = None  #Location of item (pre sale)
+    listings["country"]     = None  #Country of item location
     listings["condition"]   = nan  #1.: new, 0.: completely unusable
-    listings["products"]    = nan  #Products in this listing. List of DetectedProduct
-    listings["server"]      = nan  #string to identify the server
-    listings["server_id"]   = nan  #ID of listing on the server
-#    listings["data_dir"]    = nan
-    listings["url_webui"]   = nan  #Link to web representation of listing.
-#    listings["server_repr"] = nan  #representation of listing on server (XML)
+    listings["products"]    = None  #Products in this listing. List of DetectedProduct
+    listings["server"]      = None  #string to identify the server
+    listings["server_id"]   = None  #ID of listing on the server
+#    listings["data_dir"]    = None
+    listings["url_webui"]   = None  #Link to web representation of listing.
+#    listings["server_repr"] = None  #representation of listing on server (XML)
 
     return  listings
     
