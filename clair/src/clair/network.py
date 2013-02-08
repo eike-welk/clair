@@ -141,7 +141,8 @@ class EbayFindListings(object):
     http://developer.ebay.com/Devzone/finding/CallRef/findItemsByKeywords.html
     """
     
-    def download_xml(self, keywords, 
+    @staticmethod
+    def download_xml(keywords, 
                      entries_per_page=10, page_number=1, 
                      min_price=None, max_price=None, currency="EUR",
                      time_from=None, time_to=None):
@@ -182,7 +183,8 @@ class EbayFindListings(object):
         return res_xml
     
     
-    def parse_xml(self, xml):
+    @staticmethod
+    def parse_xml(xml):
         """
         Parse the XML response from Ebay's finding API, 
         and convert it into a table of listings.
@@ -232,8 +234,9 @@ class EbayFindListings(object):
 #        print listings
         return listings
      
-       
-    def find(self, keywords, n_listings=10, 
+    
+    @staticmethod
+    def find(keywords, n_listings=10, 
              min_price=None, max_price=None, currency="EUR",
              time_from=None, time_to=None):
         """
@@ -241,6 +244,8 @@ class EbayFindListings(object):
         
         time_from, time_to: datetime in UTC
         """
+        efind = EbayFindListings
+        
         #Ebay returns a maximum of 100 listings per call (pagination).
         #Compute necessary number of calls to Ebay and number of 
         #listings per call. 
@@ -251,13 +256,13 @@ class EbayFindListings(object):
         #Call Ebay repeatedly and concatenate results
         listings = make_listing_frame(0)
         for i_page in range(1, int(n_pages + 1)):
-            xml = self.download_xml(keywords=keywords, 
-                                    entries_per_page=n_per_page, 
-                                    page_number=i_page, 
-                                    min_price=min_price, max_price=max_price, 
-                                    currency=currency, 
-                                    time_from=time_from, time_to=time_to)
-            listings_part = self.parse_xml(xml)
+            xml = efind.download_xml(keywords=keywords, 
+                                     entries_per_page=n_per_page, 
+                                     page_number=i_page, 
+                                     min_price=min_price, max_price=max_price, 
+                                     currency=currency, 
+                                     time_from=time_from, time_to=time_to)
+            listings_part = efind.parse_xml(xml)
             #Stop searching when Ebay returns an empty result.
             if len(listings_part) == 0:
                 break
@@ -281,7 +286,8 @@ class EbayGetListings(object):
     Get full information on ebay listings, needs information (IDs) 
     from Ebay's finding functionality.
     """
-    def download_xml(self, ids):
+    @staticmethod
+    def download_xml(ids):
         """
         Call ``GetMultipleItems`` from Ebay's shopping API.
         Return the XML response.
@@ -301,8 +307,9 @@ class EbayGetListings(object):
         
         return res_xml
     
-        
-    def parse_xml(self, xml):
+    
+    @staticmethod
+    def parse_xml(xml):
         """
         Parse the XML response from Ebay's shopping API.
         
@@ -359,21 +366,23 @@ class EbayGetListings(object):
         
         return listings
 
-
-    def get_listings(self, ids):
+    @staticmethod
+    def get_listings(ids):
         """
         Download detailed listings from Ebay. 
         
         Needs a ``list``, ``pandas.Series``, or any iterable of Ebay item IDs. 
         """
+        eget = EbayGetListings
+        
         #Remove duplicate IDs
         ids = list(set(ids))
       
         #Download information in chunks of 20 listings.
         listings = make_listing_frame(0)
         for i_start in range(0, len(ids), 20):
-            xml = self.download_xml(ids[i_start:i_start+20])
-            listings_part = self.parse_xml(xml)
+            xml = eget.download_xml(ids[i_start:i_start+20])
+            listings_part = eget.parse_xml(xml)
             listings = listings.append(listings_part, ignore_index=True, 
                                        verify_integrity=False)
         

@@ -40,6 +40,7 @@ def relative(*paths):
     "Create file paths that are relative to the location of this file."
     return abspath(join(dirname(abspath(__file__)), *paths))
 
+
 def test_convert_ebay_condition():
     """
     Test conversion Ebay condition numbers to internal condition numbers.
@@ -181,7 +182,7 @@ def test_EbayFindListings_download():
     
     set_config_file(relative("../python-ebay.apikey"))
     
-    f = EbayFindListings()
+    f = EbayFindListings
     xml = f.download_xml(keywords="ipod", 
                          entries_per_page=2, 
                          page_number=1, 
@@ -202,7 +203,7 @@ def test_EbayFindListings_parse():
     """Test parsing of XML response."""
     from clair.network import EbayFindListings
     
-    f = EbayFindListings()
+    f = EbayFindListings
     listings = f.parse_xml(EBAY_findItemsByKeywords_RESPONSE)
     
     print listings
@@ -220,7 +221,7 @@ def test_EbayFindListings_find():
     
     set_config_file(relative("../python-ebay.apikey"))
     
-    f = EbayFindListings()
+    f = EbayFindListings
     
     listings = f.find(keywords="ipod", n_listings=5)
     print listings[["title", "price", "currency"]].to_string()
@@ -732,7 +733,7 @@ def test_EbayGetListings_download():
     #TODO: get IDs with EbayConnector. Fixed IDs will expire.
     ids = pd.Series(["271149493368", "330866234882", "140914051088", "221185477679"])
     
-    g = EbayGetListings()
+    g = EbayGetListings
     xml = g.download_xml(ids)
     print xml
     
@@ -746,7 +747,7 @@ def test_EbayGetListings_parse():
     """Test access to Ebay site and download_xml of XML."""
     from clair.network import EbayGetListings
 
-    g = EbayGetListings()
+    g = EbayGetListings
     listings = g.parse_xml(EBAY_GetMultipleItemsResponse_RESPONSE)
     
     print listings
@@ -767,7 +768,7 @@ def test_EbayGetListings_get_listings():
     #TODO: get IDs with EbayConnector. Fixed IDs will expire.
     ids = pd.Series(["271149493368", "330866234882", "140914051088", "221185477679"])
     
-    g = EbayGetListings()
+    g = EbayGetListings
     listings = g.get_listings(ids)
     print listings
     print
