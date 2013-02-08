@@ -40,7 +40,31 @@ def relative(*paths):
     "Create file paths that are relative to the location of this file."
     return abspath(join(dirname(abspath(__file__)), *paths))
 
+def test_convert_ebay_condition():
+    """
+    Test conversion Ebay condition numbers to internal condition numbers.
+    
+    http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
 
+    --------------------------------------------------------------
+    Ebay     Description                    Internal number
+    ----     ---------------------------    ----------------------
+    1000     New, brand-new                 1.0
+    3000     Used
+    7000     For parts or not working       0.1
+    --------------------------------------------------------------
+    """
+    from clair.network import convert_ebay_condition
+    
+    print convert_ebay_condition(1000)
+    assert abs(convert_ebay_condition(1000) - 1.0) < 0.0001
+
+    print convert_ebay_condition(7000)
+    assert abs(convert_ebay_condition(7000) - 0.1) < 0.0001
+
+    print convert_ebay_condition(3000)
+    
+    
 #---- EbayFindListings --------------------------------------------------------    
 
 #A successful response from Ebay for findItemsByKeywords
@@ -727,7 +751,27 @@ def test_EbayGetListings_parse():
     
     print listings
     print
-    print listings[["title", "price", "currency"]].to_string()
+    print listings[["title", "price", "sold", "active"]].to_string()
+    
+    #There are two listings (items) in the response
+    assert len(listings) == 4
+
+
+def test_EbayGetListings_get_listings():
+    """Test access to Ebay site and download_xml of XML."""
+    from clair.network import EbayGetListings
+    from ebay.utils import set_config_file
+    
+    set_config_file(relative("../python-ebay.apikey"))
+    
+    #TODO: get IDs with EbayConnector. Fixed IDs will expire.
+    ids = pd.Series(["271149493368", "330866234882", "140914051088", "221185477679"])
+    
+    g = EbayGetListings()
+    listings = g.get_listings(ids)
+    print listings
+    print
+    print listings[["title", "price", "sold", "active"]].to_string()
     
     #There are two listings (items) in the response
     assert len(listings) == 4
@@ -748,15 +792,42 @@ def test_EbayConnector_find_listings():
     assert 0.8 * 5 <= len(listings) <= 5 #Duplicates are removed
 
 
+def test_EbayConnector_update_listings():
+    """Test finding listings by keyword through the high level interface."""
+    from clair.network import EbayConnector
+    
+    n = 35
+    
+    c = EbayConnector(relative("../python-ebay.apikey"))
+    listings = c.find_listings(keywords="Nikon D90", 
+                               n_listings=n, 
+                               min_price=100, max_price=500, currency="EUR")
+    print listings
+    print
+    print listings[["title", "price", "sold", "active"]].to_string()
+
+    #The test
+    listings =c.update_listings(listings)
+    
+    print
+    print listings
+    print
+    print listings[["title", "price", "sold", "active"]].to_string()
+
+    assert 0.95 * n <= len(listings) <= n #Duplicates are removed
+   
 
 if __name__ == '__main__':
+#    test_convert_ebay_condition()
 #    test_EbayFindListings_download()
 #    test_EbayFindListings_parse()
 #    test_EbayFindListings_find()
     
 #    test_EbayGetListings_download()
-    test_EbayGetListings_parse()
+#    test_EbayGetListings_parse()
+#    test_EbayGetListings_get_listings()
     
 #    test_EbayConnector_find_listings()
+    test_EbayConnector_update_listings()
     
     pass #pylint: disable=W0107
