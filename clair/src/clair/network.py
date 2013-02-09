@@ -36,54 +36,14 @@ from datetime import datetime
 import dateutil.parser as dprs 
 from lxml import etree, objectify
 import pandas as pd
-from numpy import nan
+#from numpy import nan
 import ebay.utils as eb_utils
 import ebay.finding as eb_find 
-import ebay.shopping as eb_shop #GetMultipleItems
+import ebay.shopping as eb_shop 
+
+from clair.coredata import make_listing_frame
 
 
-def make_listing_frame(nrows):
-    """
-    Create a DataFrame with `nrows` listings (rows).
-    
-    TODO: Put into central location. 
-    """
-    index=[str(i) for i in range(nrows)]
-    
-    listings = pd.DataFrame(index=index)
-    listings["id"]                = None  #internal unique ID of each listing.
-    listings["training_sample"]   = False #This is training sample if True
-    listings["expected_products"] = None  #list of product IDs
-    listings["query_string"]      = None  #String with search keywords
-        
-    listings["products"]    = None  #Products in this listing. List of DetectedProduct
-
-    listings["thumbnail"]   = None          
-    listings["image"]       = None          
-    
-    listings["title"]       = None
-    listings["description"] = None
-    #TODO: include ``ItemSpecifics``: name value pairs eg.: {"megapixel": "12"}
-    #TODO: bid_count ???
-    listings["active"]      = nan   #you can still buy it if True
-    listings["sold"]        = nan   #successful sale if True
-    listings["currency"]    = None  #currency for price EUR, USD, ...
-    listings["price"]       = nan   #price of all items in listing
-    listings["shipping"]    = nan   #shipping cost
-    listings["type"]        = None  #auction, fixed-price, unknown
-    listings["time"]        = None  #Time when price is/was valid. End time in case of auctions
-    listings["location"]    = None  #Location of item (pre sale)
-    listings["country"]     = None  #Country of item location
-    listings["condition"]   = nan   #1.: new, 0.: completely unusable
-    
-    listings["server"]      = None  #string to identify the server
-    listings["server_id"]   = None  #ID of listing on the server
-#    listings["data_dir"]    = None
-    listings["url_webui"]   = None  #Link to web representation of listing.
-#    listings["server_repr"] = None  #representation of listing on server (XML)
-
-    return  listings
-    
 
 class EbayError(Exception):
     pass
@@ -331,6 +291,8 @@ class EbayGetListings(object):
             except: pass
             
             listings["title"][i] = itemi.Title.text 
+            #Escaping and un-escaping XML. Necessary for the HTML description.
+            #http://wiki.python.org/moin/EscapingXml
             listings["description"][i] = itemi.Description.text
             #you can still buy item if True
             listings["active"][i] = itemi.ListingStatus.text == "Active"
