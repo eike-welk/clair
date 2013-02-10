@@ -293,6 +293,8 @@ class EbayGetListings(object):
             listings["title"][i] = itemi.Title.text 
             #Escaping and un-escaping XML. Necessary for the HTML description.
             #http://wiki.python.org/moin/EscapingXml
+            #Cleaning up html
+            #http://lxml.de/lxmlhtml.html#cleaning-up-html
             listings["description"][i] = itemi.Description.text
             #you can still buy item if True
             listings["active"][i] = itemi.ListingStatus.text == "Active"
