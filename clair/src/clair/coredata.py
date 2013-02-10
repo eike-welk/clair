@@ -38,7 +38,10 @@ from lxml import etree, objectify
 
 def make_listing_frame(nrows):
     """
-    Create a DataFrame with `nrows` listings (rows).
+    Create empty DataFrame with `nrows` listings/auctions.
+    
+    Each row represents a listing. The columns represent the listing's 
+    attributes. The object contains no data, nearly all values are None or nan.
     
     TODO: Put into central location. 
     """
@@ -58,7 +61,7 @@ def make_listing_frame(nrows):
     listings["title"]       = None
     listings["description"] = None
     #TODO: include ``ItemSpecifics``: name value pairs eg.: {"megapixel": "12"}
-    #TODO: bid_count ???
+    #TODO: include bid_count?
     listings["active"]      = nan   #you can still buy it if True
     listings["sold"]        = nan   #successful sale if True
     listings["currency"]    = None  #currency for price EUR, USD, ...
@@ -90,11 +93,22 @@ class ListingsXMLConverter:
     TODO: XML escapes for description
     http://wiki.python.org/moin/EscapingXml
     """
+    E = objectify.E
+
+    def to_xml_list(self, tag, el_list):
+        """Convert lists, wrap each element of a list with a tag."""
+        if el_list is None:
+            return [None]
+        E = ListingsXMLConverter.E
+        node = getattr(E, tag)
+        xml_nodes = [node(el) for el in el_list]
+        return xml_nodes
+    
 
     def to_xml(self, listings):
-        E = objectify.E
+        """Convert DataFrame with listings/auctions to XML."""
+        E = ListingsXMLConverter.E
 
-#        root_xml = objectify.Element("listings")
         root_xml = E.listings(
             E.version("0.1") )
         for i in range(len(listings.index)):
@@ -103,11 +117,9 @@ class ListingsXMLConverter:
                 E.id(li["id"]),
                 E.training_sample(bool(li["training_sample"])),
                 E.query_string(li["query_string"]),
-                
-                #TODO: convert lists to XML lists
-                E.expected_products(li["expected_products"]),
-                E.products(li["products"]),
-                
+                E.expected_products(*self.to_xml_list(
+                                        "product", li["expected_products"])),
+                E.products(*self.to_xml_list("product", li["products"])),
                 E.thumbnail(li["thumbnail"]),
                 E.image(li["image"]),
                 E.title(li["title"]),
@@ -126,32 +138,44 @@ class ListingsXMLConverter:
                 E.server_id(li["server_id"]),
                 E.url_webui(li["url_webui"]) )
             root_xml.append(li_xml)
-            
-        root_str = etree.tostring(root_xml, pretty_print=True)
-        return root_str 
+        
+#        doc_xml = etree.ElementTree(root_xml)
+        doc_str = etree.tostring(root_xml, pretty_print=True)
+        return doc_str 
 
     
+    def from_xml_list(self, tag, xml_list):
+        """Convert a repetition of XML elements into a Python list."""
+        if isinstance(xml_list, objectify.NoneElement):
+            return None
+        
+        elements = xml_list[tag]
+        el_list = []
+        for el in elements:
+            #TODO: convert structured elements.
+            el_list.append(el.pyval)
+        return el_list
+        
+        
     def from_xml(self, xml):
-        
-        # objectify_elem.pyval
-        
+        """Convert XML string into DataFrame with listings/auctions"""
         root_xml = objectify.fromstring(xml)
-#        print etree.tostring(root_xml, pretty_print=True)
 #        print objectify.dump(root_xml)
-       
+        
+        version = root_xml.version.text
+        assert version == "0.1"
+               
         listing_xml = root_xml.listing
         nrows = len(listing_xml)
         listings = make_listing_frame(nrows)
         for i, li in enumerate(listing_xml):    
-            
             listings["id"][i] = li.id.pyval 
             listings["training_sample"][i] = li.training_sample.pyval 
             listings["query_string"][i] = li.query_string.pyval
-            
-            #TODO: special handling for lists
-            listings["expected_products"][i] = li.expected_products.pyval
-            listings["products"][i] = li.products.pyval
-
+            listings["expected_products"][i] = self.from_xml_list(
+                                            "product", li.expected_products)
+            listings["products"][i] = self.from_xml_list(
+                                            "product", li.products)
             listings["thumbnail"][i] = li.thumbnail.pyval
             listings["image"][i] = li.image.pyval
             listings["title"][i] = li.title.pyval 
