@@ -29,7 +29,7 @@ from __future__ import absolute_import
 
 import os
 import os.path as path
-#import glob
+import glob
 from datetime import datetime
 import dateutil.parser as dprs 
 from numpy import nan
@@ -212,7 +212,7 @@ class ListingsXMLConverter(object):
 
 
 
-class TextFileIO(object):
+class XmlFileIO(object):
     """
     Store the XML files.
     """
@@ -221,44 +221,116 @@ class TextFileIO(object):
         self.name_prefix = name_prefix
         self.directory = directory
         
-    def write_text(self, text, date, compress=False):
+    
+    def normalize_date(self, date):
+        """Set all fields of ``date`` to 0 except ``year`` and ``month``."""
+        return date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    
+    def make_filename(self, date, number, compress):
+        """
+        Create a filename or glob pattern
+        http://docs.python.org/2/library/string.html#formatstrings
+        """
+        date_str = date.strftime("%Y-%m") if date is not None else "*"
+        num_str = "{:0>2d}".format(number) if number is not None else "*"
+        if compress == True:
+            ext_str = "xmlzip"
+        elif compress == False:
+            ext_str = "xml"
+        else:
+            ext_str = "*"
+            
+        filename = "{pref}.{date}.{num}.{ext}".format(pref=self.name_prefix,
+                                                      date=date_str,
+                                                      num=num_str,
+                                                      ext=ext_str)
+        return filename
+        
+        
+    def write_text(self, text, date, compress, overwrite):
         """
         Write text file to disk.
         
         Doesn't overwrite existing file, but increases serial number in 
         file name.
-        
+              
+        #TODO: overwrite
         #TODO: compression
         """
-#        files = glob.glob1(self.directory, basename+".*")
-        ext_n = "xml"
-        ext_c = "zip"
-        
-        basename = self.name_prefix + "-" + str(date.date())
+        #Find unused filename.
         path_n, path_c = "", ""
         for i in range(100):
-            name_n = ".".join([basename, str(i), ext_n])
-            name_c = ".".join([basename, str(i), ext_n, ext_c])
-            path_n = path.join(self.directory, name_n)
-            path_c = path.join(self.directory, name_c)
-#            print name_n, name_c
+            path_n = path.join(self.directory, 
+                               self.make_filename(date, i, False))
+            path_c = path.join(self.directory,  
+                               self.make_filename(date, i, True))
             if not (path.exists(path_n) or path.exists(path_c)):
                 break
         else:
-            raise IOError("Too many files with basename: " + basename)
-        
-        print path_n
+            raise IOError("Too many files with name: " + 
+                          self.make_filename(date, None, None) +
+                          "\n    Directory: " + self.directory)
+        #Write the file
+        if compress:
+            raise IOError("Compression is not implemented.")
+        print "Writing:", path_n #TODO: logging
         wfile = file(path_n, "w")
         wfile.write(text.encode("ascii"))
         wfile.close()
 
 
-    def read_text(self, date_range):
+    def read_text(self, date_start, date_end):
         """
         Read text files from disk.
         
         Reads all files from a certain date range.
         Returns a list of strings.
         """
-#        files = glob.glob1(self.directory, basename+".*")
-        return []
+        date_start = self.normalize_date(date_start)
+        date_end = self.normalize_date(date_end)
+        
+        #Get matching file names
+        date = None
+        if date_start == date_end:
+            date = date_start
+        pattern = self.make_filename(date, None, None)
+        files_glob = glob.glob1(self.directory, pattern)
+#        print "files_glob:", files_glob
+        
+        #filter the useful dates and file types
+        files_filt = []
+        for fname in files_glob:
+#            print fname
+            nameparts = fname.lower().split(".")
+            if nameparts[-1] not in ["xml", "xmlzip"]:
+                continue
+            try:
+                fdate = dprs.parse(nameparts[-3])
+                fdate = self.normalize_date(fdate)
+#                print fdate
+            except (IndexError, ValueError):
+                continue
+            if not (date_start <= fdate <= date_end):
+                continue
+            files_filt.append(fname)
+#        print "files_filt:", files_filt
+        files_filt.sort()
+        
+        #read the files that have correct dates and file type
+        xml_texts = []
+        for fname in files_filt:
+            print "Reading:", fname #TODO: logging
+            nameparts = fname.lower().split(".")
+            extension = nameparts[-1]
+            #TODO: compression
+            if extension != "xml":
+                raise IOError("File type {0} is not implemented."
+                              .format(extension))
+            fpath = path.join(self.directory, fname)
+            rfile = file(fpath, "r")
+            xml_texts.append(rfile.read())
+            rfile.close()
+
+        return xml_texts
+

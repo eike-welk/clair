@@ -39,47 +39,59 @@ def relative(*path_comps):
     return path.abspath(path.join(path.dirname(__file__), *path_comps))
 
 
-def test_ListingsXMLConverter():
-    """Test conversion of listings to and from XML"""
-    from clair.coredata import make_listing_frame, ListingsXMLConverter
+def make_test_listings():
+    """
+    Create a DataFrame with some data.
     
-    #Create DataFrame with 2 listings. 
-    #ls1[0]: contains realistic data; ls1[1] contains mainly None, nan
-    ls1 = make_listing_frame(2)
+    Contains 3 listings: 
+    row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
+    """
+    from clair.coredata import make_listing_frame
+    
+    fr = make_listing_frame(3)
     #All listings need unique ids
-    ls1["id"] = ["eb-123", "eb-456"]
+    fr["id"] = ["eb-123", "eb-456", "eb-457"]
     
-    ls1["training_sample"][0] = True 
-    ls1["query_string"][0] = "Nikon D90"
+    fr["training_sample"][0] = True 
+    fr["query_string"][0] = "Nikon D90"
     
     #TODO: special handling for lists
-    ls1["expected_products"][0] = ["nikon-d90", "qwert"]
-#    ls1["products"][0] = []
+    fr["expected_products"][0] = ["nikon-d90", "qwert"]
+#    fr["products"][0] = []
     
-    ls1["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
-    ls1["image"][0] = "www.some.site/dir/to/img.pg"
-    ls1["title"] = [u"qwert", u"<>müäh"]
-    ls1["description"][0] = "asdflkhglakjh lkasdfjlakjf"
-    ls1["active"][0] = False
-    ls1["sold"][0] = False
-    ls1["currency"][0] = "EUR"
-    ls1["price"][0]    = 400.
-    ls1["shipping"][0] = 12.
-    ls1["type"][0] = "auction"
-#    ls1["time"][0] = dprs.parse(li.time.pyval) 
-    ls1["time"][0] = datetime(2013,1,15)
-    ls1["location"][0] = u"Köln"
-    ls1["country"][0] = "DE"
-    ls1["condition"][0] = 0.7
-    ls1["server"][0] = "Ebay-Germany"
-    ls1["server_id"][0] = "123" #ID of listing on server
-#    ls1["data_directory"] = ""
-    ls1["url_webui"][0] = "www.some.site/dir/to/web-page.html"
-#     ls1["server_repr"][0] = nan
+    fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
+    fr["image"][0] = "www.some.site/dir/to/img.pg"
+    fr["title"] = [u"qwert", u"<>müäh", None]
+    fr["description"][0] = "asdflkhglakjh lkasdfjlakjf"
+    fr["active"][0] = False
+    fr["sold"][0] = False
+    fr["currency"][0] = "EUR"
+    fr["price"][0]    = 400.
+    fr["shipping"][0] = 12.
+    fr["type"][0] = "auction"
+#    fr["time"][0] = dprs.parse(li.time.pyval) 
+    fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
+    fr["location"][0] = u"Köln"
+    fr["country"][0] = "DE"
+    fr["condition"][0] = 0.7
+    fr["server"][0] = "Ebay-Germany"
+    fr["server_id"][0] = "123" #ID of listing on server
+#    fr["data_directory"] = ""
+    fr["url_webui"][0] = "www.some.site/dir/to/web-page.html"
+#     fr["server_repr"][0] = nan
     #Put our IDs into index
-    ls1.set_index("id", drop=False, inplace=True, 
+    fr.set_index("id", drop=False, inplace=True, 
                  verify_integrity=True)
+    return fr
+
     
+def test_ListingsXMLConverter():
+    """Test conversion of listings to and from XML"""
+    from clair.coredata import ListingsXMLConverter
+    
+    #Create DataFrame with 3 listings. 
+    #row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
+    ls1 = make_test_listings()
     print ls1
     print
     
@@ -106,28 +118,60 @@ def test_ListingsXMLConverter():
             assert ls1[col][i] == ls2[col][i]
 
 
-def test_TextFileIO_write():
-    from clair.coredata import TextFileIO
+def test_XmlFileIO_write():
+    """Test reading and writing text files"""
+    from clair.coredata import XmlFileIO
     
     testdata_dir = relative("../../testdata")
     basename = "test-file"
     
-    testdata_base = path.join(testdata_dir, basename)
-    os.system("rm " + testdata_base + "*")
+    #Remove test files
+    testdata_pattern = path.join(testdata_dir, basename) + "*"
+    os.system("rm " + testdata_pattern)
     
-    t = TextFileIO(basename, testdata_dir)
-    t.write_text("Contents of test file.", datetime(2012, 1, 15, 12, 30))
-    t.write_text("Contents of test file.", datetime(2012, 1, 15, 12, 30))
-    t.write_text("Contents of test file.", datetime(2012, 1, 15, 12, 30))
+    #Create test object
+    t = XmlFileIO(basename, testdata_dir)
+
+    #Create nonsense files
+    fname_ok = t.make_filename(datetime(2012, 3, 3), 0, False)
+    fname_bad = fname_ok[:len(basename)+1] + "xx" + fname_ok[len(basename)+3:]
+    path_empty = path.join(testdata_dir, fname_ok)
+    path_bad1 = path.join(testdata_dir, fname_ok + ".old")
+    path_bad2 = path.join(testdata_dir, fname_bad)
+    os.system("touch " + path_empty)
+    os.system("touch " + path_bad1)
+    os.system("touch " + path_bad2)
+    
+    #Write some files
+    t.write_text("Contents of test file from January, 1.", 
+                 datetime(2012, 1, 1), False, False)
+    t.write_text("Contents of test file from January, 2.", 
+                 datetime(2012, 1, 1), False, False)
+    t.write_text("Contents of test file from January, 3.", 
+                 datetime(2012, 1, 1), False, False)
+    t.write_text("Contents of test file from February, 1.", 
+                 datetime(2012, 2, 10, 11, 11), False, False)
+    t.write_text("Contents of test file from February, 2.", 
+                 datetime(2012, 2, 20, 12, 12), False, False)
+    
+    #Show which files exist
     os.system("ls " + testdata_dir)
     
-    texts = t.read_text(None)
+    #Read the files that were just written, test if we get right contents.
+    texts = t.read_text(datetime(2012, 1, 1), datetime(2012, 1, 1))
+    print texts
     assert len(texts) == 3
+    assert texts == ["Contents of test file from January, 1.",
+                     "Contents of test file from January, 2.",
+                     "Contents of test file from January, 3."]
+    texts = t.read_text(datetime(2012, 1, 1), datetime(2012, 2, 1))
+    print texts
+    assert len(texts) == 5
     
     
 
 if __name__ == "__main__":
-#    test_ListingsXMLConverter()
-    test_TextFileIO_write()
+    test_ListingsXMLConverter()
+    test_XmlFileIO_write()
     
     pass
