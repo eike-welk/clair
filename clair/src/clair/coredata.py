@@ -27,7 +27,9 @@ Put module description here.
 from __future__ import division
 from __future__ import absolute_import              
 
-
+import os
+import os.path as path
+#import glob
 from datetime import datetime
 import dateutil.parser as dprs 
 from numpy import nan
@@ -83,7 +85,7 @@ def make_listing_frame(nrows):
     
 
 
-class ListingsXMLConverter:
+class ListingsXMLConverter(object):
     """
     Convert listings to and from XML
     
@@ -92,6 +94,12 @@ class ListingsXMLConverter:
     
     TODO: XML escapes for description
     http://wiki.python.org/moin/EscapingXml
+    
+    TODO:
+    Generic converter Python <-> XML
+    
+    https://github.com/dmw/pyxser
+    http://pyxml.sourceforge.net/topics/howto/node26.html
     """
     E = objectify.E
 
@@ -201,3 +209,56 @@ class ListingsXMLConverter:
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
         return listings
+
+
+
+class TextFileIO(object):
+    """
+    Store the XML files.
+    """
+    
+    def __init__(self, name_prefix, directory):
+        self.name_prefix = name_prefix
+        self.directory = directory
+        
+    def write_text(self, text, date, compress=False):
+        """
+        Write text file to disk.
+        
+        Doesn't overwrite existing file, but increases serial number in 
+        file name.
+        
+        #TODO: compression
+        """
+#        files = glob.glob1(self.directory, basename+".*")
+        ext_n = "xml"
+        ext_c = "zip"
+        
+        basename = self.name_prefix + "-" + str(date.date())
+        path_n, path_c = "", ""
+        for i in range(100):
+            name_n = ".".join([basename, str(i), ext_n])
+            name_c = ".".join([basename, str(i), ext_n, ext_c])
+            path_n = path.join(self.directory, name_n)
+            path_c = path.join(self.directory, name_c)
+#            print name_n, name_c
+            if not (path.exists(path_n) or path.exists(path_c)):
+                break
+        else:
+            raise IOError("Too many files with basename: " + basename)
+        
+        print path_n
+        wfile = file(path_n, "w")
+        wfile.write(text.encode("ascii"))
+        wfile.close()
+
+
+    def read_text(self, date_range):
+        """
+        Read text files from disk.
+        
+        Reads all files from a certain date range.
+        Returns a list of strings.
+        """
+#        files = glob.glob1(self.directory, basename+".*")
+        return []

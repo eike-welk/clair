@@ -28,8 +28,15 @@ from __future__ import division
 from __future__ import absolute_import  
             
 #import pytest #contains `skip`, `fail`, `raises`, `config`
-from numpy import isnan
+import os
+import os.path as path
+from numpy import isnan, nan
 from datetime import datetime
+
+
+def relative(*path_comps):
+    "Create file path_comps that are relative to the location of this file."
+    return path.abspath(path.join(path.dirname(__file__), *path_comps))
 
 
 def test_ListingsXMLConverter():
@@ -51,7 +58,7 @@ def test_ListingsXMLConverter():
     
     ls1["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
     ls1["image"][0] = "www.some.site/dir/to/img.pg"
-    ls1["title"] = [u"qwert", u"müähö"]
+    ls1["title"] = [u"qwert", u"<>müäh"]
     ls1["description"][0] = "asdflkhglakjh lkasdfjlakjf"
     ls1["active"][0] = False
     ls1["sold"][0] = False
@@ -92,13 +99,35 @@ def test_ListingsXMLConverter():
         print "col:", col
         for i in range(len(ls1.index)):
             if ls1[col][i] != ls2[col][i]:
-                print "i:", i, "ls1[col][i] =", ls1[col][i], "ls2[col][i] =", ls2[col][i]
-                print "    ",  "ls1[col][i] =", type(ls1[col][i]), "ls2[col][i] =", type(ls2[col][i])
+                print "i:", i, "ls1[col][i] =", ls1[col][i], "; ls2[col][i] =", ls2[col][i]
+                print "    ",  "ls1[col][i] =", type(ls1[col][i]), "; ls2[col][i] =", type(ls2[col][i])
                 if isnan(ls1[col][i]) and isnan(ls2[col][i]):
                     continue
             assert ls1[col][i] == ls2[col][i]
 
 
+def test_TextFileIO_write():
+    from clair.coredata import TextFileIO
+    
+    testdata_dir = relative("../../testdata")
+    basename = "test-file"
+    
+    testdata_base = path.join(testdata_dir, basename)
+    os.system("rm " + testdata_base + "*")
+    
+    t = TextFileIO(basename, testdata_dir)
+    t.write_text("Contents of test file.", datetime(2012, 1, 15, 12, 30))
+    t.write_text("Contents of test file.", datetime(2012, 1, 15, 12, 30))
+    t.write_text("Contents of test file.", datetime(2012, 1, 15, 12, 30))
+    os.system("ls " + testdata_dir)
+    
+    texts = t.read_text(None)
+    assert len(texts) == 3
+    
+    
 
 if __name__ == "__main__":
-    test_ListingsXMLConverter()
+#    test_ListingsXMLConverter()
+    test_TextFileIO_write()
+    
+    pass
