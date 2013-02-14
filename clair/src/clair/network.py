@@ -182,8 +182,9 @@ class EbayFindListings(object):
             listings["time"][i] = dprs.parse(itemi.listingInfo.endTime.text) 
             listings["location"][i] = itemi.location.text
             listings["country"][i] = itemi.country.text
-            listings["condition"][i] = convert_ebay_condition( #1: new, 0: worthless
-                                        itemi.condition.conditionId.text) 
+            try: listings["condition"][i] = \
+                convert_ebay_condition(itemi.condition.conditionId.text) 
+            except AttributeError: pass
             listings["server"][i] = "Ebay-" + itemi.globalId.text
             listings["server_id"][i] = itemi.itemId.text
             listings["url_webui"][i] = itemi.viewItemURL.text

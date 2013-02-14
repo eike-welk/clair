@@ -234,7 +234,7 @@ def test_EbayFindListings_find():
     print listings
 #    listings.to_csv("listings.csv", encoding="utf8")
     #Duplicates are removed, algorithm might return slightly more listings
-    assert n * 0.8 <= len(listings) <= n + 1.01 
+    assert n * 0.8 <= len(listings) <= n * 1.01 
     
 #---- EbayGetListings --------------------------------------------------------- 
 
