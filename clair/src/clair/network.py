@@ -163,7 +163,7 @@ class EbayFindListings(object):
         for i, itemi in enumerate(item):
             listings["training_sample"][i] = False #This is training sample if True
             try: listings["thumbnail"][i] = itemi.galleryURL.text
-            except: pass
+            except AttributeError: pass
             listings["title"][i] = itemi.title.text
             listings["active"][i] = True #findItemsByKeywords only returns active listings
             listings["currency"][i] = itemi.sellingStatus.currentPrice \
@@ -171,7 +171,7 @@ class EbayFindListings(object):
             listings["price"][i] = itemi.sellingStatus.currentPrice.text
             try: listings["shipping"][i] = itemi.shippingInfo \
                                                 .shippingServiceCost.text
-            except: pass
+            except AttributeError: pass
             #Type of listing: auction, fixed-price, unknown
             l_type = defaultdict(lambda: "unknown",
                                  {"Auction"         : "auction",
@@ -181,6 +181,8 @@ class EbayFindListings(object):
             listings["type"][i] = l_type[itemi.listingInfo.listingType.text]
             listings["time"][i] = dprs.parse(itemi.listingInfo.endTime.text) 
             listings["location"][i] = itemi.location.text
+            try: listings["postcode"][i] = itemi.postalCode.text
+            except AttributeError: pass
             listings["country"][i] = itemi.country.text
             try: listings["condition"][i] = \
                 convert_ebay_condition(itemi.condition.conditionId.text) 
@@ -287,9 +289,9 @@ class EbayGetListings(object):
         listings = make_listing_frame(nrows)
         for i, itemi in enumerate(item):            
             try: listings["thumbnail"][i] = itemi.GalleryURL.text
-            except: pass
+            except AttributeError: pass
             try: listings["image"][i] = itemi.PictureURL.text
-            except: pass
+            except AttributeError: pass
             
             listings["title"][i] = itemi.Title.text 
             #Escaping and un-escaping XML. Necessary for the HTML description.
@@ -306,7 +308,7 @@ class EbayGetListings(object):
             listings["price"][i]    = itemi.ConvertedCurrentPrice.text
             try: listings["shipping"][i] = itemi.ShippingCostSummary \
                                                 .ListedShippingServiceCost.text
-            except: pass
+            except AttributeError: pass
             #Type of listing: auction, fixed-price, unknown
             l_type = defaultdict(lambda: "unknown",
                                  {"Chinese"         : "auction",
@@ -316,6 +318,8 @@ class EbayGetListings(object):
             #Approximate time when price is/was valid, end time in case of auctions
             listings["time"][i] = dprs.parse(itemi.EndTime.text) 
             listings["location"][i] = itemi.Location.text
+            try: listings["postcode"][i] = itemi.PostalCode.text
+            except AttributeError: pass
             listings["country"][i] = itemi.Country.text
             listings["condition"][i] = convert_ebay_condition( #1.: new, 0.: worthless
                                                     itemi.ConditionID.text)      

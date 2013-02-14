@@ -75,6 +75,7 @@ def make_listing_frame(nrows):
     listings["type"]        = None  #auction, fixed-price, unknown
     listings["time"]        = None  #Time when price is/was valid. End time in case of auctions
     listings["location"]    = None  #Location of item (pre sale)
+    listings["postcode"]    = None  #Postal code of location
     listings["country"]     = None  #Country of item location
     listings["condition"]   = nan   #1.: new, 0.: completely unusable
     
@@ -143,6 +144,7 @@ class ListingsXMLConverter(object):
                 E.type(li["type"]),
                 E.time(li["time"]),
                 E.location(li["location"]),
+                E.postcode(li["postcode"]),
                 E.country(li["country"]),
                 E.condition(float(li["condition"])),
                 E.server(li["server"]),
@@ -200,6 +202,7 @@ class ListingsXMLConverter(object):
             listings["time"][i] = parse_date(li.time.pyval) \
                                   if li.time.pyval is not None else None
             listings["location"][i] = li.location.pyval
+            listings["postcode"][i] = li.postcode.pyval
             listings["country"][i] = li.country.pyval
             listings["condition"][i] = li.condition.pyval
             listings["server"][i] = li.server.pyval
