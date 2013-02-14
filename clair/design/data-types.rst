@@ -69,11 +69,13 @@ DetectedProduct
 * id
 * name
 * quantity
-* product_state : new, like_new, used, degraded, broken, unknown
-  Or maybe number in range 1...0.
+* condition : float 1..0 (1=new, 0=worthless, nan=unknown)
 * recognition_quality
     Measure of the certainty that the automatic recognition algorithm has
     correctly identified the product. 
+
+* estimated_price : float
+* currency : string
 
 
 Listing
@@ -99,7 +101,7 @@ Listing
 * shipping
 * type : auction, fixed_price
 * time_finished : date_time 
-* condition
+* condition : float 1..0 (1=new, 0=worthless, nan=unknown)
 * location
 
 * server
@@ -111,7 +113,7 @@ Listing
 * server specific fields
 
 
-Price Point
+Price 
 ========================================
 
 A price of a product at a certain time. The customer buys a certain listing,
@@ -120,7 +122,7 @@ listing contains only one product this is easy. If there are multiple products
 in the listing, an algorithm must estimate the price of each product. The
 algorithm probably needs to know previous prices of each product.  
 
-PricePoint
+Price
 ----------
 
 * product_name

@@ -30,8 +30,11 @@ from __future__ import absolute_import
 import os
 import os.path as path
 import glob
-from datetime import datetime
-import dateutil.parser as dprs 
+from datetime import datetime, timedelta
+from types import NoneType
+import random
+from dateutil.parser import parse as parse_date 
+from dateutil.relativedelta import relativedelta
 from numpy import nan
 import pandas as pd
 from lxml import etree, objectify
@@ -194,7 +197,7 @@ class ListingsXMLConverter(object):
             listings["price"][i]    = li.price.pyval
             listings["shipping"][i] = li.shipping.pyval
             listings["type"][i] = li.type.pyval
-            listings["time"][i] = dprs.parse(li.time.pyval) \
+            listings["time"][i] = parse_date(li.time.pyval) \
                                   if li.time.pyval is not None else None
             listings["location"][i] = li.location.pyval
             listings["country"][i] = li.country.pyval
@@ -212,14 +215,39 @@ class ListingsXMLConverter(object):
 
 
 
-class XmlFileIO(object):
+#Earliest and latest possible date for ``datetime``
+EARLIEST_DATE = datetime(1, 1, 1)
+LATEST_DATE = datetime(9999, 12, 31) 
+
+class XmlBigFrameIO(object):
     """
-    Store the XML files.
-    """
+    Store big DataFrame objects as XML files.
     
-    def __init__(self, name_prefix, directory):
+    Assumes that the DataFrame has "time" and "id" columns. The data is split
+    into chunks, that are stored in separate files. Each chunk contains the 
+    data of one month. IDs must be unique. If there are multiple rows with 
+    the same ID, only the last row is kept.
+    
+    Constructor Parameters
+    ----------------------
+    
+    name_prefix : str
+        String that is prepended to all file names.
+        
+    directory : str
+        Directory into which all files are written.
+        
+    xml_converter : object
+        Converts DataFrame to and from XML. Must have methods:
+        ``to_xml`` and ``from_xml``. 
+    """
+    def __init__(self, name_prefix, directory, xml_converter):
+        assert isinstance(name_prefix, basestring)
+        assert isinstance(directory, basestring)
+        
         self.name_prefix = name_prefix
         self.directory = directory
+        self.xml_converter = xml_converter
         
     
     def normalize_date(self, date):
@@ -230,9 +258,9 @@ class XmlFileIO(object):
     def make_filename(self, date, number, compress):
         """
         Create a filename or glob pattern
-        http://docs.python.org/2/library/string.html#formatstrings
         """
         date_str = date.strftime("%Y-%m") if date is not None else "*"
+        #http://docs.python.org/2/library/string.html#formatstrings
         num_str = "{:0>2d}".format(number) if number is not None else "*"
         if compress == True:
             ext_str = "xmlzip"
@@ -252,10 +280,79 @@ class XmlFileIO(object):
         """
         Write text file to disk.
         
-        Doesn't overwrite existing file, but increases serial number in 
-        file name.
+        Parameter
+        ----------
+        
+        text : str, unicode
+            Contents of file
+            
+        date : datetime
+            Used asa part of file name 
+            
+        compress : bool
+            Compress the file's contents.
+        
+        overwrite : bool
+            Don't overwrite existing file, but create additional file with
+            increased serial number in file name.
               
         #TODO: overwrite
+        #TODO: compression
+        """
+        assert isinstance(text, basestring)
+        assert isinstance(date, datetime)
+        assert isinstance(compress, bool)
+        assert isinstance(overwrite, bool)
+        
+        if overwrite:
+            self._write_text_overwrite(text, date, compress)
+        else:
+            self._write_text_new_file(text, date, compress)
+        
+    
+    def _write_text_overwrite(self, text, date, compress):
+        """
+        Write text file to disk.
+        
+        Overwrite existing file, delete all other files with same prefix
+        and date in file name.
+
+        #TODO: compression
+        """
+        rand_str = str(random.getrandbits(32))
+        #Get existing file for specified month, create temporary names for them
+        file_pattern = path.join(self.directory, 
+                                 self.make_filename(date, None, None))
+        files_old = glob.glob(file_pattern)
+        files_old_temp = map(lambda f: f + "-old-" + rand_str, files_old)
+        #make file name(s) for new file
+        file_new = path.join(self.directory,
+                             self.make_filename(date, 0, compress))
+        file_new_temp = file_new + "-new-" + rand_str
+        
+        #Write file with temporary name
+        print "Writing:", file_new_temp #TODO: logging
+        fw = open(file_new_temp, "w")
+        fw.write(text.encode("ascii"))
+        fw.close()
+        
+        #Rename old files 
+        for f_old, f_temp in zip(files_old, files_old_temp):
+            os.rename(f_old, f_temp)
+        #Rename new file to final name
+        os.rename(file_new_temp, file_new)
+        #Delete old files
+        for f_temp in files_old_temp:
+            os.remove(f_temp)
+    
+    
+    def _write_text_new_file(self, text, date, compress):
+        """
+        Write text file to disk.
+        
+        Doesn't overwrite existing file, but create additional file with
+        increased serial number in file name.
+
         #TODO: compression
         """
         #Find unused filename.
@@ -287,6 +384,9 @@ class XmlFileIO(object):
         Reads all files from a certain date range.
         Returns a list of strings.
         """
+        assert isinstance(date_start, datetime)
+        assert isinstance(date_end, datetime)
+        
         date_start = self.normalize_date(date_start)
         date_end = self.normalize_date(date_end)
         
@@ -301,14 +401,12 @@ class XmlFileIO(object):
         #filter the useful dates and file types
         files_filt = []
         for fname in files_glob:
-#            print fname
             nameparts = fname.lower().split(".")
             if nameparts[-1] not in ["xml", "xmlzip"]:
                 continue
             try:
-                fdate = dprs.parse(nameparts[-3])
+                fdate = parse_date(nameparts[-3])
                 fdate = self.normalize_date(fdate)
-#                print fdate
             except (IndexError, ValueError):
                 continue
             if not (date_start <= fdate <= date_end):
@@ -320,17 +418,67 @@ class XmlFileIO(object):
         #read the files that have correct dates and file type
         xml_texts = []
         for fname in files_filt:
-            print "Reading:", fname #TODO: logging
+            fpath = path.join(self.directory, fname)
+            print "Reading:", fpath #TODO: logging
             nameparts = fname.lower().split(".")
             extension = nameparts[-1]
             #TODO: compression
             if extension != "xml":
                 raise IOError("File type {0} is not implemented."
                               .format(extension))
-            fpath = path.join(self.directory, fname)
             rfile = file(fpath, "r")
             xml_texts.append(rfile.read())
             rfile.close()
 
         return xml_texts
+    
+    
+    def write_dataframe(self, frame, 
+                        date_start=EARLIEST_DATE, date_end=LATEST_DATE,
+                        compress=False, overwrite=False):
+        """
+        Write a DataFrame to disk in XML format.
+        
+        Assumes that frame has a column "time", that contains ``datetime`` 
+        and no None.
+        """
+        assert isinstance(frame, pd.DataFrame)
+        assert isinstance(date_start, datetime)
+        assert isinstance(date_end, datetime)
+        assert isinstance(compress, bool)
+        assert isinstance(overwrite, bool)
+        
+        def month_number(date):
+            "Compute unique number for each month."
+            return date.year * 12 + date.month
+        
+        num_start = month_number(self.normalize_date(date_start))
+        num_end   = month_number(self.normalize_date(date_end))
 
+        #Split data into monthly pieces and write them.
+        month_nums = frame["time"].map(month_number)
+        groups = frame.groupby(month_nums)
+        for m_num, group in groups:
+            if num_start <= m_num <= num_end:
+                text = self.xml_converter.to_xml(group)
+                date = group["time"][0]
+                self.write_text(text, date, compress, overwrite)
+
+
+    def read_dataframe(self, date_start=EARLIEST_DATE, date_end=LATEST_DATE):
+        """Read information from the disk, and return it as a DataFrame."""
+        assert isinstance(date_start, datetime)
+        assert isinstance(date_end, datetime)
+
+        out_frame = pd.DataFrame()
+        texts = self.read_text(date_start, date_end)
+        for text in texts:
+            frame = self.xml_converter.from_xml(text)
+            out_frame = out_frame.append(frame, ignore_index=True, 
+                                         verify_integrity=False)
+            
+        out_frame = out_frame.drop_duplicates("id", take_last=True)
+        out_frame.set_index("id", drop=False, inplace=True, 
+                            verify_integrity=True)
+        return out_frame
+        

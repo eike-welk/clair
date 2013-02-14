@@ -29,6 +29,7 @@ from __future__ import absolute_import
             
 #import pytest #contains `skip`, `fail`, `raises`, `config`
 import os
+import glob
 import os.path as path
 from numpy import isnan, nan
 from datetime import datetime
@@ -85,6 +86,31 @@ def make_test_listings():
     return fr
 
     
+def assert_frames_equal(fr1, fr2):
+    """
+    Asserts that two data frame objects are equal. 
+    Handles ``nan`` and ``None`` right.
+    """
+    #Compare the two DataFrame objects. Complications:
+    #* (nan == nan) == False
+    #* (None == None) == False; Special treatment of None inside DataFrame.
+    for col in fr1.columns:
+        for i in range(len(fr1.index)):
+            try:
+                assert fr1[col][i] == fr2[col][i]
+            except AssertionError:
+                if isnan(fr1[col][i]) and isnan(fr2[col][i]):
+                    continue
+                
+                print "col =", col, "; i =", i
+                print "fr1[col][i] =", fr1[col][i], \
+                      "; type(fr1[col][i]) =", type(fr1[col][i])  
+                print "fr2[col][i] =", fr2[col][i], \
+                       "; type(fr2[col][i]) =", type(fr2[col][i])
+                    
+                raise
+
+
 def test_ListingsXMLConverter():
     """Test conversion of listings to and from XML"""
     from clair.coredata import ListingsXMLConverter
@@ -103,24 +129,12 @@ def test_ListingsXMLConverter():
     ls2 = conv.from_xml(xml)
     print ls2
     print 
+    assert_frames_equal(ls1, ls2)
     
-    #Compare the two DataFrame objects. Complications:
-    #* (nan == nan) == False
-    #* (None == None) == False; Special treatment of None inside DataFrame.
-    for col in ls1.columns:
-        print "col:", col
-        for i in range(len(ls1.index)):
-            if ls1[col][i] != ls2[col][i]:
-                print "i:", i, "ls1[col][i] =", ls1[col][i], "; ls2[col][i] =", ls2[col][i]
-                print "    ",  "ls1[col][i] =", type(ls1[col][i]), "; ls2[col][i] =", type(ls2[col][i])
-                if isnan(ls1[col][i]) and isnan(ls2[col][i]):
-                    continue
-            assert ls1[col][i] == ls2[col][i]
 
-
-def test_XmlFileIO_write():
+def test_XmlFileIO_read_write_text():
     """Test reading and writing text files"""
-    from clair.coredata import XmlFileIO
+    from clair.coredata import XmlBigFrameIO
     
     testdata_dir = relative("../../testdata")
     basename = "test-file"
@@ -130,10 +144,10 @@ def test_XmlFileIO_write():
     os.system("rm " + testdata_pattern)
     
     #Create test object
-    t = XmlFileIO(basename, testdata_dir)
+    xml_io = XmlBigFrameIO(basename, testdata_dir, None)
 
     #Create nonsense files
-    fname_ok = t.make_filename(datetime(2012, 3, 3), 0, False)
+    fname_ok = xml_io.make_filename(datetime(2012, 3, 3), 0, False)
     fname_bad = fname_ok[:len(basename)+1] + "xx" + fname_ok[len(basename)+3:]
     path_empty = path.join(testdata_dir, fname_ok)
     path_bad1 = path.join(testdata_dir, fname_ok + ".old")
@@ -143,35 +157,87 @@ def test_XmlFileIO_write():
     os.system("touch " + path_bad2)
     
     #Write some files
-    t.write_text("Contents of test file from January, 1.", 
-                 datetime(2012, 1, 1), False, False)
-    t.write_text("Contents of test file from January, 2.", 
-                 datetime(2012, 1, 1), False, False)
-    t.write_text("Contents of test file from January, 3.", 
-                 datetime(2012, 1, 1), False, False)
-    t.write_text("Contents of test file from February, 1.", 
-                 datetime(2012, 2, 10, 11, 11), False, False)
-    t.write_text("Contents of test file from February, 2.", 
-                 datetime(2012, 2, 20, 12, 12), False, False)
+    xml_io.write_text("Contents of test file from January, 1.", 
+                      datetime(2012, 1, 1), False, False)
+    xml_io.write_text("Contents of test file from January, 2.", 
+                      datetime(2012, 1, 1), False, False)
+    xml_io.write_text("Contents of test file from January, 3.", 
+                      datetime(2012, 1, 1), False, False)
+    xml_io.write_text("Contents of test file from February, 1.", 
+                      datetime(2012, 2, 10, 11, 11), False, False)
+    xml_io.write_text("Contents of test file from February, 2.", 
+                      datetime(2012, 2, 20, 12, 12), False, False)
     
     #Show which files exist
     os.system("ls " + testdata_dir)
     
     #Read the files that were just written, test if we get right contents.
-    texts = t.read_text(datetime(2012, 1, 1), datetime(2012, 1, 1))
+    texts = xml_io.read_text(datetime(2012, 1, 1), datetime(2012, 1, 1))
     print texts
     assert len(texts) == 3
     assert texts == ["Contents of test file from January, 1.",
                      "Contents of test file from January, 2.",
                      "Contents of test file from January, 3."]
-    texts = t.read_text(datetime(2012, 1, 1), datetime(2012, 2, 1))
+    texts = xml_io.read_text(datetime(2012, 1, 1), datetime(2012, 2, 1))
     print texts
     assert len(texts) == 5
     
     
+def test_XmlFileIO_read_write_dataframe():
+    """Test reading and writing DataFrame objects as XML"""
+    from clair.coredata import XmlBigFrameIO, ListingsXMLConverter
+    
+    testdata_dir = relative("../../testdata")
+    basename = "test-file"
+    
+    #Remove test files
+    testdata_pattern = path.join(testdata_dir, basename) + "*"
+    os.system("rm " + testdata_pattern)
+    
+    #Create test data
+    frame1 = make_test_listings()
+    
+    #Create test object
+    xml_io = XmlBigFrameIO(basename, testdata_dir, ListingsXMLConverter())
+    #datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)
+    
+    #Write and read XML files, written data must be same as read data.
+    xml_io.write_dataframe(frame1)
+#    xml_io.write_dataframe(frame1, datetime(2013,1,1), datetime(2013,1,1))
+    frame2 = xml_io.read_dataframe()
+#    print frame2
+    assert_frames_equal(frame1, frame2)
+    #Count the created files
+#    os.system("ls " + testdata_dir)
+    files_glob = glob.glob(testdata_pattern)
+    assert len(files_glob) == 2
+    print
+    
+    #Write files again, the algorithm must create new files.
+    #read them, it must not confuse the algorithm
+    xml_io.write_dataframe(frame1)
+    frame2 = xml_io.read_dataframe()
+    assert_frames_equal(frame1, frame2)
+    #Count the created files
+#    os.system("ls " + testdata_dir)
+    files_glob = glob.glob(testdata_pattern)
+    assert len(files_glob) == 4
+    print
+    
+    #Write files in overwrite mode, read them, compare
+    xml_io.write_dataframe(frame1, overwrite=True)
+    frame2 = xml_io.read_dataframe()
+    assert_frames_equal(frame1, frame2)
+    #Count the created files
+#    os.system("ls " + testdata_dir)
+    files_glob = glob.glob(testdata_pattern)
+    assert len(files_glob) == 2
+
+
 
 if __name__ == "__main__":
-    test_ListingsXMLConverter()
-    test_XmlFileIO_write()
+#    test_ListingsXMLConverter()
+#    test_XmlFileIO_read_write_text()
+    test_XmlFileIO_read_write_dataframe()
     
     pass

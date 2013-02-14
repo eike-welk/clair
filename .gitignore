@@ -39,3 +39,6 @@ nosetests.xml
 
 # Secret API keys
 *.apikey
+
+#test data
+clair/testdata/
