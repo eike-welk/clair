@@ -112,6 +112,24 @@ class Record(object):
             
         out_str += ")\n"
         return out_str
+    
+    def __eq__(self, other):
+        """
+        Compare this record to an other record. Test for equality.
+        
+        An object is considered equal if its data attributes are equal.
+        """
+        if len(self.__dict__) != len(other.__dict__):
+            return False
+        for name, value in self.__dict__.iteritems():
+            if not (other.__dict__[name] == value):
+                return False
+        
+        return True
+    
+    def __ne__(self, other):
+        """Compare record to other record. Test for inequality."""
+        return not self.__eq__(other)
 
 
 
@@ -120,9 +138,9 @@ class Product(Record):
     def __init__(self, id, name, description="", #IGNORE:W0622
                  important_words=None, categories=None):
         Record.__init__(self)
-        assert isinstance(id, str)
-        assert isinstance(name, str)
-        assert isinstance(description, str)
+        assert isinstance(id, basestring)
+        assert isinstance(name, basestring)
+        assert isinstance(description, basestring)
         assert isinstance(important_words, (list, NoneType))
         assert isinstance(categories, (list, NoneType))
         self.id = id
@@ -146,7 +164,9 @@ class XMLConverter(object):
     https://github.com/dmw/pyxser
     http://pyxml.sourceforge.net/topics/howto/node26.html
     """
-    E = objectify.E
+    E = objectify.ElementMaker(
+            annotate=False, 
+            nsmap={"xsi":"http://www.w3.org/2001/XMLSchema-instance"})
 
     def to_xml_list(self, tag, el_list):
         """Convert lists, wrap each element of a list with a tag."""
@@ -169,6 +189,16 @@ class XMLConverter(object):
             #TODO: convert structured elements.
             el_list.append(el.pyval)
         return el_list
+    
+    
+    def unicode_or_None(self, value):
+        """
+        Convert value to a unicode string, but if value is None return None.
+        """
+        if value is None:
+            return None
+        else:
+            return unicode(value)
 
 
 
@@ -183,8 +213,9 @@ class ListingsXMLConverter(XMLConverter):
         """Convert DataFrame with listings/auctions to XML."""
         E = self.E
 
-        root_xml = E.listings(
-            E.version("0.1") )
+        root_xml = E.listing_storage(
+            E.version("0.1"),
+            E.listings())
         for i in range(len(listings.index)):
             li = listings.ix[i]
             li_xml = E.listing(
@@ -212,7 +243,7 @@ class ListingsXMLConverter(XMLConverter):
                 E.server(li["server"]),
                 E.server_id(li["server_id"]),
                 E.url_webui(li["url_webui"]) )
-            root_xml.append(li_xml)
+            root_xml.listings.append(li_xml)
         
 #        doc_xml = etree.ElementTree(root_xml)
         doc_str = etree.tostring(root_xml, pretty_print=True)
@@ -221,49 +252,98 @@ class ListingsXMLConverter(XMLConverter):
         
     def from_xml(self, xml):
         """Convert XML string into DataFrame with listings/auctions"""
+        ustr = self.unicode_or_None
+        
         root_xml = objectify.fromstring(xml)
 #        print objectify.dump(root_xml)
-        
         version = root_xml.version.text
         assert version == "0.1"
-               
-        listing_xml = root_xml.listing
+        
+        listing_xml = root_xml.listings.listing
         nrows = len(listing_xml)
         listings = make_listing_frame(nrows)
         for i, li in enumerate(listing_xml):    
-            listings["id"][i] = li.id.pyval 
-            listings["training_sample"][i] = li.training_sample.pyval 
-            listings["query_string"][i] = li.query_string.pyval
+            listings["id"][i] = ustr(li.id.pyval) 
+            listings["training_sample"][i] = li.training_sample.pyval
+            listings["query_string"][i] = ustr(li.query_string.pyval)
             listings["expected_products"][i] = self.from_xml_list(
                                             "product", li.expected_products)
             listings["products"][i] = self.from_xml_list(
                                             "product", li.products)
-            listings["thumbnail"][i] = li.thumbnail.pyval
-            listings["image"][i] = li.image.pyval
-            listings["title"][i] = li.title.pyval 
-            listings["description"][i] = li.description.pyval
+            listings["thumbnail"][i] = ustr(li.thumbnail.pyval)
+            listings["image"][i] = ustr(li.image.pyval)
+            listings["title"][i] = ustr(li.title.pyval )
+            listings["description"][i] = ustr(li.description.pyval)
             listings["active"][i] = li.active.pyval
             listings["sold"][i] = li.sold.pyval
-            listings["currency"][i] = li.currency.pyval
+            listings["currency"][i] = ustr(li.currency.pyval)
             listings["price"][i]    = li.price.pyval
             listings["shipping"][i] = li.shipping.pyval
-            listings["type"][i] = li.type.pyval
+            listings["type"][i] = ustr(li.type.pyval)
             listings["time"][i] = parse_date(li.time.pyval) \
                                   if li.time.pyval is not None else None
-            listings["location"][i] = li.location.pyval
-            listings["postcode"][i] = li.postcode.pyval
-            listings["country"][i] = li.country.pyval
+            listings["location"][i] = ustr(li.location.pyval)
+            listings["postcode"][i] = ustr(li.postcode.pyval)
+            listings["country"][i] = ustr(li.country.pyval)
             listings["condition"][i] = li.condition.pyval
-            listings["server"][i] = li.server.pyval
-            listings["server_id"][i] = li.server_id.pyval #ID of listing on server
+            listings["server"][i] = ustr(li.server.pyval)
+            listings["server_id"][i] = ustr(li.server_id.pyval) #ID of listing on server
 #            listings["data_directory"] = ""
-            listings["url_webui"][i] = li.url_webui.pyval
+            listings["url_webui"][i] = ustr(li.url_webui.pyval)
 #            listings["server_repr"][i] = nan
 
         #Put our IDs into index
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
         return listings
+
+
+
+class ProductXMLConverter(XMLConverter):
+    """Convert a dictionary of Product objects to and from XML"""
+    def to_xml(self, product_dict):
+        """Convert dictionary of Product to XML"""
+        E = self.E
+
+        root_xml = E.product_storage(
+            E.version("0.1"),
+            E.products())
+        for pr in product_dict.values():
+            pr_xml = E.product(
+                E.id(pr.id),
+                E.name(pr.name),
+                E.description(pr.description),
+                E.important_words(*self.to_xml_list("word", 
+                                                   pr.important_words)),
+                E.categories(*self.to_xml_list("category",
+                                              pr.categories)),
+                )
+            root_xml.products.append(pr_xml)
+        
+        doc_str = etree.tostring(root_xml, pretty_print=True)
+        return doc_str 
+
+        
+    def from_xml(self, xml):
+        """Convert from XML representation to dictionary of Product."""
+        root_xml = objectify.fromstring(xml)
+#        print objectify.dump(root_xml)
+        version = root_xml.version.text
+        assert version == "0.1"
+               
+        product_xml = root_xml.products.product
+        product_dict = {}
+        for pr in product_xml:    
+            prod = Product(id=pr.id.pyval,
+                           name=pr.name.pyval,
+                           description=pr.description.pyval,
+                           important_words=self.from_xml_list(
+                                                "word", pr.important_words),
+                           categories=self.from_xml_list(
+                                                "categories", pr.categories))
+            product_dict[prod.id] = prod
+        
+        return product_dict
 
 
 
@@ -293,9 +373,12 @@ class XmlBigFrameIO(object):
         Converts DataFrame to and from XML. Must have methods:
         ``to_xml`` and ``from_xml``. 
     """
-    def __init__(self, name_prefix, directory, xml_converter):
+    def __init__(self, directory, name_prefix, xml_converter):
         assert isinstance(name_prefix, basestring)
         assert isinstance(directory, basestring)
+        if xml_converter is not None:
+            assert hasattr(xml_converter, "to_xml")
+            assert hasattr(xml_converter, "from_xml")
         
         self.name_prefix = name_prefix
         self.directory = directory
@@ -376,7 +459,7 @@ class XmlBigFrameIO(object):
         file_pattern = path.join(self.directory, 
                                  self.make_filename(date, None, None))
         files_old = glob.glob(file_pattern)
-        files_old_temp = map(lambda f: f + "-old-" + rand_str, files_old)
+        files_old_temp = [f + "-old-" + rand_str for f in files_old]
         #make file name(s) for new file
         file_new = path.join(self.directory,
                              self.make_filename(date, 0, compress))
@@ -485,7 +568,7 @@ class XmlBigFrameIO(object):
         return xml_texts
     
     
-    def write_dataframe(self, frame, 
+    def write_data(self, frame, 
                         date_start=EARLIEST_DATE, date_end=LATEST_DATE,
                         compress=False, overwrite=False):
         """
@@ -517,7 +600,7 @@ class XmlBigFrameIO(object):
                 self.write_text(text, date, compress, overwrite)
 
 
-    def read_dataframe(self, date_start=EARLIEST_DATE, date_end=LATEST_DATE):
+    def read_data(self, date_start=EARLIEST_DATE, date_end=LATEST_DATE):
         """Read information from the disk, and return it as a DataFrame."""
         assert isinstance(date_start, datetime)
         assert isinstance(date_end, datetime)
@@ -534,3 +617,68 @@ class XmlBigFrameIO(object):
                             verify_integrity=True)
         return out_frame
         
+
+
+class XmlSmallObjectIO(object):
+    """
+    Store small objects as XML files.
+    
+    Trivial wrapper around open, os.rename, os.remove. Has identical interface 
+    as XmlBigFrameIO.
+    
+    Constructor Parameters
+    ----------------------
+    
+    name_prefix : str
+        String that is prepended to all file names.
+        
+    directory : str
+        Directory into which all files are written.
+        
+    xml_converter : object
+        Converts data to and from XML. Must have methods:
+        ``to_xml`` and ``from_xml``. 
+    """
+    def __init__(self, directory, name_prefix, xml_converter):
+        assert isinstance(name_prefix, basestring)
+        assert isinstance(directory, basestring)
+        assert hasattr(xml_converter, "to_xml")
+        assert hasattr(xml_converter, "from_xml")
+        self.name_prefix = name_prefix
+        self.directory = directory
+        self.xml_converter = xml_converter
+        
+    
+    def write_data(self, data):
+        """Convert data to XML, and write it to disk."""
+        xml_text = self.xml_converter.to_xml(data)
+        
+        #Setup file names
+        rand_str = str(random.getrandbits(32))
+        file_name = path.join(self.directory, self.name_prefix + ".xml")
+        file_new_temp = file_name + "-new-" + rand_str
+        file_old_temp = file_name + "-old-" + rand_str
+        
+        #Write file with temporary name
+        print "Writing:", file_new_temp #TODO: logging
+        fw = open(file_new_temp, "w")
+        fw.write(xml_text.encode("ascii"))
+        fw.close()
+        
+        #Rename files, delete old file
+        try: os.rename(file_name, file_old_temp)
+        except OSError: pass
+        os.rename(file_new_temp, file_name)
+        try: os.remove(file_old_temp)
+        except OSError: pass
+    
+    
+    def read_data(self):
+        """Read XML file and convert data to Python representation."""
+        file_name = path.join(self.directory, self.name_prefix + ".xml")
+        fr = open(file_name, "r")
+        xml_text = fr.read()
+        fr.close()
+        
+        py_data = self.xml_converter.from_xml(xml_text)
+        return py_data

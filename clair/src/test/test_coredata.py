@@ -99,7 +99,9 @@ def assert_frames_equal(fr1, fr2):
             try:
                 assert fr1[col][i] == fr2[col][i]
             except AssertionError:
-                if isnan(fr1[col][i]) and isnan(fr2[col][i]):
+                if isinstance(fr1[col][i], float) and \
+                   isinstance(fr2[col][i], float) and \
+                   isnan(fr1[col][i]) and isnan(fr2[col][i]):
                     continue
                 
                 print "col =", col, "; i =", i
@@ -132,7 +134,7 @@ def test_ListingsXMLConverter():
     assert_frames_equal(ls1, ls2)
     
 
-def test_XmlFileIO_read_write_text():
+def test_XmlBigFrameIO_read_write_text():
     """Test reading and writing text files"""
     from clair.coredata import XmlBigFrameIO
     
@@ -144,7 +146,7 @@ def test_XmlFileIO_read_write_text():
     os.system("rm " + testdata_pattern)
     
     #Create test object
-    xml_io = XmlBigFrameIO(basename, testdata_dir, None)
+    xml_io = XmlBigFrameIO(testdata_dir, basename, None)
 
     #Create nonsense files
     fname_ok = xml_io.make_filename(datetime(2012, 3, 3), 0, False)
@@ -183,12 +185,12 @@ def test_XmlFileIO_read_write_text():
     assert len(texts) == 5
     
     
-def test_XmlFileIO_read_write_dataframe():
+def test_XmlBigFrameIO_read_write_dataframe():
     """Test reading and writing DataFrame objects as XML"""
     from clair.coredata import XmlBigFrameIO, ListingsXMLConverter
     
     testdata_dir = relative("../../testdata")
-    basename = "test-file"
+    basename = "test-listings"
     
     #Remove test files
     testdata_pattern = path.join(testdata_dir, basename) + "*"
@@ -198,13 +200,13 @@ def test_XmlFileIO_read_write_dataframe():
     frame1 = make_test_listings()
     
     #Create test object
-    xml_io = XmlBigFrameIO(basename, testdata_dir, ListingsXMLConverter())
+    xml_io = XmlBigFrameIO(testdata_dir, basename, ListingsXMLConverter())
     #datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)
     
     #Write and read XML files, written data must be same as read data.
-    xml_io.write_dataframe(frame1)
-#    xml_io.write_dataframe(frame1, datetime(2013,1,1), datetime(2013,1,1))
-    frame2 = xml_io.read_dataframe()
+    xml_io.write_data(frame1)
+#    xml_io.write_data(frame1, datetime(2013,1,1), datetime(2013,1,1))
+    frame2 = xml_io.read_data()
 #    print frame2
     assert_frames_equal(frame1, frame2)
     #Count the created files
@@ -215,8 +217,8 @@ def test_XmlFileIO_read_write_dataframe():
     
     #Write files again, the algorithm must create new files.
     #read them, it must not confuse the algorithm
-    xml_io.write_dataframe(frame1)
-    frame2 = xml_io.read_dataframe()
+    xml_io.write_data(frame1)
+    frame2 = xml_io.read_data()
     assert_frames_equal(frame1, frame2)
     #Count the created files
 #    os.system("ls " + testdata_dir)
@@ -225,8 +227,8 @@ def test_XmlFileIO_read_write_dataframe():
     print
     
     #Write files in overwrite mode, read them, compare
-    xml_io.write_dataframe(frame1, overwrite=True)
-    frame2 = xml_io.read_dataframe()
+    xml_io.write_data(frame1, overwrite=True)
+    frame2 = xml_io.read_data()
     assert_frames_equal(frame1, frame2)
     #Count the created files
 #    os.system("ls " + testdata_dir)
@@ -244,13 +246,81 @@ def test_Record():
     d = {"A":Record(foo=2, bar="BAR", id=123), 
          "B":Record(foo=3, bar="Boo", id=124)}
     print d
+
+    r1 = Record(foo=2, bar="BAR", id=123)
+    r2 = Record(foo=2, bar="BAR", id=123)
+    r3 = Record(foo=3, bar="BAR", id=123)
+    r4 = Record(foo=2, bar="BAR")
+    assert r1 == r2
+    assert not (r1 != r2)
+    assert r1 != r3
+    assert not (r1 == r3)
+    assert r1 != r4
+    assert not (r1 == r4)
     
-
-
+    
+def test_ProductXMLConverter():
+    """Test conversion of product objects from and to XML"""
+    from clair.coredata import Product, ProductXMLConverter
+    
+    pd1 = {"a1":Product("a1", "A1 thing", "The A1 is great."),
+           "a2":Product("a2", "Foo A2", "", ["Foo", "A2"]),
+           "b1":Product("b1", "PRoduct B1", "The B2 is versatile."),
+           }
+    
+    conv = ProductXMLConverter()
+    
+    #Convert dict of products to XML
+    pd_xml = conv.to_xml(pd1)
+    print pd_xml
+    #Convert XML back to dict of products
+    pd2 = conv.from_xml(pd_xml)
+    print pd2
+    
+    #Conversion to XML and back must result in equal data structure
+    assert pd1 == pd2
+    
+    
+def test_XmlSmallObjectIO():
+    """Test file writer object for small data structures."""
+    from clair.coredata import Product, ProductXMLConverter, XmlSmallObjectIO
+    
+    testdata_dir = relative("../../testdata")
+    basename = "test-products"
+    
+    #Remove test files
+    testdata_pattern = path.join(testdata_dir, basename) + "*"
+    os.system("rm " + testdata_pattern)
+#    os.system("ls " + testdata_dir)
+    
+    pd1 = {"a1":Product("a1", "A1 thing", "The A1 is great."),
+           "a2":Product("a2", "Foo A2", "", ["Foo", "A2"]),
+           "b1":Product("b1", "PRoduct B1", "The B2 is versatile."),
+           }
+    
+    io = XmlSmallObjectIO(testdata_dir, basename, ProductXMLConverter())
+    
+    #Write into empty directory
+    io.write_data(pd1)
+    pd2 = io.read_data()
+#    os.system("ls " + testdata_dir)
+    assert pd1 == pd2
+    
+    #Write into directory with old file
+    pd1["a1"].name = "Foo Bar"
+    io.write_data(pd1)
+    pd2 = io.read_data()
+#    os.system("ls " + testdata_dir)
+    assert pd1 == pd2
+    
+    
+    
 if __name__ == "__main__":
-#    test_ListingsXMLConverter()
-#    test_XmlFileIO_read_write_text()
-#    test_XmlFileIO_read_write_dataframe()
-    test_Record()
+    test_ListingsXMLConverter()
+#    test_XmlBigFrameIO_read_write_text()
+#    test_XmlBigFrameIO_read_write_dataframe()
+#    test_Record()
+#    test_ProductXMLConverter()
+#    test_XmlSmallObjectIO()
     
     pass
