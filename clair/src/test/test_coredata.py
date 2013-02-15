@@ -234,10 +234,23 @@ def test_XmlFileIO_read_write_dataframe():
     assert len(files_glob) == 2
 
 
+def test_Record():
+    """Test Record class"""
+    from clair.coredata import Record
+    
+    r = Record(foo=2, bar="BAR", id=123)
+    print r
+    
+    d = {"A":Record(foo=2, bar="BAR", id=123), 
+         "B":Record(foo=3, bar="Boo", id=124)}
+    print d
+    
+
 
 if __name__ == "__main__":
 #    test_ListingsXMLConverter()
 #    test_XmlFileIO_read_write_text()
-    test_XmlFileIO_read_write_dataframe()
+#    test_XmlFileIO_read_write_dataframe()
+    test_Record()
     
     pass

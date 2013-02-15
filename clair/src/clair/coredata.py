@@ -89,15 +89,56 @@ def make_listing_frame(nrows):
     
 
 
-class ListingsXMLConverter(object):
+class Record(object):
     """
-    Convert listings to and from XML
+    Base class for classes that contain mainly data. Somewhat analogous 
+    to namedtuple, but mutable.
+    """
+    def __init__(self, **params):
+        for name, value in params.iteritems():
+            setattr(self, name, value)
+
+    def __repr__(self):
+        """Convert object to string. Called by ``print``."""
+        out_str = self.__class__.__name__ + "("
+        
+        names = self.__dict__.keys()
+        names.sort()
+        if "id" in names:
+            names.remove("id")
+            out_str += "\n    id = {0},".format(repr(self.__dict__["id"]))
+        for name in names:
+            out_str += "\n    {0} = {1},".format(name, repr(self.__dict__[name]))
+            
+        out_str += ")\n"
+        return out_str
+
+
+
+class Product(Record):
+    """"A product that a company produces."""
+    def __init__(self, id, name, description="", #IGNORE:W0622
+                 important_words=None, categories=None):
+        Record.__init__(self)
+        assert isinstance(id, str)
+        assert isinstance(name, str)
+        assert isinstance(description, str)
+        assert isinstance(important_words, (list, NoneType))
+        assert isinstance(categories, (list, NoneType))
+        self.id = id
+        self.name = name
+        self.description = description
+        self.important_words = important_words
+        self.categories = categories
+
+
+
+class XMLConverter(object):
+    """
+    Base class for objects that convert to and from XML
     
     Unicode introduction
     http://docs.python.org/2/howto/unicode.html
-    
-    TODO: XML escapes for description
-    http://wiki.python.org/moin/EscapingXml
     
     TODO:
     Generic converter Python <-> XML
@@ -111,15 +152,36 @@ class ListingsXMLConverter(object):
         """Convert lists, wrap each element of a list with a tag."""
         if el_list is None:
             return [None]
-        E = ListingsXMLConverter.E
+        E = self.E
         node = getattr(E, tag)
         xml_nodes = [node(el) for el in el_list]
         return xml_nodes
     
+    
+    def from_xml_list(self, tag, xml_list):
+        """Convert a repetition of XML elements into a Python list."""
+        if isinstance(xml_list, objectify.NoneElement):
+            return None
+        
+        elements = xml_list[tag]
+        el_list = []
+        for el in elements:
+            #TODO: convert structured elements.
+            el_list.append(el.pyval)
+        return el_list
 
+
+
+class ListingsXMLConverter(XMLConverter):
+    """
+    Convert listings to and from XML
+    
+    TODO: XML escapes for description
+    http://wiki.python.org/moin/EscapingXml
+    """
     def to_xml(self, listings):
         """Convert DataFrame with listings/auctions to XML."""
-        E = ListingsXMLConverter.E
+        E = self.E
 
         root_xml = E.listings(
             E.version("0.1") )
@@ -155,19 +217,6 @@ class ListingsXMLConverter(object):
 #        doc_xml = etree.ElementTree(root_xml)
         doc_str = etree.tostring(root_xml, pretty_print=True)
         return doc_str 
-
-    
-    def from_xml_list(self, tag, xml_list):
-        """Convert a repetition of XML elements into a Python list."""
-        if isinstance(xml_list, objectify.NoneElement):
-            return None
-        
-        elements = xml_list[tag]
-        el_list = []
-        for el in elements:
-            #TODO: convert structured elements.
-            el_list.append(el.pyval)
-        return el_list
         
         
     def from_xml(self, xml):
