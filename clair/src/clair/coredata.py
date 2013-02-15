@@ -47,8 +47,6 @@ def make_listing_frame(nrows):
     
     Each row represents a listing. The columns represent the listing's 
     attributes. The object contains no data, nearly all values are None or nan.
-    
-    TODO: Put into central location. 
     """
     index=[str(i) for i in range(nrows)]
     
