@@ -30,11 +30,12 @@ from __future__ import absolute_import
 import os
 import os.path as path
 import glob
-from datetime import datetime, timedelta
+from datetime import datetime #, timedelta
 from types import NoneType
 import random
-from dateutil.parser import parse as parse_date 
-from dateutil.relativedelta import relativedelta
+import dateutil
+#from dateutil.parser import parse as parse_date 
+#from dateutil.relativedelta import relativedelta
 from numpy import nan
 import pandas as pd
 from lxml import etree, objectify
@@ -52,8 +53,8 @@ def make_listing_frame(nrows):
     
     listings = pd.DataFrame(index=index)
     listings["id"]                = None  #internal unique ID of each listing.
-    listings["training_sample"]   = False #This is training sample if True
-    listings["query_string"]      = None  #String with search keywords
+    listings["training_sample"]   = nan   #This is training sample if True
+#    listings["query_string"]      = None  #String with search keywords
     listings["expected_products"] = None  #list of product IDs
     
     listings["products"]    = None  #Products in this listing. List of DetectedProduct
@@ -79,6 +80,7 @@ def make_listing_frame(nrows):
     
     listings["server"]      = None  #string to identify the server
     listings["server_id"]   = None  #ID of listing on the server
+    listings["update_time"] = None  #Time when information was last downloaded from server
 #    listings["data_dir"]    = None  #Images, html, ... might be stored here
     listings["url_webui"]   = None  #Link to web representation of listing.
 #    listings["server_repr"] = None  #representation of listing on server (XML)
@@ -149,6 +151,40 @@ class Product(Record):
 
 
 
+class SearchTask(Record):
+    """Task to search for listings on a certain server."""
+    def __init__(self, id, due_time, server, #IGNORE:W0622
+                 recurrence_pattern=None, 
+                 query_string="", n_listings=100,
+                 price_min=None, price_max=None, currency="EUR",
+                 expected_products=None):
+        Record.__init__(self)
+        self.id = id
+        self.due_time = due_time
+        self.server = server
+        self.recurrence_pattern = recurrence_pattern
+        self.query_string = query_string
+        self.n_listings = n_listings
+        self.price_min = price_min
+        self.price_max = price_max
+        self.currency = currency
+        self.expected_products = expected_products
+
+
+
+class UpdateTask(Record):
+    """Task to update listings on a certain server."""
+    def __init__(self, id, due_time, server, #IGNORE:W0622
+                 recurrence_pattern=None, listings=None):
+        Record.__init__(self)
+        self.id = id
+        self.due_time = due_time
+        self.server = server
+        self.recurrence_pattern = recurrence_pattern
+        self.listings = listings if listings is not None else []
+
+
+
 class XMLConverter(object):
     """
     Base class for objects that convert to and from XML
@@ -189,7 +225,7 @@ class XMLConverter(object):
         return el_list
     
     
-    def unicode_or_None(self, value):
+    def unicode_or_none(self, value):
         """
         Convert value to a unicode string, but if value is None return None.
         """
@@ -199,6 +235,16 @@ class XMLConverter(object):
             return unicode(value)
 
 
+    def datetime_or_none(self, str_none):
+        """
+        Convert ``str_none`` to ``datetime``, but if it is None return None.
+        """
+        if str_none is None:
+            return None
+        else:
+            return dateutil.parser.parse(str_none)
+        
+        
 
 class ListingsXMLConverter(XMLConverter):
     """
@@ -218,8 +264,8 @@ class ListingsXMLConverter(XMLConverter):
             li = listings.ix[i]
             li_xml = E.listing(
                 E.id(li["id"]),
-                E.training_sample(bool(li["training_sample"])),
-                E.query_string(li["query_string"]),
+                E.training_sample(float(li["training_sample"])),
+#                E.query_string(li["query_string"]),
                 E.expected_products(*self.to_xml_list(
                                         "product", li["expected_products"])),
                 E.products(*self.to_xml_list("product", li["products"])),
@@ -240,6 +286,7 @@ class ListingsXMLConverter(XMLConverter):
                 E.condition(float(li["condition"])),
                 E.server(li["server"]),
                 E.server_id(li["server_id"]),
+                E.update_time(li["update_time"]),
                 E.url_webui(li["url_webui"]) )
             root_xml.listings.append(li_xml)
         
@@ -250,7 +297,8 @@ class ListingsXMLConverter(XMLConverter):
         
     def from_xml(self, xml):
         """Convert XML string into DataFrame with listings/auctions"""
-        ustr = self.unicode_or_None
+        ustr = self.unicode_or_none
+        parse_date = self.datetime_or_none
         
         root_xml = objectify.fromstring(xml)
 #        print objectify.dump(root_xml)
@@ -263,7 +311,7 @@ class ListingsXMLConverter(XMLConverter):
         for i, li in enumerate(listing_xml):    
             listings["id"][i] = ustr(li.id.pyval) 
             listings["training_sample"][i] = li.training_sample.pyval
-            listings["query_string"][i] = ustr(li.query_string.pyval)
+#            listings["query_string"][i] = ustr(li.query_string.pyval)
             listings["expected_products"][i] = self.from_xml_list(
                                             "product", li.expected_products)
             listings["products"][i] = self.from_xml_list(
@@ -278,14 +326,14 @@ class ListingsXMLConverter(XMLConverter):
             listings["price"][i]    = li.price.pyval
             listings["shipping"][i] = li.shipping.pyval
             listings["type"][i] = ustr(li.type.pyval)
-            listings["time"][i] = parse_date(li.time.pyval) \
-                                  if li.time.pyval is not None else None
+            listings["time"][i] = parse_date(li.time.pyval)
             listings["location"][i] = ustr(li.location.pyval)
             listings["postcode"][i] = ustr(li.postcode.pyval)
             listings["country"][i] = ustr(li.country.pyval)
             listings["condition"][i] = li.condition.pyval
             listings["server"][i] = ustr(li.server.pyval)
             listings["server_id"][i] = ustr(li.server_id.pyval) #ID of listing on server
+            listings["update_time"][i] = parse_date(li.update_time.pyval)
 #            listings["data_directory"] = ""
             listings["url_webui"][i] = ustr(li.url_webui.pyval)
 #            listings["server_repr"][i] = nan
@@ -538,7 +586,7 @@ class XmlBigFrameIO(object):
             if nameparts[-1] not in ["xml", "xmlzip"]:
                 continue
             try:
-                fdate = parse_date(nameparts[-3])
+                fdate = dateutil.parser.parse(nameparts[-3])
                 fdate = self.normalize_date(fdate)
             except (IndexError, ValueError):
                 continue

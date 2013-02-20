@@ -21,6 +21,7 @@ SearchTask
 A job for searching for a product or a set of products on the Internet.
 
 * id
+* due_time
 * recurrence pattern
 * server
     Maybe call it site?
@@ -37,7 +38,7 @@ UpdateTask
 Update the status of listings.
 
 * id
-* due_date_time
+* due_time
 * server
 * listings
 

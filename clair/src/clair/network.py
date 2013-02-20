@@ -239,7 +239,7 @@ class EbayFindListings(object):
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
         #Store the query string
-        listings["query_string"] = keywords
+#        listings["query_string"] = keywords
         return listings
 
 
@@ -386,7 +386,7 @@ class EbayConnector(object):
     
     
     def find_listings(self, keywords, n_listings=10, 
-                      min_price=None, max_price=None, currency="EUR",
+                      price_min=None, price_max=None, currency="EUR",
                       time_from=None, time_to=None):
         """
         Find listings on Ebay by keyword. 
@@ -403,14 +403,14 @@ class EbayConnector(object):
             Number of listings that Ebay should return. Might return fewer or
             slightly more listings.
             
-        min_price : float
+        price_min : float
             Minimum price for listings, that are returned.
             
-        max_price : float
+        price_max : float
             Maximum price for listings, that are returned.
             
         currency : str
-            Currency unit for ``min_price`` and ``max_price``.
+            Currency unit for ``price_min`` and ``price_max``.
         
         time_from : datetime
             Earliest end time for listings (auctions) that are returned.
@@ -435,13 +435,13 @@ class EbayConnector(object):
         #TODO: Additional argument ``n_start`` to continue the same search.  
         assert isinstance(keywords,  (str))
         assert isinstance(n_listings,(int))
-        assert isinstance(min_price, (float, int, NoneType))
-        assert isinstance(max_price, (float, int, NoneType))
+        assert isinstance(price_min, (float, int, NoneType))
+        assert isinstance(price_max, (float, int, NoneType))
         assert isinstance(time_from, (datetime, NoneType))
         assert isinstance(time_to,   (datetime, NoneType))
         
         f = EbayFindListings()
-        listings = f.find(keywords, n_listings, min_price, max_price, currency, 
+        listings = f.find(keywords, n_listings, price_min, price_max, currency, 
                           time_from, time_to)
         return listings
     
@@ -472,9 +472,11 @@ class EbayConnector(object):
         g = EbayGetListings()
         new_listings = g.get_listings(ids)
         
-        new_listings["training_sample"] = listings["training_sample"]
-        new_listings["expected_products"] = listings["expected_products"]
-        new_listings["query_string"] = listings["query_string"]
-        new_listings["products"] = listings["products"]
+        new_listings.combine_first(listings)
+        
+#        new_listings["training_sample"] = listings["training_sample"]
+#        new_listings["expected_products"] = listings["expected_products"]
+#        new_listings["query_string"] = listings["query_string"]
+#        new_listings["products"] = listings["products"]
         
         return new_listings

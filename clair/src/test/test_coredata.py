@@ -54,7 +54,7 @@ def make_test_listings():
     fr["id"] = ["eb-123", "eb-456", "eb-457"]
     
     fr["training_sample"][0] = True 
-    fr["query_string"][0] = "Nikon D90"
+#    fr["query_string"][0] = "Nikon D90"
     
     #TODO: special handling for lists
     fr["expected_products"][0] = ["nikon-d90", "qwert"]

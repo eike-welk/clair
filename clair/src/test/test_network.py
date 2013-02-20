@@ -802,7 +802,7 @@ def test_EbayConnector_update_listings():
     c = EbayConnector(relative("../python-ebay.apikey"))
     listings = c.find_listings(keywords="Nikon D90", 
                                n_listings=n, 
-                               min_price=100, max_price=500, currency="EUR")
+                               price_min=100, price_max=500, currency="EUR")
     print listings
     print
     print listings[["title", "price", "sold", "active"]].to_string()
