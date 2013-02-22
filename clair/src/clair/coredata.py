@@ -80,7 +80,7 @@ def make_listing_frame(nrows):
     
     listings["server"]      = None  #string to identify the server
     listings["server_id"]   = None  #ID of listing on the server
-    listings["update_time"] = None  #Time when information was last downloaded from server
+    listings["final_price"] = nan   #If True: This is the final price of the auction.
 #    listings["data_dir"]    = None  #Images, html, ... might be stored here
     listings["url_webui"]   = None  #Link to web representation of listing.
 #    listings["server_repr"] = None  #representation of listing on server (XML)
@@ -286,7 +286,7 @@ class ListingsXMLConverter(XMLConverter):
                 E.condition(float(li["condition"])),
                 E.server(li["server"]),
                 E.server_id(li["server_id"]),
-                E.update_time(li["update_time"]),
+                E.final_price(li["final_price"]),
                 E.url_webui(li["url_webui"]) )
             root_xml.listings.append(li_xml)
         
@@ -333,7 +333,7 @@ class ListingsXMLConverter(XMLConverter):
             listings["condition"][i] = li.condition.pyval
             listings["server"][i] = ustr(li.server.pyval)
             listings["server_id"][i] = ustr(li.server_id.pyval) #ID of listing on server
-            listings["update_time"][i] = parse_date(li.update_time.pyval)
+            listings["final_price"][i] = li.final_price.pyval
 #            listings["data_directory"] = ""
             listings["url_webui"][i] = ustr(li.url_webui.pyval)
 #            listings["server_repr"][i] = nan
@@ -442,7 +442,7 @@ class XmlBigFrameIO(object):
         """
         date_str = date.strftime("%Y-%m") if date is not None else "*"
         #http://docs.python.org/2/library/string.html#formatstrings
-        num_str = "{:0>2d}".format(number) if number is not None else "*"
+        num_str = "{:0>3d}".format(number) if number is not None else "*"
         if compress == True:
             ext_str = "xmlzip"
         elif compress == False:
@@ -538,7 +538,7 @@ class XmlBigFrameIO(object):
         """
         #Find unused filename.
         path_n, path_c = "", ""
-        for i in range(100):
+        for i in range(10000):
             path_n = path.join(self.directory, 
                                self.make_filename(date, i, False))
             path_c = path.join(self.directory,  

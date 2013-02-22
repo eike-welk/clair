@@ -32,7 +32,7 @@ import math
 from types import NoneType
 from collections import defaultdict
 #import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import dateutil.parser as dprs 
 from lxml import etree, objectify
 import pandas as pd
@@ -179,7 +179,8 @@ class EbayFindListings(object):
                                   "FixedPrice"      : "fixed-price",
                                   "StoreInventory"  : "fixed-price" })
             listings["type"][i] = l_type[itemi.listingInfo.listingType.text]
-            listings["time"][i] = dprs.parse(itemi.listingInfo.endTime.text) 
+            time = dprs.parse(itemi.listingInfo.endTime.text)
+            listings["time"][i] = time.replace(tzinfo=None)
             listings["location"][i] = itemi.location.text
             try: listings["postcode"][i] = itemi.postalCode.text
             except AttributeError: pass
@@ -203,7 +204,8 @@ class EbayFindListings(object):
              min_price=None, max_price=None, currency="EUR",
              time_from=None, time_to=None):
         """
-        Find listings on Ebay by keyword.
+        Find listings on Ebay by keyword. 
+        Finds only active listings, now finished listings.
         
         time_from, time_to: datetime in UTC
         """
@@ -238,8 +240,8 @@ class EbayFindListings(object):
         #Put internal IDs into index
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
-        #Store the query string
-#        listings["query_string"] = keywords
+        #Only interested in auctions, assume that no prices are final.
+        listings["final_price"] = False
         return listings
 
 
@@ -316,7 +318,8 @@ class EbayGetListings(object):
                                   "StoresFixedPrice": "fixed-price" })
             listings["type"][i] = l_type[itemi.ListingType.text]
             #Approximate time when price is/was valid, end time in case of auctions
-            listings["time"][i] = dprs.parse(itemi.EndTime.text) 
+            time = dprs.parse(itemi.EndTime.text) 
+            listings["time"][i] = time.replace(tzinfo=None)
             listings["location"][i] = itemi.Location.text
             try: listings["postcode"][i] = itemi.PostalCode.text
             except AttributeError: pass
@@ -358,6 +361,11 @@ class EbayGetListings(object):
         #Put our IDs into index
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
+        
+        #Ebay shows final price some minutes after auction ends, in worst case.       
+        fp = listings["time"] < datetime.utcnow() + timedelta(minutes=15)
+        listings["final_price"] = fp
+
         return listings
 
 
@@ -471,12 +479,5 @@ class EbayConnector(object):
         ids = listings["server_id"]
         g = EbayGetListings()
         new_listings = g.get_listings(ids)
-        
-        new_listings.combine_first(listings)
-        
-#        new_listings["training_sample"] = listings["training_sample"]
-#        new_listings["expected_products"] = listings["expected_products"]
-#        new_listings["query_string"] = listings["query_string"]
-#        new_listings["products"] = listings["products"]
-        
+        new_listings.combine_first(listings)        
         return new_listings
