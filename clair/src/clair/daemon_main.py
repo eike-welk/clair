@@ -29,19 +29,25 @@ from __future__ import absolute_import
 
 from os import path
 from datetime import datetime, timedelta
+import time
 from random import randint
 
 import dateutil.rrule
 import pandas as pd
+#import numpy as np
 
 from clair.network import EbayConnector
-from clair.coredata import SearchTask, UpdateTask
+from clair.coredata import (SearchTask, UpdateTask, 
+                            XmlSmallObjectIO, XmlBigFrameIO,
+                            ProductXMLConverter, TaskXMLConverter, 
+                            ListingsXMLConverter)
 
 
 
 class MainObj(object):
     """Main object of operation without GUI. daemon """
     def __init__(self, conf_dir, data_dir):
+        self.data_dir = data_dir
         self.server = EbayConnector(path.join(conf_dir, "python-ebay.apikey"))
         self.tasks = {}
         self.products = {}
@@ -49,21 +55,28 @@ class MainObj(object):
         self.products = pd.DataFrame()
     
     
-    def add_tasks(self, tasks):
-        task_list = tasks.values() if isinstance(tasks, dict) else tasks
-        
-        for task in task_list:
-            self.tasks[task.id] = task
-            
-            
     def add_products(self, products):
         prod_list = products.values() if isinstance(products, dict) \
                     else products 
                     
         for product in prod_list:
+            print "Adding product:", product.id #TODO: logging
             self.products[product.id] = product
 
 
+    def add_tasks(self, tasks):
+        task_list = tasks.values() if isinstance(tasks, dict) else tasks
+        
+        for task in task_list:
+            #TODO: test if task references unknown product or server
+            print "Adding task:", task.id #TODO: logging
+            self.tasks[task.id] = task
+            
+    
+    #TODO: method: add_listings
+    #      that tests if unknown products or tasks are referenced
+    
+    
     def compute_next_due_time(self, curr_time, recurrence_pattern, 
                               add_random=False):
         """
@@ -133,12 +146,37 @@ class MainObj(object):
         return new_time
     
         
+    def compute_next_wakeup_time(self):
+        """
+        Compute time when application needs to wake up to execute next task.
+        
+        Lopps over all tasks in ``self.tasks``.
+        
+        Returns
+        -------
+        
+        datetime, float
+        
+        * Time when next task is due
+        * Number of seconds to sleep until the next task is due.
+        """
+        wakeup_time = datetime(9999, 12, 31) #The last possible month
+        for task in self.tasks.values():
+            wakeup_time = min(task.due_time, wakeup_time)
+            
+        sleep_interval = wakeup_time - datetime.utcnow()
+        sleep_sec = max(sleep_interval.total_seconds(), 0.) 
+        
+        return wakeup_time, sleep_sec
+        
+        
     def execute_tasks(self):
         """
         Execute the due tasks in ``self.tasks``.
         
         Removes single shot tasks.
         """
+        print "Executing due tasks." #TODO: logging
         now = datetime.utcnow()
         for key in self.tasks.keys():
             task = self.tasks[key]
@@ -179,19 +217,71 @@ class MainObj(object):
     
     def create_final_update_tasks(self):
         """Create the tasks to see the final price at the end of auctions."""
-        #Get listings where final price is unknown
-        where_no_final = self.listings["final_price"] != True
+        print "Creating update tasks, to get final prices."
+        #Create administration information if it doesn't exist
+        try:
+            self.listings["final_update_pending"]
+        except KeyError:
+            self.listings["final_update_pending"] = 0.0
+        
+        #Get listings where final price is unknown and 
+        # where no final update is pending
+        if len(self.listings) == 0:
+            return
+        where_no_final = ((self.listings["final_price"] != True) &
+                          (self.listings["final_update_pending"] != True))
         no_final = self.listings[where_no_final]
         no_final = no_final.sort("time")
+        if len(no_final) == 0:
+            return
         
-        #group listings into groups of 20
+        #group listings into groups of 20 (max for Ebay get-items request)
         n_group = 20
-        elem_nums = pd.Series(range(len(no_final)))
-        group_nums = (elem_nums / n_group).apply(int)
+        elem_nums = range(len(no_final))
+        group_nums =[int(ne / n_group) for ne in elem_nums]
         groups = no_final.groupby(group_nums)
-        print group_nums
-        print len(groups)
         
-        for group in groups:
-            print group
-            
+        #Create one update task for each group
+        id_start = "update-" + datetime.utcnow().isoformat() + "-"
+        for i, group in groups:
+            latest_time = group["time"].max()
+            listing_ids = group["id"]
+            task = UpdateTask(id=id_start + str(i), 
+                              due_time=latest_time + timedelta(minutes=30), 
+                              server=None, recurrence_pattern=None, 
+                              listings=listing_ids)
+#            print task
+            self.add_tasks([task])
+        
+        #Remember the listings for which update tasks were just created
+        self.listings["final_update_pending"][where_no_final] = True
+
+
+    def main_download_listings(self):
+        """Simple main loop that downloads listings."""
+        #Load products
+        load_prods = XmlSmallObjectIO(self.data_dir, "products", 
+                                      ProductXMLConverter())
+        self.add_products(load_prods.read_data())
+        #Load tasks
+        load_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
+                                      TaskXMLConverter())
+        self.add_tasks(load_tasks.read_data())
+        #Load listings
+        date_end = datetime.utcnow()
+        date_start = date_end - timedelta(days=-30)
+        io_listings = XmlBigFrameIO(self.data_dir, "listings", 
+                                      ListingsXMLConverter())
+        self.listings = io_listings.read_data(date_start, date_end)
+        
+        self.create_final_update_tasks()
+        
+        while 1:
+            #sleep until a task is due
+            next_due_time, sleep_secs = self.compute_next_wakeup_time()
+            print "Sleeping until:", next_due_time
+            time.sleep(sleep_secs)
+
+            self.execute_tasks()
+            self.create_final_update_tasks()
+            io_listings.write_data(self.listings, overwrite=True)

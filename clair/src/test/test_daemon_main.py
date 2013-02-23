@@ -42,43 +42,7 @@ def relative(*path_components):
     return path.abspath(path.join(path.dirname(__file__), *path_components))
 
 
-def test_execute_tasks():
-    """Test MainObj.execute_tasks"""
-    from clair.daemon_main import MainObj
-    from clair.coredata import Product, SearchTask, UpdateTask
-
-    conf_dir = relative("..")
-    data_dir = None
-    
-    m = MainObj(conf_dir, data_dir)
-    m.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
-                            None, None),
-                    Product("nikon-d70", "Nikon D70", "DSLR Camera", 
-                            None, None)])
-    m.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", "daily", 
-                            "Nikon D90", 5, 10, 500, "EUR", ["nikon-d90"]),
-                 SearchTask("nikon-d70", datetime(2000,1,1), "ebay-de", "daily", 
-                            "Nikon D70", 5, 10, 500, "EUR", ["nikon-d70"])])
-    
-    m.execute_tasks()
-    print m.tasks
-    print m.listings[["title", "price", "sold", "time"]].to_string()
-    
-    upd_listings = m.listings["id"]
-    m.add_tasks([UpdateTask("update-1", datetime(2000,1,1), "ebay-de", None, 
-                           upd_listings)])    
-    m.execute_tasks()
-    print m.tasks
-    print m.listings[["title", "price", "sold", "time", "server"]].to_string()
-    
-    assert len(m.tasks) == 2
-    assert 8 <= len(m.listings) <= 10 #fewer listings possible, variants of the same item are removed
-    
-    print "finished!"
-
-    
-    
-def test_compute_next_due_time():
+def test_MainObj_compute_next_due_time():
     """Test MainObj.compute_next_due_time"""
     from clair.daemon_main import MainObj
     
@@ -124,7 +88,55 @@ def test_compute_next_due_time():
     print "finished!"
     
     
-def test_create_final_update_tasks():
+def test_MainObj_execute_tasks():
+    """Test MainObj.execute_tasks"""
+    from clair.daemon_main import MainObj
+    from clair.coredata import Product, SearchTask, UpdateTask
+
+    conf_dir = relative("..")
+    data_dir = None
+    
+    #Create product information and search tasks 
+    m = MainObj(conf_dir, data_dir)
+    m.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
+                            None, None),
+                    Product("nikon-d70", "Nikon D70", "DSLR Camera", 
+                            None, None)])
+    m.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", "daily", 
+                            "Nikon D90", 5, 10, 500, "EUR", ["nikon-d90"]),
+                 SearchTask("nikon-d70", datetime(2000,1,1), "ebay-de", "daily", 
+                            "Nikon D70", 5, 10, 500, "EUR", ["nikon-d70"])])
+    
+    #Execute the search tasks
+    m.execute_tasks()
+    print m.tasks
+    print m.listings[["title", "price", "sold", "time"]].to_string()
+    
+    #Create an update task, that updates all listings immediately, 
+    # and is executed only once
+    upd_listings = m.listings["id"]
+    m.add_tasks([UpdateTask("update-1", datetime(2000,1,1), "ebay-de", None, 
+                           upd_listings)])
+    
+    #Execute the update task
+    m.execute_tasks()
+    print m.tasks
+    print m.listings[["title", "price", "sold", "time", "server"]].to_string()
+    
+    #The search tasks must still exist, but the update task must be deleted
+    assert len(m.tasks) == 2
+    #There must be about 10 listings, 5 from each search task
+    assert 8 <= len(m.listings) <= 10 #fewer listings: variants of the same item are removed
+    
+#    print m.listings[["description", "price"]].to_string()
+    wakeup_time, sleep_sec = m.compute_next_wakeup_time()
+    
+    print "wakeup_time:", wakeup_time, "sleep_sec:", sleep_sec
+    
+    print "finished!"
+
+    
+def test_MainObj_create_final_update_tasks():
     """Test MainObj.create_final_update_tasks"""
     from clair.daemon_main import MainObj
     from clair.coredata import Product, SearchTask
@@ -132,25 +144,58 @@ def test_create_final_update_tasks():
     conf_dir = relative("..")
     data_dir = None
     
+    #Create product information and a search task
     m = MainObj(conf_dir, data_dir)
     m.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
                             None, None)])
     m.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", "daily", 
-                            "Nikon D90", 25, 10, 500, "EUR", ["nikon-d90"])])
+                            "Nikon D90", 30, 10, 500, "EUR", ["nikon-d90"])])
     
+    #Execute the search task
     m.execute_tasks()
 #    print m.tasks
-    print m.listings[["title", "price", "sold", "time"]].to_string()
-     
+#    print m.listings[["title", "price", "sold", "time"]].to_string()
+    
+    #Create update tasks to get the final price of the listings
     m.create_final_update_tasks()
+#    print m.tasks
+    assert len(m.tasks) == 3
+    assert 0.8 * 30 <= len(m.listings) <= 30
+    
+    #The tasks must be created only once
+    m.create_final_update_tasks()
+    assert len(m.tasks) == 3
+    
+    #continuous operation must be possible
+    m.tasks["nikon-d90"].due_time = datetime(2000,1,1)
+    m.execute_tasks()
+    m.create_final_update_tasks()
+    print m.tasks
+    print m.listings[["title", "price", "sold", "time"]].to_string()
     
     print "finished!"
     
     
+def test_MainObj_main_download_listings():
+    """Test MainObj.create_final_update_tasks"""
+    from clair.daemon_main import MainObj
+    from clair.coredata import Product, SearchTask
+
+    conf_dir = relative("../../example-data")
+    data_dir = relative("../../example-data")
     
+    m = MainObj(conf_dir, data_dir)
+    
+    m.main_download_listings()
+    
+    print "finished!"
+
+
+
 if __name__ == "__main__":
-#    test_execute_tasks()
-#    test_compute_next_due_time()
-    test_create_final_update_tasks()
+#    test_MainObj_compute_next_due_time()
+#    test_MainObj_execute_tasks()
+#    test_MainObj_create_final_update_tasks()
+    test_MainObj_main_download_listings()
     
     pass

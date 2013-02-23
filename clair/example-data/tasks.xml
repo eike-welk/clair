@@ -1,0 +1,44 @@
+<task_storage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <version>0.1</version>
+  <tasks>
+    <search_task>
+      <id>s-nikon-d90</id>
+      <due_time>2000-01-01 00:00:00</due_time>
+      <server>ebay-de</server>
+      <recurrence_pattern>daily</recurrence_pattern>
+      <query_string>Nikon D90</query_string>
+      <n_listings>100</n_listings>
+      <price_min>170</price_min>
+      <price_max>700</price_max>
+      <currency>EUR</currency>
+      <expected_products>
+        <product>nikon-d90</product>
+        <product>nikon-sb24</product>
+      </expected_products>
+    </search_task>
+    <search_task>
+      <id>s-nikon-d70</id>
+      <due_time>2000-01-01 00:00:00</due_time>
+      <server>ebay-de</server>
+      <recurrence_pattern xsi:nil="true"/>
+      <query_string>Nikon D70</query_string>
+      <n_listings>100</n_listings>
+      <price_min>100</price_min>
+      <price_max>400</price_max>
+      <currency>EUR</currency>
+      <expected_products xsi:nil="true"/>
+    </search_task>
+    <search_task>
+      <id>s-nikon-sb24</id>
+      <due_time>2000-01-01 00:00:00</due_time>
+      <server>ebay-de</server>
+      <recurrence_pattern xsi:nil="true"/>
+      <query_string>Nikon SB24</query_string>
+      <n_listings>100</n_listings>
+      <price_min>20</price_min>
+      <price_max>200</price_max>
+      <currency>EUR</currency>
+      <expected_products xsi:nil="true"/>
+    </search_task>
+  </tasks>
+</task_storage>

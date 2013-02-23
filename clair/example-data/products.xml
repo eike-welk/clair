@@ -1,0 +1,23 @@
+<product_storage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <version>0.1</version>
+  <products>
+    <product>
+      <id>nikon-d90</id>
+      <name>Nikon D90</name>
+      <description>Nikon D90 DSLR camera</description>
+      <important_words>
+        <word>Nikon D90</word>
+        <word>Nikon</word>
+        <word>D90</word>
+      </important_words>
+      <categories xsi:nil="true"/>
+    </product>
+    <product>
+      <id>nikon-d70</id>
+      <name>Nikon D70</name>
+      <description>Nikon D70 DSLR camera</description>
+      <important_words xsi:nil="true"/>
+      <categories xsi:nil="true"/>
+    </product>
+  </products>
+</product_storage>

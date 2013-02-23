@@ -281,6 +281,38 @@ def test_ProductXMLConverter():
     assert pd1 == pd2
     
     
+def test_TaskXMLConverter():
+    """Test conversion of product objects from and to XML"""
+    from clair.coredata import SearchTask, UpdateTask, TaskXMLConverter
+    
+    td1 = {"s-nikon-d90":SearchTask("s-nikon-d90", datetime(2000, 1, 1, 20, 30), 
+                                    "ebay-de", "Nikon D90", 
+                                    "daily", 500, 170, 700, "EUR", 
+                                    ["nikon-d90", "nikon-sb24"]),
+           "s-nikon-d70":SearchTask("s-nikon-d70", datetime(2000, 1, 1, 10, 10), 
+                                    "ebay-de", "Nikon D70",),
+           "s-nikon-sb24":SearchTask("s-nikon-sb24", datetime(2000, 1, 1, 2, 3), 
+                                     "ebay-de", "Nikon SB24",),
+           }
+    
+    conv = TaskXMLConverter()
+    
+    #Convert dict of products to XML
+    td_xml = conv.to_xml(td1)
+    print td_xml
+    #Convert XML back to dict of products
+    td2 = conv.from_xml(td_xml)
+    print td2
+    
+    #Conversion to XML and back must result in equal data structure
+    assert td1 == td2
+    
+    #Update tasks must not confuse the converter
+    td1["update-1"] = UpdateTask("update-1", datetime(2000, 1, 1, 20, 20), 
+                                 "ebay-de")
+    td_xml = conv.to_xml(td1)
+    
+    
 def test_XmlSmallObjectIO():
     """Test file writer object for small data structures."""
     from clair.coredata import Product, ProductXMLConverter, XmlSmallObjectIO
@@ -316,7 +348,8 @@ def test_XmlSmallObjectIO():
     
     
 if __name__ == "__main__":
-    test_ListingsXMLConverter()
+#    test_ListingsXMLConverter()
+    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()
 #    test_Record()

@@ -161,7 +161,7 @@ class EbayFindListings(object):
         nrows = len(item)
         listings = make_listing_frame(nrows)
         for i, itemi in enumerate(item):
-            listings["training_sample"][i] = False #This is training sample if True
+#            listings["training_sample"][i] = False #This is training sample if True
             try: listings["thumbnail"][i] = itemi.galleryURL.text
             except AttributeError: pass
             listings["title"][i] = itemi.title.text
@@ -441,7 +441,7 @@ class EbayConnector(object):
         #TODO: Additionally return number of listings that match the search 
         #      query. Returned by Ebay at end of response.
         #TODO: Additional argument ``n_start`` to continue the same search.  
-        assert isinstance(keywords,  (str))
+        assert isinstance(keywords,  (basestring))
         assert isinstance(n_listings,(int))
         assert isinstance(price_min, (float, int, NoneType))
         assert isinstance(price_max, (float, int, NoneType))

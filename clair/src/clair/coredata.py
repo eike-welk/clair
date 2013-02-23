@@ -36,7 +36,7 @@ import random
 import dateutil
 #from dateutil.parser import parse as parse_date 
 #from dateutil.relativedelta import relativedelta
-from numpy import nan
+from numpy import nan, isnan
 import pandas as pd
 from lxml import etree, objectify
 
@@ -153,9 +153,8 @@ class Product(Record):
 
 class SearchTask(Record):
     """Task to search for listings on a certain server."""
-    def __init__(self, id, due_time, server, #IGNORE:W0622
-                 recurrence_pattern=None, 
-                 query_string="", n_listings=100,
+    def __init__(self, id, due_time, server, query_string, #IGNORE:W0622
+                 recurrence_pattern=None, n_listings=100,
                  price_min=None, price_max=None, currency="EUR",
                  expected_products=None):
         Record.__init__(self)
@@ -206,6 +205,8 @@ class XMLConverter(object):
         """Convert lists, wrap each element of a list with a tag."""
         if el_list is None:
             return [None]
+        if isinstance(el_list, float) and isnan(el_list):
+            return [None]
         E = self.E
         node = getattr(E, tag)
         xml_nodes = [node(el) for el in el_list]
@@ -243,6 +244,26 @@ class XMLConverter(object):
             return None
         else:
             return dateutil.parser.parse(str_none)
+        
+        
+    def float_or_none(self, float_none):
+        """
+        Convert ``float_none`` to ``float``, but if it is None return None.
+        """
+        if float_none is None:
+            return None
+        else:
+            return float(float_none)
+        
+        
+    def int_or_none(self, int_none):
+        """
+        Convert ``int_none`` to ``int``, but if it is None return None.
+        """
+        if int_none is None:
+            return None
+        else:
+            return int(int_none)
         
         
 
@@ -360,9 +381,8 @@ class ProductXMLConverter(XMLConverter):
                 E.name(pr.name),
                 E.description(pr.description),
                 E.important_words(*self.to_xml_list("word", 
-                                                   pr.important_words)),
-                E.categories(*self.to_xml_list("category",
-                                              pr.categories)),
+                                                    pr.important_words)),
+                E.categories(*self.to_xml_list("category", pr.categories)),
                 )
             root_xml.products.append(pr_xml)
         
@@ -386,10 +406,80 @@ class ProductXMLConverter(XMLConverter):
                            important_words=self.from_xml_list(
                                                 "word", pr.important_words),
                            categories=self.from_xml_list(
-                                                "categories", pr.categories))
+                                                "category", pr.categories))
             product_dict[prod.id] = prod
         
         return product_dict
+
+
+
+class TaskXMLConverter(XMLConverter):
+    """
+    Convert task objects to and from XML
+    
+    Currently only stores SearchTask objects.
+    """
+    def to_xml(self, tasks):
+        """Convert dictionary or list of tasks to XML"""
+        E = self.E
+        task_list = tasks.values() if isinstance(tasks, dict) else tasks
+
+        root_xml = E.task_storage(
+            E.version("0.1"),
+            E.tasks())
+        for tsk in task_list:
+            if not isinstance(tsk, SearchTask):
+                continue
+            tsk_xml = E.search_task(
+                E.id(tsk.id),
+                E.due_time(tsk.due_time),
+                E.server(tsk.server),
+                E.recurrence_pattern(tsk.recurrence_pattern),
+                E.query_string(tsk.query_string),
+                E.n_listings(tsk.n_listings),
+                E.price_min(tsk.price_min),
+                E.price_max(tsk.price_max),
+                E.currency(tsk.currency),
+                E.expected_products(*self.to_xml_list("product", 
+                                                      tsk.expected_products))
+                )
+            root_xml.tasks.append(tsk_xml)
+        
+        doc_str = etree.tostring(root_xml, pretty_print=True)
+        return doc_str 
+
+        
+    def from_xml(self, xml):
+        """Convert from XML representation to dictionary of Product."""
+        ustrn = self.unicode_or_none
+        parse_date = self.datetime_or_none
+        floatn = self.float_or_none
+        intn = self.int_or_none
+        
+        root_xml = objectify.fromstring(xml)
+#        print objectify.dump(root_xml)
+        version = root_xml.version.text
+        assert version == "0.1"
+               
+        task_xml = root_xml.tasks.search_task
+        task_dict = {}
+        for tsk in task_xml:    
+            prod = SearchTask(id=tsk.id.pyval,
+                              due_time=parse_date(tsk.due_time.pyval), 
+                              server=ustrn(tsk.server.pyval), 
+                              recurrence_pattern=ustrn(
+                                                tsk.recurrence_pattern.pyval), 
+                              query_string=ustrn(tsk.query_string.pyval), 
+                              n_listings=intn(tsk.n_listings.pyval), 
+                              price_min=floatn(tsk.price_min.pyval), 
+                              price_max=floatn(tsk.price_max.pyval), 
+                              currency=ustrn(tsk.currency.pyval), 
+                              expected_products=self.from_xml_list(
+                                        "product", tsk.expected_products)
+                              )
+            task_dict[prod.id] = prod
+        
+        return task_dict
 
 
 
@@ -657,7 +747,9 @@ class XmlBigFrameIO(object):
             frame = self.xml_converter.from_xml(text)
             out_frame = out_frame.append(frame, ignore_index=True, 
                                          verify_integrity=False)
-            
+        
+        if len(out_frame) == 0:
+            return out_frame
         out_frame = out_frame.drop_duplicates("id", take_last=True)
         out_frame.set_index("id", drop=False, inplace=True, 
                             verify_integrity=True)
