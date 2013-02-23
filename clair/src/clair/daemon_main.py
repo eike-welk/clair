@@ -73,8 +73,10 @@ class MainObj(object):
             self.tasks[task.id] = task
             
     
-    #TODO: method: add_listings
-    #      that tests if unknown products or tasks are referenced
+    def add_listings(self, listings):
+        print "Adding {} listings".format(len(listings)) #TODO: logging
+        #TODO: test if unknown products or tasks are referenced
+        self.listings = listings.combine_first(self.listings)
     
     
     def compute_next_due_time(self, curr_time, recurrence_pattern, 
@@ -195,13 +197,13 @@ class MainObj(object):
                                             currency=task.currency)
                 lst_found["expected_products"].fill(task.expected_products)
                 lst_found["server"] = task.server
-                self.listings = lst_found.combine_first(self.listings)
+                self.add_listings(lst_found)
             #Update known listings
             elif isinstance(task, UpdateTask):
                 lst_update = self.listings.ix[task.listings]
                 lst_update = self.server.update_listings(lst_update)
                 lst_update["server"] = task.server
-                self.listings = lst_update.combine_first(self.listings)                           
+                self.add_listings(lst_update)
             else:
                 raise TypeError("Unknown task type:" + str(type(task)) + 
                                 "\ntask:\n" + str(task))
@@ -269,10 +271,10 @@ class MainObj(object):
         self.add_tasks(load_tasks.read_data())
         #Load listings
         date_end = datetime.utcnow()
-        date_start = date_end - timedelta(days=-30)
+        date_start = date_end - timedelta(days=30)
         io_listings = XmlBigFrameIO(self.data_dir, "listings", 
                                       ListingsXMLConverter())
-        self.listings = io_listings.read_data(date_start, date_end)
+        self.add_listings(io_listings.read_data(date_start, date_end))
         
         self.create_final_update_tasks()
         
