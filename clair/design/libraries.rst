@@ -10,13 +10,24 @@ Ebay API
 
 https://www.x.com/developers/ebay
 
-Generally, using the API requires registration with Ebay. A programmer receives a set of secret keys, that she must not share. Programs that are released to users must be checked by Ebay. Checked programs are called `compatible programs`. Access to the bidding API requires special permission from Ebay.
+Generally, using the API requires registration with Ebay. A programmer receives 
+a set of secret keys, that she must not share. Programs that are released to 
+users must be checked by Ebay. Checked programs are called 
+`compatible programs`. Access to the bidding API requires special permission 
+from Ebay.
 
-There is a call limit for programs. For programs that have not been checked it is fairly restrictive (5000 calls / day). For compatible programs it is much higher (1.5 million calls / day).
+There is a call limit for programs. For programs that have not been checked it 
+is fairly restrictive (5000 calls / day). For compatible programs it is much 
+higher (1.5 million calls / day).
 
     https://www.x.com/developers/ebay/ebay-api-call-limits
 
-Ebay seems not to like programs that gather statistical information. But gathering statistical information seems to be generally allowed in the license for Ebay's API. In the ``API License Agreement`` only some specific statistics are excluded, that reveal information about the performance of Ebay as a business. However it is stated in the website, that compatible programs should not gather statistical information though the API. 
+Ebay seems not to like programs that gather statistical information. But 
+gathering statistical information seems to be generally allowed in the license 
+for Ebay's API. In the ``API License Agreement`` only some specific statistics 
+are excluded, that reveal information about the performance of Ebay as a 
+business. However it is stated in the website, that compatible programs should 
+not gather statistical information though the API. 
 
     https://www.x.com/developers/ebay/support/certification
     http://developer.ebay.com/join/licenses/individual/
@@ -105,10 +116,13 @@ There seems to be an API but nearly no information about it is published.
 Machine Learning Libraries
 ==========================
 
-Slides and video of tutorial talk on text classification and machine learning with Python:
+Slides and video of tutorial talk on text classification and machine learning 
+with Python:
+
 http://www.slideshare.net/ogrisel/statistical-machine-learning-for-text-classification-with-scikitlearn-and-nltk
 
 Tips to improve accuracy and performance of a text classification algorithm:
+
 http://thinknook.com/10-ways-to-improve-your-classification-algorithm-performance-2013-01-21/
 
 
@@ -121,9 +135,11 @@ in compiled languages, associated with Numpy and Scipy.
 http://scikit-learn.org/stable/
 
 How to work with text data in Scikit-Learn:
+
 http://scikit-learn.github.com/scikit-learn-tutorial/working_with_text_data.html
 
 Choose the right algorithm in Scikit-Learn:
+
 http://peekaboo-vision.blogspot.de/2013/01/machine-learning-cheat-sheet-for-scikit.html
 
 
@@ -135,13 +151,16 @@ Python, implementation probably partially in compiled languages.
 
 http://nltk.org/
 
-The library is accompanied by an online book. Chapter 6 is about machine learning:
+The library is accompanied by an online book. Chapter 6 is about machine 
+learning:
+
 http://nltk.org/book/
 
 Pattern
 -------
 
-Python, supposedly contains out-of-the-box solutions, seems to include parser for German.
+Python, supposedly contains out-of-the-box solutions, seems to include parser 
+for German.
 
 http://www.clips.ua.ac.be/pages/pattern
 
@@ -149,7 +168,8 @@ http://www.clips.ua.ac.be/pages/pattern
 Gensim
 ------
 
-Python, specialized for natural language processing, maybe only for unsupervised learning.
+Python, specialized for natural language processing, maybe only for 
+unsupervised learning.
 
 http://radimrehurek.com/gensim/
 
@@ -157,7 +177,8 @@ http://radimrehurek.com/gensim/
 Orange
 ------
 
-Python, mainly for biologists, but with components for text mining. Supposedly scales well.
+Python, mainly for biologists, but with components for text mining. Supposedly 
+scales well.
 
 http://orange.biolab.si/
 
@@ -165,8 +186,8 @@ http://orange.biolab.si/
 Shogun
 ------
 
-Large scale machine learning toolbox with bindings for Python, Java, among others.
-Implementation seems to be in C++, with some Python on the top level.
+Large scale machine learning toolbox with bindings for Python, Java, among 
+others. Implementation seems to be in C++, with some Python on the top level.
 
 http://www.shogun-toolbox.org/
 
@@ -175,8 +196,8 @@ Additional Libraries
 ====================
 
 
-Pandas - Data analysis toolkit for time series
-----------------------------------------------
+Pandas - Data analysis toolkit for time series     **Dependency**
+-----------------------------------------------------------------
 
 Python. Pandas is a data analysis toolkit for time series.
 It stores values together with labels, which can be date-time or anything else. 
@@ -186,8 +207,8 @@ Special plotting algorithms. Stores data in HDF5 format.
 http://pandas.pydata.org/pandas-docs/stable/index.html
 
 
-PyTables - HDF5 library
------------------------
+PyTables - HDF5 library             **Dependency**
+--------------------------------------------------
 
 Python. PyTables is a library to store data in the HDF5 format. It can manage
 hierarchical datasets and is designed to cope with extremely large amounts of
@@ -199,7 +220,7 @@ http://www.pytables.org
 Requests - HTTP for Humans          **Dependency**
 --------------------------------------------------
 
-Python. Simple HTTP library. Used by: Python-Ebay library.
+Python. Simple HTTP library. Used by: Python-Ebay.
 
 http://docs.python-requests.org/en/latest/
 
@@ -208,7 +229,7 @@ LXML - XML parsing library          **Dependency**
 --------------------------------------------------
 
 Python. Fast XML parsing library, that uses a very similar API as ElementTree.
-Used by: Python-Ebay library.
+Used by: everywhere in Clair, and Python-Ebay.
 
 http://lxml.de/
 
