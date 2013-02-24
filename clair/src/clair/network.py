@@ -315,7 +315,8 @@ class EbayGetListings(object):
             #Listing status
             #http://developer.ebay.com/Devzone/shopping/docs/CallRef/GetMultipleItems.html#Response.Item.ListingStatus
             listings["active"][i] = itemi.ListingStatus.text == "Active"
-            listings["final_price"][i] = itemi.ListingStatus.text == "Ended"
+            listings["final_price"][i] = (itemi.ListingStatus.text in 
+                                          ["Ended", "Completed"])
             listings["sold"][i] = int(itemi.QuantitySold.text) > 0
             #Price and shipping cost
             listings["currency"][i] = itemi.ConvertedCurrentPrice.get(  #EUR, USD, ...
