@@ -34,8 +34,10 @@ from datetime import datetime #, timedelta
 from types import NoneType
 import random
 import dateutil
+from logging import debug, info, warning, error, critical
 #from dateutil.parser import parse as parse_date 
 #from dateutil.relativedelta import relativedelta
+
 from numpy import nan, isnan
 import pandas as pd
 from lxml import etree, objectify
@@ -566,8 +568,7 @@ class XmlBigFrameIO(object):
         overwrite : bool
             Don't overwrite existing file, but create additional file with
             increased serial number in file name.
-              
-        #TODO: overwrite
+        
         #TODO: compression
         """
         assert isinstance(text, basestring)
@@ -602,7 +603,7 @@ class XmlBigFrameIO(object):
         file_new_temp = file_new + "-new-" + rand_str
         
         #Write file with temporary name
-        print "Writing:", file_new_temp #TODO: logging
+        debug("Writing: {}".format(file_new_temp))
         fw = open(file_new_temp, "w")
         fw.write(text.encode("ascii"))
         fw.close()
@@ -642,7 +643,7 @@ class XmlBigFrameIO(object):
         #Write the file
         if compress:
             raise IOError("Compression is not implemented.")
-        print "Writing:", path_n #TODO: logging
+        debug("Writing: {}".format(path_n))
         wfile = file(path_n, "w")
         wfile.write(text.encode("ascii"))
         wfile.close()
@@ -690,7 +691,7 @@ class XmlBigFrameIO(object):
         xml_texts = []
         for fname in files_filt:
             fpath = path.join(self.directory, fname)
-            print "Reading:", fpath #TODO: logging
+            debug("Reading: {}".format(fpath))
             nameparts = fname.lower().split(".")
             extension = nameparts[-1]
             #TODO: compression
@@ -798,7 +799,7 @@ class XmlSmallObjectIO(object):
         file_old_temp = file_name + "-old-" + rand_str
         
         #Write file with temporary name
-        print "Writing:", file_new_temp #TODO: logging
+        debug("Writing: {}".format(file_new_temp))
         fw = open(file_new_temp, "w")
         fw.write(xml_text.encode("ascii"))
         fw.close()
@@ -814,6 +815,7 @@ class XmlSmallObjectIO(object):
     def read_data(self):
         """Read XML file and convert data to Python representation."""
         file_name = path.join(self.directory, self.name_prefix + ".xml")
+        debug("Reading: {}".format(file_name))
         fr = open(file_name, "r")
         xml_text = fr.read()
         fr.close()

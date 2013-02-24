@@ -10,12 +10,29 @@
         <word>Nikon</word>
         <word>D90</word>
       </important_words>
-      <categories xsi:nil="true"/>
+      <categories>
+            <category>photo.camera.system</category>
+            <category>photo.system.nikon</category>
+      </categories>
     </product>
     <product>
       <id>nikon-d70</id>
       <name>Nikon D70</name>
       <description>Nikon D70 DSLR camera</description>
+      <important_words xsi:nil="true"/>
+      <categories xsi:nil="true"/>
+    </product>    
+	<product>
+      <id>nikon-sb-24</id>
+      <name>Nikon SB-24</name>
+      <description>Nikon SB-24 Flash</description>
+      <important_words xsi:nil="true"/>
+      <categories xsi:nil="true"/>
+    </product>
+    <product>
+      <id>nikon-sb-26</id>
+      <name>Nikon SB-26</name>
+      <description>Nikon SB-26 Flash</description>
       <important_words xsi:nil="true"/>
       <categories xsi:nil="true"/>
     </product>

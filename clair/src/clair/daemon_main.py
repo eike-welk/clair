@@ -31,6 +31,7 @@ from os import path
 from datetime import datetime, timedelta
 import time
 from random import randint
+from logging import debug, info, warning, error, critical
 
 import dateutil.rrule
 import pandas as pd
@@ -52,7 +53,7 @@ class MainObj(object):
         self.tasks = {}
         self.products = {}
         self.listings = pd.DataFrame()
-        self.products = pd.DataFrame()
+        self.prices = pd.DataFrame()
     
     
     def add_products(self, products):
@@ -60,21 +61,35 @@ class MainObj(object):
                     else products 
                     
         for product in prod_list:
-            print "Adding product:", product.id #TODO: logging
+            info("Adding product: {}".format(product.id))
             self.products[product.id] = product
 
 
     def add_tasks(self, tasks):
+        def setn(iterable_or_none):
+            if iterable_or_none is None:
+                return set()
+            return set(iterable_or_none)
+        
         task_list = tasks.values() if isinstance(tasks, dict) else tasks
+        prod_ids = set(self.products.keys())
         
         for task in task_list:
-            #TODO: test if task references unknown product or server
-            print "Adding task:", task.id #TODO: logging
+            info("Adding task: {}".format(task.id))
+            #Test if task references unknown product #TODO: or server
+            if isinstance(task, SearchTask):
+                un_prods = setn(task.expected_products) - prod_ids
+                if un_prods:    
+                    warning("Unknown product ID: '{pid}'. "
+                            "Referenced by task '{tid}'."
+                            .format(pid="', '".join(un_prods), 
+                                    tid=task.id))
+                        
             self.tasks[task.id] = task
             
     
     def add_listings(self, listings):
-        print "Adding {} listings".format(len(listings)) #TODO: logging
+        info("Adding {} listings".format(len(listings)))
         #TODO: test if unknown products or tasks are referenced
         self.listings = listings.combine_first(self.listings)
     
@@ -178,7 +193,7 @@ class MainObj(object):
         
         Removes single shot tasks.
         """
-        print "Executing due tasks." #TODO: logging
+        info("Executing due tasks.")
         now = datetime.utcnow()
         for key in self.tasks.keys():
             task = self.tasks[key]
@@ -186,7 +201,7 @@ class MainObj(object):
             if task.due_time > now:
                 continue
             
-            print "Executing:", task.id #TODO: logging
+            info("Executing task: {}".format(task.id))
             #Search for new listings
             if isinstance(task, SearchTask):
                 lst_found = self.server.find_listings(
@@ -219,7 +234,7 @@ class MainObj(object):
     
     def create_final_update_tasks(self):
         """Create the tasks to see the final price at the end of auctions."""
-        print "Creating update tasks, to get final prices."
+        info("Creating update tasks, to get final prices.")
         #Create administration information if it doesn't exist
         try:
             self.listings["final_update_pending"]
@@ -244,12 +259,13 @@ class MainObj(object):
         groups = no_final.groupby(group_nums)
         
         #Create one update task for each group
-        id_start = "update-" + datetime.utcnow().isoformat() + "-"
+        id_start = "update-"
         for i, group in groups:
             latest_time = group["time"].max()
+            due_time = latest_time + timedelta(minutes=30)
             listing_ids = group["id"]
-            task = UpdateTask(id=id_start + str(i), 
-                              due_time=latest_time + timedelta(minutes=30), 
+            task = UpdateTask(id=id_start + due_time.isoformat() + "-" + str(i), 
+                              due_time=due_time, 
                               server=None, recurrence_pattern=None, 
                               listings=listing_ids)
 #            print task
@@ -270,8 +286,8 @@ class MainObj(object):
                                       TaskXMLConverter())
         self.add_tasks(load_tasks.read_data())
         #Load listings
-        date_end = datetime.utcnow()
-        date_start = date_end - timedelta(days=30)
+        date_start = datetime.utcnow() - timedelta(days=30)
+        date_end = datetime.utcnow() + timedelta(days=30)
         io_listings = XmlBigFrameIO(self.data_dir, "listings", 
                                       ListingsXMLConverter())
         self.add_listings(io_listings.read_data(date_start, date_end))
@@ -281,7 +297,7 @@ class MainObj(object):
         while 1:
             #sleep until a task is due
             next_due_time, sleep_secs = self.compute_next_wakeup_time()
-            print "Sleeping until:", next_due_time
+            info("Sleeping until: {}".format(next_due_time))
             time.sleep(sleep_secs)
 
             self.execute_tasks()

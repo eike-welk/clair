@@ -13,32 +13,50 @@
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb24</product>
+        <product>nikon-sb-24</product>
       </expected_products>
     </search_task>
     <search_task>
       <id>s-nikon-d70</id>
       <due_time>2000-01-01 00:00:00</due_time>
       <server>ebay-de</server>
-      <recurrence_pattern xsi:nil="true"/>
+      <recurrence_pattern>daily</recurrence_pattern>
       <query_string>Nikon D70</query_string>
       <n_listings>100</n_listings>
       <price_min>100</price_min>
       <price_max>400</price_max>
       <currency>EUR</currency>
-      <expected_products xsi:nil="true"/>
+      <expected_products>
+        <product>nikon-d70</product>
+      </expected_products>
     </search_task>
     <search_task>
-      <id>s-nikon-sb24</id>
+      <id>s-nikon-sb-24</id>
       <due_time>2000-01-01 00:00:00</due_time>
       <server>ebay-de</server>
-      <recurrence_pattern xsi:nil="true"/>
-      <query_string>Nikon SB24</query_string>
+      <recurrence_pattern>daily</recurrence_pattern>
+      <query_string>Nikon SB-24</query_string>
       <n_listings>100</n_listings>
       <price_min>20</price_min>
       <price_max>200</price_max>
       <currency>EUR</currency>
-      <expected_products xsi:nil="true"/>
+      <expected_products>
+        <product>nikon-sb-24</product>
+      </expected_products>
+    </search_task>
+    <search_task>
+      <id>s-nikon-sb-26</id>
+      <due_time>2000-01-01 00:00:00</due_time>
+      <server>ebay-de</server>
+      <recurrence_pattern>daily</recurrence_pattern>
+      <query_string>Nikon SB-26</query_string>
+      <n_listings>100</n_listings>
+      <price_min>20</price_min>
+      <price_max>250</price_max>
+      <currency>EUR</currency>
+      <expected_products>
+        <product>nikon-sb-26</product>
+      </expected_products>
     </search_task>
   </tasks>
 </task_storage>

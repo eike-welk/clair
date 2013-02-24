@@ -36,6 +36,11 @@ from datetime import datetime
 
 import pandas as pd
 
+import logging
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+                    level=logging.DEBUG)
+
+
 
 def relative(*path_components):
     "Create file a path that is relative to the location of this file."
@@ -201,6 +206,6 @@ if __name__ == "__main__":
 #    test_MainObj_execute_tasks()
 #    test_MainObj_create_final_update_tasks()
 
-#    notest_MainObj_main_download_listings()
+    notest_MainObj_main_download_listings()
     
     pass
