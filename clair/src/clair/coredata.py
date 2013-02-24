@@ -57,21 +57,26 @@ def make_listing_frame(nrows):
     listings["id"]                = None  #internal unique ID of each listing.
     listings["training_sample"]   = nan   #This is training sample if True
 #    listings["query_string"]      = None  #String with search keywords
-    listings["expected_products"] = None  #list of product IDs
+    listings["search_task"]       = None  #ID (string) of search task, 
+                                          #    that returned this listing
+    listings["expected_products"] = None  #list of product IDs (strings)
     
-    listings["products"]    = None  #Products in this listing. List of DetectedProduct
+    listings["products"]    = None  #Products in this listing. List of product 
+                                    # IDs (strings)
 
     listings["thumbnail"]   = None          
     listings["image"]       = None          
     
     listings["title"]       = None
     listings["description"] = None
-    #TODO: include ``ItemSpecifics``: name value pairs eg.: {"megapixel": "12"}
+    listings["prod_spec"]   = None  #product specific name value pairs (dict)
+                                    #    for example {"megapixel": "12"};
+                                    #    the ``ItemSpecifics`` on Ebay
     #TODO: include bid_count?
     listings["active"]      = nan   #you can still buy it if True
     listings["sold"]        = nan   #successful sale if True
     listings["currency"]    = None  #currency for price EUR, USD, ...
-    listings["price"]       = nan   #price of all items in listing
+    listings["price"]       = nan   #price of listing (all items together)
     listings["shipping"]    = nan   #shipping cost
     listings["type"]        = None  #auction, fixed-price, unknown
     listings["time"]        = None  #Time when price is/was valid. End time in case of auctions
@@ -82,6 +87,7 @@ def make_listing_frame(nrows):
     
     listings["server"]      = None  #string to identify the server
     listings["server_id"]   = None  #ID of listing on the server
+    #TODO: rename to "is_final_price"
     listings["final_price"] = nan   #If True: This is the final price of the auction.
 #    listings["data_dir"]    = None  #Images, html, ... might be stored here
     listings["url_webui"]   = None  #Link to web representation of listing.
@@ -228,6 +234,34 @@ class XMLConverter(object):
         return el_list
     
     
+    def to_xml_dict(self, py_dict):
+        """Convert a dict to a XML structure"""
+        if py_dict is None:
+            return [None]
+        if isinstance(py_dict, float) and isnan(py_dict):
+            return [None]
+        E = self.E
+        xml_dict_repr = [E.kv_pair(E.key(k), E.value(v)) 
+                         for k, v in py_dict.iteritems()]
+        return xml_dict_repr
+    
+    
+    def from_xml_dict(self, xml_dict):
+        """Convert a special XML structure to a dict."""
+        if isinstance(xml_dict, objectify.NoneElement):
+            return None
+        ustrn = self.unicode_or_none
+        
+        py_dict = {}
+        xml_kv_pairs = xml_dict.kv_pair
+        for xml_kv_pair in xml_kv_pairs:
+            key = ustrn(xml_kv_pair.key.pyval)
+            value = ustrn(xml_kv_pair.value.pyval)
+            py_dict[key] = value
+            
+        return py_dict
+    
+    
     def unicode_or_none(self, value):
         """
         Convert value to a unicode string, but if value is None return None.
@@ -288,6 +322,7 @@ class ListingsXMLConverter(XMLConverter):
             li_xml = E.listing(
                 E.id(li["id"]),
                 E.training_sample(float(li["training_sample"])),
+                E.search_task(li["search_task"]),
 #                E.query_string(li["query_string"]),
                 E.expected_products(*self.to_xml_list(
                                         "product", li["expected_products"])),
@@ -296,6 +331,7 @@ class ListingsXMLConverter(XMLConverter):
                 E.image(li["image"]),
                 E.title(li["title"]),
                 E.description(li["description"]),
+                E.prod_spec(*self.to_xml_dict(li["prod_spec"])),
                 E.active(float(li["active"])),
                 E.sold(float(li["sold"])),
                 E.currency(li["currency"]),
@@ -334,6 +370,7 @@ class ListingsXMLConverter(XMLConverter):
         for i, li in enumerate(listing_xml):    
             listings["id"][i] = ustr(li.id.pyval) 
             listings["training_sample"][i] = li.training_sample.pyval
+            listings["search_task"][i] = ustr(li.search_task.pyval)
 #            listings["query_string"][i] = ustr(li.query_string.pyval)
             listings["expected_products"][i] = self.from_xml_list(
                                             "product", li.expected_products)
@@ -343,6 +380,7 @@ class ListingsXMLConverter(XMLConverter):
             listings["image"][i] = ustr(li.image.pyval)
             listings["title"][i] = ustr(li.title.pyval )
             listings["description"][i] = ustr(li.description.pyval)
+            listings["prod_spec"][i] = self.from_xml_dict(li.prod_spec)
             listings["active"][i] = li.active.pyval
             listings["sold"][i] = li.sold.pyval
             listings["currency"][i] = ustr(li.currency.pyval)

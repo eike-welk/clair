@@ -210,6 +210,7 @@ class MainObj(object):
                                             price_min=task.price_min, 
                                             price_max=task.price_max, 
                                             currency=task.currency)
+                lst_found["search_task"] = task.id
                 lst_found["expected_products"].fill(task.expected_products)
                 lst_found["server"] = task.server
                 self.add_listings(lst_found)

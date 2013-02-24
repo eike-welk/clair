@@ -54,16 +54,17 @@ def make_test_listings():
     fr["id"] = ["eb-123", "eb-456", "eb-457"]
     
     fr["training_sample"][0] = True 
+    fr["search_task"][0] = "s-nikon-d90"
 #    fr["query_string"][0] = "Nikon D90"
     
-    #TODO: special handling for lists
-    fr["expected_products"][0] = ["nikon-d90", "qwert"]
-#    fr["products"][0] = []
+    fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
+    fr["products"][0] = ["nikon-d90"]
     
     fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
     fr["image"][0] = "www.some.site/dir/to/img.pg"
-    fr["title"] = [u"qwert", u"<>müäh", None]
-    fr["description"][0] = "asdflkhglakjh lkasdfjlakjf"
+    fr["title"] = [u"Nikon D90 super duper!", u"<>müäh", None]
+    fr["description"][0] = "Buy my old Nikon D90 camera now!"
+    fr["prod_spec"][0] = {"Marke":"Nikon", "Modell":"D90"}
     fr["active"][0] = False
     fr["sold"][0] = False
     fr["currency"][0] = "EUR"
@@ -73,10 +74,12 @@ def make_test_listings():
 #    fr["time"][0] = dprs.parse(li.time.pyval) 
     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
     fr["location"][0] = u"Köln"
+    fr["postcode"][0] = u"50667"
     fr["country"][0] = "DE"
     fr["condition"][0] = 0.7
     fr["server"][0] = "Ebay-Germany"
     fr["server_id"][0] = "123" #ID of listing on server
+    fr["final_price"][0] = True
 #    fr["data_directory"] = ""
     fr["url_webui"][0] = "www.some.site/dir/to/web-page.html"
 #     fr["server_repr"][0] = nan
@@ -104,7 +107,7 @@ def assert_frames_equal(fr1, fr2):
                    isnan(fr1[col][i]) and isnan(fr2[col][i]):
                     continue
                 
-                print "col =", col, "; i =", i
+                print "col =", repr(col), "; i =", i
                 print "fr1[col][i] =", fr1[col][i], \
                       "; type(fr1[col][i]) =", type(fr1[col][i])  
                 print "fr2[col][i] =", fr2[col][i], \
@@ -348,8 +351,8 @@ def test_XmlSmallObjectIO():
     
     
 if __name__ == "__main__":
-#    test_ListingsXMLConverter()
-    test_TaskXMLConverter()
+    test_ListingsXMLConverter()
+#    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()
 #    test_Record()

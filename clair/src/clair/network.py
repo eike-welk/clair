@@ -301,10 +301,23 @@ class EbayGetListings(object):
             #Cleaning up html
             #http://lxml.de/lxmlhtml.html#cleaning-up-html
             listings["description"][i] = itemi.Description.text
-            #you can still buy item if True
+            #ItemSpecifics: 
+            try:
+                xml_prod_specs = itemi.ItemSpecifics.NameValueList
+                prod_specs = {}
+                for xml_spec in xml_prod_specs:
+                    name = xml_spec.Name.text
+                    value = xml_spec.Value.text
+                    prod_specs[name] = value
+                listings["prod_spec"][i] = prod_specs
+            except AttributeError:
+                pass
+            #Listing status
+            #http://developer.ebay.com/Devzone/shopping/docs/CallRef/GetMultipleItems.html#Response.Item.ListingStatus
             listings["active"][i] = itemi.ListingStatus.text == "Active"
-            #successful sale if True
+            listings["final_price"][i] = itemi.ListingStatus.text == "Ended"
             listings["sold"][i] = int(itemi.QuantitySold.text) > 0
+            #Price and shipping cost
             listings["currency"][i] = itemi.ConvertedCurrentPrice.get(  #EUR, USD, ...
                                                                 "currencyID")
             listings["price"][i]    = itemi.ConvertedCurrentPrice.text
@@ -362,9 +375,11 @@ class EbayGetListings(object):
         listings.set_index("id", drop=False, inplace=True, 
                            verify_integrity=True)
         
-        #Ebay shows final price some minutes after auction ends, in worst case.       
-        fp = listings["time"] < datetime.utcnow() + timedelta(minutes=15)
-        listings["final_price"] = fp
+#        #TODO: compute listings["final_price"] from ``Item.ListingStatus``
+#        #      http://developer.ebay.com/Devzone/shopping/docs/CallRef/GetMultipleItems.html#Response.Item.ListingStatus
+#        #Ebay shows final price some minutes after auction ends, in worst case.       
+#        fp = listings["time"] < datetime.utcnow() + timedelta(minutes=15)
+#        listings["final_price"] = fp
 
         return listings
 

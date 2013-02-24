@@ -752,7 +752,8 @@ def test_EbayGetListings_parse():
     
     print listings
     print
-    print listings[["title", "price", "sold", "active"]].to_string()
+#    print listings[["title", "price", "sold", "active"]].to_string()
+    print listings[["title", "price", "prod_spec"]].to_string()
     
     #There are two listings (items) in the response
     assert len(listings) == 4
@@ -825,10 +826,10 @@ if __name__ == '__main__':
 #    test_EbayFindListings_find()
     
 #    test_EbayGetListings_download()
-#    test_EbayGetListings_parse()
+    test_EbayGetListings_parse()
 #    test_EbayGetListings_get_listings()
     
 #    test_EbayConnector_find_listings()
-    test_EbayConnector_update_listings()
+#    test_EbayConnector_update_listings()
     
     pass #pylint: disable=W0107

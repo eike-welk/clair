@@ -36,5 +36,15 @@
       <important_words xsi:nil="true"/>
       <categories xsi:nil="true"/>
     </product>
+    <product>
+      <id>nikon-18-105mm-f/3.5-5.6</id>
+      <name>Nikon 18-105mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens</name>
+      <description>
+            Nikon 18-105mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens - 
+      		Cheap all round zoom, often often found in kits.
+      </description>
+      <important_words xsi:nil="true"/>
+      <categories xsi:nil="true"/>
+    </product>
   </products>
 </product_storage>

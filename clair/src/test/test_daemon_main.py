@@ -37,6 +37,8 @@ from datetime import datetime
 import pandas as pd
 
 import logging
+#TODO: Time stamps must be in UTC
+#      logging.Formatter.converter = time.gmtime
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
                     level=logging.DEBUG)
 
