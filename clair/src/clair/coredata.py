@@ -84,6 +84,8 @@ def make_listing_frame(nrows):
     listings["postcode"]    = None  #Postal code of location
     listings["country"]     = None  #Country of item location
     listings["condition"]   = nan   #1.: new, 0.: completely unusable
+    #TODO: listings["seller"]     = None  #User name of seller
+    #TODO: listings["buyer"]      = None  
     
     listings["server"]      = None  #string to identify the server
     listings["server_id"]   = None  #ID of listing on the server

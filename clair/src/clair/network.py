@@ -266,7 +266,7 @@ class EbayGetListings(object):
         res_xml = eb_shop.GetMultipleItems(
                     item_id=ids_str, 
                     include_selector=
-                    "TextDescription,Details,ItemSpecifics,ShippingCosts", 
+                    "Description,Details,ItemSpecifics,ShippingCosts", 
                     encoding="XML")
 #        print res_xml
         

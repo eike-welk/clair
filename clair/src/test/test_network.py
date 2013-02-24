@@ -239,15 +239,16 @@ def test_EbayFindListings_find():
 #---- EbayGetListings --------------------------------------------------------- 
 
 EBAY_GetMultipleItemsResponse_RESPONSE = \
-"""
+"""<?xml version="1.0" encoding="UTF-8"?>
+
   <GetMultipleItemsResponse xmlns="urn:ebay:apis:eBLBaseComponents">
-   <Timestamp>2013-02-07T06:24:35.687Z</Timestamp>
+   <Timestamp>2013-02-24T22:39:41.139Z</Timestamp>
    <Ack>Success</Ack>
-   <Build>E809_CORE_BUNDLED_15734399_R1</Build>
-   <Version>809</Version>
+   <Build>E811_CORE_BUNDLED_15774474_R1</Build>
+   <Version>811</Version>
    <Item>
     <BestOfferEnabled>false</BestOfferEnabled>
-    <Description>Nikon D90, Sehr guter Zustand bis auf die seitlich fehlende Gummi Abdeckung (siehe Bilder) Angebot beinhaltet: Nikon D90 Body, Tragegurt, Ladegerät, AV- und USB-Kabel. Aputure LCD Fernauslöser http://www.aputure.com/en/product/digital_timer_remote_shutter.php (original Verpackung) Seagull Winkelsucher http://www.camerachina.com/productxx.asp?id=1349 (original Verpackung) Lowepro Sling Shot 100 AW Tasche.</Description>
+    <Description>&lt;span style=&quot;font-family: Arial; font-size: small; &quot;&gt;Nikon D90,&lt;/span&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&amp;nbsp;Sehr guter Zustand bis auf die seitlich fehlende&amp;nbsp;Gummi&amp;nbsp;Abdeckung&amp;nbsp;&lt;/font&gt;&lt;span style=&quot;font-family: Arial; font-size: small; &quot;&gt;(siehe Bilder)&lt;/span&gt;&lt;span style=&quot;font-family: Arial; font-size: small; &quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot;&gt;Angebot beinhaltet:&lt;font size=&quot;2&quot;&gt;&amp;nbsp;&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot;&gt;Nikon D90 Body, Tragegurt, Ladegerät, AV- und USB-Kabel.&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot;&gt;A&lt;/font&gt;&lt;font face=&quot;Arial&quot;&gt;puture LCD Fernauslöser&lt;/font&gt;&lt;font face=&quot;Arial&quot;&gt;&amp;nbsp;&lt;/font&gt;http://www.aputure.com/en/product/digital_timer_remote_shutter.php (original Verpackung)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Seagull Winkelsucher&amp;nbsp;http://www.camerachina.com/productxx.asp?id=1349&amp;nbsp;(original Verpackung)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Lowepro Sling Shot 100 AW Tasche.&lt;/div&gt;</Description>
     <ItemID>221185477679</ItemID>
     <EndTime>2013-02-08T16:15:47.000Z</EndTime>
     <StartTime>2013-02-03T16:15:47.000Z</StartTime>
@@ -275,14 +276,20 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
      <FeedbackScore>93</FeedbackScore>
      <PositiveFeedbackPercent>100.0</PositiveFeedbackPercent>
     </Seller>
-    <BidCount>0</BidCount>
-    <ConvertedCurrentPrice currencyID="EUR">320.0</ConvertedCurrentPrice>
-    <CurrentPrice currencyID="EUR">320.0</CurrentPrice>
-    <ListingStatus>Active</ListingStatus>
-    <QuantitySold>0</QuantitySold>
+    <BidCount>5</BidCount>
+    <ConvertedCurrentPrice currencyID="EUR">358.0</ConvertedCurrentPrice>
+    <CurrentPrice currencyID="EUR">358.0</CurrentPrice>
+    <HighBidder>
+     <UserID>a***a</UserID>
+     <FeedbackPrivate>false</FeedbackPrivate>
+     <FeedbackRatingStar>Red</FeedbackRatingStar>
+     <FeedbackScore>1238</FeedbackScore>
+    </HighBidder>
+    <ListingStatus>Completed</ListingStatus>
+    <QuantitySold>1</QuantitySold>
     <ShipToLocations>DE</ShipToLocations>
     <Site>Germany</Site>
-    <TimeLeft>P1DT9H51M12S</TimeLeft>
+    <TimeLeft>PT0S</TimeLeft>
     <Title>Nikon D90  mit 18-55mm 3.5-5.6G Objektiv + Zubehörpaket</Title>
     <ShippingCostSummary>
      <ShippingServiceCost currencyID="EUR">6.9</ShippingServiceCost>
@@ -323,13 +330,13 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
       <Value>VBA230KG16</Value>
      </NameValueList>
     </ItemSpecifics>
-    <HitCount>137</HitCount>
+    <HitCount>481</HitCount>
     <PrimaryCategoryIDPath>625:31388</PrimaryCategoryIDPath>
     <Country>DE</Country>
     <ReturnPolicy>
      <ReturnsAccepted>ReturnsNotAccepted</ReturnsAccepted>
     </ReturnPolicy>
-    <MinimumToBid currencyID="EUR">320.0</MinimumToBid>
+    <MinimumToBid currencyID="EUR">359.0</MinimumToBid>
     <ProductID type="Reference">100128074</ProductID>
     <AutoPay>false</AutoPay>
     <IntegratedMerchantCreditCardEnabled>false</IntegratedMerchantCreditCardEnabled>
@@ -340,7 +347,7 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
    </Item>
    <Item>
     <BestOfferEnabled>false</BestOfferEnabled>
-    <Description>Wegen Systemwechsels verkaufe ich meine völlig intakte und wenig genutzte Nikon D90. Mit der Kamera wurden weniger als 4050 Bilder (laut robo47.net) gemacht. Die Kamera wird geliefert in der OVP mit allem Zubehör. Hinweis: Die OVP hat als Aufdruck das Kit mit einem (qualitativ nicht sehr hochwertigem Kit-Objektiv). Das habe ich allerdings nicht mit erworben und wird auch nicht mitgeliefert (der Fotoladen hatte nur noch das Kit und so wurde das Objektiv aus der Packung herausgenommen). Zusätzlich liefere ich noch - ein gesondertes Kamerahandbuch (Heike Jasper: Das Kamerahandbuch Nikon D90, Galileo Design Verlag, Neupreis 39,90 Euro). Dieses Handbuch ist viel hilfreicher als die Bedienungsanleitung des Herstellers.- eine kompakte Lowepro-Kameratasche, in die die D90 mit einem mittelgroßen Objektiv gut hineinpasst.</Description>
+    <Description>&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;Wegen Systemwechsels verkaufe ich meine völlig intakte und wenig genutzte Nikon D90.&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;Mit der Kamera wurden weniger als 4050 Bilder (laut robo47.net) gemacht.&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;Die Kamera wird geliefert in der OVP mit allem Zubehör. Hinweis: Die OVP hat als Aufdruck das Kit mit einem (qualitativ nicht sehr hochwertigem Kit-Objektiv). Das habe ich allerdings nicht mit erworben und wird auch nicht mitgeliefert (der Fotoladen hatte nur noch das Kit und so wurde das Objektiv aus der Packung herausgenommen).&amp;nbsp;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;Zusätzlich liefere ich noch&amp;nbsp;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;- ein gesondertes Kamerahandbuch (Heike Jasper: Das Kamerahandbuch Nikon D90, Galileo Design Verlag, Neupreis 39,90 Euro). Dieses Handbuch ist viel hilfreicher als die Bedienungsanleitung des Herstellers.&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Arial&quot; size=&quot;2&quot;&gt;- eine kompakte Lowepro-Kameratasche, in die die D90 mit einem mittelgroßen Objektiv gut hineinpasst.&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;</Description>
     <ItemID>271149493368</ItemID>
     <EndTime>2013-02-07T20:02:55.000Z</EndTime>
     <StartTime>2013-02-02T20:02:55.000Z</StartTime>
@@ -361,23 +368,23 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
     <Seller>
      <UserID>realblaumann</UserID>
      <FeedbackRatingStar>Blue</FeedbackRatingStar>
-     <FeedbackScore>82</FeedbackScore>
+     <FeedbackScore>84</FeedbackScore>
      <PositiveFeedbackPercent>100.0</PositiveFeedbackPercent>
     </Seller>
-    <BidCount>8</BidCount>
-    <ConvertedCurrentPrice currencyID="EUR">294.0</ConvertedCurrentPrice>
-    <CurrentPrice currencyID="EUR">294.0</CurrentPrice>
+    <BidCount>23</BidCount>
+    <ConvertedCurrentPrice currencyID="EUR">328.1</ConvertedCurrentPrice>
+    <CurrentPrice currencyID="EUR">328.1</CurrentPrice>
     <HighBidder>
-     <UserID>e***e</UserID>
+     <UserID>0***a</UserID>
      <FeedbackPrivate>false</FeedbackPrivate>
      <FeedbackRatingStar>Turquoise</FeedbackRatingStar>
-     <FeedbackScore>203</FeedbackScore>
+     <FeedbackScore>228</FeedbackScore>
     </HighBidder>
-    <ListingStatus>Active</ListingStatus>
-    <QuantitySold>0</QuantitySold>
+    <ListingStatus>Completed</ListingStatus>
+    <QuantitySold>1</QuantitySold>
     <ShipToLocations>DE</ShipToLocations>
     <Site>Germany</Site>
-    <TimeLeft>PT13H38M20S</TimeLeft>
+    <TimeLeft>PT0S</TimeLeft>
     <Title>Nikon D90 Digitalkamera mit OVP </Title>
     <ShippingCostSummary>
      <ShippingServiceCost currencyID="EUR">7.0</ShippingServiceCost>
@@ -414,14 +421,14 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
       <Value>VBA230AE</Value>
      </NameValueList>
     </ItemSpecifics>
-    <HitCount>247</HitCount>
+    <HitCount>472</HitCount>
     <Subtitle>Zusammen mit extra Kamerahandbuch und Lowepro-Tasche </Subtitle>
     <PrimaryCategoryIDPath>625:31388</PrimaryCategoryIDPath>
     <Country>DE</Country>
     <ReturnPolicy>
      <ReturnsAccepted>ReturnsNotAccepted</ReturnsAccepted>
     </ReturnPolicy>
-    <MinimumToBid currencyID="EUR">295.0</MinimumToBid>
+    <MinimumToBid currencyID="EUR">329.1</MinimumToBid>
     <ProductID type="Reference">100172951</ProductID>
     <AutoPay>false</AutoPay>
     <IntegratedMerchantCreditCardEnabled>false</IntegratedMerchantCreditCardEnabled>
@@ -432,9 +439,216 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
    </Item>
    <Item>
     <BestOfferEnabled>false</BestOfferEnabled>
-    <Description>FLIP4SHOP Zu bevorzugten Shops hinzufügen Artikelbeschreibung Nikon D90 12,3MP mit Zubehör in OVP! Mit Rechnung vom Fachhändler und 1 Jahr Gewährleistung Die Nikon D90 bietet Filmsequenzfunktion (D-Movie) in HD-Auflösung. Der CMOS-Bildsensor im DX-Format mit einer effektiven Auflösung von 12,3 Megapixel und das Bildverarbeitungssystem EXPEED von Nikon sind Garanten für die erstklassige Bildqualität der D90. Weitere Funktionen wie Live-View, Motiverkennung, Aktives D-Lighting, Picture Control und hoher Empfindlichkeitsbereich. Details: Nikon D90 12,3MP Zustand: Sehr Gut Die Kamera funktioniert Technisch einwandfrei Das Gehäuse weist feinste Gebrauchsspuren auf. Es befindet sich in einem sehr guten Zustand Das Display weist wenige feinste Kratzer auf, diese sind bei der Benutzung nicht weiter störend Das Gerät stammt aus einem Raucherhaushalt Shutter Counts (Auslösungen) 3600 Highlights: CMOS-Bildsensor im DX-Format mit 12,3 Megapixel Auflösung und integriertem Sensorreinigungssystem, Kaum Bildrauschen von ISO 200 bis 3.200 Live-View mit hochauflösendem 7,6cm (3 Zoll) LCD-Monitor mit 920.000 Bildpunkten HD-Movie-Funktion zur Aufnahme von Motion-JPEG-Filmen mit der hervorragenden Bildqualität einer digitalen Spiegelreflexkamera Technische Daten: Auflösung: 12,3MPDisplaygröße/matt/glänzend?: 3&quot; TFT-LCD-Monitor mit 920.000 BildpunktenDigitalkameratyp: SpiegelreflexSpeichermedium: SD-KarteStromversorgung: Lithium-Ionen Lieferumfang: Nikon D90 12,3MP - schwarz Nikon Quick Charger MH-18a Ladegerät + Netzkabel Nikon Trageriemen Nikon BM-10 Displayschutz Nikon Gehäuseabdeckung USB,-AV,-Kabel Anleitung, Software CD und Originalverpackung Kein Objektiv und Li-ion Akku im Lieferumfang enthalten Kein weiteres Zubehör enthalten Gewährleistung und Rechnung: Rechnung vom Fachhändler FLIP4SHOP Die angegebenen Preise sind Endpreise zzgl. eventueller Versandkosten. Da es sich um differenzbesteuerte Waren (§ 25a UStG) handelt, ist die MwSt. im Preis zwar entsprechend der Regelungen zur Differenzbesteuerung enthalten, ein Umsatzsteuerausweis auf der Rechnung jedoch nicht möglich. 12 Monate Gewährleistung Shop-Kategorien Shop Startseite Apple iPods Apple Macs Apple Notebooks Digitalkameras Mobiltelefone Fragen zum Angebot? Sie erreichen unseren Kundenservice unter der folgenden Telefonnummer: Tel. 0180 5 354746* Fax. 06172-1794 201 E-Mail: info@flip4new.de *0,14 Euro pro Minute aus dem Festnetz; maximal 0,42 Euro pro Minute aus den Mobilfunknetzen Verpackung &amp; Versand Wir versenden unsere Geräte ausschließlich über unseren Partner DHL. Dies garantiert einen: sicheren günstigen schnellen Versandprozess. Falls Ihre Zahlung uns bis 13:00 Uhr erreicht, wird Ihr Gerät in der Regel noch am selben Tag versendet.</Description>
+    <Description>
+
+&lt;link href=&quot;http://ebaymedia.flip4new.de/stylesheets/ebay_template/f4n.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+&lt;!--[if IE]&gt;&lt;link href=&quot;http://ebaymedia.flip4new.de/stylesheets/ebay_template/f4n_ie.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;&lt;![endif]--&gt;
+&lt;!--[if IE 6]&gt;&lt;link href=&quot;http://ebaymedia.flip4new.de/stylesheets/ebay_template/f4n_ie6.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;&lt;![endif]--&gt;
+&lt;!--[if IE 7]&gt;&lt;link href=&quot;http://ebaymedia.flip4new.de/stylesheets/ebay_template/f4n_ie7.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;&lt;![endif]--&gt;
+&lt;title&gt;FLIP4SHOP&lt;/title&gt;
+
+
+&lt;div id=&quot;site_container&quot;&gt;
+&lt;div id=&quot;header&quot;&gt;
+&lt;div class=&quot;logedout&quot; id=&quot;navigation&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://my.ebay.de/ws/eBayISAPI.dll?AcceptSavedSeller&amp;amp;linkname=includefavoritestore&amp;amp;sellerid=flip4shop&quot;&gt;
+Zu bevorzugten Shops hinzufügen
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&quot;whitebox&quot;&gt;
+&lt;div class=&quot;boxPadding&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;div class=&quot;article&quot;&gt;
+&lt;div class=&quot;bigpanel&quot;&gt;
+&lt;div class=&quot;first&quot;&gt;
+&lt;div class=&quot;titlebox&quot;&gt;
+&lt;div&gt;
+&lt;span&gt;Artikelbeschreibung&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul class=&quot;titleboxContentBig&quot;&gt;
+&lt;h2&gt;
+Nikon D90 12,3MP
+mit Zubehör
+in OVP!
+
+&lt;/h2&gt;
+&lt;big&gt;
+&lt;span style=&quot;font-weight:bold;&quot;&gt;&lt;/span&gt;
+Mit Rechnung vom Fachhändler
+und 1 Jahr Gewährleistung
+&lt;/big&gt;
+&lt;p&gt;Die Nikon D90 bietet Filmsequenzfunktion (D-Movie) in HD-Auflösung. Der CMOS-Bildsensor im DX-Format mit einer effektiven Auflösung von 12,3 Megapixel und das Bildverarbeitungssystem EXPEED von Nikon sind Garanten für die erstklassige Bildqualität der D90. Weitere Funktionen wie Live-View, Motiverkennung, Aktives D-Lighting, Picture Control und hoher Empfindlichkeitsbereich.
+&lt;/p&gt;
+&lt;h4&gt;Details:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Nikon D90 12,3MP&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Zustand:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Sehr Gut&lt;/li&gt;
+&lt;li&gt;Die Kamera funktioniert Technisch einwandfrei&lt;/li&gt;
+&lt;li&gt;Das Gehäuse weist feinste Gebrauchsspuren auf. Es befindet sich in einem sehr guten Zustand&lt;/li&gt;
+&lt;li&gt;Das Display weist wenige feinste Kratzer auf, diese sind bei der Benutzung nicht weiter störend&lt;/li&gt;
+&lt;li&gt;Das Gerät stammt aus einem Raucherhaushalt&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Shutter Counts (Auslösungen) 3600&lt;/b&gt;&lt;/li&gt;
+
+
+
+&lt;/ul&gt;
+&lt;h4&gt;Highlights:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;CMOS-Bildsensor im DX-Format mit 12,3 Megapixel Auflösung und integriertem Sensorreinigungssystem, Kaum Bildrauschen von ISO 200 bis 3.200&lt;/li&gt;
+&lt;li&gt;Live-View mit hochauflösendem 7,6cm (3 Zoll) LCD-Monitor mit 920.000 Bildpunkten &lt;/li&gt;
+&lt;li&gt;HD-Movie-Funktion zur Aufnahme von Motion-JPEG-Filmen mit der hervorragenden Bildqualität einer digitalen Spiegelreflexkamera&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Technische Daten:&lt;/h4&gt;
+&lt;ul&gt;&lt;li&gt;Auflösung: 12,3MP&lt;/li&gt;&lt;li&gt;Displaygröße/matt/glänzend?: 3&quot; TFT-LCD-Monitor mit 920.000 Bildpunkten&lt;/li&gt;&lt;li&gt;Digitalkameratyp: Spiegelreflex&lt;/li&gt;&lt;li&gt;Speichermedium: SD-Karte&lt;/li&gt;&lt;li&gt;Stromversorgung: Lithium-Ionen&lt;/li&gt;&lt;/ul&gt;
+&lt;h4&gt;Lieferumfang:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;ul&gt;&lt;/ul&gt;
+&lt;li&gt;Nikon D90 12,3MP - schwarz&lt;/li&gt;
+&lt;li&gt;Nikon Quick Charger MH-18a Ladegerät + Netzkabel&lt;/li&gt;
+&lt;li&gt;Nikon Trageriemen&lt;/li&gt;
+&lt;li&gt;Nikon BM-10 Displayschutz&lt;/li&gt;
+&lt;li&gt;Nikon Gehäuseabdeckung&lt;/li&gt;
+&lt;li&gt;USB,-AV,-Kabel&lt;/li&gt;
+&lt;li&gt;Anleitung, Software CD und Originalverpackung&lt;/li&gt;
+&lt;li&gt;Kein Objektiv und Li-ion Akku im Lieferumfang enthalten&lt;/li&gt;
+&lt;li&gt;Kein weiteres Zubehör enthalten&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;divider&quot;&gt;&lt;/div&gt;
+&lt;h4&gt;Gewährleistung und Rechnung:&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Rechnung vom Fachhändler FLIP4SHOP&lt;/li&gt;
+&lt;li&gt;
+Die angegebenen Preise sind Endpreise zzgl. eventueller Versandkosten. Da es sich um differenzbesteuerte Waren (§ 25a UStG) handelt, ist die MwSt. im Preis zwar entsprechend der Regelungen zur Differenzbesteuerung enthalten, ein Umsatzsteuerausweis auf der Rechnung jedoch nicht möglich.
+&lt;/li&gt;
+&lt;li&gt;12 Monate Gewährleistung&lt;/li&gt;&lt;/ul&gt;
+&lt;/ul&gt;
+&lt;table border=&quot;0&quot; cellpadding=&quot;1&quot; cellspacing=&quot;1&quot; style=&quot;text-align: left; margin-left: auto; margin-right: auto;&quot;&gt;
+&lt;tbody&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul class=&quot;titleboxContentBig&quot;&gt;
+&lt;br&gt;
+&lt;div class=&quot;clear&quot;&gt;&lt;/div&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;titlebox_footer titlebox_Big&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sidebar&quot;&gt;
+&lt;div class=&quot;sidepanel&quot;&gt;
+&lt;div class=&quot;first&quot;&gt;
+&lt;div class=&quot;titlebox&quot;&gt;
+&lt;div&gt;
+&lt;span&gt;Shop-Kategorien&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul class=&quot;titleboxContent&quot;&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://stores.ebay.de/FLIP4SHOP&quot;&gt;
+&lt;span&gt;Shop Startseite&lt;/span&gt;
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://stores.ebay.de/FLIP4SHOP_Apple-iPods_W0QQfsubZ1954369018&quot;&gt;
+&lt;span&gt;Apple iPods&lt;/span&gt;
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://stores.ebay.de/FLIP4SHOP_Apple-Macs_W0QQfsubZ1954368018&quot;&gt;
+&lt;span&gt;Apple Macs&lt;/span&gt;
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://stores.ebay.de/FLIP4SHOP_Apple-Notebooks_W0QQfsubZ1954371018&quot;&gt;
+&lt;span&gt;Apple Notebooks&lt;/span&gt;
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://stores.ebay.de/FLIP4SHOP_Digitalkameras_W0QQfsubZ1954372018&quot;&gt;
+&lt;span&gt;Digitalkameras&lt;/span&gt;
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&quot;http://stores.ebay.de/FLIP4SHOP_Mobiltelefone_W0QQfsubZ1954374018&quot;&gt;
+&lt;span&gt;Mobiltelefone&lt;/span&gt;
+&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;titlebox_footer&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sidepanel&quot;&gt;
+&lt;div class=&quot;first&quot;&gt;
+&lt;div class=&quot;titlebox&quot;&gt;
+&lt;div&gt;
+&lt;span&gt;Fragen zum Angebot?&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul class=&quot;titleboxContent Text&quot;&gt;
+&lt;p&gt;Sie erreichen unseren Kundenservice unter der folgenden Telefonnummer:&lt;/p&gt;
+&lt;p&gt;
+Tel. 0180 5 354746*
+&lt;br&gt;
+Fax. 06172-1794 201
+&lt;br&gt;
+E-Mail: info@flip4new.de
+&lt;/p&gt;
+&lt;p&gt;
+*0,14 Euro pro Minute aus dem Festnetz;
+&lt;br&gt;
+maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
+&lt;/p&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;titlebox_footer&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sidepanel&quot;&gt;
+&lt;div class=&quot;first&quot;&gt;
+&lt;div class=&quot;titlebox&quot;&gt;
+&lt;div&gt;
+&lt;span&gt;Verpackung &amp;amp; Versand&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul class=&quot;titleboxContent Text&quot;&gt;
+&lt;p&gt;Wir versenden unsere Geräte ausschließlich über unseren Partner DHL. Dies garantiert einen:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sicheren&lt;/li&gt;
+&lt;li&gt;günstigen&lt;/li&gt;
+&lt;li&gt;schnellen&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Versandprozess.&lt;/p&gt;
+&lt;p&gt;Falls Ihre Zahlung uns bis 13:00 Uhr erreicht, wird Ihr Gerät in der Regel noch am selben Tag versendet.&lt;/p&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;titlebox_footer&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div style=&quot;clear: both;&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&quot;footer&quot;&gt;
+&lt;div id=&quot;footerMenu&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div style=&quot;top:-20px;position:relative;&quot;&gt;
+&lt;img border=&quot;0&quot; height=&quot;252&quot; src=&quot;http://ebaymedia.flip4new.de/images/ebay_template/F4N-ebay-Werbung-Verkaufen-Sie-Ihr-Altgeraet.jpg&quot; style=&quot;margin-left:10px;&quot; width=&quot;964&quot;&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;center&gt;&lt;a href=&quot;http://pages.ebay.de/verkaufsmanager_pro/&quot;&gt;&lt;img border=&quot;0&quot; height=&quot;50&quot; width=&quot;248&quot; src=&quot;http://pics.ebay.com/aw/pics/de/sellingmanager/sellingmanagerPro/smPro_248x50.gif&quot;&gt;&lt;/a&gt;&lt;/center&gt;&lt;/p&gt;</Description>
     <ItemID>140914051088</ItemID>
-    <EndTime>2013-02-13T10:15:15.000Z</EndTime>
+    <EndTime>2013-02-10T17:46:24.000Z</EndTime>
     <StartTime>2013-02-06T10:15:15.000Z</StartTime>
     <ViewItemURLForNaturalSearch>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Nur-Gehaeuse-OVP-Fachhaendler-/140914051088</ViewItemURLForNaturalSearch>
     <ListingType>StoresFixedPrice</ListingType>
@@ -451,18 +665,24 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
     <Seller>
      <UserID>flip4shop</UserID>
      <FeedbackRatingStar>PurpleShooting</FeedbackRatingStar>
-     <FeedbackScore>51297</FeedbackScore>
+     <FeedbackScore>53728</FeedbackScore>
      <PositiveFeedbackPercent>99.7</PositiveFeedbackPercent>
      <TopRatedSeller>true</TopRatedSeller>
     </Seller>
     <BidCount>0</BidCount>
     <ConvertedCurrentPrice currencyID="EUR">359.29</ConvertedCurrentPrice>
     <CurrentPrice currencyID="EUR">359.29</CurrentPrice>
-    <ListingStatus>Active</ListingStatus>
-    <QuantitySold>0</QuantitySold>
+    <HighBidder>
+     <UserID>8***n</UserID>
+     <FeedbackPrivate>false</FeedbackPrivate>
+     <FeedbackRatingStar>Turquoise</FeedbackRatingStar>
+     <FeedbackScore>185</FeedbackScore>
+    </HighBidder>
+    <ListingStatus>Completed</ListingStatus>
+    <QuantitySold>1</QuantitySold>
     <ShipToLocations>Europe</ShipToLocations>
     <Site>Germany</Site>
-    <TimeLeft>P6DT3H50M40S</TimeLeft>
+    <TimeLeft>PT0S</TimeLeft>
     <Title>Nikon D90 12.3 MP Digitalkamera - Schwarz (Nur Gehäuse) in OVP - vom Fachhändler</Title>
     <ShippingCostSummary>
      <ShippingServiceCost currencyID="EUR">0.0</ShippingServiceCost>
@@ -499,7 +719,7 @@ EBAY_GetMultipleItemsResponse_RESPONSE = \
       <Value>VBA230AE</Value>
      </NameValueList>
     </ItemSpecifics>
-    <HitCount>24</HitCount>
+    <HitCount>94</HitCount>
     <Subtitle>Mit Rechnung vom Fachhändler - 12 Monate Gewährleistung</Subtitle>
     <PrimaryCategoryIDPath>625:31388</PrimaryCategoryIDPath>
     <Storefront>
@@ -650,7 +870,7 @@ Bitte beachten Sie desweiteren die rechtlichen Informationen in der Mich Sektion
    </Item>
    <Item>
     <BestOfferEnabled>false</BestOfferEnabled>
-    <Description>Sie bieten hier auf einen Nikon D90 Body in OVP im sehr guten gebrauchten Zustand Die Kamera beinhaltet alles serienmäßiges Zubehör welches in der OVP mitgeliefert wurde incl. org, Akku, Ladegerät, deutschem Handbuch etc. Die D90 war meine Zweitkamera und wurde immer sehr pfleglich behandelt, demensprechend gut ist der Zustand Das Display wurde stets mit einer Displayschutzfolie versehen und ist nicht verkratzt Auslösezahl des Verschlusses lt. shuttercount ist 20890, ausgelegt ist der Verschluss auf 150tsd Auslösungen mehr Infos zur D90 unter http://www.digitalkamera.de/Testbericht/Nikon_D90/5258.aspx http://img5.fotos-hochladen.net/uploads/kdsc0007ineq7zljcd.jpg http://img5.fotos-hochladen.net/uploads/kdsc0008p3qif74o6m.jpg Privatverkauf: keine Gewährleistung/Umtausch/Geldrückgabe</Description>
+    <Description>&lt;P&gt;Sie bieten hier auf einen Nikon D90 Body in OVP im sehr guten gebrauchten Zustand&lt;/P&gt;&lt;P&gt;Die Kamera beinhaltet alles serienmäßiges Zubehör welches in der OVP mitgeliefert wurde&lt;/P&gt;&lt;P&gt;incl. org, Akku, Ladegerät, deutschem Handbuch etc.&lt;/P&gt;&lt;P&gt;Die D90 war meine Zweitkamera und wurde immer sehr pfleglich behandelt, demensprechend gut ist der Zustand&lt;/P&gt;&lt;P&gt;Das Display wurde stets mit einer Displayschutzfolie versehen und ist nicht verkratzt&lt;/P&gt;&lt;P&gt;Auslösezahl des Verschlusses lt. shuttercount ist 20890, ausgelegt ist der Verschluss auf 150tsd Auslösungen&lt;/P&gt;&lt;P&gt;&amp;nbsp;&lt;/P&gt;&lt;P&gt;mehr Infos zur D90 unter&lt;/P&gt;&lt;P&gt;&lt;A href=&quot;http://www.digitalkamera.de/Testbericht/Nikon_D90/5258.aspx&quot;&gt;http://www.digitalkamera.de/Testbericht/Nikon_D90/5258.aspx&lt;/A&gt;&lt;/P&gt;&lt;P&gt;&amp;nbsp;&lt;/P&gt;&lt;P&gt;&lt;A href=&quot;http://img5.fotos-hochladen.net/uploads/kdsc0007ineq7zljcd.jpg&quot;&gt;http://img5.fotos-hochladen.net/uploads/kdsc0007ineq7zljcd.jpg&lt;/A&gt;&lt;/P&gt;&lt;P&gt;&lt;U&gt;&lt;FONT color=#0066cc&gt;&lt;A href=&quot;http://img5.fotos-hochladen.net/uploads/kdsc0008p3qif74o6m.jpg&quot;&gt;http://img5.fotos-hochladen.net/uploads/kdsc0008p3qif74o6m.jpg&lt;/A&gt;&lt;/FONT&gt;&lt;/U&gt;&lt;/P&gt;&lt;P&gt;&amp;nbsp;&lt;/P&gt;&lt;P&gt;&amp;nbsp;&lt;/P&gt;&lt;P&gt;Privatverkauf: keine Gewährleistung/Umtausch/Geldrückgabe&lt;/P&gt;&lt;P&gt;&amp;nbsp;&lt;/P&gt;</Description>
     <ItemID>330866234882</ItemID>
     <EndTime>2013-02-06T21:35:02.000Z</EndTime>
     <StartTime>2013-01-30T21:35:02.000Z</StartTime>
@@ -731,7 +951,8 @@ def test_EbayGetListings_download():
     set_config_file(relative("../python-ebay.apikey"))
     
     #TODO: get IDs with EbayConnector. Fixed IDs will expire.
-    ids = pd.Series(["271149493368", "330866234882", "140914051088", "221185477679"])
+    ids = pd.Series(["271149493368", "330866234882", "140914051088", 
+                     "221185477679"])
     
     g = EbayGetListings
     xml = g.download_xml(ids)
@@ -754,6 +975,7 @@ def test_EbayGetListings_parse():
     print
 #    print listings[["title", "price", "sold", "active"]].to_string()
     print listings[["title", "price", "prod_spec"]].to_string()
+#    print listings.ix[2]["description"]
     
     #There are two listings (items) in the response
     assert len(listings) == 4
@@ -767,7 +989,8 @@ def test_EbayGetListings_get_listings():
     set_config_file(relative("../python-ebay.apikey"))
     
     #TODO: get IDs with EbayConnector. Fixed IDs will expire.
-    ids = pd.Series(["271149493368", "330866234882", "140914051088", "221185477679"])
+    ids = pd.Series(["271149493368", "330866234882", "140914051088", 
+                     "221185477679"])
     
     g = EbayGetListings
     listings = g.get_listings(ids)

@@ -63,7 +63,7 @@ def make_test_listings():
     fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
     fr["image"][0] = "www.some.site/dir/to/img.pg"
     fr["title"] = [u"Nikon D90 super duper!", u"<>müäh", None]
-    fr["description"][0] = "Buy my old Nikon D90 camera now!"
+    fr["description"][0] = "Buy my old Nikon D90 camera <b>now</b>!"
     fr["prod_spec"][0] = {"Marke":"Nikon", "Modell":"D90"}
     fr["active"][0] = False
     fr["sold"][0] = False
