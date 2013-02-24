@@ -234,8 +234,14 @@ class MainObj(object):
     
     
     def create_final_update_tasks(self):
-        """Create the tasks to see the final price at the end of auctions."""
+        """
+        Create tasks that update the listing information shortly after the 
+        end of them. We want to know the final price of each auction.
+        """
         info("Creating update tasks, to get final prices.")
+        if len(self.listings) == 0:
+            return
+
         #Create administration information if it doesn't exist
         try:
             self.listings["final_update_pending"]
@@ -243,9 +249,8 @@ class MainObj(object):
             self.listings["final_update_pending"] = 0.0
         
         #Get listings where final price is unknown and 
-        # where no final update is pending
-        if len(self.listings) == 0:
-            return
+        #    where no final update is pending.
+        #Note! Three-valued logic: 1., 0., nan
         where_no_final = ((self.listings["final_price"] != True) &
                           (self.listings["final_update_pending"] != True))
         no_final = self.listings[where_no_final]

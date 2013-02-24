@@ -345,7 +345,7 @@ class ListingsXMLConverter(XMLConverter):
                 E.condition(float(li["condition"])),
                 E.server(li["server"]),
                 E.server_id(li["server_id"]),
-                E.final_price(li["final_price"]),
+                E.final_price(float(li["final_price"])),
                 E.url_webui(li["url_webui"]) )
             root_xml.listings.append(li_xml)
         
