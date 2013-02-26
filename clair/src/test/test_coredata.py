@@ -59,6 +59,7 @@ def make_test_listings():
     
     fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
     fr["products"][0] = ["nikon-d90"]
+    fr["products_absent"][0] = ["nikon-sb-24"]
     
     fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
     fr["image"][0] = "www.some.site/dir/to/img.pg"

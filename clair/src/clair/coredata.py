@@ -61,14 +61,15 @@ def make_listing_frame(nrows):
                                           #    that returned this listing
     listings["expected_products"] = None  #list of product IDs (strings)
     
-    listings["products"]    = None  #Products in this listing. List of product 
-                                    # IDs (strings)
+    listings["products"]          = None  #Products in this listing. 
+    listings["products_absent"]   = None  #Products not in this listing. 
+                                          #    List of product IDs (strings)
 
-    listings["thumbnail"]   = None          
-    listings["image"]       = None          
+    listings["thumbnail"]   = None  #URL of small image
+    listings["image"]       = None  #URL of large image
     
-    listings["title"]       = None
-    listings["description"] = None
+    listings["title"]       = None  #Short description of listing.
+    listings["description"] = None  #Long description of listing.
     listings["prod_spec"]   = None  #product specific name value pairs (dict)
                                     #    for example {"megapixel": "12"};
                                     #    the ``ItemSpecifics`` on Ebay
@@ -329,6 +330,8 @@ class ListingsXMLConverter(XMLConverter):
                 E.expected_products(*self.to_xml_list(
                                         "product", li["expected_products"])),
                 E.products(*self.to_xml_list("product", li["products"])),
+                E.products_absent(*self.to_xml_list(
+                                        "product", li["products_absent"])),
                 E.thumbnail(li["thumbnail"]),
                 E.image(li["image"]),
                 E.title(li["title"]),
@@ -378,6 +381,9 @@ class ListingsXMLConverter(XMLConverter):
                                             "product", li.expected_products)
             listings["products"][i] = self.from_xml_list(
                                             "product", li.products)
+            try: listings["products_absent"][i] = self.from_xml_list(
+                                            "product", li.products_absent)
+            except AttributeError: pass
             listings["thumbnail"][i] = ustr(li.thumbnail.pyval)
             listings["image"][i] = ustr(li.image.pyval)
             listings["title"][i] = ustr(li.title.pyval )

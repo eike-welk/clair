@@ -405,8 +405,9 @@ class EbayConnector(object):
         the same configuration (key) file. 
     """
     def __init__(self, keyfile):
-        assert isinstance(keyfile, (str))
-        eb_utils.set_config_file(keyfile)
+        assert isinstance(keyfile, (basestring, NoneType))
+        if keyfile is not None:
+            eb_utils.set_config_file(keyfile)
     
     
     def find_listings(self, keywords, n_listings=10, 

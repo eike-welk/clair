@@ -88,8 +88,8 @@ class MainObj(object):
             self.tasks[task.id] = task
             
     
-    def add_listings(self, listings):
-        info("Adding {} listings".format(len(listings)))
+    def insert_listings(self, listings):
+        info("Inserting {} listings".format(len(listings)))
         #TODO: test if unknown products or tasks are referenced
         self.listings = listings.combine_first(self.listings)
     
@@ -213,13 +213,13 @@ class MainObj(object):
                 lst_found["search_task"] = task.id
                 lst_found["expected_products"].fill(task.expected_products)
                 lst_found["server"] = task.server
-                self.add_listings(lst_found)
+                self.insert_listings(lst_found)
             #Update known listings
             elif isinstance(task, UpdateTask):
                 lst_update = self.listings.ix[task.listings]
                 lst_update = self.server.update_listings(lst_update)
                 lst_update["server"] = task.server
-                self.add_listings(lst_update)
+                self.insert_listings(lst_update)
             else:
                 raise TypeError("Unknown task type:" + str(type(task)) + 
                                 "\ntask:\n" + str(task))
@@ -296,7 +296,7 @@ class MainObj(object):
         date_end = datetime.utcnow() + timedelta(days=30)
         io_listings = XmlBigFrameIO(self.data_dir, "listings", 
                                       ListingsXMLConverter())
-        self.add_listings(io_listings.read_data(date_start, date_end))
+        self.insert_listings(io_listings.read_data(date_start, date_end))
         
         self.create_final_update_tasks()
         

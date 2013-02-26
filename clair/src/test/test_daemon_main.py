@@ -21,26 +21,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Test the deamon's top level object.
 """
 
 from __future__ import division
 from __future__ import absolute_import  
             
 import pytest #contains `skip`, `fail`, `raises`, `config`
+
 import os
-import glob
 import os.path as path
-from numpy import isnan, nan
+import glob
+import time
 from datetime import datetime
 
+from numpy import isnan, nan
 import pandas as pd
 
 import logging
-#TODO: Time stamps must be in UTC
-#      logging.Formatter.converter = time.gmtime
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
                     level=logging.DEBUG)
+#Time stamps must be in UTC
+logging.Formatter.converter = time.gmtime
 
 
 
