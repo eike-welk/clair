@@ -758,7 +758,7 @@ class XmlBigFrameIO(object):
         Write a DataFrame to disk in XML format.
         
         Assumes that frame has a column "time", that contains ``datetime`` 
-        and no None.
+        objects; None and nan are considered month 0.
         """
         assert isinstance(frame, pd.DataFrame)
         assert isinstance(date_start, datetime)
@@ -768,6 +768,10 @@ class XmlBigFrameIO(object):
         
         def month_number(date):
             "Compute unique number for each month."
+            if date is None:
+                return 0
+            if isinstance(date, float) and isnan(date):
+                return 0
             return date.year * 12 + date.month
         
         num_start = month_number(self.normalize_date(date_start))
@@ -850,7 +854,9 @@ class XmlSmallObjectIO(object):
         fw.write(xml_text.encode("ascii"))
         fw.close()
         
-        #Rename files, delete old file
+        #Delete files from crash, rename files, delete old file
+        try: os.remove(file_old_temp)
+        except OSError: pass
         try: os.rename(file_name, file_old_temp)
         except OSError: pass
         os.rename(file_new_temp, file_name)
