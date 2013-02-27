@@ -31,8 +31,9 @@ from __future__ import absolute_import
 import math
 from types import NoneType
 from collections import defaultdict
-#import time
-from datetime import datetime, timedelta
+import  logging
+from datetime import datetime
+
 import dateutil.parser as dprs 
 from lxml import etree, objectify
 import pandas as pd
@@ -68,7 +69,7 @@ def convert_ebay_condition(ebay_cond):
         1750     New with defects
         2000     Manufacturer refurbished
         2500     Seller refurbished
-        3000     Used
+        3000     Used                           (0.7) 
         4000     Very Good
         5000     Good
         6000     Acceptable
@@ -153,10 +154,19 @@ class EbayFindListings(object):
         """
         root = objectify.fromstring(xml)
 #        print etree.tostring(root, pretty_print=True)
-        if root.ack.text != "Success":
-            #TODO: logging, better error message
-            raise EbayError(etree.tostring(root, pretty_print=True))
-        
+ 
+        if root.ack.text not in ["Success", "Warning"]:
+#            raise EbayError(etree.tostring(root, pretty_print=True))
+            logging.error("Ebay error in EbayFindListings.parse_xml: \n" + 
+                          etree.tostring(root, pretty_print=True))
+            return make_listing_frame(0)
+        elif root.ack.text == "Warning":
+            error_list = [etree.tostring(err, pretty_print=True) 
+                          for err in root.Errors]
+            error_str = "\n".join(error_list)
+            logging.warning(
+                "Ebay warning in EbayFindListings.parse_xml: \n" + error_str)
+
         item = root.searchResult.item
         nrows = len(item)
         listings = make_listing_frame(nrows)
@@ -282,9 +292,18 @@ class EbayGetListings(object):
         """
         root = objectify.fromstring(xml)
 #        print etree.tostring(root, pretty_print=True)
-        if root.Ack.text != "Success":
-            #TODO: logging, better error message
-            raise EbayError(etree.tostring(root, pretty_print=True))
+
+        if root.Ack.text not in ["Success", "Warning"]:
+#            raise EbayError(etree.tostring(root, pretty_print=True))
+            logging.error("Ebay error in EbayGetListings.parse_xml: \n" + 
+                          etree.tostring(root, pretty_print=True))
+            return make_listing_frame(0)
+        elif root.Ack.text == "Warning":
+            error_list = [etree.tostring(err, pretty_print=True) 
+                          for err in root.Errors]
+            error_str = "\n".join(error_list)
+            logging.warning(
+                "Ebay warning in EbayGetListings.parse_xml: \n" + error_str)
         
         item = root.Item
         nrows = len(item)
@@ -403,6 +422,12 @@ class EbayConnector(object):
         
         If there are multiple EbayConnector instances they must all use 
         the same configuration (key) file. 
+        
+    TODO: make date part of listing Id: ``"{year}-{month}-{day}-eb-{server_id}"``
+          * Ebay reuses the IDs of fixed price auctions, they might also 
+            reuse IDs generally.
+          * Listings are are kept roughly sorted by time, reducing the work 
+            when they are really sorted by time.
     """
     def __init__(self, keyfile):
         assert isinstance(keyfile, (basestring, NoneType))
