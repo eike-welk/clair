@@ -792,7 +792,7 @@ class XmlBigFrameIO(object):
         assert isinstance(date_start, datetime)
         assert isinstance(date_end, datetime)
 
-        out_frame = pd.DataFrame()
+        out_frame = make_listing_frame(0)
         texts = self.read_text(date_start, date_end)
         for text in texts:
             frame = self.xml_converter.from_xml(text)
