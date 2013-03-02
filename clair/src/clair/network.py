@@ -154,18 +154,18 @@ class EbayFindListings(object):
         """
         root = objectify.fromstring(xml)
 #        print etree.tostring(root, pretty_print=True)
- 
-        if root.ack.text not in ["Success", "Warning"]:
+
+        if root.ack.text == "Success":
+            pass
+        elif root.ack.text in ["Warning", "PartialFailure"]:
+            logging.warning(
+                "Ebay warning in EbayGetListings.parse_xml: " + root.Ack.text + 
+                "\n" + etree.tostring(root.errorMessage, pretty_print=True))
+        else:
 #            raise EbayError(etree.tostring(root, pretty_print=True))
             logging.error("Ebay error in EbayFindListings.parse_xml: \n" + 
                           etree.tostring(root, pretty_print=True))
             return make_listing_frame(0)
-        elif root.ack.text == "Warning":
-            error_list = [etree.tostring(err, pretty_print=True) 
-                          for err in root.Errors]
-            error_str = "\n".join(error_list)
-            logging.warning(
-                "Ebay warning in EbayFindListings.parse_xml: \n" + error_str)
 
         item = root.searchResult.item
         nrows = len(item)
@@ -293,17 +293,20 @@ class EbayGetListings(object):
         root = objectify.fromstring(xml)
 #        print etree.tostring(root, pretty_print=True)
 
-        if root.Ack.text not in ["Success", "Warning"]:
-#            raise EbayError(etree.tostring(root, pretty_print=True))
-            logging.error("Ebay error in EbayGetListings.parse_xml: \n" + 
-                          etree.tostring(root, pretty_print=True))
-            return make_listing_frame(0)
-        elif root.Ack.text == "Warning":
+        if root.Ack.text == "Success":
+            pass
+        elif root.Ack.text in ["Warning", "PartialFailure"]:
             error_list = [etree.tostring(err, pretty_print=True) 
                           for err in root.Errors]
             error_str = "\n".join(error_list)
             logging.warning(
-                "Ebay warning in EbayGetListings.parse_xml: \n" + error_str)
+                "Ebay warning in EbayGetListings.parse_xml: " + root.Ack.text + 
+                "\n" + error_str)
+        else:
+#            raise EbayError(etree.tostring(root, pretty_print=True))
+            logging.error("Ebay error in EbayGetListings.parse_xml: \n" + 
+                          etree.tostring(root, pretty_print=True))
+            return make_listing_frame(0)
         
         item = root.Item
         nrows = len(item)
