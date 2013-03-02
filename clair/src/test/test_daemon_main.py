@@ -188,7 +188,7 @@ def test_MainObj_create_final_update_tasks():
     print "finished!"
     
 
-def notest_MainObj_main_download_listings():
+def experiment_MainObj_main_download_listings():
     """Test MainObj.create_final_update_tasks"""
 #    pytest.skip("Test goes into infinite loop.") #IGNORE:E1101
     
@@ -210,6 +210,6 @@ if __name__ == "__main__":
 #    test_MainObj_execute_tasks()
 #    test_MainObj_create_final_update_tasks()
 
-    notest_MainObj_main_download_listings()
+    experiment_MainObj_main_download_listings()
     
     pass

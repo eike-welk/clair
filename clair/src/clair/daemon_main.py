@@ -203,6 +203,10 @@ class MainObj(object):
             
             info("Executing task: {}".format(task.id))
             #Search for new listings
+            #TODO: If a listing is found by multiple search tasks, create union
+            #      of "expected_products" and maybe "search_tasks"
+            #TODO: convert "search_task" to list "search_tasks"
+            #      is this complication justified?
             if isinstance(task, SearchTask):
                 lst_found = self.server.find_listings(
                                             keywords=task.query_string, 

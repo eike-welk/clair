@@ -34,9 +34,12 @@ import os.path as path
 import glob
 import time
 from datetime import datetime
+import re
 
 from numpy import isnan, nan
 import pandas as pd
+import nltk
+from nltk import RegexpTokenizer
 
 import logging
 from logging import info
@@ -82,12 +85,24 @@ def test_HtmlTool():
     """Test the HTML to pure text conversion."""
     from clair.textprocessing import HtmlTool
     
-    text = HtmlTool.remove_html("<b>Bold</b> text.   <p>Paragraph.</p> 3 &gt; 2")
+    text = HtmlTool.remove_html(
+                    "This is <b>bold</b> text.   <p>Paragraph.</p> 3 &gt; 2")
     print text
-    assert text == "Bold text. Paragraph. 3 > 2"
+    assert text == "This is bold text. Paragraph. 3 > 2"
+    
+    text = HtmlTool.remove_html(
+                    """Integrated style sheet. 
+                       <style type="text/css"> p {color:blue;} </style>
+                       Text after style sheet.""")
+    print text
+    assert text == "Integrated style sheet. Text after style sheet."
     
     assert HtmlTool.remove_html(None) == ""
     assert HtmlTool.remove_html(nan) == ""
+    
+    text = HtmlTool.remove_html(" 1 &lt; 2 &gt; 0.5 ")
+    print text
+    assert text == " 1 < 2 > 0.5 "
     
 
 def test_DataStore():
@@ -132,7 +147,7 @@ def test_CollectText():
 #    print lt
     assert len(lt) == len(c.texts)
     assert isinstance(lt.ix[3], unicode)
-#    assert  lt.map(lambda u: isinstance(u, unicode)).all()
+    assert  lt.map(lambda u: isinstance(u, unicode)).all()
 
     tt = c.get_total_text()
 #    print tt
@@ -143,10 +158,106 @@ def test_CollectText():
     print "finished"
 
 
+def experiment_update_all_listings():
+    """Update all listings."""
+    from clair.textprocessing import DataStore
+    from clair.network import EbayConnector
+    
+    ds = DataStore()
+    ec = EbayConnector(relative("../../example-data/python-ebay.apikey"))
+    
+    ds.read_data(relative("../../example-data")) 
+    listings_upd = ec.update_listings(ds.listings)
+    ds.insert_listings(listings_upd)
+    ds.write_listings()
+    
+    print "finished"
+
+
+def experiment_CollectText():
+    """Experiment with the text collection algorithm."""
+    from clair.textprocessing import DataStore, CollectText
+    from nltk import FreqDist
+
+    ds = DataStore()
+    ct = CollectText()
+    
+    ds.read_data(relative("../../example-data"))
+    ct.insert_listings(ds.listings)
+    
+    tt = ct.get_total_text()
+    print len(tt)
+    #tokenization
+    #TODO: use: ``nltk.wordpunct_tokenize`` or ``nltk.word_tokenize``???
+    #TODO: don't split real numbers "2.8" "3,5" important for lenses.
+    #>>> text = 'That U.S.A. poster-print costs $12.40...'
+    #>>> pattern = r'''(?x)    # set flag to allow verbose regexps
+    #...     ([A-Z]\.)+        # abbreviations, e.g. U.S.A.
+    #...   | \w+(-\w+)*        # words with optional internal hyphens
+    #...   | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
+    #...   | \.\.\.            # ellipsis
+    #...   | [][.,;"'?():-_`]  # these are separate tokens
+    #... '''
+    #>>> nltk.regexp_tokenize(text, pattern)
+    #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
+    tokenize_words_pattern = r"""
+              \d+(\.\d+)?       # real numbers, e.g. 12.40, 82
+            | (\w\.)+           # abbreviations, e.g. z.B., e.g., U.S.A.
+            | \w+               # words with optional internal hyphens
+           # | [][.,;"'?():-_`]  # these are separate tokens
+            """
+    tokenize_words = RegexpTokenizer(tokenize_words_pattern, 
+                                     gaps=False, discard_empty=True,
+                                     flags=re.UNICODE | re.MULTILINE | 
+                                           re.DOTALL | re.VERBOSE)
+    words = tokenize_words.tokenize(tt.lower())
+#    wbounds = re.compile(r"[\s\xa0,.:;!(){}[\]]+")
+#    nwhites = re.compile(r"[\s]+")
+#    words = wbounds.split(tt.lower())
+    print len(words)
+    
+    unique_words = set(words)
+    print len(unique_words)
+#    print unique_words
+    
+    word_freqs = FreqDist(words)
+#    word_freqs.plot(200)
+    print word_freqs.keys()[:200]
+    print word_freqs.keys()[-200:]
+    for i, word in enumerate(word_freqs):
+        if word_freqs[word] == 1:
+            break
+        
+    print i, "non unique words, first unique word is:", word
+    
+    word_keys = word_freqs.keys()
+    print 'word_freqs["1.4"] =', word_freqs["1.4"], word_keys.index("1.4")
+    print 'word_freqs["2.8"] =', word_freqs["2.8"], word_keys.index("2.8")
+    print 'word_freqs["3.5"] =', word_freqs["3.5"]  
+    print 'word_freqs["5.6"] =', word_freqs["5.6"]
+    
+#    #Why are there words like "font-size" in the text?
+#    search_word = "getelementbyid"
+#    listing_texts = ct.get_listings_text()
+#    for lid, text in listing_texts.iteritems():
+#        i = text.lower().find(search_word)
+#        if i != -1:
+#            print "Found word:", search_word, "listing ID:", lid, "text position:", i
+#            print "Text -------------------------------------"
+#            print text
+#            print "HTML ---------------------------------------"
+#            print ds.listings["description"][lid]
+#            break
+    
+    print "finished"
+    
+    
 
 if __name__ == "__main__":
 #    test_HtmlTool()
 #    test_DataStore()
-    test_CollectText()
+#    test_CollectText()
+
+    experiment_CollectText()
     
     pass #IGNORE:W0107

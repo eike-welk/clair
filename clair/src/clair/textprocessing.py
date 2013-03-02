@@ -28,7 +28,8 @@ from __future__ import division
 from __future__ import absolute_import              
 
 import re 
-from logging import debug, info, warning, error, critical
+import logging 
+import HTMLParser
 
 import lxml.html
 import pandas as pd
@@ -46,10 +47,10 @@ class DataStore(object):
     
     Does disk IO, and adding objects at runtime.
     
-    TODO: put into coredata, and port everything to it.
+    TODO: put into ``coredata`` or ``daemon_main``, and port daemon(s) to it.
     """
     def __init__(self):
-        self.data_dir = "**unknown**"
+        self.data_dir = ""
         self.tasks = {}
         self.products = {}
         self.listings = pd.DataFrame()
@@ -63,7 +64,7 @@ class DataStore(object):
         prod_list = products.values() if isinstance(products, dict) \
                     else products 
         for product in prod_list:
-            info("Adding product: {}".format(product.id))
+            logging.info("Adding product: {}".format(product.id))
             self.products[product.id] = product
 
 
@@ -72,12 +73,12 @@ class DataStore(object):
         task_list = tasks.values() if isinstance(tasks, dict) \
                     else tasks
         for task in task_list:
-            info("Adding task: {}".format(task.id))
+            logging.info("Adding task: {}".format(task.id))
             self.tasks[task.id] = task
     
     
     def insert_listings(self, listings):
-        info("Inserting {} listings".format(len(listings)))
+        logging.info("Inserting {} listings".format(len(listings)))
         self.listings = listings.combine_first(self.listings)
     
     
@@ -91,7 +92,7 @@ class DataStore(object):
                                           ProductXMLConverter())
             self.add_products(load_prods.read_data())
         except IOError, err:
-            warning("Could not load product data: " + str(err))
+            logging.warning("Could not load product data: " + str(err))
 
         #Load tasks
         try:
@@ -99,7 +100,7 @@ class DataStore(object):
                                           TaskXMLConverter())
             self.add_tasks(load_tasks.read_data())
         except IOError, err:
-            warning("Could not load task data: " + str(err))
+            logging.warning("Could not load task data: " + str(err))
             
         #Load listings
         load_listings = XmlBigFrameIO(self.data_dir, "listings", 
@@ -120,6 +121,7 @@ class DataStore(object):
     def check_consistency(self):
         """
         Test if the references between the various objects are consistent.
+        #TODO: test for unknown server IDs in SearchTask or listings.
         """
         def setn(iterable_or_none):
             if iterable_or_none is None:
@@ -130,61 +132,82 @@ class DataStore(object):
         task_ids = set(self.tasks.keys())
    
         for task in self.tasks.values():
-            #Test if task contains unknown product (TODO: or server) IDs
+            #Test if task contains unknown product IDs
             if isinstance(task, SearchTask):
                 unk_products = setn(task.expected_products) - prod_ids
                 if unk_products:    
-                    warning("Unknown product ID: '{pid}', in task '{tid}'."
+                    logging.warning(
+                            "Unknown product ID: '{pid}', in task '{tid}'."
                             .format(pid="', '".join(unk_products), 
                                     tid=task.id))
         
-        #TODO: test if ``self.listings`` contains unknown product, tasks, 
-        #      or server IDs.
+        #Test if ``self.listings`` contains unknown product, or task IDs.
         for lid in self.listings.index:
             search_task = self.listings["search_task"][lid]
             if search_task not in task_ids:
-                warning("Unknown task ID: '{tid}', "
-                        "in listings['search_task']['{lid}']."
-                        .format(tid=search_task, lid=lid))
+                logging.warning("Unknown task ID: '{tid}', "
+                                "in listings['search_task']['{lid}']."
+                                .format(tid=search_task, lid=lid))
             found_prods = setn(self.listings["expected_products"][lid])
             unk_products = found_prods - prod_ids
             if unk_products:
-                warning("Unknown product ID '{pid}', "
-                        "in listings['expected_products']['{lid}']."
-                        .format(pid="', '".join(unk_products), lid=lid))
+                logging.warning("Unknown product ID '{pid}', "
+                                "in listings['expected_products']['{lid}']."
+                                .format(pid="', '".join(unk_products), lid=lid))
             found_prods = setn(self.listings["products"][lid])
             unk_products = found_prods - prod_ids
             if unk_products:
-                warning("Unknown product ID '{pid}', "
-                        "in listings['products']['{lid}']."
-                        .format(pid="', '".join(unk_products), lid=lid))
+                logging.warning("Unknown product ID '{pid}', "
+                                "in listings['products']['{lid}']."
+                                .format(pid="', '".join(unk_products), lid=lid))
             found_prods = setn(self.listings["products_absent"][lid])
             unk_products = found_prods - prod_ids
             if unk_products:
-                warning("Unknown product ID '{pid}', "
-                        "in listings['products_absent']['{lid}']."
-                        .format(pid="', '".join(unk_products), lid=lid))
+                logging.warning("Unknown product ID '{pid}', "
+                                "in listings['products_absent']['{lid}']."
+                                .format(pid="', '".join(unk_products), lid=lid))
 
 
 
 class HtmlTool(object):
-    """Algorithms to process HTML."""
+    """
+    Algorithms to process HTML.
+    
+    TODO: HTML cleaning algorithm
+    * Reduce the huge size of the descriptions
+    * Keep some structure for better human readability
+    """
+    #Internal style sheets: <style type="text/css"> p {color:blue;} </style>
+    stylesheet = re.compile(r"<style[^>]*>.*</style>", 
+                            re.IGNORECASE | re.DOTALL)
+    #Scripts: <script type="text/javascript"> var i=10; </script>
+    script = re.compile(r"<script[^>]*>.*</script>", 
+                            re.IGNORECASE | re.DOTALL)
+    #HTML tags: <any-text>
     tag = re.compile(r"<[^>]*>")
-    whites = re.compile(r"[\s]+")
+    #Consecutive whitespace characters
+    nwhites = re.compile(r"[\s]+")
+    #For converting HTML entities to unicode
+    html_parser = HTMLParser.HTMLParser()
         
     @staticmethod
     def remove_html(html):
-        """Remove tags but keep text, convert entities to Unicode characters."""
+        """
+        Remove tags but keep text, convert entities to Unicode characters.
+        TODO: NLTK has a HTML removal algorithm: ``nltk.clean_html(html)``
+        """
         if html is None:
             return u""
         if isinstance(html, float) and isnan(html):
             return u""
         
-        text = unicode(html)
+        text = HtmlTool.stylesheet.sub("", html)
+        text = HtmlTool.script.sub("", text)
         text = HtmlTool.tag.sub("", text)
-        text = HtmlTool.whites.sub(" ", text)
-        #convert entities
-        text = lxml.html.fromstring(text).text
+        text = HtmlTool.nwhites.sub(" ", text)
+        text = HtmlTool.html_parser.unescape(text)
+        text = unicode(text)
+
         return text
 
 
@@ -219,7 +242,7 @@ class CollectText(object):
         texts["title"] = text_title
         texts["description"] = text_desctription
         texts["prod_spec"] = text_specs
-
+        #TODO: insert also "*products*" and "training_sample"
         self.texts = texts.combine_first(self.texts)
         
 
@@ -229,12 +252,10 @@ class CollectText(object):
         data.read_data(data_dir)
         self.insert_listings(data.listings)
         
-        
     def get_listings_text(self):
         """Return text for each listing separate, as Series."""
         return self.texts["title"] + self.texts["description"] + \
                self.texts["prod_spec"]
-
 
     def get_total_text(self):
         """Get text of all listings as single string"""
