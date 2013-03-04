@@ -81,7 +81,7 @@ def make_test_listings():
     return fr
 
 
-def test_HtmlTool():
+def test_HtmlTool_remove_html():
     """Test the HTML to pure text conversion."""
     from clair.textprocessing import HtmlTool
     
@@ -103,8 +103,82 @@ def test_HtmlTool():
     text = HtmlTool.remove_html(" 1 &lt; 2 &gt; 0.5 ")
     print text
     assert text == " 1 < 2 > 0.5 "
+   
+   
+html_nasty = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>
+            Bedienungsanleitung Nikon SB-26 SB26 SB 26 
+            Autofokus-Blitzgerät Anleitung
+        </title>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1//TRANSLIT">
+    </head>
+    <body >
+<div id="body_farbe">
+<div id="body_kopf">
+<div id="body_fuss">
+<div id="verpackung">
+<div id="content">
+<div id="rechts">
+<div id="rechts1">
+<div id="bild">
+<script language="javascript">// 
+  function change_picture(thumb, url)
+  {
     
+    thumb = document.getElementById(thumb);
+    bigpic = document.getElementById('bigpicture');
+    
+    
+    bigpic.src = url;
+  }
+// </script>
+</div>
+  <!-- Ende bild-->
+  <br><br>
+</div>
+<div id="rechts2">
+<div id="text">
+    <h1>
+        <strong>Bedienungsanleitung</strong> 
+        Nikon SB-26 Autofokus-Blitzger&auml;t <strong>Anleitung</strong>
+    </h1>
+    <p><strong>In deutscher Sprache.</strong></p>
+    <p>
+        <strong><br><br></strong>In einem guten Zustand, mit leichten 
+        altersbedingten Verf&auml;rbungen auf dem Cover und der R&uuml;ckseite.
+        <strong><br></strong>
+    </p>
+</div>
+<p><b>Detailierte Produktinformation</b></p>
 
+</div>
+<!-- Ende rechts2--></div>
+<!-- Ende rechts-->
+<!-- Ende verpackung--></div>
+<!-- Ende body-fuss--></div>
+<!-- Ende body-kopf--></div>
+<!-- Ende body-farbe-->
+    </body>
+</html>
+"""
+
+def test_HtmlTool_clean_html():
+    """Test HTML cleanup algorithm."""
+    from clair.textprocessing import HtmlTool
+    
+    html_nice = HtmlTool.clean_html("""<head></head>
+                                      <body>Foo</body>""")
+    print html_nice
+    
+    html_nice = HtmlTool.clean_html(html_nasty)
+#    print html_nasty
+    print html_nice
+    
+    pytest.xfail("LXML does strange things.") #IGNORE:E1101
+    assert html_nice.find("Blitzger&auml;t") != -1
+    
 def test_DataStore():
     """Test the data storage object."""
     from clair.textprocessing import DataStore
@@ -163,13 +237,20 @@ def experiment_update_all_listings():
     from clair.textprocessing import DataStore
     from clair.network import EbayConnector
     
+    print "===================================================================="
+    print "                 Updating all listings! "
+    print "===================================================================="
     ds = DataStore()
     ec = EbayConnector(relative("../../example-data/python-ebay.apikey"))
     
     ds.read_data(relative("../../example-data")) 
-    listings_upd = ec.update_listings(ds.listings)
-    ds.insert_listings(listings_upd)
-    ds.write_listings()
+    
+    print ds.listings["description"]["eb-150850751507"]
+    
+    print "Updating", len(ds.listings), "listings..."
+#    listings_upd = ec.update_listings(ds.listings)
+#    ds.insert_listings(listings_upd)
+#    ds.write_listings()
     
     print "finished"
 
@@ -254,10 +335,11 @@ def experiment_CollectText():
     
 
 if __name__ == "__main__":
-#    test_HtmlTool()
+#    test_HtmlTool_remove_html()
+    test_HtmlTool_clean_html()
 #    test_DataStore()
 #    test_CollectText()
-
-    experiment_CollectText()
+#    experiment_update_all_listings()
+#    experiment_CollectText()
     
     pass #IGNORE:W0107

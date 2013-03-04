@@ -31,9 +31,11 @@ import re
 import logging 
 import HTMLParser
 
-import lxml.html
+#import lxml.html
+import lxml.html.clean
 import pandas as pd
 from numpy import isnan
+import nltk
 
 from clair.coredata import (SearchTask, UpdateTask, 
                             XmlSmallObjectIO, XmlBigFrameIO,
@@ -177,40 +179,52 @@ class HtmlTool(object):
     * Reduce the huge size of the descriptions
     * Keep some structure for better human readability
     """
-    #Internal style sheets: <style type="text/css"> p {color:blue;} </style>
-    stylesheet = re.compile(r"<style[^>]*>.*</style>", 
-                            re.IGNORECASE | re.DOTALL)
-    #Scripts: <script type="text/javascript"> var i=10; </script>
-    script = re.compile(r"<script[^>]*>.*</script>", 
-                            re.IGNORECASE | re.DOTALL)
+    #Regular expressions to recognize different parts of HTML. 
+    #Internal style sheets or JavaScript 
+    script_sheet = re.compile(r"<(script|style).*?>.*?(</\1>)", 
+                              re.IGNORECASE | re.DOTALL)
+    #HTML comments - can contain ">"
+    comment = re.compile(r"<!--(.*?)-->", re.DOTALL) 
     #HTML tags: <any-text>
-    tag = re.compile(r"<[^>]*>")
+    tag = re.compile(r"<.*?>", re.DOTALL)
     #Consecutive whitespace characters
     nwhites = re.compile(r"[\s]+")
     #For converting HTML entities to unicode
     html_parser = HTMLParser.HTMLParser()
-        
+    
+    #Remove unwanted tags
+    cleaner = lxml.html.clean.Cleaner(remove_unknown_tags=True,
+                                      page_structure=False,
+                                      style=True,
+                                      remove_tags=["div", "a", "img"])
+    
+    
     @staticmethod
     def remove_html(html):
         """
         Remove tags but keep text, convert entities to Unicode characters.
-        TODO: NLTK has a HTML removal algorithm: ``nltk.clean_html(html)``
         """
         if html is None:
             return u""
         if isinstance(html, float) and isnan(html):
             return u""
-        
-        text = HtmlTool.stylesheet.sub("", html)
-        text = HtmlTool.script.sub("", text)
+        text = HtmlTool.script_sheet.sub("", html)
+        text = HtmlTool.comment.sub("", text)
         text = HtmlTool.tag.sub("", text)
         text = HtmlTool.nwhites.sub(" ", text)
         text = HtmlTool.html_parser.unescape(text)
         text = unicode(text)
-
         return text
 
 
+    @staticmethod
+    def clean_html(html):
+        """
+        Beautify html, remove any messy or unsafe tags.
+        """
+        return HtmlTool.cleaner.clean_html(html)
+    
+    
 
 class CollectText(object):
     """Extract text from listings"""
