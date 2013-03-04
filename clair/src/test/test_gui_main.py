@@ -37,7 +37,7 @@ import logging
 
 import pandas as pd
 
-from clair.gui_main import Example, ProductWidget
+from clair.gui_main import ProductWidget, ProductController
 from clair.coredata import Product
 
 from PyQt4 import QtGui, QtCore
@@ -62,26 +62,26 @@ def test_ProductWidget():
     def slot_contents_changed():
         print "contents changed"
         
+    prod = Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
+                    ["Nikon", "D 90"], ["photo.camera.system.nikon",
+                                        "photo.system.nikon.camera"])
+        
     app = QtGui.QApplication(sys.argv)
     pw = ProductWidget()
-    pw.set_Product(Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
-                           [], ["photo.camera.system.nikon"]))
+    
+    #Test setting getting the data before it can be changed interactively
+    pw.set_contents(prod)
+    prod1 = pw.get_contents()
+    assert prod == prod1
+    
     pw.contents_changed.connect(slot_contents_changed)
     pw.show()
     app.exec_()
+    
+    print pw.get_contents()
     print "End"
     
     
-def experiment_qt():
-    print "Start"
-    app = QtGui.QApplication(sys.argv)
-    ex = Example()
-    ex.show()
-    sys.exit(app.exec_())
-    print "End"
-    
-    
-
 if __name__ == '__main__':
     test_ProductWidget()
     
