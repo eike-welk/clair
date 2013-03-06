@@ -145,7 +145,24 @@ class Record(object):
 
 
 class Product(Record):
-    """"A product that a company produces."""
+    """Data about a single product."""
+    #Tool tips are used by QT
+    tool_tips = {
+        "id":
+            "<p>Product ID. Should not contain spaces.</p>"
+            "<p><b>Warning!</b> Changing product IDs is problematic."
+            "They are used in <i>listings</i>, <i>prices</i>, and "
+            "<i>tasks</i>.</p>",
+        "name":
+            "Product name. A single line of text.",
+        "important_words":
+            "<p>Important patterns for the text recognition algorithms.</p>"
+            "<p>Each line is one pattern. The patterns can contain spaces.</p>",
+        "categories":
+            "Categories for grouping products. Each line is one category.",
+        "description":
+            "Description of the product. Any text."}
+    
     def __init__(self, id, name, description="", #IGNORE:W0622
                  important_words=None, categories=None):
         Record.__init__(self)

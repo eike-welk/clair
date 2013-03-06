@@ -282,9 +282,9 @@ def experiment_CollectText():
     #>>> nltk.regexp_tokenize(text, pattern)
     #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
     tokenize_words_pattern = r"""
-              \d+(\.\d+)?       # real numbers, e.g. 12.40, 82
+              \d+(\.\d+)?       # real numbers, e.g. 2.8, 82
             | (\w\.)+           # abbreviations, e.g. z.B., e.g., U.S.A.
-            | \w+               # words with optional internal hyphens
+            | \w+               # words
            # | [][.,;"'?():-_`]  # these are separate tokens
             """
     tokenize_words = RegexpTokenizer(tokenize_words_pattern, 
@@ -336,10 +336,10 @@ def experiment_CollectText():
 
 if __name__ == "__main__":
 #    test_HtmlTool_remove_html()
-    test_HtmlTool_clean_html()
+#    test_HtmlTool_clean_html()
 #    test_DataStore()
 #    test_CollectText()
 #    experiment_update_all_listings()
-#    experiment_CollectText()
+    experiment_CollectText()
     
     pass #IGNORE:W0107

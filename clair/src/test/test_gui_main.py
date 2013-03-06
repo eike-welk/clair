@@ -26,8 +26,19 @@ Test the deamon's top level object.
 
 from __future__ import division
 from __future__ import absolute_import  
-            
+
 import pytest #contains `skip`, `fail`, `raises`, `config`
+
+#Switch PyQt to API version 2
+import sip
+sip.setapi("QData", 2)
+sip.setapi("QDateTime", 2)
+sip.setapi("QString", 2)
+sip.setapi("QTextStream", 2)
+sip.setapi("QTime", 2)
+sip.setapi("QUrl", 2)
+sip.setapi("QVariant", 2)
+#Import PyQt after version change.
 
 import sys
 import os
@@ -37,11 +48,7 @@ import logging
 
 import pandas as pd
 
-from clair.gui_main import ProductWidget, ProductController
-from clair.coredata import Product
-
-from PyQt4 import QtGui, QtCore
-
+from PyQt4.QtGui import QApplication, QTreeView, QTableView
 
 #Setup logging
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
@@ -57,16 +64,17 @@ def relative(*path_components):
 
 
 def test_ProductWidget():
-    print "Start"
+    from clair.gui_main import ProductWidget
+    from clair.coredata import Product
     
     def slot_contents_changed():
         print "contents changed"
         
     prod = Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
-                    ["Nikon", "D 90"], ["photo.camera.system.nikon",
-                                        "photo.system.nikon.camera"])
+                   ["Nikon", "D 90"], ["photo.system.nikon.camera",
+                                       "photo.camera.system.nikon"])
         
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     pw = ProductWidget()
     
     #Test setting getting the data before it can be changed interactively
@@ -82,8 +90,49 @@ def test_ProductWidget():
     print "End"
     
     
+def test_ProductModel():
+    from clair.gui_main import ProductModel
+    from clair.coredata import Product
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
+                        ["Nikon", "D 90"], ["photo.system.nikon.camera",
+                                            "photo.camera.system.nikon"]),
+                Product("nikon-d70", "Nikon D70", "Nikon D70 DSLR camera.", 
+                        ["Nikon", "D 70"], ["photo.system.nikon.camera",
+                                            "photo.camera.system.nikon"])]
+    
+    model = ProductModel()
+    model.setProducts(products)
+    
+    view = QTreeView()
+    view.setModel(model)
+    view.show()
+    app.exec_()
+    
+    view = QTableView()
+    view.setModel(model)
+    view.show()
+    app.exec_()
+    
+    print model.products
+    print "End"
+
+ 
+def experiment_qt():    
+    print "Start"
+    app = QApplication(sys.argv)
+    view = QTreeView()
+    view.show()
+    app.exec_()
+    print "End"
+    
+    
 if __name__ == '__main__':
-    test_ProductWidget()
+#    test_ProductWidget()
+    test_ProductModel()
     
 #    experiment_qt()
     

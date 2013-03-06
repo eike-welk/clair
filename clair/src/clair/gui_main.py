@@ -37,9 +37,9 @@ sip.setapi("QTime", 2)
 sip.setapi("QUrl", 2)
 sip.setapi("QVariant", 2)
 #Import PyQt after version change.
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QWidget, QLabel, QLineEdit, QTextEdit, QGridLayout, \
-                        QListWidget, QListWidgetItem
+#from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import (Qt, pyqtSignal, QAbstractTableModel, QModelIndex,)
+from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QGridLayout,)
 from clair.coredata import Product
 
 
@@ -96,18 +96,11 @@ class ProductWidget(QWidget):
         self.setGeometry(200, 200, 400, 300)
   
         self.setToolTip('Change information about a product.')
-        self.e_id.setToolTip(
-            "<p>Product ID. Should not contain spaces.</p>"
-            "<p><b>Warning!</b> Changing product IDs is problematic."
-            "They are used in <i>listings</i>, <i>prices</i>, and "
-            "<i>tasks</i>.</p>")
-        self.e_name.setToolTip("Product name. A single line of text.")
-        self.e_important_words.setToolTip(
-            "<p>Important patterns for the text recognition algorithms.</p>"
-            "<p>Each line is one pattern. The patterns can contain spaces.</p>")
-        self.e_categories.setToolTip(
-            "Categories for grouping products. Each line is one category.")
-        self.e_description.setToolTip("Description of the product. Any text.")
+        self.e_id.setToolTip(Product.tool_tips["id"])
+        self.e_name.setToolTip(Product.tool_tips["name"])
+        self.e_important_words.setToolTip(Product.tool_tips["important_words"])
+        self.e_categories.setToolTip(Product.tool_tips["categories"])
+        self.e_description.setToolTip(Product.tool_tips["description"])
       
         
     def slot_text_changed0(self, _):
@@ -118,7 +111,7 @@ class ProductWidget(QWidget):
         "QTextEdit widgets connect to this slot."
         self.contents_changed.emit()
     
-    contents_changed = QtCore.pyqtSignal()
+    contents_changed = pyqtSignal()
     "Signal that the the product information has changed." 
     
     def set_contents(self, prod):
@@ -184,3 +177,140 @@ class ProductController(object):
     def get_item(self, index):
         """Retrieve item at index from list"""
         return self.products[index]
+
+
+
+class ProductModel(QAbstractTableModel):
+    """
+    Represent a list of ``Product`` objects to QT's model view architecture.
+    """
+    def __init__(self, parent=None):
+        super(ProductModel, self).__init__(parent)
+        self.products = []
+    
+    def setProducts(self, products):
+        """Put list of products into model TODO: emit necessary signals."""
+        self.products = products
+
+    #rowCount(), columnCount(), and data()
+    def rowCount(self, parent):
+        """Return number of products in list."""
+        if parent.model() == self:
+            return 0
+        return len(self.products)
+    
+    def columnCount(self, parent):
+        """Return number of accessible product attributes."""
+        if parent.model() == self:
+            return 0
+        return 5
+    
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """
+        Return the text for the column headers.
+        
+        Parameters
+        -----------
+        section: int
+        orientation: 
+            Qt.Vertical or Qt.Horizontal
+        role: int
+        """
+        if orientation != Qt.Horizontal or role != Qt.DisplayRole:
+            return None
+        header_names = ["ID", "Name", "Categories", "Important Words", 
+                        "Description"]
+        return header_names[section]
+
+    def data(self, index, role=Qt.DisplayRole):
+        """
+        Return the contents of the product list in the right way.
+        
+        Parameters
+        -----------
+        index: QModelIndex
+        role: int 
+        """
+        assert index.model() == self
+        attr_names = ["id", "name", "categories", "important_words", 
+                      "description"]
+
+        row = index.row()
+        column = index.column()
+        
+        if role == Qt.DisplayRole:
+            prod = self.products[row]
+            if column == 0:
+                return prod.id
+            elif column == 1:
+                return prod.name
+            elif column == 2:
+                return prod.categories[0]
+            elif column == 3:
+                return prod.important_words[0]
+            elif column == 4:
+                return prod.description
+        elif role == Qt.EditRole:
+            prod = self.products[row]
+            if column == 0:
+                return prod.id
+            elif column == 1:
+                return prod.name
+            elif column == 2:
+                return "\n".join(prod.categories)
+            elif column == 3:
+                return "\n".join(prod.important_words)
+            elif column == 4:
+                return prod.description
+        elif role == Qt.ToolTipRole:
+            aname = attr_names[column]
+            return Product.tool_tips[aname]
+                        
+        return None
+    
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        """
+        Change the data in the model.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        value: object
+        role : int
+        """
+        assert index.model() == self
+        if role != Qt.EditRole:
+            return False
+        
+        row = index.row()
+        column = index.column()
+        prod = self.products[row]
+        if column == 0:
+            prod.id = value
+        elif column == 1:
+            prod.name = value
+        elif column == 2:
+            val_list = value.split("\n")
+            prod.categories = val_list
+        elif column == 3:
+            val_list = value.split("\n")
+            prod.important_words = val_list
+        elif column == 4:
+            prod.description = value
+        
+        self.dataChanged.emit(index, index)
+        return True
+    
+    
+    def flags (self, index):
+        """
+        Determines the possible actions for the item at this index.
+        
+        Parameters
+        ----------
+        index: QModelIndex
+        """
+        assert index.model() == self
+        return Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
