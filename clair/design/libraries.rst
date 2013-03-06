@@ -106,11 +106,27 @@ Amazon has an API with fairly restrictive usage terms.
 
 https://affiliate-program.amazon.com/gp/advertising/api/detail/main.html
 
+Google Shopping API
+===================
+
+Google Shopping is a database of various products, new and used. It has a
+search API, that requires a key.
+ 
+https://developers.google.com/shopping-search/v1/getting_started
+
 
 Hood API
 ========
 
 There seems to be an API but nearly no information about it is published.
+
+Elmar API
+=========
+
+There is a German project for a price database for new products, named Elmar. 
+It has a minimal search API and requires an access key.
+
+elektronischer-markt.de
 
 
 Machine Learning Libraries
