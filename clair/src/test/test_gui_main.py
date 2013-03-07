@@ -48,7 +48,7 @@ import logging
 
 import pandas as pd
 
-from PyQt4.QtGui import QApplication, QTreeView, QTableView
+from PyQt4.QtGui import QApplication, QTreeView, QTableView, QSplitter
 
 #Setup logging
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
@@ -76,22 +76,16 @@ def test_ProductWidget():
         
     app = QApplication(sys.argv)
     pw = ProductWidget()
-    
-    #Test setting getting the data before it can be changed interactively
-    pw.set_contents(prod)
-    prod1 = pw.get_contents()
-    assert prod == prod1
-    
-    pw.contents_changed.connect(slot_contents_changed)
+    #TODO: create model and test widget with it.
     pw.show()
     app.exec_()
     
-    print pw.get_contents()
     print "End"
     
     
+@pytest.mark.skipif("True") #IGNORE:E1101
 def test_ProductModel():
-    from clair.gui_main import ProductModel
+    from clair.gui_main import ProductModel, ProductWidget
     from clair.coredata import Product
     
     print "Start"
@@ -106,16 +100,28 @@ def test_ProductModel():
     
     model = ProductModel()
     model.setProducts(products)
+    #TODO: test adding and removing rows
+    #TODO: sorting with QSortFilterProxyModel
     
     view = QTreeView()
     view.setModel(model)
-    view.show()
+    view.setDragEnabled(True)
+    view.setAcceptDrops(True)
+    view.setDropIndicatorShown(True)
+    
+    prodw = ProductWidget()
+    prodw.set_model(model)
+    
+    split = QSplitter()
+    split.addWidget(view)
+    split.addWidget(prodw)
+    split.show()
     app.exec_()
     
-    view = QTableView()
-    view.setModel(model)
-    view.show()
-    app.exec_()
+#    view = QTableView()
+#    view.setModel(model)
+#    view.show()
+#    app.exec_()
     
     print model.products
     print "End"

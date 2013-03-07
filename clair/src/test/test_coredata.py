@@ -352,12 +352,12 @@ def test_XmlSmallObjectIO():
     
     
 if __name__ == "__main__":
-    test_ListingsXMLConverter()
+#    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()
 #    test_Record()
-#    test_ProductXMLConverter()
+    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
     
     pass

@@ -163,7 +163,7 @@ class Product(Record):
         "description":
             "Description of the product. Any text."}
     
-    def __init__(self, id, name, description="", #IGNORE:W0622
+    def __init__(self, id="", name="", description="", #IGNORE:W0622
                  important_words=None, categories=None):
         Record.__init__(self)
         assert isinstance(id, basestring)
@@ -174,8 +174,9 @@ class Product(Record):
         self.id = id
         self.name = name
         self.description = description
-        self.important_words = important_words
-        self.categories = categories
+        self.important_words = important_words if important_words is not None \
+                               else [] 
+        self.categories = categories if categories is not None else []
 
 
 
@@ -246,7 +247,11 @@ class XMLConverter(object):
         if isinstance(xml_list, objectify.NoneElement):
             return None
         
-        elements = xml_list[tag]
+        try:
+            elements = xml_list[tag]
+        except AttributeError:
+            return []
+        
         el_list = []
         for el in elements:
             #TODO: convert structured elements.

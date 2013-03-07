@@ -39,7 +39,8 @@ sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 #from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import (Qt, pyqtSignal, QAbstractTableModel, QModelIndex,)
-from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QGridLayout,)
+from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QGridLayout, 
+                         QDataWidgetMapper)
 from clair.coredata import Product
 
 
@@ -55,16 +56,9 @@ class ProductWidget(QWidget):
     Display and change contents of a ``Product``.
     
     TODO: Important words and categories should be less high
-    TODO: Warning when ID is changed
     """
     def __init__(self):
         super(ProductWidget, self).__init__()
-        
-        l_id = QLabel("ID")
-        l_name = QLabel("Name")
-        l_description = QLabel("Description")
-        l_important_words = QLabel("Important \nWords")
-        l_categories = QLabel("Categories")
         
         self.e_id = QLineEdit()
         self.e_name = QLineEdit()
@@ -72,15 +66,16 @@ class ProductWidget(QWidget):
         self.e_important_words = QTextEdit()
         self.e_categories = QTextEdit()
         
-        #If any contents changes, this widget emits signal ``contents_changed``
-        self.e_id.textChanged.connect(self.slot_text_changed0)
-        self.e_name.textChanged.connect(self.slot_text_changed0)
-        self.e_description.textChanged.connect(self.slot_text_changed1)
-        self.e_important_words.textChanged.connect(self.slot_text_changed1)
-        self.e_categories.textChanged.connect(self.slot_text_changed1)
-      
+        #Transfer data between model and widgets
+        self.mapper = QDataWidgetMapper()
+        
+        l_id = QLabel("ID")
+        l_name = QLabel("Name")
+        l_description = QLabel("Description")
+        l_important_words = QLabel("Important \nWords")
+        l_categories = QLabel("Categories")
+        
         grid = QGridLayout()
-#        grid.setSpacing(10)
         grid.addWidget(l_id, 0, 0)
         grid.addWidget(self.e_id, 0, 1)
         grid.addWidget(l_name, 1, 0)
@@ -101,82 +96,30 @@ class ProductWidget(QWidget):
         self.e_important_words.setToolTip(Product.tool_tips["important_words"])
         self.e_categories.setToolTip(Product.tool_tips["categories"])
         self.e_description.setToolTip(Product.tool_tips["description"])
-      
-        
-    def slot_text_changed0(self, _):
-        "QLineEdit widgets connect to this slot."
-        self.contents_changed.emit()
-        
-    def slot_text_changed1(self):
-        "QTextEdit widgets connect to this slot."
-        self.contents_changed.emit()
-    
-    contents_changed = pyqtSignal()
-    "Signal that the the product information has changed." 
-    
-    def set_contents(self, prod):
-        """Put product information into widget."""
-        self.e_id.setText(prod.id)
-        self.e_name.setText(prod.name)
-        self.e_description.setPlainText(prod.description)
-        
-        important_words_text = "\n".join(prod.important_words)
-        self.e_important_words.setPlainText(important_words_text)
-        
-        categories_text = "\n".join(prod.categories)
-        self.e_categories.setPlainText(categories_text)
-        
-        
-    def get_contents(self):
-        """Retrieve product information from this widget."""
-        important_words_list = self.e_important_words.toPlainText().split("\n")
-        categories_list = self.e_categories.toPlainText().split("\n")
-        
-        return Product(id=self.e_id.text(), 
-                       name=self.e_name.text(), 
-                       description=self.e_description.toPlainText(),
-                       important_words=important_words_list, 
-                       categories=categories_list)
 
+  
+    def set_model(self, model):
+        """Tell the widget which model it should use."""
+        #Put model into communication object
+        self.mapper.setModel(model)
+        #Tell: which widget should show which column
+        self.mapper.addMapping(self.e_id, 0)
+        self.mapper.addMapping(self.e_name, 1)
+        self.mapper.addMapping(self.e_categories, 2, "plainText")
+        self.mapper.addMapping(self.e_important_words, 3, "plainText")
+        self.mapper.addMapping(self.e_description, 4, "plainText")
+        #Go to first row
+        self.mapper.toFirst()
 
-
-class ProductController(object):
-    """Control Editing of ``Product`` objects."""
-    def __init__(self):
-        self.edit_widget = ProductWidget()
-        self.list_widget = None
-        self.products = []
-        
-        self.index = 0
-        self.item_changed = False
-        
-        
-    def edit_at(self, index):
-        """Edit item at a specific index"""
-        if index == self.index:
-            return
-        if self.item_changed:
-            mod_item = self.edit_widget.get_contents()
-            self.change_item(self.index, mod_item) 
-        
-        new_item = self.get_item(index)
-        self.edit_widget.set_contents(new_item)
-    
-    
-    def slot_current_item_changed(self):
-        """Called by editor widget when when its contents changes"""
-        self.item_changed = True
-        
-    def change_item(self, index, new_item):
+    def setRow(self, index):
         """
-        Change item at index to ``new_item``.
-        TODO: Undo redo facility. 
+        Set the row of the model that can be accessed with the widget.
+        
+        Parameter
+        ---------
+        index : QModelIndex
         """
-        self.products[index] = new_item
-    
-    def get_item(self, index):
-        """Retrieve item at index from list"""
-        return self.products[index]
+        self.mapper.setCurrentModelIndex(index)
 
 
 
@@ -189,21 +132,40 @@ class ProductModel(QAbstractTableModel):
         self.products = []
     
     def setProducts(self, products):
-        """Put list of products into model TODO: emit necessary signals."""
+        """Put list of products into model"""
         self.products = products
+        #Tell the view(s) that the data has changed.
+        idx_ul = self.createIndex(0, 0)
+        idx_br = self.createIndex(self.rowCount(QModelIndex()) - 1, 
+                                  self.columnCount(QModelIndex()) -1)
+        self.dataChanged.emit(idx_ul, idx_br)
 
-    #rowCount(), columnCount(), and data()
     def rowCount(self, parent):
         """Return number of products in list."""
-        if parent.model() == self:
+        if parent.isValid(): #There are only top level items
             return 0
         return len(self.products)
     
     def columnCount(self, parent):
         """Return number of accessible product attributes."""
-        if parent.model() == self:
+        if parent.isValid(): #There are only top level items
             return 0
         return 5
+    
+    def flags (self, index):
+        """
+        Determines the possible actions for the item at this index.
+        
+        Parameters
+        ----------
+        index: QModelIndex
+        """
+        if index.isValid():
+            return (Qt.ItemIsDragEnabled | 
+                    Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+        else:
+            return (Qt.ItemIsDropEnabled | 
+                    Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """
@@ -212,6 +174,7 @@ class ProductModel(QAbstractTableModel):
         Parameters
         -----------
         section: int
+            Column number
         orientation: 
             Qt.Vertical or Qt.Horizontal
         role: int
@@ -238,28 +201,16 @@ class ProductModel(QAbstractTableModel):
         row = index.row()
         column = index.column()
         
-        if role == Qt.DisplayRole:
+        if role in [Qt.DisplayRole, Qt.EditRole]:
             prod = self.products[row]
             if column == 0:
                 return prod.id
             elif column == 1:
                 return prod.name
             elif column == 2:
-                return prod.categories[0]
+                return u"\n".join(prod.categories)
             elif column == 3:
-                return prod.important_words[0]
-            elif column == 4:
-                return prod.description
-        elif role == Qt.EditRole:
-            prod = self.products[row]
-            if column == 0:
-                return prod.id
-            elif column == 1:
-                return prod.name
-            elif column == 2:
-                return "\n".join(prod.categories)
-            elif column == 3:
-                return "\n".join(prod.important_words)
+                return u"\n".join(prod.important_words)
             elif column == 4:
                 return prod.description
         elif role == Qt.ToolTipRole:
@@ -278,6 +229,8 @@ class ProductModel(QAbstractTableModel):
         index : QModelIndex
         value: object
         role : int
+        
+        TODO: Warning when ID is changed
         """
         assert index.model() == self
         if role != Qt.EditRole:
@@ -303,14 +256,59 @@ class ProductModel(QAbstractTableModel):
         return True
     
     
-    def flags (self, index):
+    def insertRows(self, row, count, parent=QModelIndex()):
         """
-        Determines the possible actions for the item at this index.
+        Insert "empty" products into the list of products.
         
         Parameters
         ----------
-        index: QModelIndex
+        row : int
+            The new rows are inserted before the row with this index
+        count : int
+            Number of rows that are inserted.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were inserted successfully, False otherwise.
         """
-        assert index.model() == self
-        return Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        if parent.isValid(): #There are only top level items
+            return False
+        
+        self.beginInsertRows(parent, row, row + count - 1)
+        for i in range(count):
+            new_prod = Product(u"", u"", u"", [], [])
+            self.products.insert(row + i, new_prod)
+        self.endInsertRows()
+        
+        return True
+    
+    
+    def removeRows(row, count, parent=QModelIndex()):
+        """
+        Remove products from the list.
+        
+        Parameters
+        ----------
+        row : int
+            Index of first row that is removed.
+        count : int
+            Number of rows that are removed.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were removed successfully, False otherwise.
+
+        """
+        if parent.isValid(): #There are only top level items
+            return False
+        
+        self.beginRemoveRows(parent, row, row + count - 1)
+        del self.products[row, row + count]
+        self.endRemoveRows()
+        
+        return True
 
