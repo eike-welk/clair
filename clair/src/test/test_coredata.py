@@ -267,9 +267,14 @@ def test_ProductXMLConverter():
     """Test conversion of product objects from and to XML"""
     from clair.coredata import Product, ProductXMLConverter
     
-    pd1 = {"a1":Product("a1", "A1 thing", "The A1 is great."),
-           "a2":Product("a2", "Foo A2", "", ["Foo", "A2"]),
-           "b1":Product("b1", "PRoduct B1", "The B2 is versatile."),
+    pbad2 = Product("bad2")
+    pbad2.categories = None
+    pbad2.important_words = None
+    pd1 = {"a1":Product("a1", "A1 thing", "The A1 is great.", ["Foo", "A2"], 
+                        ["bar", "baz"]),
+           "a2":Product("a2", "PRoduct B1",),
+           "bad1":Product("bad1", "", "", [], []),
+#           "bad2":pbad2
            }
     
     conv = ProductXMLConverter()
@@ -280,9 +285,19 @@ def test_ProductXMLConverter():
     #Convert XML back to dict of products
     pd2 = conv.from_xml(pd_xml)
     print pd2
-    
     #Conversion to XML and back must result in equal data structure
     assert pd1 == pd2
+    print 
+    
+    #None values in ``important_words`` and ``description`` should not crash
+    #TODO: why are the None values not retained?
+    pd3 = {"bad2":pbad2}
+    
+    pd_xml = conv.to_xml(pd3)
+    print pd_xml
+    pd4 = conv.from_xml(pd_xml)
+    print pd4
+    assert pd4["bad2"].id == "bad2"
     
     
 def test_TaskXMLConverter():

@@ -220,9 +220,6 @@ class XMLConverter(object):
     Unicode introduction
     http://docs.python.org/2/howto/unicode.html
     
-    TODO:
-    Generic converter Python <-> XML
-    
     https://github.com/dmw/pyxser
     http://pyxml.sourceforge.net/topics/howto/node26.html
     """
@@ -244,18 +241,19 @@ class XMLConverter(object):
     
     def from_xml_list(self, tag, xml_list):
         """Convert a repetition of XML elements into a Python list."""
+        ustrn = self.unicode_or_none
         if isinstance(xml_list, objectify.NoneElement):
             return None
         
         try:
-            elements = xml_list[tag]
+            elements = getattr(xml_list, tag)
         except AttributeError:
             return []
         
         el_list = []
         for el in elements:
             #TODO: convert structured elements.
-            el_list.append(el.pyval)
+            el_list.append(ustrn(el.pyval))
         return el_list
     
     
@@ -273,12 +271,16 @@ class XMLConverter(object):
     
     def from_xml_dict(self, xml_dict):
         """Convert a special XML structure to a dict."""
+        ustrn = self.unicode_or_none
         if isinstance(xml_dict, objectify.NoneElement):
             return None
-        ustrn = self.unicode_or_none
+        
+        try:
+            xml_kv_pairs = xml_dict.kv_pair
+        except AttributeError:
+            return {}
         
         py_dict = {}
-        xml_kv_pairs = xml_dict.kv_pair
         for xml_kv_pair in xml_kv_pairs:
             key = ustrn(xml_kv_pair.key.pyval)
             value = ustrn(xml_kv_pair.value.pyval)
