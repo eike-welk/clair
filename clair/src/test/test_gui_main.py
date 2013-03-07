@@ -48,7 +48,8 @@ import logging
 
 import pandas as pd
 
-from PyQt4.QtGui import QApplication, QTreeView, QTableView, QSplitter
+from PyQt4.QtGui import QApplication, QTreeView
+from PyQt4.QtCore import Qt, QModelIndex
 
 #Setup logging
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
@@ -64,32 +65,42 @@ def relative(*path_components):
 
 
 def test_ProductWidget():
+    """Test the ``ProductWidget``"""
     from clair.gui_main import ProductWidget
-    from clair.coredata import Product
-    
-    def slot_contents_changed():
-        print "contents changed"
-        
-    prod = Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
-                   ["Nikon", "D 90"], ["photo.system.nikon.camera",
-                                       "photo.camera.system.nikon"])
-        
-    app = QApplication(sys.argv)
-    pw = ProductWidget()
-    #TODO: create model and test widget with it.
-    pw.show()
-    app.exec_()
-    
-    print "End"
-    
-    
-@pytest.mark.skipif("True") #IGNORE:E1101
-def test_ProductModel():
-    from clair.gui_main import ProductModel, ProductWidget
-    from clair.coredata import Product
     
     print "Start"
     app = QApplication(sys.argv)
+    
+    view = ProductWidget()
+    model = create_product_model()
+    view.setModel(model)
+    
+    view.show()
+    app.exec_()
+    print model.products
+    print "End"
+    
+    
+def test_ProductListWidget():
+    from clair.gui_main import ProductListWidget
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    view = ProductListWidget()
+    model = create_product_model()
+    view.setModel(model)
+    
+    view.show()
+    app.exec_()
+    print model.products
+    print "End"
+    
+
+def create_product_model():
+    """Create a Qt-model-view model that contains products, for testing."""
+    from clair.gui_main import ProductModel
+    from clair.coredata import Product
     
     products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
                         ["Nikon", "D 90"], ["photo.system.nikon.camera",
@@ -97,37 +108,62 @@ def test_ProductModel():
                 Product("nikon-d70", "Nikon D70", "Nikon D70 DSLR camera.", 
                         ["Nikon", "D 70"], ["photo.system.nikon.camera",
                                             "photo.camera.system.nikon"])]
-    
     model = ProductModel()
     model.setProducts(products)
-    #TODO: test adding and removing rows
-    #TODO: sorting with QSortFilterProxyModel
+    return model
     
-    view = QTreeView()
-    view.setModel(model)
-    view.setDragEnabled(True)
-    view.setAcceptDrops(True)
-    view.setDropIndicatorShown(True)
+
+def test_ProductModel():
+    """
+    Test ProductModel, an adapter for a list of ``Product`` objects
+    to Qt's model-view architecture.
+    """
+    from clair.gui_main import ProductModel
+    from clair.coredata import Product
+        
+    model = create_product_model()
     
-    prodw = ProductWidget()
-    prodw.set_model(model)
+    #Get table dimensions
+    assert model.rowCount() == 2
+    assert model.columnCount() == 5
     
-    split = QSplitter()
-    split.addWidget(view)
-    split.addWidget(prodw)
-    split.show()
-    app.exec_()
+    #Get data from model
+    index01 = model.createIndex(0, 1)
+    name = model.data(index01, Qt.DisplayRole)
+    assert name == "Nikon D90"
+    name = model.data(index01, Qt.EditRole)
+    assert name == "Nikon D90"
+    tooltip =  model.data(index01, Qt.ToolTipRole)
+    assert isinstance(tooltip, basestring) and len(tooltip) > 0
     
-#    view = QTableView()
-#    view.setModel(model)
-#    view.show()
-#    app.exec_()
+    #Change data in model
+    model.setData(index01, "foo", Qt.EditRole)
+    #Test if data was really changed
+    name = model.data(index01, Qt.EditRole)
+    assert name == "foo"
+    
+    #Insert 2 rows before line #1 (in the middle)
+    model.insertRows(1, 2)
+    #Get list of product names (column 1)
+    names = [model.data(model.createIndex(i, 1), Qt.DisplayRole) 
+             for i in range(model.rowCount())]
+    assert model.rowCount() == 4
+    assert names == ['foo', u'', u'', 'Nikon D70']
+    
+    #Remove 2 rows starting at #1
+    model.removeRows(1, 2)
+    #Get list of product names (column 1)
+    names = [model.data(model.createIndex(i, 1), Qt.DisplayRole) 
+             for i in range(model.rowCount())]
+    assert model.rowCount() == 2
+    assert names == ['foo', 'Nikon D70']
     
     print model.products
     print "End"
 
  
-def experiment_qt():    
+def experiment_qt():
+    """Template for functions that test Qt GUI components."""
     print "Start"
     app = QApplication(sys.argv)
     view = QTreeView()
@@ -138,7 +174,8 @@ def experiment_qt():
     
 if __name__ == '__main__':
 #    test_ProductWidget()
-    test_ProductModel()
+    test_ProductListWidget()
+#    test_ProductModel()
     
 #    experiment_qt()
     

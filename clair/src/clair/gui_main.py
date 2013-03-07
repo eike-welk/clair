@@ -38,9 +38,10 @@ sip.setapi("QUrl", 2)
 sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 #from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import (Qt, pyqtSignal, QAbstractTableModel, QModelIndex,)
-from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QGridLayout, 
-                         QDataWidgetMapper)
+from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel,)
+from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
+                         QGridLayout, QTreeView, QAbstractItemView, 
+                         QDataWidgetMapper, QSortFilterProxyModel)
 from clair.coredata import Product
 
 
@@ -53,21 +54,25 @@ def QtLoadUI(uifile):
 
 class ProductWidget(QWidget):
     """
-    Display and change contents of a ``Product``.
+    Display and edit contents of a single ``Product``.
+    
+    The data is taken from a row of a ``ProductModel``. 
+    The communication between the model and the individual edit widgets, 
+    is done by a ``QDataWidgetMapper``.  
     
     TODO: Important words and categories should be less high
     """
     def __init__(self):
         super(ProductWidget, self).__init__()
         
+        #Transfer data between model and widgets
+        self.mapper = QDataWidgetMapper()
+        
         self.e_id = QLineEdit()
         self.e_name = QLineEdit()
         self.e_description = QTextEdit()
         self.e_important_words = QTextEdit()
         self.e_categories = QTextEdit()
-        
-        #Transfer data between model and widgets
-        self.mapper = QDataWidgetMapper()
         
         l_id = QLabel("ID")
         l_name = QLabel("Name")
@@ -98,7 +103,7 @@ class ProductWidget(QWidget):
         self.e_description.setToolTip(Product.tool_tips["description"])
 
   
-    def set_model(self, model):
+    def setModel(self, model):
         """Tell the widget which model it should use."""
         #Put model into communication object
         self.mapper.setModel(model)
@@ -111,9 +116,12 @@ class ProductWidget(QWidget):
         #Go to first row
         self.mapper.toFirst()
 
+
     def setRow(self, index):
         """
-        Set the row of the model that can be accessed with the widget.
+        Set the row of the model that is accessed by the widget.
+        
+        Usually connected to signal ``activated`` of a ``QTreeView``.
         
         Parameter
         ---------
@@ -123,9 +131,54 @@ class ProductWidget(QWidget):
 
 
 
+class ProductListWidget(QSplitter):
+    """
+    Display and edit a list of ``Product`` objects. There is a pane that shows
+    the list a whole, and an other pane that shows a single product.
+    
+    The data is taken from a ``ProductModel``.
+    
+    
+    TODO: searching with ``QSortFilterProxyModel``
+    TODO: adding and deleting products.
+    """
+    def __init__(self, parent=None):
+        super(ProductListWidget, self).__init__(parent)
+        self.product_widget = ProductWidget()
+        self.list_widget = QTreeView()
+        self.filter = QSortFilterProxyModel()
+    
+        self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.list_widget.setDragEnabled(False)
+        self.list_widget.setAcceptDrops(False)
+        self.list_widget.setDropIndicatorShown(True)
+        self.list_widget.setDefaultDropAction(Qt.MoveAction)
+        self.list_widget.setRootIsDecorated(False)
+        self.list_widget.setSortingEnabled(True);
+        
+        self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
+        
+        #When user clicks a line in ``list_widget`` this product is shown 
+        #in ``product_widget``
+        self.list_widget.activated.connect(self.product_widget.setRow)
+        
+        self.addWidget(self.list_widget)
+        self.addWidget(self.product_widget)
+        
+
+    def setModel(self, model):
+        """Tell view which model it should display and edit."""
+        self.filter.setSourceModel(model)
+        self.product_widget.setModel(self.filter)
+        self.list_widget.setModel(self.filter)
+        #Hide the description it can be too big.
+        self.list_widget.hideColumn(4)
+   
+    
 class ProductModel(QAbstractTableModel):
     """
     Represent a list of ``Product`` objects to QT's model view architecture.
+    An adapter in design pattern language.
     """
     def __init__(self, parent=None):
         super(ProductModel, self).__init__(parent)
@@ -140,19 +193,23 @@ class ProductModel(QAbstractTableModel):
                                   self.columnCount(QModelIndex()) -1)
         self.dataChanged.emit(idx_ul, idx_br)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=QModelIndex()):
         """Return number of products in list."""
         if parent.isValid(): #There are only top level items
             return 0
         return len(self.products)
     
-    def columnCount(self, parent):
+    def columnCount(self, parent=QModelIndex()):
         """Return number of accessible product attributes."""
         if parent.isValid(): #There are only top level items
             return 0
         return 5
     
-    def flags (self, index):
+    def supportedDropActions(self):
+        """Say which actions are supported for drag-drop."""
+        return Qt.CopyAction | Qt.MoveAction
+ 
+    def flags(self, index):
         """
         Determines the possible actions for the item at this index.
         
@@ -160,12 +217,13 @@ class ProductModel(QAbstractTableModel):
         ----------
         index: QModelIndex
         """
+        default_flags = super(ProductModel, self).flags(index)
+        
         if index.isValid():
-            return (Qt.ItemIsDragEnabled | 
-                    Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            return Qt.ItemIsDragEnabled | Qt.ItemIsEditable | default_flags
         else:
-            return (Qt.ItemIsDropEnabled | 
-                    Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            return Qt.ItemIsDropEnabled | default_flags
+    
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """
@@ -184,6 +242,7 @@ class ProductModel(QAbstractTableModel):
         header_names = ["ID", "Name", "Categories", "Important Words", 
                         "Description"]
         return header_names[section]
+
 
     def data(self, index, role=Qt.DisplayRole):
         """
@@ -235,6 +294,8 @@ class ProductModel(QAbstractTableModel):
         assert index.model() == self
         if role != Qt.EditRole:
             return False
+        if not index.isValid():
+            return False
         
         row = index.row()
         column = index.column()
@@ -256,6 +317,22 @@ class ProductModel(QAbstractTableModel):
         return True
     
     
+    def setItemData(self, index, roles):
+        """
+        Change data in model. Intention is to change data more efficiently,
+        because data with with several roles is changed at once.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        roles : dict[int, object]
+        """
+        #Only Qt.EditRole can be changed
+        if Qt.EditRole not in roles:
+            return False
+        return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+    
+        
     def insertRows(self, row, count, parent=QModelIndex()):
         """
         Insert "empty" products into the list of products.
@@ -285,7 +362,7 @@ class ProductModel(QAbstractTableModel):
         return True
     
     
-    def removeRows(row, count, parent=QModelIndex()):
+    def removeRows(self, row, count, parent=QModelIndex()):
         """
         Remove products from the list.
         
@@ -307,8 +384,7 @@ class ProductModel(QAbstractTableModel):
             return False
         
         self.beginRemoveRows(parent, row, row + count - 1)
-        del self.products[row, row + count]
+        del self.products[row:row + count]
         self.endRemoveRows()
         
         return True
-
