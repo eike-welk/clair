@@ -38,10 +38,10 @@ sip.setapi("QUrl", 2)
 sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 #from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel,)
+from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
-                         QGridLayout, QTreeView, QAbstractItemView, 
-                         QDataWidgetMapper, QSortFilterProxyModel)
+                         QGridLayout, QTreeView, QAbstractItemView, QAction,
+                         QDataWidgetMapper, QSortFilterProxyModel, QKeySequence)
 from clair.coredata import Product
 
 
@@ -155,6 +155,18 @@ class ProductListWidget(QSplitter):
         self.list_widget.setDefaultDropAction(Qt.MoveAction)
         self.list_widget.setRootIsDecorated(False)
         self.list_widget.setSortingEnabled(True);
+        self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
+        
+        act_new = QAction("&New Product", self)
+        act_new.setShortcuts(QKeySequence.InsertLineSeparator)
+        act_new.setStatusTip("Create new product before selected product.")
+        act_new.triggered.connect(self.newProduct)
+        act_delete = QAction("&Delete Product", self)
+        act_delete.setShortcuts(QKeySequence.Delete)
+        act_delete.setStatusTip("Delete selected product")
+        act_delete.triggered.connect(self.deleteProduct)
+        self.list_widget.addAction(act_new)
+        self.list_widget.addAction(act_delete)
         
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         
@@ -174,7 +186,14 @@ class ProductListWidget(QSplitter):
         #Hide the description it can be too big.
         self.list_widget.hideColumn(4)
    
-    
+    def newProduct(self): 
+        print "newProduct"
+        
+    def deleteProduct(self):
+        print "deleteProduct"
+        
+
+
 class ProductModel(QAbstractTableModel):
     """
     Represent a list of ``Product`` objects to QT's model view architecture.
