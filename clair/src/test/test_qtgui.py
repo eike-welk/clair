@@ -66,7 +66,7 @@ def relative(*path_components):
 
 def test_ProductWidget():
     """Test the ``ProductWidget``"""
-    from clair.gui_main import ProductWidget
+    from clair.qtgui import ProductWidget
     
     print "Start"
     app = QApplication(sys.argv)
@@ -82,7 +82,7 @@ def test_ProductWidget():
     
     
 def test_ProductListWidget():
-    from clair.gui_main import ProductListWidget
+    from clair.qtgui import ProductListWidget
     
     print "Start"
     app = QApplication(sys.argv)
@@ -99,7 +99,7 @@ def test_ProductListWidget():
 
 def create_product_model():
     """Create a Qt-model-view model that contains products, for testing."""
-    from clair.gui_main import ProductModel
+    from clair.qtgui import ProductModel
     from clair.coredata import Product
     
     products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
@@ -118,7 +118,7 @@ def test_ProductModel():
     Test ProductModel, an adapter for a list of ``Product`` objects
     to Qt's model-view architecture.
     """
-    from clair.gui_main import ProductModel
+    from clair.qtgui import ProductModel
     from clair.coredata import Product
         
     model = create_product_model()
