@@ -41,7 +41,8 @@ sip.setapi("QVariant", 2)
 from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
-                         QDataWidgetMapper, QSortFilterProxyModel, QKeySequence)
+                         QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
+                         QItemSelectionModel)
 from clair.coredata import Product
 
 
@@ -138,9 +139,7 @@ class ProductListWidget(QSplitter):
     
     The data is taken from a ``ProductModel``.
     
-    
     TODO: searching with ``QSortFilterProxyModel``
-    TODO: adding and deleting products.
     """
     def __init__(self, parent=None):
         super(ProductListWidget, self).__init__(parent)
@@ -153,19 +152,23 @@ class ProductListWidget(QSplitter):
         self.list_widget.setAcceptDrops(False)
         self.list_widget.setDropIndicatorShown(True)
         self.list_widget.setDefaultDropAction(Qt.MoveAction)
+        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+                                         #QAbstractItemView.AnyKeyPressed |
+                                         QAbstractItemView.SelectedClicked)
         self.list_widget.setRootIsDecorated(False)
-        self.list_widget.setSortingEnabled(True);
+        self.list_widget.setSortingEnabled(True)
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
         
+        #Create context menu for list view
         act_new = QAction("&New Product", self)
         act_new.setShortcuts(QKeySequence.InsertLineSeparator)
         act_new.setStatusTip("Create new product before selected product.")
         act_new.triggered.connect(self.newProduct)
+        self.list_widget.addAction(act_new)
         act_delete = QAction("&Delete Product", self)
         act_delete.setShortcuts(QKeySequence.Delete)
         act_delete.setStatusTip("Delete selected product")
         act_delete.triggered.connect(self.deleteProduct)
-        self.list_widget.addAction(act_new)
         self.list_widget.addAction(act_delete)
         
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
@@ -186,11 +189,23 @@ class ProductListWidget(QSplitter):
         #Hide the description it can be too big.
         self.list_widget.hideColumn(4)
    
-    def newProduct(self): 
-        print "newProduct"
+    def newProduct(self):
+        """Create a new product above the current product."""
+#        print "newProduct"
+        row = self.list_widget.currentIndex().row()
+        model = self.list_widget.model()
+        model.insertRows(row, 1)
+#        index = model.createIndex(row, 0, QModelIndex())
+#        selection = self.list_widget.selectionModel()
+#        selection.select(index, QItemSelectionModel.Select | 
+#                                QItemSelectionModel.Rows)
+#        self.list_widget.setCurrentIndex(index)
         
     def deleteProduct(self):
-        print "deleteProduct"
+        """Delete the current product."""
+        row = self.list_widget.currentIndex().row()
+        model = self.list_widget.model()
+        model.removeRows(row, 1)
         
 
 
