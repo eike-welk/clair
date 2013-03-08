@@ -38,11 +38,15 @@ sip.setapi("QUrl", 2)
 sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 #from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel)
+from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel, QSettings)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
+                         QMainWindow, QTabWidget, QApplication, QFileDialog,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
-                         QItemSelectionModel)
+                         QItemSelectionModel,)
+import sys
+import os
+
 from clair.coredata import Product
 
 
@@ -160,16 +164,17 @@ class ProductListWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
         
         #Create context menu for list view
-        act_new = QAction("&New Product", self)
-        act_new.setShortcuts(QKeySequence.InsertLineSeparator)
-        act_new.setStatusTip("Create new product before selected product.")
-        act_new.triggered.connect(self.newProduct)
-        self.list_widget.addAction(act_new)
-        act_delete = QAction("&Delete Product", self)
-        act_delete.setShortcuts(QKeySequence.Delete)
-        act_delete.setStatusTip("Delete selected product")
-        act_delete.triggered.connect(self.deleteProduct)
-        self.list_widget.addAction(act_delete)
+        self.action_new = QAction("&New Product", self)
+        self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
+        self.action_new.setStatusTip(
+                                "Create new product below selected product.")
+        self.action_new.triggered.connect(self.newProduct)
+        self.list_widget.addAction(self.action_new)
+        self.action_delete = QAction("&Delete Product", self)
+        self.action_delete.setShortcuts(QKeySequence.Delete)
+        self.action_delete.setStatusTip("Delete selected product")
+        self.action_delete.triggered.connect(self.deleteProduct)
+        self.list_widget.addAction(self.action_delete)
         
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         
@@ -190,16 +195,13 @@ class ProductListWidget(QSplitter):
         self.list_widget.hideColumn(4)
    
     def newProduct(self):
-        """Create a new product above the current product."""
-#        print "newProduct"
+        """Create a new product below the current product."""
         row = self.list_widget.currentIndex().row()
         model = self.list_widget.model()
-        model.insertRows(row, 1)
-#        index = model.createIndex(row, 0, QModelIndex())
-#        selection = self.list_widget.selectionModel()
-#        selection.select(index, QItemSelectionModel.Select | 
-#                                QItemSelectionModel.Rows)
-#        self.list_widget.setCurrentIndex(index)
+        model.insertRows(row + 1, 1)
+        index = model.index(row + 1, 0, QModelIndex())
+        self.product_widget.setRow(index)
+        self.list_widget.setCurrentIndex(index)
         
     def deleteProduct(self):
         """Delete the current product."""
@@ -389,7 +391,7 @@ class ProductModel(QAbstractTableModel):
         
         self.beginInsertRows(parent, row, row + count - 1)
         for i in range(count):
-            new_prod = Product(u"", u"", u"", [], [])
+            new_prod = Product(u"---", u"", u"", [], [])
             self.products.insert(row + i, new_prod)
         self.endInsertRows()
         
@@ -422,3 +424,77 @@ class ProductModel(QAbstractTableModel):
         self.endRemoveRows()
         
         return True
+
+
+
+class GuiMain(QMainWindow):
+    """Main window of GUI application"""
+    def __init__(self, parent=None, flags=Qt.Window):
+        super(QMainWindow, self).__init__(parent, flags)
+        
+        #Create data attributes
+        self.main_tabs = QTabWidget()
+        self.product_editor = ProductListWidget()
+        self.product_model = ProductModel()
+        
+        #Assemble the top level widgets
+        self. setCentralWidget(self.main_tabs)
+        self.main_tabs.addTab(self.product_editor, "Products")
+        self.product_editor.setModel(self.product_model)
+        
+        self.createMenus()
+        #Create the status bar
+        self.statusBar()
+        #Read status information that is saved on closing the application
+        self.readSettings()
+        
+    
+    def createMenus(self):
+        """Create the application's menus"""
+        menubar = self.menuBar()
+        filemenu = menubar.addMenu("&File")
+        #TODO better word for "configuration"
+        filemenu.addAction("&Open Configuration", self.loadConfiguration, 
+                           QKeySequence.Open)
+        filemenu.addAction("&Save Configuration", self.saveConfiguration, 
+                           QKeySequence.Save)
+        productmenu = menubar.addMenu("&Product")
+        productmenu.addAction(self.product_editor.action_new)
+        productmenu.addAction(self.product_editor.action_delete)
+
+        
+    def loadConfiguration(self):
+        print "loadConfiguration"
+        filename = QFileDialog.getOpenFileName(
+                                self, "Open Configuration", os.getcwd(), "")
+        dirname = os.path.dirname(filename)
+        print dirname
+        
+    def saveConfiguration(self):
+        print "saveConfiguration"
+        self.statusBar().showMessage("Configuration saved.", 5000)
+    
+    def closeEvent(self, event):
+        #TODO: save files before closing.
+        settings = QSettings("The Clair Project", "clairgui")
+        settings.setValue("geometry", self.saveGeometry())
+        settings.setValue("windowState", self.saveState())
+        super(GuiMain, self).closeEvent(event)
+ 
+    def readSettings(self):
+        #TODO: open last used configuration
+        settings = QSettings("The Clair Project", "clairgui");
+        self.restoreGeometry(settings.value("geometry"));
+        self.restoreState(settings.value("windowState"));
+ 
+ 
+    @staticmethod
+    def application_main():
+        """
+        The application's main function. 
+        Create application and main window and run them.
+        """
+        app = QApplication(sys.argv)
+        window = GuiMain()
+        window.show()
+        app.exec_()

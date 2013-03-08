@@ -161,6 +161,15 @@ def test_ProductModel():
     print model.products
     print "End"
 
+
+def test_GuiMain():
+    """Test the regular run of the GUI application"""
+    from clair.qtgui import GuiMain
+    
+    print "start"
+    GuiMain.application_main()
+    print "finished"
+    
  
 def experiment_qt():
     """Template for functions that test Qt GUI components."""
@@ -174,8 +183,9 @@ def experiment_qt():
     
 if __name__ == '__main__':
 #    test_ProductWidget()
-    test_ProductListWidget()
+#    test_ProductListWidget()
 #    test_ProductModel()
+    test_GuiMain()
     
 #    experiment_qt()
     
