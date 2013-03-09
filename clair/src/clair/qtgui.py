@@ -47,7 +47,7 @@ from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter,
 import sys
 import os
 
-from clair.coredata import Product
+from clair.coredata import Product, DataStore
 
 
 
@@ -219,15 +219,18 @@ class ProductModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super(ProductModel, self).__init__(parent)
         self.products = []
+        self.dirty = False
     
     def setProducts(self, products):
         """Put list of products into model"""
         self.products = products
+        self.dirty = False
         #Tell the view(s) that the data has changed.
         idx_ul = self.createIndex(0, 0)
         idx_br = self.createIndex(self.rowCount(QModelIndex()) - 1, 
                                   self.columnCount(QModelIndex()) -1)
-        self.dataChanged.emit(idx_ul, idx_br)
+#        self.dataChanged.emit(idx_ul, idx_br)
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=QModelIndex()):
         """Return number of products in list."""
@@ -348,7 +351,8 @@ class ProductModel(QAbstractTableModel):
             prod.important_words = val_list
         elif column == 4:
             prod.description = value
-        
+            
+        self.dirty = True
         self.dataChanged.emit(index, index)
         return True
     
@@ -433,6 +437,7 @@ class GuiMain(QMainWindow):
         super(QMainWindow, self).__init__(parent, flags)
         
         #Create data attributes
+        self.data = DataStore()
         self.main_tabs = QTabWidget()
         self.product_editor = ProductListWidget()
         self.product_model = ProductModel()
@@ -468,7 +473,8 @@ class GuiMain(QMainWindow):
         filename = QFileDialog.getOpenFileName(
                                 self, "Open Configuration", os.getcwd(), "")
         dirname = os.path.dirname(filename)
-        print dirname
+        self.data.read_data(dirname)
+        self.product_model.setProducts(self.data.products.values())
         
     def saveConfiguration(self):
         print "saveConfiguration"

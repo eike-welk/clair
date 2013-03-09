@@ -935,7 +935,7 @@ class DataStore(object):
     
     
     def merge_listings(self, listings):
-        logging.info("Inserting {} listings".format(len(listings)))
+        logging.info("Merging {} listings".format(len(listings)))
         self.listings = listings.combine_first(self.listings)
     
     
