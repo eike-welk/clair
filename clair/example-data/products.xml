@@ -2,64 +2,81 @@
   <version>0.1</version>
   <products>
     <product>
-      <id>nikon-d90</id>
-      <name>Nikon D90 Camera</name>
-      <description>Nikon D90 DSLR camera</description>
+      <id>nikon-18-105-f/3.5-5.6--1</id>
+      <name>Nikon 18-105 mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens</name>
+      <description>Nikon 18-105mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens
+
+Moderately cheap super zoom, often often found in kits.
+
+Note! There are multiple versions of this lens
+      </description>
       <important_words>
-        <word>Nikon D90</word>
-        <word>Nikon</word>
-        <word>D90</word>
+        <word></word>
       </important_words>
       <categories>
-            <category>photo.camera.system</category>
-            <category>photo.system.nikon</category>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-18-55-f/3.5-5.6--1</id>
+      <name>Nikon 18-55 mm f/3.5-5.6 G ED AF-S DX Nikkor Lens</name>
+      <description>Nikon 18-55mm f/3.5-5.6 G ED AF-S DX Nikkor Lens
+
+Cheap normal zoom, often often found in kits.
+
+Note! There are multiple versions of this lens
+      </description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
       </categories>
     </product>
     <product>
       <id>nikon-d70</id>
       <name>Nikon D70 Camera</name>
-      <description>
-      		Nikon D70 DSLR camera. 
-			* Electronic shutter, very high flash sync speed.
-      		* Low sensitivity, bad for low light.
-      		* 6 Mpix
+      <description>Nikon D70 DSLR camera. 
+
+* Electronic shutter, very high flash sync speed.
+* Low sensitivity, bad for low light.
+* 6 Mpix
       </description>
-      <important_words xsi:nil="true"/>
-      <categories xsi:nil="true"/>
-    </product>    
-	<product>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.camera</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-d90</id>
+      <name>Nikon D90 Camera</name>
+      <description>Nikon D90 DSLR camera
+
+* Moderately good in high ISO</description>
+      <important_words>
+        <word></word>
+      </important_words>
+      <categories>
+        <category>photo.system.nikon.camera</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-sb-24</id>
-      <name>Nikon SB-24</name>
+      <name>Nikon SB-24 Flash</name>
       <description>Nikon SB-24 Flash</description>
-      <important_words xsi:nil="true"/>
-      <categories xsi:nil="true"/>
+      <important_words/>
+      <categories>
+        <category>photo.system.generic.flash</category>
+      </categories>
     </product>
     <product>
       <id>nikon-sb-26</id>
-      <name>Nikon SB-26</name>
-      <description>Nikon SB-26 Flash</description>
-      <important_words xsi:nil="true"/>
-      <categories xsi:nil="true"/>
-    </product>
-    <product>
-      <id>nikon-18-105mm-f/3.5-5.6</id>
-      <name>Nikon 18-105mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens</name>
-      <description>
-            Nikon 18-105mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens - 
-      		Moderately cheap all round zoom, often often found in kits.
-      </description>
-      <important_words xsi:nil="true"/>
-      <categories xsi:nil="true"/>
-    </product>
-    <product>
-      <id>nikon-18-55mm-f/3.5-5.6</id>
-      <name>Nikon 18-55mm f/3.5-5.6 G ED AF-S DX Nikkor Lens</name>
-      <description>
-            Nikon 18-55mm f/3.5-5.6 G ED AF-S DX Nikkor Lens - 
-      		Cheap normal zoom, often often found in kits.
-      </description>
-      <important_words xsi:nil="true"/>
-      <categories xsi:nil="true"/>
+      <name>Nikon SB-26 Flash</name>
+      <description>Nikon SB-26 Flash
+
+* Has optical slave capability.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.generic.flash</category>
+      </categories>
     </product>
   </products>
 </product_storage>
