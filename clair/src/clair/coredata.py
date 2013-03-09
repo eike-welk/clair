@@ -970,11 +970,21 @@ class DataStore(object):
     
     
     def write_listings(self):
+        """Write listings to disk."""
         io_listings = XmlBigFrameIO(self.data_dir, "listings", 
                                     ListingsXMLConverter())
         io_listings.write_data(self.listings, overwrite=True)
     
     
+    def write_products(self):
+        """Write products to disk."""
+        prodlist = self.products.values()
+        prodlist.sort(key=lambda prod: prod.id) 
+        io_products = XmlSmallObjectIO(self.data_dir, "products", 
+                                       ProductXMLConverter())
+        io_products.write_data(prodlist)
+        
+        
     def check_consistency(self):
         """
         Test if the references between the various objects are consistent.

@@ -38,14 +38,17 @@ sip.setapi("QUrl", 2)
 sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 #from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel, QSettings)
+from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel, 
+                          QSettings, QCoreApplication)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
                          QMainWindow, QTabWidget, QApplication, QFileDialog,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
-                         QItemSelectionModel,)
+                         QItemSelectionModel, QMessageBox)
 import sys
 import os
+
+import pandas as pd
 
 from clair.coredata import Product, DataStore
 
@@ -223,13 +226,13 @@ class ProductModel(QAbstractTableModel):
     
     def setProducts(self, products):
         """Put list of products into model"""
+        #Tell the view(s) that old data is gone.
+        self.beginRemoveRows(QModelIndex(), 0, len(self.products))
+        self.endRemoveRows()
+        #Change the data
         self.products = products
         self.dirty = False
-        #Tell the view(s) that the data has changed.
-        idx_ul = self.createIndex(0, 0)
-        idx_br = self.createIndex(self.rowCount(QModelIndex()) - 1, 
-                                  self.columnCount(QModelIndex()) -1)
-#        self.dataChanged.emit(idx_ul, idx_br)
+        #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
     def rowCount(self, parent=QModelIndex()):
@@ -399,6 +402,7 @@ class ProductModel(QAbstractTableModel):
             self.products.insert(row + i, new_prod)
         self.endInsertRows()
         
+        self.dirty = True
         return True
     
     
@@ -427,13 +431,14 @@ class ProductModel(QAbstractTableModel):
         del self.products[row:row + count]
         self.endRemoveRows()
         
+        self.dirty = True
         return True
 
 
 
 class GuiMain(QMainWindow):
     """Main window of GUI application"""
-    def __init__(self, parent=None, flags=Qt.Window):
+    def __init__(self, parent=None, flags=Qt.Window): #IGNORE:E1003
         super(QMainWindow, self).__init__(parent, flags)
         
         #Create data attributes
@@ -447,6 +452,11 @@ class GuiMain(QMainWindow):
         self.main_tabs.addTab(self.product_editor, "Products")
         self.product_editor.setModel(self.product_model)
         
+        #For QSettings and Phonon
+        QCoreApplication.setOrganizationName("The Clair Project")
+        QCoreApplication.setOrganizationDomain("https://github.com/eike-welk/clair")
+        QCoreApplication.setApplicationName("clairgui")
+        
         self.createMenus()
         #Create the status bar
         self.statusBar()
@@ -455,44 +465,106 @@ class GuiMain(QMainWindow):
         
     
     def createMenus(self):
-        """Create the application's menus"""
+        """Create the application's menus. Run once at start of application."""
         menubar = self.menuBar()
         filemenu = menubar.addMenu("&File")
-        #TODO better word for "configuration"
+        #TODO: better word for "configuration"
         filemenu.addAction("&Open Configuration", self.loadConfiguration, 
                            QKeySequence.Open)
         filemenu.addAction("&Save Configuration", self.saveConfiguration, 
                            QKeySequence.Save)
+        filemenu.addAction("&Quit", self.close, QKeySequence.Quit)
         productmenu = menubar.addMenu("&Product")
         productmenu.addAction(self.product_editor.action_new)
         productmenu.addAction(self.product_editor.action_delete)
 
         
-    def loadConfiguration(self):
-        print "loadConfiguration"
-        filename = QFileDialog.getOpenFileName(
+    def loadConfiguration(self, dirname=None):
+        """
+        Load all data files of a Clair installation.
+        
+        Parameter
+        ---------
+        dirname : basestring
+            Name of dir where the files are that should be loaded.
+            If ``dirname`` is None, the method will go to interactive mode
+            and show dialogs. Otherwise it will unconditionally load the data.
+        """
+        if dirname is None:
+            #Interactive mode
+            if any([self.product_model.dirty]):
+                button = QMessageBox.warning(
+                    self, "Clair Gui",
+                    "The data has been modified.\n"
+                    "Do you want to save your changes?",
+                    QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                    QMessageBox.Save)
+                if button == QMessageBox.Save:
+                    self.saveConfiguration()
+                elif button == QMessageBox.Discard:
+                    pass
+                else:
+                    return
+            filename = QFileDialog.getOpenFileName(
                                 self, "Open Configuration", os.getcwd(), "")
-        dirname = os.path.dirname(filename)
+            dirname = os.path.dirname(filename)
+            
+        #Load the data
+        self.data.products = {}
+        self.data.tasks = {}
+        self.data.listings = pd.DataFrame()
         self.data.read_data(dirname)
         self.product_model.setProducts(self.data.products.values())
         
+        
     def saveConfiguration(self):
-        print "saveConfiguration"
+        """Save all data files of a Clair installation."""
+        self.data.products = {}
+        self.data.add_products(self.product_model.products)
+        self.data.write_products()
+        self.product_model.dirty = False
         self.statusBar().showMessage("Configuration saved.", 5000)
     
+    
     def closeEvent(self, event):
-        #TODO: save files before closing.
-        settings = QSettings("The Clair Project", "clairgui")
+        #Save modified data before closing.
+        if any([self.product_model.dirty]):
+            button = QMessageBox.warning(
+                self, "Clair Gui",
+                "The data has been modified.\nDo you want to save your changes?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save)
+            if button == QMessageBox.Save:
+                self.saveConfiguration()
+            elif button == QMessageBox.Discard:
+                pass
+            else:
+                event.ignore()
+                return
+        
+        #Save settings, 
+        settings = QSettings()
+        #Save window size and position
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
+        #Save directory of current data
+        settings.setValue("conf_dir", self.data.data_dir)
         super(GuiMain, self).closeEvent(event)
  
-    def readSettings(self):
-        #TODO: open last used configuration
-        settings = QSettings("The Clair Project", "clairgui");
-        self.restoreGeometry(settings.value("geometry"));
-        self.restoreState(settings.value("windowState"));
  
+    def readSettings(self):
+        """
+        Read application state information, that was saved in ``closeEvent``.
+        """
+        settings = QSettings()
+        #Load window size and position
+        self.restoreGeometry(settings.value("geometry"))
+        self.restoreState(settings.value("windowState"))
+        #Load last used data
+        conf_dir = settings.value("conf_dir", None)
+        if conf_dir is not None and os.path.isdir(conf_dir):
+            self.loadConfiguration(conf_dir)
+        
  
     @staticmethod
     def application_main():
