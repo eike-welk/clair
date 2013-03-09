@@ -37,137 +37,7 @@ import pandas as pd
 from numpy import isnan
 import nltk
 
-from clair.coredata import (SearchTask, UpdateTask, 
-                            XmlSmallObjectIO, XmlBigFrameIO,
-                            ProductXMLConverter, TaskXMLConverter, 
-                            ListingsXMLConverter)
-
-
-class DataStore(object):
-    """
-    Store and access the various data objects.
-    
-    Does disk IO, and adding objects at runtime.
-    
-    TODO: put into ``coredata`` or ``daemon_main``, and port daemon(s) to it.
-    """
-    def __init__(self):
-        self.data_dir = ""
-        self.tasks = {}
-        self.products = {}
-        self.listings = pd.DataFrame()
-#        self.prices = pd.DataFrame()
-    
-    
-    def add_products(self, products):
-        """
-        Add products to ``self.products``. tasks: list[product] | dict[_:product]
-        """
-        prod_list = products.values() if isinstance(products, dict) \
-                    else products 
-        for product in prod_list:
-            logging.info("Adding product: {}".format(product.id))
-            self.products[product.id] = product
-
-
-    def add_tasks(self, tasks):
-        """Add tasks to ``self.tasks``. tasks: list[task] | dict[_:task]"""
-        task_list = tasks.values() if isinstance(tasks, dict) \
-                    else tasks
-        for task in task_list:
-            logging.info("Adding task: {}".format(task.id))
-            self.tasks[task.id] = task
-    
-    
-    def insert_listings(self, listings):
-        logging.info("Inserting {} listings".format(len(listings)))
-        self.listings = listings.combine_first(self.listings)
-    
-    
-    def read_data(self, data_dir):
-        """Read the data from disk"""
-        self.data_dir = data_dir
-        
-        #Load products
-        try:
-            load_prods = XmlSmallObjectIO(self.data_dir, "products", 
-                                          ProductXMLConverter())
-            self.add_products(load_prods.read_data())
-        except IOError, err:
-            logging.warning("Could not load product data: " + str(err))
-
-        #Load tasks
-        try:
-            load_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
-                                          TaskXMLConverter())
-            self.add_tasks(load_tasks.read_data())
-        except IOError, err:
-            logging.warning("Could not load task data: " + str(err))
-            
-        #Load listings
-        load_listings = XmlBigFrameIO(self.data_dir, "listings", 
-                                      ListingsXMLConverter())
-        self.insert_listings(load_listings.read_data())
-        
-        #TODO: load prices
-        
-        self.check_consistency()
-    
-    
-    def write_listings(self):
-        io_listings = XmlBigFrameIO(self.data_dir, "listings", 
-                                    ListingsXMLConverter())
-        io_listings.write_data(self.listings, overwrite=True)
-    
-    
-    def check_consistency(self):
-        """
-        Test if the references between the various objects are consistent.
-        #TODO: test for unknown server IDs in SearchTask or listings.
-        """
-        def setn(iterable_or_none):
-            if iterable_or_none is None:
-                return set()
-            return set(iterable_or_none)
-        
-        prod_ids = set(self.products.keys())
-        task_ids = set(self.tasks.keys())
-   
-        for task in self.tasks.values():
-            #Test if task contains unknown product IDs
-            if isinstance(task, SearchTask):
-                unk_products = setn(task.expected_products) - prod_ids
-                if unk_products:    
-                    logging.warning(
-                            "Unknown product ID: '{pid}', in task '{tid}'."
-                            .format(pid="', '".join(unk_products), 
-                                    tid=task.id))
-        
-        #Test if ``self.listings`` contains unknown product, or task IDs.
-        for lid in self.listings.index:
-            search_task = self.listings["search_task"][lid]
-            if search_task not in task_ids:
-                logging.warning("Unknown task ID: '{tid}', "
-                                "in listings['search_task']['{lid}']."
-                                .format(tid=search_task, lid=lid))
-            found_prods = setn(self.listings["expected_products"][lid])
-            unk_products = found_prods - prod_ids
-            if unk_products:
-                logging.warning("Unknown product ID '{pid}', "
-                                "in listings['expected_products']['{lid}']."
-                                .format(pid="', '".join(unk_products), lid=lid))
-            found_prods = setn(self.listings["products"][lid])
-            unk_products = found_prods - prod_ids
-            if unk_products:
-                logging.warning("Unknown product ID '{pid}', "
-                                "in listings['products']['{lid}']."
-                                .format(pid="', '".join(unk_products), lid=lid))
-            found_prods = setn(self.listings["products_absent"][lid])
-            unk_products = found_prods - prod_ids
-            if unk_products:
-                logging.warning("Unknown product ID '{pid}', "
-                                "in listings['products_absent']['{lid}']."
-                                .format(pid="', '".join(unk_products), lid=lid))
+from clair.coredata import DataStore
 
 
 
@@ -246,7 +116,7 @@ class CollectText(object):
         return text
     
         
-    def insert_listings(self, listings):
+    def merge_listings(self, listings):
         """Extract the text from listings and store it in ``self.text``"""
         text_title = listings["title"].map(HtmlTool.remove_html)
         text_desctription = listings["description"].map(HtmlTool.remove_html)
@@ -264,7 +134,7 @@ class CollectText(object):
         """Get listings from disk, and extract their text contents."""
         data = DataStore()
         data.read_data(data_dir)
-        self.insert_listings(data.listings)
+        self.merge_listings(data.listings)
         
     def get_listings_text(self):
         """Return text for each listing separate, as Series."""

@@ -30,9 +30,18 @@ from __future__ import absolute_import
 #import pytest #contains `skip`, `fail`, `raises`, `config`
 import os
 import glob
+import time
 import os.path as path
 from numpy import isnan, nan
 from datetime import datetime
+
+import logging
+from logging import info
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+                    level=logging.DEBUG)
+#Time stamps must be in UTC
+logging.Formatter.converter = time.gmtime
+
 
 
 def relative(*path_comps):
@@ -267,52 +276,49 @@ def test_ProductXMLConverter():
     """Test conversion of product objects from and to XML"""
     from clair.coredata import Product, ProductXMLConverter
     
-    pbad2 = Product("bad2")
-    pbad2.categories = None
-    pbad2.important_words = None
-    pd1 = {"a1":Product("a1", "A1 thing", "The A1 is great.", ["Foo", "A2"], 
+    pl1 = [Product("a1", "A1 thing", "The A1 is great.", ["Foo", "A2"], 
                         ["bar", "baz"]),
-           "a2":Product("a2", "PRoduct B1",),
-           "bad1":Product("bad1", "", "", [], []),
-#           "bad2":pbad2
-           }
+           Product("a2", "PRoduct B1",),
+           Product("", "", "", [], [])
+           ]
     
     conv = ProductXMLConverter()
     
     #Convert dict of products to XML
-    pd_xml = conv.to_xml(pd1)
+    pd_xml = conv.to_xml(pl1)
     print pd_xml
     #Convert XML back to dict of products
-    pd2 = conv.from_xml(pd_xml)
-    print pd2
+    pl2 = conv.from_xml(pd_xml)
+    print pl2
     #Conversion to XML and back must result in equal data structure
-    assert pd1 == pd2
+    assert pl1 == pl2
     print 
     
-    #None values in ``important_words`` and ``description`` should not crash
-    #TODO: why are the None values not retained?
-    pd3 = {"bad2":pbad2}
+    #None values in ``important_words``, ``description`` should not cause crash
+    pbad2 = Product("bad2")
+    pbad2.categories = None
+    pbad2.important_words = None
+    pd3 = [pbad2]
     
     pd_xml = conv.to_xml(pd3)
     print pd_xml
     pd4 = conv.from_xml(pd_xml)
     print pd4
-    assert pd4["bad2"].id == "bad2"
+    assert pd4[0].id == "bad2"
     
     
 def test_TaskXMLConverter():
     """Test conversion of product objects from and to XML"""
     from clair.coredata import SearchTask, UpdateTask, TaskXMLConverter
     
-    td1 = {"s-nikon-d90":SearchTask("s-nikon-d90", datetime(2000, 1, 1, 20, 30), 
-                                    "ebay-de", "Nikon D90", 
-                                    "daily", 500, 170, 700, "EUR", 
-                                    ["nikon-d90", "nikon-sb24"]),
-           "s-nikon-d70":SearchTask("s-nikon-d70", datetime(2000, 1, 1, 10, 10), 
-                                    "ebay-de", "Nikon D70",),
-           "s-nikon-sb24":SearchTask("s-nikon-sb24", datetime(2000, 1, 1, 2, 3), 
-                                     "ebay-de", "Nikon SB24",),
-           }
+    td1 = [SearchTask("s-nikon-d90", datetime(2000, 1, 1, 20, 30), 
+                      "ebay-de", "Nikon D90", "daily", 500, 170, 700, "EUR", 
+                      ["nikon-d90", "nikon-sb24"]),
+           SearchTask("s-nikon-d70", datetime(2000, 1, 1, 10, 10), 
+                      "ebay-de", "Nikon D70",),
+           SearchTask("s-nikon-sb24", datetime(2000, 1, 1, 2, 3), 
+                      "ebay-de", "Nikon SB24",),
+           ]
     
     conv = TaskXMLConverter()
     
@@ -327,8 +333,7 @@ def test_TaskXMLConverter():
     assert td1 == td2
     
     #Update tasks must not confuse the converter
-    td1["update-1"] = UpdateTask("update-1", datetime(2000, 1, 1, 20, 20), 
-                                 "ebay-de")
+    td1.append(UpdateTask("update-1", datetime(2000, 1, 1, 20, 20), "ebay-de"))
     td_xml = conv.to_xml(td1)
     
     
@@ -344,10 +349,10 @@ def test_XmlSmallObjectIO():
     os.system("rm " + testdata_pattern)
 #    os.system("ls " + testdata_dir)
     
-    pd1 = {"a1":Product("a1", "A1 thing", "The A1 is great."),
-           "a2":Product("a2", "Foo A2", "", ["Foo", "A2"]),
-           "b1":Product("b1", "PRoduct B1", "The B2 is versatile."),
-           }
+    pd1 = [Product("a1", "A1 thing", "The A1 is great."),
+           Product("a2", "Foo A2", "", ["Foo", "A2"]),
+           Product("b1", "PRoduct B1", "The B2 is versatile."),
+           ]
     
     io = XmlSmallObjectIO(testdata_dir, basename, ProductXMLConverter())
     
@@ -358,21 +363,38 @@ def test_XmlSmallObjectIO():
     assert pd1 == pd2
     
     #Write into directory with old file
-    pd1["a1"].name = "Foo Bar"
+    pd1[0].name = "Foo Bar"
     io.write_data(pd1)
     pd2 = io.read_data()
 #    os.system("ls " + testdata_dir)
     assert pd1 == pd2
+
+    
+def test_DataStore():
+    """Test the data storage object."""
+    from clair.coredata import DataStore
+    
+    d = DataStore()
+    
+    info("Robust behavior when no data is present. - Must not crash")
+    d.read_data(relative("."))
+    
+    info("")
+    info("Must load real data")
+    d.read_data(relative("../../example-data"))
+    assert len(d.products) > 0
+    assert len(d.tasks) > 0
+    assert len(d.listings) > 0
     
     
     
 if __name__ == "__main__":
 #    test_ListingsXMLConverter()
-#    test_TaskXMLConverter()
+    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()
 #    test_Record()
-    test_ProductXMLConverter()
+#    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
     
     pass

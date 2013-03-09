@@ -179,22 +179,6 @@ def test_HtmlTool_clean_html():
     pytest.xfail("LXML does strange things.") #IGNORE:E1101
     assert html_nice.find("Blitzger&auml;t") != -1
     
-def test_DataStore():
-    """Test the data storage object."""
-    from clair.textprocessing import DataStore
-    
-    d = DataStore()
-    
-    info("Robust behavior when no data is present. - Must not crash")
-    d.read_data(relative("."))
-    
-    info("")
-    info("Must load real data")
-    d.read_data(relative("../../example-data"))
-    assert len(d.products) > 0
-    assert len(d.tasks) > 0
-    assert len(d.listings) > 0
-    
     
 def test_CollectText():
     """Test text collection object"""
@@ -203,7 +187,7 @@ def test_CollectText():
     #Convert some test data
     c = CollectText()
     l1 = make_test_listings()
-    c.insert_listings(l1)
+    c.merge_listings(l1)
 #    print c.texts
     print c.texts.to_string()
     assert len(c.texts) == 3
@@ -234,7 +218,7 @@ def test_CollectText():
 
 def experiment_update_all_listings():
     """Update all listings."""
-    from clair.textprocessing import DataStore
+    from clair.coredata import DataStore
     from clair.network import EbayConnector
     
     print "===================================================================="
@@ -245,26 +229,27 @@ def experiment_update_all_listings():
     
     ds.read_data(relative("../../example-data")) 
     
-    print ds.listings["description"]["eb-150850751507"]
+#    print ds.listings["description"]["eb-150850751507"]
     
     print "Updating", len(ds.listings), "listings..."
-#    listings_upd = ec.update_listings(ds.listings)
-#    ds.insert_listings(listings_upd)
-#    ds.write_listings()
+    listings_upd = ec.update_listings(ds.listings)
+    ds.merge_listings(listings_upd)
+    ds.write_listings()
     
     print "finished"
 
 
 def experiment_CollectText():
     """Experiment with the text collection algorithm."""
-    from clair.textprocessing import DataStore, CollectText
+    from clair.textprocessing import CollectText
+    from clair.coredata import DataStore
     from nltk import FreqDist
 
     ds = DataStore()
     ct = CollectText()
     
     ds.read_data(relative("../../example-data"))
-    ct.insert_listings(ds.listings)
+    ct.merge_listings(ds.listings)
     
     tt = ct.get_total_text()
     print len(tt)

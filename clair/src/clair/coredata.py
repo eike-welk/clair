@@ -33,11 +33,9 @@ import glob
 from datetime import datetime #, timedelta
 from types import NoneType
 import random
-import dateutil
-from logging import debug, info, warning, error, critical
-#from dateutil.parser import parse as parse_date 
-#from dateutil.relativedelta import relativedelta
+import logging
 
+import dateutil
 from numpy import nan, isnan
 import pandas as pd
 from lxml import etree, objectify
@@ -439,15 +437,15 @@ class ListingsXMLConverter(XMLConverter):
 
 
 class ProductXMLConverter(XMLConverter):
-    """Convert a dictionary of Product objects to and from XML"""
-    def to_xml(self, product_dict):
+    """Convert a list of Product objects to and from XML"""
+    def to_xml(self, product_list):
         """Convert dictionary of Product to XML"""
         E = self.E
 
         root_xml = E.product_storage(
             E.version("0.1"),
             E.products())
-        for pr in product_dict.values():
+        for pr in product_list:
             pr_xml = E.product(
                 E.id(pr.id),
                 E.name(pr.name),
@@ -463,14 +461,14 @@ class ProductXMLConverter(XMLConverter):
 
         
     def from_xml(self, xml):
-        """Convert from XML representation to dictionary of Product."""
+        """Convert from XML representation to list of Product."""
         root_xml = objectify.fromstring(xml)
 #        print objectify.dump(root_xml)
         version = root_xml.version.text
         assert version == "0.1"
                
         product_xml = root_xml.products.product
-        product_dict = {}
+        product_list = []
         for pr in product_xml:    
             prod = Product(id=pr.id.pyval,
                            name=pr.name.pyval,
@@ -479,22 +477,21 @@ class ProductXMLConverter(XMLConverter):
                                                 "word", pr.important_words),
                            categories=self.from_xml_list(
                                                 "category", pr.categories))
-            product_dict[prod.id] = prod
+            product_list.append(prod)
         
-        return product_dict
+        return product_list
 
 
 
 class TaskXMLConverter(XMLConverter):
     """
-    Convert task objects to and from XML
+    Convert list of task objects to and from XML
     
     Currently only stores SearchTask objects.
     """
-    def to_xml(self, tasks):
+    def to_xml(self, task_list):
         """Convert dictionary or list of tasks to XML"""
         E = self.E
-        task_list = tasks.values() if isinstance(tasks, dict) else tasks
 
         root_xml = E.task_storage(
             E.version("0.1"),
@@ -517,12 +514,12 @@ class TaskXMLConverter(XMLConverter):
                 )
             root_xml.tasks.append(tsk_xml)
         
-        doc_str = etree.tostring(root_xml, pretty_print=True)
-        return doc_str 
+        xml_str = etree.tostring(root_xml, pretty_print=True)
+        return xml_str 
 
         
     def from_xml(self, xml):
-        """Convert from XML representation to dictionary of Product."""
+        """Convert from XML representation to list of Product."""
         ustrn = self.unicode_or_none
         parse_date = self.datetime_or_none
         floatn = self.float_or_none
@@ -534,7 +531,7 @@ class TaskXMLConverter(XMLConverter):
         assert version == "0.1"
                
         task_xml = root_xml.tasks.search_task
-        task_dict = {}
+        task_list = []
         for tsk in task_xml:    
             prod = SearchTask(id=tsk.id.pyval,
                               due_time=parse_date(tsk.due_time.pyval), 
@@ -549,9 +546,9 @@ class TaskXMLConverter(XMLConverter):
                               expected_products=self.from_xml_list(
                                         "product", tsk.expected_products)
                               )
-            task_dict[prod.id] = prod
+            task_list.append(prod)
         
-        return task_dict
+        return task_list
 
 
 
@@ -673,7 +670,7 @@ class XmlBigFrameIO(object):
         file_new_temp = file_new + "-new-" + rand_str
         
         #Write file with temporary name
-        debug("Writing: {}".format(file_new_temp))
+        logging.debug("Writing: {}".format(file_new_temp))
         fw = open(file_new_temp, "w")
         fw.write(text.encode("ascii"))
         fw.close()
@@ -713,7 +710,7 @@ class XmlBigFrameIO(object):
         #Write the file
         if compress:
             raise IOError("Compression is not implemented.")
-        debug("Writing: {}".format(path_n))
+        logging.debug("Writing: {}".format(path_n))
         wfile = file(path_n, "w")
         wfile.write(text.encode("ascii"))
         wfile.close()
@@ -761,7 +758,7 @@ class XmlBigFrameIO(object):
         xml_texts = []
         for fname in files_filt:
             fpath = path.join(self.directory, fname)
-            debug("Reading: {}".format(fpath))
+            logging.debug("Reading: {}".format(fpath))
             nameparts = fname.lower().split(".")
             extension = nameparts[-1]
             #TODO: compression
@@ -864,6 +861,7 @@ class XmlSmallObjectIO(object):
     
     def write_data(self, data):
         """Convert data to XML, and write it to disk."""
+        assert isinstance(data, list)
         xml_text = self.xml_converter.to_xml(data)
         
         #Setup file names
@@ -873,7 +871,7 @@ class XmlSmallObjectIO(object):
         file_old_temp = file_name + "-old-" + rand_str
         
         #Write file with temporary name
-        debug("Writing: {}".format(file_new_temp))
+        logging.debug("Writing: {}".format(file_new_temp))
         fw = open(file_new_temp, "w")
         fw.write(xml_text.encode("ascii"))
         fw.close()
@@ -891,10 +889,138 @@ class XmlSmallObjectIO(object):
     def read_data(self):
         """Read XML file and convert data to Python representation."""
         file_name = path.join(self.directory, self.name_prefix + ".xml")
-        debug("Reading: {}".format(file_name))
+        logging.debug("Reading: {}".format(file_name))
         fr = open(file_name, "r")
         xml_text = fr.read()
         fr.close()
         
         py_data = self.xml_converter.from_xml(xml_text)
         return py_data
+
+
+class DataStore(object):
+    """
+    Store and access the various data objects.
+    
+    Does disk IO, and adding objects at runtime.
+    
+    TODO: put into ``coredata`` or ``daemon_main``, and port daemon(s) to it.
+    """
+    def __init__(self):
+        self.data_dir = ""
+        self.tasks = {}
+        self.products = {}
+        self.listings = pd.DataFrame()
+#        self.prices = pd.DataFrame()
+    
+    
+    def add_products(self, products):
+        """
+        Add products to ``self.products``. tasks: list[product] | dict[_:product]
+        """
+        prod_list = products.values() if isinstance(products, dict) \
+                    else products 
+        for product in prod_list:
+            logging.info("Adding product: {}".format(product.id))
+            self.products[product.id] = product
+
+
+    def add_tasks(self, tasks):
+        """Add tasks to ``self.tasks``. tasks: list[task] | dict[_:task]"""
+        task_list = tasks.values() if isinstance(tasks, dict) \
+                    else tasks
+        for task in task_list:
+            logging.info("Adding task: {}".format(task.id))
+            self.tasks[task.id] = task
+    
+    
+    def merge_listings(self, listings):
+        logging.info("Inserting {} listings".format(len(listings)))
+        self.listings = listings.combine_first(self.listings)
+    
+    
+    def read_data(self, data_dir):
+        """Read the data from disk"""
+        self.data_dir = data_dir
+        
+        #Load products
+        try:
+            load_prods = XmlSmallObjectIO(self.data_dir, "products", 
+                                          ProductXMLConverter())
+            self.add_products(load_prods.read_data())
+        except IOError, err:
+            logging.warning("Could not load product data: " + str(err))
+
+        #Load tasks
+        try:
+            load_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
+                                          TaskXMLConverter())
+            self.add_tasks(load_tasks.read_data())
+        except IOError, err:
+            logging.warning("Could not load task data: " + str(err))
+            
+        #Load listings
+        load_listings = XmlBigFrameIO(self.data_dir, "listings", 
+                                      ListingsXMLConverter())
+        self.merge_listings(load_listings.read_data())
+        
+        #TODO: load prices
+        
+        self.check_consistency()
+    
+    
+    def write_listings(self):
+        io_listings = XmlBigFrameIO(self.data_dir, "listings", 
+                                    ListingsXMLConverter())
+        io_listings.write_data(self.listings, overwrite=True)
+    
+    
+    def check_consistency(self):
+        """
+        Test if the references between the various objects are consistent.
+        #TODO: test for unknown server IDs in SearchTask or listings.
+        #TODO: return inconsistencies in some format for the GUI
+        """
+        def setn(iterable_or_none):
+            if iterable_or_none is None:
+                return set()
+            return set(iterable_or_none)
+        
+        prod_ids = set(self.products.keys())
+        task_ids = set(self.tasks.keys())
+   
+        for task in self.tasks.values():
+            #Test if task contains unknown product IDs
+            if isinstance(task, SearchTask):
+                unk_products = setn(task.expected_products) - prod_ids
+                if unk_products:    
+                    logging.warning(
+                            "Unknown product ID: '{pid}', in task '{tid}'."
+                            .format(pid="', '".join(unk_products), 
+                                    tid=task.id))
+        
+        #Test if ``self.listings`` contains unknown product, or task IDs.
+        for lid in self.listings.index:
+            search_task = self.listings["search_task"][lid]
+            if search_task not in task_ids:
+                logging.warning("Unknown task ID: '{tid}', "
+                                "in listings['search_task']['{lid}']."
+                                .format(tid=search_task, lid=lid))
+            found_prods = setn(self.listings["expected_products"][lid])
+            unk_products = found_prods - prod_ids
+            if unk_products:
+                logging.warning("Unknown product ID '{pid}', "
+                                "in listings['expected_products']['{lid}']."
+                                .format(pid="', '".join(unk_products), lid=lid))
+            found_prods = setn(self.listings["products"][lid])
+            unk_products = found_prods - prod_ids
+            if unk_products:
+                logging.warning("Unknown product ID '{pid}', "
+                                "in listings['products']['{lid}']."
+                                .format(pid="', '".join(unk_products), lid=lid))
+            found_prods = setn(self.listings["products_absent"][lid])
+            unk_products = found_prods - prod_ids
+            if unk_products:
+                logging.warning("Unknown product ID '{pid}', "
+                                "in listings['products_absent']['{lid}']."
+                                .format(pid="', '".join(unk_products), lid=lid))
