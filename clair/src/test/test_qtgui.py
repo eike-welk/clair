@@ -161,14 +161,14 @@ def test_ProductModel():
 
 def test_ListingsListWidget():
     """Test ListingsListWidget, which displays a DataFrame of listings."""
-    from clair.qtgui import ListingsListWidget, ListingModel
+    from clair.qtgui import ListingsListWidget, ListingsModel
     from clair.coredata import make_listing_frame
     
     print "Start"
     app = QApplication(sys.argv)
     
     listings = make_listing_frame(4)
-    model = ListingModel()
+    model = ListingsModel()
     model.setListings(listings)
     view = ListingsListWidget()
     view.setModel(model) 
@@ -179,13 +179,13 @@ def test_ListingsListWidget():
 
     
 def test_ListingModel():
-    """Test ListingModel"""
+    """Test ListingsModel"""
     from clair.coredata import make_listing_frame
-    from clair.qtgui import ListingModel
+    from clair.qtgui import ListingsModel
     
     listings = make_listing_frame(4)
     
-    model = ListingModel()
+    model = ListingsModel()
     model.setListings(listings)
     
     #Get table dimensions
@@ -231,9 +231,9 @@ if __name__ == '__main__':
 #    test_ProductWidget()
 #    test_ProductListWidget()
 #    test_ProductModel()
-    test_ListingsListWidget()
+#    test_ListingsListWidget()
 #    test_ListingModel()
-#    test_GuiMain()
+    test_GuiMain()
     
 #    experiment_qt()
     

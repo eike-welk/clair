@@ -151,7 +151,13 @@ class ProductListWidget(QSplitter):
         self.edit_widget = ProductWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
+        
+        #Assemble the child widgets
+        self.addWidget(self.list_widget)
+        self.addWidget(self.edit_widget)
     
+        #Set various options of the view. #TODO: Delete unnecessary
+        self.list_widget.setItemsExpandable(False)
         self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.list_widget.setDragEnabled(False)
         self.list_widget.setAcceptDrops(False)
@@ -179,22 +185,28 @@ class ProductListWidget(QSplitter):
         
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         
-        #When user clicks a line in ``list_widget`` this product is shown 
-        #in ``edit_widget``
-        self.list_widget.activated.connect(self.edit_widget.setRow)
-        
-        self.addWidget(self.list_widget)
-        self.addWidget(self.edit_widget)
-        
 
     def setModel(self, model):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
-        #Hide the description it can be too big.
+        #Hide the description and sort by ID
         self.list_widget.hideColumn(4)
-   
+        self.list_widget.sortByColumn(0, Qt.AscendingOrder)
+        #When user selects a line in ``list_widget`` this item is shown 
+        #in ``edit_widget``
+        self.list_widget.selectionModel().currentRowChanged.connect(
+                                                        self.slotRowChanged)
+    
+    def slotRowChanged(self, current, _previous):
+        """
+        The selected row has changed. Tells edit widget to show this row.
+        Connected to signal ``currentRowChanged`` of 
+        ``list_widget.selectionModel()``
+        """
+        self.edit_widget.setRow(current)
+        
     def newProduct(self):
         """Create a new product below the current product."""
         row = self.list_widget.currentIndex().row()
@@ -446,7 +458,13 @@ class ListingsListWidget(QSplitter):
         self.edit_widget = None
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
+        
+        #Assemble the child widgets
+        self.addWidget(self.list_widget)
+#        self.addWidget(self.edit_widget)
     
+        #Set various options of the view. #TODO: Delete unnecessary
+        self.list_widget.setItemsExpandable(False)
         self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.list_widget.setDragEnabled(False)
         self.list_widget.setAcceptDrops(False)
@@ -460,32 +478,38 @@ class ListingsListWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
                 
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
-        
-        #When user clicks a line in ``list_widget`` this product is shown 
-        #in ``edit_widget``
-#        self.list_widget.activated.connect(self.edit_widget.setRow)
-        
-        self.addWidget(self.list_widget)
-#        self.addWidget(self.edit_widget)
-        
+                
 
     def setModel(self, model):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(model)
 #        self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
-#        #Hide the description it can be too big.
-#        self.list_widget.hideColumn(4)
-        
+        #Hide the description and sort by ID
+        self.list_widget.hideColumn(4)
+        self.list_widget.sortByColumn(0, Qt.AscendingOrder)
+        #When user selects a line in ``list_widget`` this item is shown 
+        #in ``edit_widget``
+        self.list_widget.selectionModel().currentRowChanged.connect(
+                                                        self.slotRowChanged)
+    
+    def slotRowChanged(self, current, _previous):
+        """
+        The selected row has changed. Tells edit widget to show this row.
+        Connected to signal ``currentRowChanged`` of 
+        ``list_widget.selectionModel()``
+        """
+#        self.edit_widget.setRow(current)
 
 
-class ListingModel(QAbstractTableModel):
+
+class ListingsModel(QAbstractTableModel):
     """
     Represent a ``pd.DataFrame`` with listings to QT's model view architecture.
     An adapter in design pattern language.
     """
     def __init__(self, parent=None):
-        super(ListingModel, self).__init__(parent)
+        super(ListingsModel, self).__init__(parent)
         self.listings = make_listing_frame(0)
         self.dirty = False
     
@@ -527,7 +551,7 @@ class ListingModel(QAbstractTableModel):
         ----------
         index: QModelIndex
         """
-        default_flags = super(ListingModel, self).flags(index)
+        default_flags = super(ListingsModel, self).flags(index)
         
         if index.isValid():
             return Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | \
@@ -570,7 +594,11 @@ class ListingModel(QAbstractTableModel):
         
         if role in [Qt.DisplayRole, Qt.EditRole]:
             rawval = self.listings.icol(column).iget(row)
-            return unicode(rawval)
+            rawstr = unicode(rawval)
+            lines = rawstr.split("\n", 1)
+            return lines[0]
+            
+        
         #TODO: Tool tips
 #        elif role == Qt.ToolTipRole:
 #            aname = attr_names[column]
@@ -625,65 +653,6 @@ class ListingModel(QAbstractTableModel):
         if Qt.EditRole not in roles:
             return False
         return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
-    
-        
-#    def insertRows(self, row, count, parent=QModelIndex()):
-#        """
-#        Insert "empty" products into the list of products.
-#        
-#        Parameters
-#        ----------
-#        row : int
-#            The new rows are inserted before the row with this index
-#        count : int
-#            Number of rows that are inserted.
-#        parent : QModelIndex
-#        
-#        Returns
-#        -------
-#        bool
-#            Returns True if rows were inserted successfully, False otherwise.
-#        """
-#        if parent.isValid(): #There are only top level items
-#            return False
-#        
-#        self.beginInsertRows(parent, row, row + count - 1)
-#        for i in range(count):
-#            new_prod = Product(u"---", u"", u"", [], [])
-#            self.products.insert(row + i, new_prod)
-#        self.endInsertRows()
-#        
-#        self.dirty = True
-#        return True
-#    
-#    
-#    def removeRows(self, row, count, parent=QModelIndex()):
-#        """
-#        Remove products from the list.
-#        
-#        Parameters
-#        ----------
-#        row : int
-#            Index of first row that is removed.
-#        count : int
-#            Number of rows that are removed.
-#        parent : QModelIndex
-#        
-#        Returns
-#        -------
-#        bool
-#            Returns True if rows were removed successfully, False otherwise.
-#
-#        """
-#        if parent.isValid(): #There are only top level items
-#            return False
-#        
-#        self.beginRemoveRows(parent, row, row + count - 1)
-#        del self.products[row:row + count]
-#        self.endRemoveRows()
-#        
-#        self.dirty = True
-#        return True
 
 
 
@@ -697,9 +666,13 @@ class GuiMain(QMainWindow):
         self.main_tabs = QTabWidget()
         self.product_editor = ProductListWidget()
         self.product_model = ProductModel()
+        self.listings_editor = ListingsListWidget()
+        self.listings_model = ListingsModel()
         
         #Assemble the top level widgets
         self. setCentralWidget(self.main_tabs)
+        self.main_tabs.addTab(self.listings_editor, "Listings")
+        self.listings_editor.setModel(self.listings_model)
         self.main_tabs.addTab(self.product_editor, "Products")
         self.product_editor.setModel(self.product_model)
         
@@ -765,6 +738,7 @@ class GuiMain(QMainWindow):
         self.data.tasks = {}
         self.data.listings = pd.DataFrame()
         self.data.read_data(dirname)
+        self.listings_model.setListings(self.data.listings)
         self.product_model.setProducts(self.data.products.values())
         
         
