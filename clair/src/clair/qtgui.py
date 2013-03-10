@@ -50,7 +50,7 @@ import os
 
 import pandas as pd
 
-from clair.coredata import Product, DataStore
+from clair.coredata import make_listing_frame, Product, DataStore
 
 
 
@@ -145,12 +145,10 @@ class ProductListWidget(QSplitter):
     the list a whole, and an other pane that shows a single product.
     
     The data is taken from a ``ProductModel``.
-    
-    TODO: searching with ``QSortFilterProxyModel``
     """
     def __init__(self, parent=None):
         super(ProductListWidget, self).__init__(parent)
-        self.product_widget = ProductWidget()
+        self.edit_widget = ProductWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
     
@@ -182,17 +180,17 @@ class ProductListWidget(QSplitter):
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         
         #When user clicks a line in ``list_widget`` this product is shown 
-        #in ``product_widget``
-        self.list_widget.activated.connect(self.product_widget.setRow)
+        #in ``edit_widget``
+        self.list_widget.activated.connect(self.edit_widget.setRow)
         
         self.addWidget(self.list_widget)
-        self.addWidget(self.product_widget)
+        self.addWidget(self.edit_widget)
         
 
     def setModel(self, model):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(model)
-        self.product_widget.setModel(self.filter)
+        self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
         #Hide the description it can be too big.
         self.list_widget.hideColumn(4)
@@ -203,7 +201,7 @@ class ProductListWidget(QSplitter):
         model = self.list_widget.model()
         model.insertRows(row + 1, 1)
         index = model.index(row + 1, 0, QModelIndex())
-        self.product_widget.setRow(index)
+        self.edit_widget.setRow(index)
         self.list_widget.setCurrentIndex(index)
         
     def deleteProduct(self):
@@ -370,7 +368,7 @@ class ProductModel(QAbstractTableModel):
         index : QModelIndex
         roles : dict[int, object]
         """
-        #Only Qt.EditRole can be changed
+        #Only data with Qt.EditRole can be changed
         if Qt.EditRole not in roles:
             return False
         return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
@@ -436,10 +434,263 @@ class ProductModel(QAbstractTableModel):
 
 
 
+class ListingsListWidget(QSplitter):
+    """
+    Display and edit a list of ``Product`` objects. There is a pane that shows
+    the list a whole, and an other pane that shows a single product.
+    
+    The data is taken from a ``ProductModel``.
+    """
+    def __init__(self, parent=None):
+        super(ListingsListWidget, self).__init__(parent)
+        self.edit_widget = None
+        self.list_widget = QTreeView()
+        self.filter = QSortFilterProxyModel()
+    
+        self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.list_widget.setDragEnabled(False)
+        self.list_widget.setAcceptDrops(False)
+        self.list_widget.setDropIndicatorShown(True)
+        self.list_widget.setDefaultDropAction(Qt.MoveAction)
+        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+                                         #QAbstractItemView.AnyKeyPressed |
+                                         QAbstractItemView.SelectedClicked)
+        self.list_widget.setRootIsDecorated(False)
+        self.list_widget.setSortingEnabled(True)
+        self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
+                
+        self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
+        
+        #When user clicks a line in ``list_widget`` this product is shown 
+        #in ``edit_widget``
+#        self.list_widget.activated.connect(self.edit_widget.setRow)
+        
+        self.addWidget(self.list_widget)
+#        self.addWidget(self.edit_widget)
+        
+
+    def setModel(self, model):
+        """Tell view which model it should display and edit."""
+        self.filter.setSourceModel(model)
+#        self.edit_widget.setModel(self.filter)
+        self.list_widget.setModel(self.filter)
+#        #Hide the description it can be too big.
+#        self.list_widget.hideColumn(4)
+        
+
+
+class ListingModel(QAbstractTableModel):
+    """
+    Represent a ``pd.DataFrame`` with listings to QT's model view architecture.
+    An adapter in design pattern language.
+    """
+    def __init__(self, parent=None):
+        super(ListingModel, self).__init__(parent)
+        self.listings = make_listing_frame(0)
+        self.dirty = False
+    
+    def setListings(self, listings):
+        """Put list of products into model"""
+        #Tell the view(s) that old data is gone.
+        rows, _ = self.listings.shape
+        self.beginRemoveRows(QModelIndex(), 0, rows)
+        self.endRemoveRows()
+        #Change the data
+        self.listings = listings
+        self.dirty = False
+        #Tell the view(s) that all data has changed.
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=QModelIndex()):
+        """Return number of products in list."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        rows, _ = self.listings.shape
+        return rows
+    
+    def columnCount(self, parent=QModelIndex()):
+        """Return number of accessible product attributes."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        _, cols = self.listings.shape
+        return cols
+    
+    def supportedDropActions(self):
+        """Say which actions are supported for drag-drop."""
+        return Qt.CopyAction
+ 
+    def flags(self, index):
+        """
+        Determines the possible actions for the item at this index.
+        
+        Parameters
+        ----------
+        index: QModelIndex
+        """
+        default_flags = super(ListingModel, self).flags(index)
+        
+        if index.isValid():
+            return Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | \
+                   Qt.ItemIsEditable | default_flags
+        else:
+            return default_flags
+    
+    
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """
+        Return the text for the column headers.
+        
+        Parameters
+        -----------
+        section: int
+            Column number
+        orientation: 
+            Qt.Vertical or Qt.Horizontal
+        role: int
+        """
+        if orientation != Qt.Horizontal or role != Qt.DisplayRole:
+            return None
+        header_names = list(self.listings.columns)
+        return header_names[section]
+
+
+    def data(self, index, role=Qt.DisplayRole):
+        """
+        Return the contents of the product list in the right way.
+        
+        Parameters
+        -----------
+        index: QModelIndex
+        role: int 
+        """
+        assert index.model() == self
+
+        row = index.row()
+        column = index.column()
+        
+        if role in [Qt.DisplayRole, Qt.EditRole]:
+            rawval = self.listings.icol(column).iget(row)
+            return unicode(rawval)
+        #TODO: Tool tips
+#        elif role == Qt.ToolTipRole:
+#            aname = attr_names[column]
+#            return Product.tool_tips[aname]
+                        
+        return None
+    
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        """
+        Change the data in the model.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        value: object
+        role : int
+        
+        TODO: Warning when ID is changed
+        """
+        assert index.model() == self
+        if role != Qt.EditRole:
+            return False
+        if not index.isValid():
+            return False
+        
+        row = index.row()
+        column = index.column()
+        if value in ["nan", "None"]:
+            value = None             #None is converted to nan if necessary
+        try:
+            self.listings.icol(column)[row] = value
+        except (TypeError, ValueError):
+            return False
+            
+        self.dirty = True
+        self.dataChanged.emit(index, index)
+        return True
+    
+    
+    def setItemData(self, index, roles):
+        """
+        Change data in model. Intention is to change data more efficiently,
+        because data with with several roles is changed at once.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        roles : dict[int, object]
+        """
+        #Only data with Qt.EditRole can be changed
+        if Qt.EditRole not in roles:
+            return False
+        return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+    
+        
+#    def insertRows(self, row, count, parent=QModelIndex()):
+#        """
+#        Insert "empty" products into the list of products.
+#        
+#        Parameters
+#        ----------
+#        row : int
+#            The new rows are inserted before the row with this index
+#        count : int
+#            Number of rows that are inserted.
+#        parent : QModelIndex
+#        
+#        Returns
+#        -------
+#        bool
+#            Returns True if rows were inserted successfully, False otherwise.
+#        """
+#        if parent.isValid(): #There are only top level items
+#            return False
+#        
+#        self.beginInsertRows(parent, row, row + count - 1)
+#        for i in range(count):
+#            new_prod = Product(u"---", u"", u"", [], [])
+#            self.products.insert(row + i, new_prod)
+#        self.endInsertRows()
+#        
+#        self.dirty = True
+#        return True
+#    
+#    
+#    def removeRows(self, row, count, parent=QModelIndex()):
+#        """
+#        Remove products from the list.
+#        
+#        Parameters
+#        ----------
+#        row : int
+#            Index of first row that is removed.
+#        count : int
+#            Number of rows that are removed.
+#        parent : QModelIndex
+#        
+#        Returns
+#        -------
+#        bool
+#            Returns True if rows were removed successfully, False otherwise.
+#
+#        """
+#        if parent.isValid(): #There are only top level items
+#            return False
+#        
+#        self.beginRemoveRows(parent, row, row + count - 1)
+#        del self.products[row:row + count]
+#        self.endRemoveRows()
+#        
+#        self.dirty = True
+#        return True
+
+
+
 class GuiMain(QMainWindow):
     """Main window of GUI application"""
-    def __init__(self, parent=None, flags=Qt.Window): #IGNORE:E1003
-        super(QMainWindow, self).__init__(parent, flags)
+    def __init__(self, parent=None, flags=Qt.Window): 
+        super(GuiMain, self).__init__(parent, flags)
         
         #Create data attributes
         self.data = DataStore()

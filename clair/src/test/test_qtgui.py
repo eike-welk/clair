@@ -118,9 +118,6 @@ def test_ProductModel():
     Test ProductModel, an adapter for a list of ``Product`` objects
     to Qt's model-view architecture.
     """
-    from clair.qtgui import ProductModel
-    from clair.coredata import Product
-        
     model = create_product_model()
     
     #Get table dimensions
@@ -162,6 +159,55 @@ def test_ProductModel():
     print "End"
 
 
+def test_ListingsListWidget():
+    """Test ListingsListWidget, which displays a DataFrame of listings."""
+    from clair.qtgui import ListingsListWidget, ListingModel
+    from clair.coredata import make_listing_frame
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    listings = make_listing_frame(4)
+    model = ListingModel()
+    model.setListings(listings)
+    view = ListingsListWidget()
+    view.setModel(model) 
+    
+    view.show()
+    app.exec_()
+    print "End"
+
+    
+def test_ListingModel():
+    """Test ListingModel"""
+    from clair.coredata import make_listing_frame
+    from clair.qtgui import ListingModel
+    
+    listings = make_listing_frame(4)
+    
+    model = ListingModel()
+    model.setListings(listings)
+    
+    #Get table dimensions
+    assert model.rowCount() == 4
+    assert model.columnCount() == len(listings.columns)
+    
+    #Get data from model - Currently it contains only None and nan
+    index17 = model.createIndex(1, 7)
+    data = model.data(index17, Qt.DisplayRole)
+    assert data == None
+    #Change data in model
+    model.setData(index17, "foo", Qt.EditRole)
+    #Test if data was really changed
+    data = model.data(index17, Qt.EditRole)
+    assert data == "foo"
+    #Try to get data in edit role
+    data = model.data(index17, Qt.EditRole)
+    assert data == "foo"
+    
+    print listings.icol(7)
+    
+    
 def test_GuiMain():
     """Test the regular run of the GUI application"""
     from clair.qtgui import GuiMain
@@ -185,9 +231,11 @@ if __name__ == '__main__':
 #    test_ProductWidget()
 #    test_ProductListWidget()
 #    test_ProductModel()
-    test_GuiMain()
+    test_ListingsListWidget()
+#    test_ListingModel()
+#    test_GuiMain()
     
 #    experiment_qt()
     
-    pass
+    pass #IGNORE:W0107
     
