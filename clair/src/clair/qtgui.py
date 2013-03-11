@@ -39,7 +39,7 @@ sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 #from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel, 
-                          QSettings, QCoreApplication)
+                          QSettings, QCoreApplication, QByteArray)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
                          QMainWindow, QTabWidget, QApplication, QFileDialog,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
@@ -60,7 +60,7 @@ def QtLoadUI(uifile):
 
 
 
-class ProductWidget(QWidget):
+class ProductEditWidget(QWidget):
     """
     Display and edit contents of a single ``Product``.
     
@@ -71,7 +71,7 @@ class ProductWidget(QWidget):
     TODO: Important words and categories should be less high
     """
     def __init__(self):
-        super(ProductWidget, self).__init__()
+        super(ProductEditWidget, self).__init__()
         
         #Transfer data between model and widgets
         self.mapper = QDataWidgetMapper()
@@ -139,7 +139,7 @@ class ProductWidget(QWidget):
 
 
 
-class ProductListWidget(QSplitter):
+class ProductWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
     the list a whole, and an other pane that shows a single product.
@@ -147,8 +147,8 @@ class ProductListWidget(QSplitter):
     The data is taken from a ``ProductModel``.
     """
     def __init__(self, parent=None):
-        super(ProductListWidget, self).__init__(parent)
-        self.edit_widget = ProductWidget()
+        super(ProductWidget, self).__init__(parent)
+        self.edit_widget = ProductEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
         
@@ -222,6 +222,18 @@ class ProductListWidget(QSplitter):
         model = self.list_widget.model()
         model.removeRows(row, 1)
         
+    def saveSettings(self, setting_store):
+        """Save widget state, such as splitter position."""
+        setting_store.setValue("ProductWidget/state", self.saveState())
+        setting_store.setValue("ProductWidget/list/header/state", 
+                               self.list_widget.header().saveState())
+        
+    def loadSettings(self, setting_store):
+        """Load widget state, such as splitter position."""
+        self.restoreState(setting_store.value("ProductWidget/state"))
+        self.list_widget.header().restoreState(
+                setting_store.value("ProductWidget/list/header/state", ""))
+
 
 
 class ProductModel(QAbstractTableModel):
@@ -446,7 +458,7 @@ class ProductModel(QAbstractTableModel):
 
 
 
-class ListingsListWidget(QSplitter):
+class ListingsWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
     the list a whole, and an other pane that shows a single product.
@@ -454,7 +466,7 @@ class ListingsListWidget(QSplitter):
     The data is taken from a ``ProductModel``.
     """
     def __init__(self, parent=None):
-        super(ListingsListWidget, self).__init__(parent)
+        super(ListingsWidget, self).__init__(parent)
         self.edit_widget = None
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
@@ -664,9 +676,9 @@ class GuiMain(QMainWindow):
         #Create data attributes
         self.data = DataStore()
         self.main_tabs = QTabWidget()
-        self.product_editor = ProductListWidget()
+        self.product_editor = ProductWidget()
         self.product_model = ProductModel()
-        self.listings_editor = ListingsListWidget()
+        self.listings_editor = ListingsWidget()
         self.listings_model = ListingsModel()
         
         #Assemble the top level widgets
@@ -685,7 +697,7 @@ class GuiMain(QMainWindow):
         #Create the status bar
         self.statusBar()
         #Read status information that is saved on closing the application
-        self.readSettings()
+        self.loadSettings()
         
     
     def createMenus(self):
@@ -750,8 +762,8 @@ class GuiMain(QMainWindow):
         self.product_model.dirty = False
         self.statusBar().showMessage("Configuration saved.", 5000)
     
-    
     def closeEvent(self, event):
+        """Framework tells application that it wants to exit the program."""
         #Save modified data before closing.
         if any([self.product_model.dirty]):
             button = QMessageBox.warning(
@@ -766,25 +778,28 @@ class GuiMain(QMainWindow):
             else:
                 event.ignore()
                 return
+            
+        self.saveSettings()
+        super(GuiMain, self).closeEvent(event)
         
-        #Save settings, 
+        
+    def saveSettings(self):
+        """Save application state information like window position."""
         settings = QSettings()
-        #Save window size and position
+        #Save GUI related information
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
+        self.product_editor.saveSettings(settings)
         #Save directory of current data
         settings.setValue("conf_dir", self.data.data_dir)
-        super(GuiMain, self).closeEvent(event)
  
- 
-    def readSettings(self):
-        """
-        Read application state information, that was saved in ``closeEvent``.
-        """
+    def loadSettings(self):
+        """Read application state information like window position."""
         settings = QSettings()
-        #Load window size and position
-        self.restoreGeometry(settings.value("geometry"))
-        self.restoreState(settings.value("windowState"))
+        #Load GUI related information
+        self.restoreGeometry(settings.value("geometry", ""))
+        self.restoreState(settings.value("windowState", ""))
+        self.product_editor.loadSettings(settings)
         #Load last used data
         conf_dir = settings.value("conf_dir", None)
         if conf_dir is not None and os.path.isdir(conf_dir):

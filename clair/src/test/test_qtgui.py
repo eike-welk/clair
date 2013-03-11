@@ -65,13 +65,13 @@ def relative(*path_components):
 
 
 def test_ProductWidget():
-    """Test the ``ProductWidget``"""
-    from clair.qtgui import ProductWidget
+    """Test the ``ProductEditWidget``"""
+    from clair.qtgui import ProductEditWidget
     
     print "Start"
     app = QApplication(sys.argv)
     
-    view = ProductWidget()
+    view = ProductEditWidget()
     model = create_product_model()
     view.setModel(model)
     
@@ -82,12 +82,12 @@ def test_ProductWidget():
     
     
 def test_ProductListWidget():
-    from clair.qtgui import ProductListWidget
+    from clair.qtgui import ProductWidget
     
     print "Start"
     app = QApplication(sys.argv)
     
-    view = ProductListWidget()
+    view = ProductWidget()
     model = create_product_model()
     view.setModel(model)
     
@@ -159,9 +159,9 @@ def test_ProductModel():
     print "End"
 
 
-def test_ListingsListWidget():
-    """Test ListingsListWidget, which displays a DataFrame of listings."""
-    from clair.qtgui import ListingsListWidget, ListingsModel
+def test_ListingsWidget():
+    """Test ListingsWidget, which displays a DataFrame of listings."""
+    from clair.qtgui import ListingsWidget, ListingsModel
     from clair.coredata import make_listing_frame
     
     print "Start"
@@ -170,7 +170,7 @@ def test_ListingsListWidget():
     listings = make_listing_frame(4)
     model = ListingsModel()
     model.setListings(listings)
-    view = ListingsListWidget()
+    view = ListingsWidget()
     view.setModel(model) 
     
     view.show()
@@ -178,7 +178,7 @@ def test_ListingsListWidget():
     print "End"
 
     
-def test_ListingModel():
+def test_ListingsModel():
     """Test ListingsModel"""
     from clair.coredata import make_listing_frame
     from clair.qtgui import ListingsModel
@@ -195,7 +195,7 @@ def test_ListingModel():
     #Get data from model - Currently it contains only None and nan
     index17 = model.createIndex(1, 7)
     data = model.data(index17, Qt.DisplayRole)
-    assert data == None
+    assert data == "None"
     #Change data in model
     model.setData(index17, "foo", Qt.EditRole)
     #Test if data was really changed
@@ -205,6 +205,7 @@ def test_ListingModel():
     data = model.data(index17, Qt.EditRole)
     assert data == "foo"
     
+    print listings
     print listings.icol(7)
     
     
@@ -231,8 +232,8 @@ if __name__ == '__main__':
 #    test_ProductWidget()
 #    test_ProductListWidget()
 #    test_ProductModel()
-#    test_ListingsListWidget()
-#    test_ListingModel()
+#    test_ListingsWidget()
+#    test_ListingsModel()
     test_GuiMain()
     
 #    experiment_qt()
