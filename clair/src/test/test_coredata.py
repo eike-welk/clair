@@ -371,7 +371,10 @@ def test_XmlSmallObjectIO():
 
     
 def test_DataStore():
-    """Test the data storage object."""
+    """
+    Test the data storage object.
+    #TODO: test writing data.
+    """
     from clair.coredata import DataStore
     
     d = DataStore()

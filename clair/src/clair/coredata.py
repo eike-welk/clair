@@ -147,7 +147,7 @@ class Product(Record):
     #Tool tips are used by QT
     tool_tips = {
         "id":
-            "<p>Product ID. Should not contain spaces.</p>"
+            "<p>Product ID. Must be unique and not contain spaces.</p>"
             "<p><b>Warning!</b> Changing product IDs is problematic."
             "They are used in <i>listings</i>, <i>prices</i>, and "
             "<i>tasks</i>.</p>",
@@ -180,6 +180,25 @@ class Product(Record):
 
 class SearchTask(Record):
     """Task to search for listings on a certain server."""
+    tool_tips = {
+        "id":
+            "<p>Task ID. Must be unique and not contain spaces.</p>"
+            "<p><b>Warning!</b> Changing task IDs is problematic."
+            "They are used in <i>listings</i>.</p>", 
+        "due_time":"Time when task should be executed for the next time.", 
+        "server":"The server where products should be searched.", 
+        "recurrence_pattern":"How frequently should the task be executed.",           
+        "query_string":"The query string that is given to the server.", 
+        "n_listings":
+            "Number of listings that should be returned by the server.", 
+        "price_min":"Minimum price for searched items.", 
+        "price_max":"Maximum price for searched items.", 
+        "currency":"Currency of the prices", 
+        "expected_products":
+            "<p>IDs of products that are expected in this listing.</p>"
+            "<p>The product identification algorithm searches only for "
+            "these products. Each line is one product.</p>"}
+    
     def __init__(self, id, due_time, server, query_string, #IGNORE:W0622
                  recurrence_pattern=None, n_listings=100,
                  price_min=None, price_max=None, currency="EUR",
@@ -975,7 +994,6 @@ class DataStore(object):
                                     ListingsXMLConverter())
         io_listings.write_data(self.listings, overwrite=True)
     
-    
     def write_products(self):
         """Write products to disk."""
         prodlist = self.products.values()
@@ -983,6 +1001,14 @@ class DataStore(object):
         io_products = XmlSmallObjectIO(self.data_dir, "products", 
                                        ProductXMLConverter())
         io_products.write_data(prodlist)
+        
+    def write_tasks(self):
+        """Write tasks to disk."""
+        tasklist = self.tasks.values()
+        tasklist.sort(key=lambda task: task.id) 
+        io_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
+                                    TaskXMLConverter())
+        io_tasks.write_data(tasklist)
         
         
     def check_consistency(self):

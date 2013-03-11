@@ -37,20 +37,22 @@ sip.setapi("QTime", 2)
 sip.setapi("QUrl", 2)
 sip.setapi("QVariant", 2)
 #Import PyQt after version change.
-#from PyQt4 import QtGui, QtCore
+
+import sys
+import os
+from datetime import datetime
+
+import dateutil
+import pandas as pd
 from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel, 
-                          QSettings, QCoreApplication, QByteArray)
+                          QSettings, QCoreApplication)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
                          QMainWindow, QTabWidget, QApplication, QFileDialog,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
                          QItemSelectionModel, QMessageBox)
-import sys
-import os
 
-import pandas as pd
-
-from clair.coredata import make_listing_frame, Product, DataStore
+from clair.coredata import make_listing_frame, Product, SearchTask, DataStore
 
 
 
@@ -179,7 +181,7 @@ class ProductWidget(QSplitter):
         self.list_widget.addAction(self.action_new)
         self.action_delete = QAction("&Delete Product", self)
         self.action_delete.setShortcuts(QKeySequence.Delete)
-        self.action_delete.setStatusTip("Delete selected product")
+        self.action_delete.setStatusTip("Delete selected product.")
         self.action_delete.triggered.connect(self.deleteProduct)
         self.list_widget.addAction(self.action_delete)
         
@@ -191,9 +193,6 @@ class ProductWidget(QSplitter):
         self.filter.setSourceModel(model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
-        #Hide the description and sort by ID
-        self.list_widget.hideColumn(4)
-        self.list_widget.sortByColumn(0, Qt.AscendingOrder)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
@@ -230,9 +229,11 @@ class ProductWidget(QSplitter):
         
     def loadSettings(self, setting_store):
         """Load widget state, such as splitter position."""
-        self.restoreState(setting_store.value("ProductWidget/state"))
+        self.restoreState(setting_store.value("ProductWidget/state", ""))
         self.list_widget.header().restoreState(
                 setting_store.value("ProductWidget/list/header/state", ""))
+        #Hide description. TODO: remove this hack
+        self.list_widget.hideColumn(4)
 
 
 
@@ -458,6 +459,327 @@ class ProductModel(QAbstractTableModel):
 
 
 
+class TaskWidget(QSplitter):
+    """
+    Display and edit a list of ``Product`` objects. There is a pane that shows
+    the list a whole, and an other pane that shows a single product.
+    
+    The data is taken from a ``ProductModel``.
+    """
+    def __init__(self, parent=None):
+        super(TaskWidget, self).__init__(parent)
+#        self.edit_widget = TaskEditWidget()
+        self.list_widget = QTreeView()
+        self.filter = QSortFilterProxyModel()
+        
+        #Assemble the child widgets
+        self.addWidget(self.list_widget)
+#        self.addWidget(self.edit_widget)
+    
+        #Set various options of the view. #TODO: Delete unnecessary
+        self.list_widget.setItemsExpandable(False)
+        self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.list_widget.setDragEnabled(False)
+        self.list_widget.setAcceptDrops(False)
+        self.list_widget.setDropIndicatorShown(True)
+        self.list_widget.setDefaultDropAction(Qt.MoveAction)
+        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+                                         #QAbstractItemView.AnyKeyPressed |
+                                         QAbstractItemView.SelectedClicked)
+        self.list_widget.setRootIsDecorated(False)
+        self.list_widget.setSortingEnabled(True)
+        self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
+        
+        #Create context menu for list view
+        self.action_new = QAction("&New Task", self)
+        self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
+        self.action_new.setToolTip(
+                                "Create new task below selected task.")
+        self.action_new.triggered.connect(self.newProduct)
+        self.list_widget.addAction(self.action_new)
+        self.action_delete = QAction("&Delete Task", self)
+        self.action_delete.setShortcuts(QKeySequence.Delete)
+        self.action_delete.setToolTip("Delete selected task.")
+        self.action_delete.triggered.connect(self.deleteProduct)
+        self.list_widget.addAction(self.action_delete)
+        
+        self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
+        
+
+    def setModel(self, model):
+        """Tell view which model it should display and edit."""
+        self.filter.setSourceModel(model)
+#        self.edit_widget.setModel(self.filter)
+        self.list_widget.setModel(self.filter)
+        #When user selects a line in ``list_widget`` this item is shown 
+        #in ``edit_widget``
+        self.list_widget.selectionModel().currentRowChanged.connect(
+                                                        self.slotRowChanged)
+    
+    def slotRowChanged(self, current, _previous):
+        """
+        The selected row has changed. Tells edit widget to show this row.
+        Connected to signal ``currentRowChanged`` of 
+        ``list_widget.selectionModel()``
+        """
+#        self.edit_widget.setRow(current)
+        
+    def newProduct(self):
+        """Create a new product below the current product."""
+        row = self.list_widget.currentIndex().row()
+        model = self.list_widget.model()
+        model.insertRows(row + 1, 1)
+        index = model.index(row + 1, 0, QModelIndex())
+#        self.edit_widget.setRow(index)
+        self.list_widget.setCurrentIndex(index)
+        
+    def deleteProduct(self):
+        """Delete the current product."""
+        row = self.list_widget.currentIndex().row()
+        model = self.list_widget.model()
+        model.removeRows(row, 1)
+        
+    def saveSettings(self, setting_store):
+        """Save widget state, such as splitter position."""
+        setting_store.setValue("TaskWidget/state", self.saveState())
+        setting_store.setValue("TaskWidget/list/header/state", 
+                               self.list_widget.header().saveState())
+        
+    def loadSettings(self, setting_store):
+        """Load widget state, such as splitter position."""
+        self.restoreState(setting_store.value("TaskWidget/state", ""))
+        self.list_widget.header().restoreState(
+                setting_store.value("TaskWidget/list/header/state", ""))
+
+
+
+class TaskModel(QAbstractTableModel):
+    """
+    Represent a list of tasks (currently only ``SearchTask``) to QT's model 
+    view architecture.
+    An adapter in design pattern language.
+    """
+    def __init__(self, parent=None):
+        super(TaskModel, self).__init__(parent)
+        self.tasks = []
+        self.dirty = False
+    
+    def setTasks(self, tasks):
+        """Put list of tasks into model"""
+        #Tell the view(s) that old data is gone.
+        self.beginRemoveRows(QModelIndex(), 0, len(self.tasks))
+        self.endRemoveRows()
+        #Change the data
+        self.tasks = tasks
+        self.dirty = False
+        #Tell the view(s) that all data has changed.
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent=QModelIndex()):
+        """Return number of tasks in list."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        return len(self.tasks)
+    
+    def columnCount(self, parent=QModelIndex()):
+        """Return number of accessible task attributes."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        return 10
+    
+    def supportedDropActions(self):
+        """Say which actions are supported for drag-drop."""
+        return Qt.CopyAction | Qt.MoveAction
+ 
+    def flags(self, index):
+        """
+        Determines the possible actions for the item at this index.
+        
+        Parameters
+        ----------
+        index: QModelIndex
+        """
+        default_flags = super(TaskModel, self).flags(index)
+        
+        if index.isValid():
+            return Qt.ItemIsDragEnabled | Qt.ItemIsEditable | default_flags
+        else:
+            return Qt.ItemIsDropEnabled | default_flags
+    
+    
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """
+        Return the text for the column headers.
+        
+        Parameters
+        -----------
+        section: int
+            Column number
+        orientation: 
+            Qt.Vertical or Qt.Horizontal
+        role: int
+        """
+        if orientation != Qt.Horizontal or role != Qt.DisplayRole:
+            return None
+        header_names = ["ID", "Due Time", "Server", "Recurrence Pattern", 
+                        "Query String", "Number Listings", "Price Min", 
+                        "Price Max", "Currency", "Expected Products"]
+        return header_names[section]
+
+
+    attr_names = ["id", "due_time", "server", "recurrence_pattern", 
+                  "query_string", "n_listings", "price_min", "price_max", 
+                  "currency", "expected_products"]
+
+    def data(self, index, role=Qt.DisplayRole):
+        """
+        Return the contents of the task list in the right way.
+        
+        Parameters
+        -----------
+        index: QModelIndex
+        role: int 
+        """
+        assert index.model() == self
+        attr_names = TaskModel.attr_names
+
+        row = index.row()
+        column = index.column()
+        
+        if role in [Qt.DisplayRole, Qt.EditRole]:
+            task = self.tasks[row]
+            attr_name = attr_names[column]
+            if attr_name == "due_time":
+                try:
+                    return task.due_time.isoformat(" ")
+                except ValueError:
+                    return "Date Error: " + repr(task.due_time)
+            elif attr_name == "expected_products":
+                return u"\n".join(task.expected_products)
+            else:
+                return getattr(task, attr_name)
+        elif role == Qt.ToolTipRole:
+            aname = attr_names[column]
+            return SearchTask.tool_tips[aname]
+                        
+        return None
+    
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        """
+        Change the data in the model.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        value: object
+        role : int
+        
+        TODO: Warning when ID is changed
+        """
+        assert index.model() == self
+        if role != Qt.EditRole:
+            return False
+        if not index.isValid():
+            return False
+        
+        row = index.row()
+        column = index.column()
+        task = self.tasks[row]
+        attr_name = TaskModel.attr_names[column]
+        
+        if attr_name == "due_time":
+            try:
+                task.due_time = dateutil.parser.parse(value)
+            except ValueError:
+                return False
+        elif attr_name == "expected_products":
+            task.expected_products = value.split(u"\n")
+        else:
+            setattr(task, attr_name, value)
+        
+        self.dirty = True
+        self.dataChanged.emit(index, index)
+        return True
+    
+    
+    def setItemData(self, index, roles):
+        """
+        Change data in model. Intention is to change data more efficiently,
+        because data with with several roles is changed at once.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        roles : dict[int, object]
+        """
+        #Only data with Qt.EditRole can be changed
+        if Qt.EditRole not in roles:
+            return False
+        return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+    
+        
+    def insertRows(self, row, count, parent=QModelIndex()):
+        """
+        Insert "empty" tasks into the list of tasks.
+        
+        Parameters
+        ----------
+        row : int
+            The new rows are inserted before the row with this index
+        count : int
+            Number of rows that are inserted.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were inserted successfully, False otherwise.
+        """
+        if parent.isValid(): #There are only top level items
+            return False
+        
+        self.beginInsertRows(parent, row, row + count - 1)
+        for i in range(count):
+            new_prod = SearchTask("--", datetime(9999, 12, 31), "", "", 
+                                  "daily", 100, 0, 1000, "EUR", [])
+            self.tasks.insert(row + i, new_prod)
+        self.endInsertRows()
+        
+        self.dirty = True
+        return True
+    
+    
+    def removeRows(self, row, count, parent=QModelIndex()):
+        """
+        Remove tasks from the list.
+        
+        Parameters
+        ----------
+        row : int
+            Index of first row that is removed.
+        count : int
+            Number of rows that are removed.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were removed successfully, False otherwise.
+
+        """
+        if parent.isValid(): #There are only top level items
+            return False
+        
+        self.beginRemoveRows(parent, row, row + count - 1)
+        del self.tasks[row:row + count]
+        self.endRemoveRows()
+        
+        self.dirty = True
+        return True
+
+
+
 class ListingsWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
@@ -497,9 +819,6 @@ class ListingsWidget(QSplitter):
         self.filter.setSourceModel(model)
 #        self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
-        #Hide the description and sort by ID
-        self.list_widget.hideColumn(4)
-        self.list_widget.sortByColumn(0, Qt.AscendingOrder)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
@@ -512,7 +831,18 @@ class ListingsWidget(QSplitter):
         ``list_widget.selectionModel()``
         """
 #        self.edit_widget.setRow(current)
-
+        
+    def saveSettings(self, setting_store):
+        """Save widget state, such as splitter position."""
+        setting_store.setValue("ListingsWidget/state", self.saveState())
+        setting_store.setValue("ListingsWidget/list/header/state", 
+                               self.list_widget.header().saveState())
+        
+    def loadSettings(self, setting_store):
+        """Load widget state, such as splitter position."""
+        self.restoreState(setting_store.value("ListingsWidget/state", ""))
+        self.list_widget.header().restoreState(
+                setting_store.value("ListingsWidget/list/header/state", ""))
 
 
 class ListingsModel(QAbstractTableModel):
@@ -676,10 +1006,12 @@ class GuiMain(QMainWindow):
         #Create data attributes
         self.data = DataStore()
         self.main_tabs = QTabWidget()
-        self.product_editor = ProductWidget()
-        self.product_model = ProductModel()
         self.listings_editor = ListingsWidget()
         self.listings_model = ListingsModel()
+        self.product_editor = ProductWidget()
+        self.product_model = ProductModel()
+        self.task_editor = TaskWidget()
+        self.task_model = TaskModel()
         
         #Assemble the top level widgets
         self. setCentralWidget(self.main_tabs)
@@ -687,6 +1019,8 @@ class GuiMain(QMainWindow):
         self.listings_editor.setModel(self.listings_model)
         self.main_tabs.addTab(self.product_editor, "Products")
         self.product_editor.setModel(self.product_model)
+        self.main_tabs.addTab(self.task_editor, "Tasks")
+        self.task_editor.setModel(self.task_model)
         
         #For QSettings and Phonon
         QCoreApplication.setOrganizationName("The Clair Project")
@@ -710,9 +1044,13 @@ class GuiMain(QMainWindow):
         filemenu.addAction("&Save Configuration", self.saveConfiguration, 
                            QKeySequence.Save)
         filemenu.addAction("&Quit", self.close, QKeySequence.Quit)
+        productmenu = menubar.addMenu("&Listing")
         productmenu = menubar.addMenu("&Product")
         productmenu.addAction(self.product_editor.action_new)
         productmenu.addAction(self.product_editor.action_delete)
+        productmenu = menubar.addMenu("&Task")
+        productmenu.addAction(self.task_editor.action_new)
+        productmenu.addAction(self.task_editor.action_delete)
 
         
     def loadConfiguration(self, dirname=None):
@@ -728,7 +1066,9 @@ class GuiMain(QMainWindow):
         """
         if dirname is None:
             #Interactive mode
-            if any([self.product_model.dirty]):
+            #If there are any unsaved changes ask the user.
+            if any([self.listings_model.dirty, self.product_model.dirty,
+                    self.task_model.dirty]):
                 button = QMessageBox.warning(
                     self, "Clair Gui",
                     "The data has been modified.\n"
@@ -741,8 +1081,9 @@ class GuiMain(QMainWindow):
                     pass
                 else:
                     return
+            #Open new set of files.
             filename = QFileDialog.getOpenFileName(
-                                self, "Open Configuration", os.getcwd(), "")
+                self, "Open Configuration, click on any file", os.getcwd(), "")
             dirname = os.path.dirname(filename)
             
         #Load the data
@@ -752,20 +1093,31 @@ class GuiMain(QMainWindow):
         self.data.read_data(dirname)
         self.listings_model.setListings(self.data.listings)
         self.product_model.setProducts(self.data.products.values())
+        self.task_model.setTasks(self.data.tasks.values())
         
         
     def saveConfiguration(self):
         """Save all data files of a Clair installation."""
+        #save listings
+        self.data.write_listings()
+        self.listings_model.dirty = False
+        #save products
         self.data.products = {}
         self.data.add_products(self.product_model.products)
         self.data.write_products()
         self.product_model.dirty = False
+        #save tasks
+        self.data.tasks={}
+        self.data.add_tasks(self.task_model.tasks)
+        self.data.write_tasks()
+        self.task_model.dirty = False
         self.statusBar().showMessage("Configuration saved.", 5000)
     
     def closeEvent(self, event):
         """Framework tells application that it wants to exit the program."""
         #Save modified data before closing.
-        if any([self.product_model.dirty]):
+        if any([self.listings_model.dirty, self.product_model.dirty,
+                self.task_model.dirty]):
             button = QMessageBox.warning(
                 self, "Clair Gui",
                 "The data has been modified.\nDo you want to save your changes?",
@@ -789,7 +1141,9 @@ class GuiMain(QMainWindow):
         #Save GUI related information
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
+        self.listings_editor.saveSettings(settings)
         self.product_editor.saveSettings(settings)
+        self.task_editor.saveSettings(settings)
         #Save directory of current data
         settings.setValue("conf_dir", self.data.data_dir)
  
@@ -799,7 +1153,9 @@ class GuiMain(QMainWindow):
         #Load GUI related information
         self.restoreGeometry(settings.value("geometry", ""))
         self.restoreState(settings.value("windowState", ""))
+        self.listings_editor.loadSettings(settings)
         self.product_editor.loadSettings(settings)
+        self.task_editor.loadSettings(settings)
         #Load last used data
         conf_dir = settings.value("conf_dir", None)
         if conf_dir is not None and os.path.isdir(conf_dir):

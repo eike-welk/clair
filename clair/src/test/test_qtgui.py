@@ -45,6 +45,7 @@ import os
 import os.path as path
 import time
 import logging
+from datetime import datetime
 
 import pandas as pd
 
@@ -159,6 +160,84 @@ def test_ProductModel():
     print "End"
 
 
+def test_TaskWidget():
+    from clair.qtgui import TaskWidget
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    view = TaskWidget()
+    model = create_task_model()
+    view.setModel(model)
+    
+    view.show()
+    app.exec_()
+    print model.tasks
+    print "End"
+    
+
+def create_task_model():
+    """Create a Qt-model-view model that contains tasks, for testing."""
+    from clair.qtgui import TaskModel
+    from clair.coredata import SearchTask
+    
+    tasks = [SearchTask("s-nikon-d90", datetime(2000, 1, 1), "ebay-de", 
+                           "Nikon D90", "daily", "100", "150", "300", "EUR", 
+                           ["nikon-d90", "nikon-18-105-f/3.5-5.6--1"]),
+                SearchTask("s-nikon-d70", datetime(2000, 1, 1), "ebay-de", 
+                           "Nikon D70", "daily", "100", "75", "150", "EUR", 
+                           ["nikon-d70", "nikon-18-105-f/3.5-5.6--1"]),]
+    model = TaskModel()
+    model.setTasks(tasks)
+    return model
+    
+
+def test_TaskModel():
+    """
+    Test ProductModel, an adapter for a list of ``Product`` objects
+    to Qt's model-view architecture.
+    """
+    model = create_task_model()
+    
+    #Get table dimensions
+    assert model.rowCount() == 2
+    assert model.columnCount() == 10
+    
+    #Get data from model
+    index00 = model.createIndex(0, 0)
+    id_ = model.data(index00, Qt.DisplayRole)
+    assert id_ == "s-nikon-d90"
+    id_ = model.data(index00, Qt.EditRole)
+    assert id_ == "s-nikon-d90"
+    tooltip =  model.data(index00, Qt.ToolTipRole)
+    assert isinstance(tooltip, basestring) and len(tooltip) > 0
+    
+    #Change data in model
+    model.setData(index00, "foo", Qt.EditRole)
+    #Test if data was really changed
+    id_ = model.data(index00, Qt.EditRole)
+    assert id_ == "foo"
+    
+    #Insert 2 rows before line #1 (in the middle)
+    model.insertRows(1, 2)
+    #Get list of IDs (column 0)
+    ids = [model.data(model.createIndex(i, 0), Qt.DisplayRole) 
+             for i in range(model.rowCount())]
+    assert model.rowCount() == 4
+    assert ids == ['foo', u'--', u'--', 's-nikon-d70']
+    
+    #Remove 2 rows starting at #1
+    model.removeRows(1, 2)
+    #Get list of product ids (column 1)
+    ids = [model.data(model.createIndex(i, 0), Qt.DisplayRole) 
+             for i in range(model.rowCount())]
+    assert model.rowCount() == 2
+    assert ids == ['foo', 's-nikon-d70']
+    
+    print model.tasks
+    print "End"
+
+
 def test_ListingsWidget():
     """Test ListingsWidget, which displays a DataFrame of listings."""
     from clair.qtgui import ListingsWidget, ListingsModel
@@ -232,6 +311,8 @@ if __name__ == '__main__':
 #    test_ProductWidget()
 #    test_ProductListWidget()
 #    test_ProductModel()
+#    test_TaskWidget()
+#    test_TaskModel()
 #    test_ListingsWidget()
 #    test_ListingsModel()
     test_GuiMain()
