@@ -62,6 +62,15 @@ def QtLoadUI(uifile):
 
 
 
+def to_text_time(time):
+    """Convert ``datetime`` to text in safe way."""
+    try:
+        return time.isoformat(" ")
+    except ValueError:
+        return "Date Error: " + repr(time)
+    
+    
+    
 class ProductEditWidget(QWidget):
     """
     Display and edit contents of a single ``Product``.
@@ -75,7 +84,7 @@ class ProductEditWidget(QWidget):
     def __init__(self):
         super(ProductEditWidget, self).__init__()
         
-        #Transfer data between model and widgets
+        #Transfers data between model and widgets
         self.mapper = QDataWidgetMapper()
         
         self.e_id = QLineEdit()
@@ -459,6 +468,108 @@ class ProductModel(QAbstractTableModel):
 
 
 
+class SearchTaskEditWidget(QWidget):
+    """
+    Display and edit contents of a single ``SearchTask``.
+    
+    The data is taken from a row of a ``ProductModel``. 
+    The communication between the model and the individual edit widgets, 
+    is done by a ``QDataWidgetMapper``.
+    """
+    def __init__(self):
+        super(SearchTaskEditWidget, self).__init__()
+        
+        #Transfers data between model and widgets
+        self.mapper = QDataWidgetMapper()
+        
+        self.e_id = QLineEdit()
+        self.e_due_time = QLineEdit()
+        self.e_server = QLineEdit()
+        self.e_recurrence_pattern = QLineEdit()
+        self.e_query_string = QLineEdit()
+        self.e_n_listings = QLineEdit()
+        self.e_price_min = QLineEdit()
+        self.e_price_max = QLineEdit()
+        self.e_currency = QLineEdit()
+        self.e_expected_products = QTextEdit()
+        
+        l_id = QLabel("ID")
+        l_due_time = QLabel("Due Time")
+        l_server = QLabel("Server")
+        l_recurrence_pattern = QLabel("Recurrence")
+        l_query_string = QLabel("Query String")
+        l_n_listings = QLabel("Numer Listings")
+        l_price_min = QLabel("Price Min")
+        l_price_max = QLabel("Price Max")
+#        l_currency = QLabel("Currency")
+        l_currency2 = QLineEdit("---") #Use disabled QLineEdit as label 
+        l_currency2.setEnabled(False)
+        l_expected_products = QLabel("Expected Products")
+        
+        #Let e_currency and l_currency2 contain the same text
+        self.e_currency.textChanged.connect(l_currency2.setText)
+        
+        grid = QGridLayout()
+        grid.addWidget(l_id, 0, 0)
+        grid.addWidget(self.e_id, 0, 1, 1, 2)
+        grid.addWidget(l_due_time, 1, 0)
+        grid.addWidget(self.e_due_time, 1, 1, 1, 2)
+        grid.addWidget(l_server, 2, 0)
+        grid.addWidget(self.e_server, 2, 1, 1, 2)
+        grid.addWidget(l_recurrence_pattern, 3, 0)
+        grid.addWidget(self.e_recurrence_pattern, 3, 1, 1, 2)
+        grid.addWidget(l_query_string, 4, 0)
+        grid.addWidget(self.e_query_string, 4, 1, 1, 2)
+        grid.addWidget(l_n_listings, 5, 0)
+        grid.addWidget(self.e_n_listings, 5, 1, 1, 2)
+        grid.addWidget(l_price_min, 6, 0)
+        grid.addWidget(self.e_price_min, 6, 1, 1, 1)
+        grid.addWidget(l_price_max, 7, 0)
+        grid.addWidget(self.e_price_max, 7, 1, 1, 1)
+        grid.addWidget(self.e_currency, 6, 2)
+        grid.addWidget(l_currency2, 7, 2)
+        grid.addWidget(l_expected_products, 8, 0, 1, 3)
+        grid.addWidget(self.e_expected_products, 9, 0, 2, 3)
+        
+        self.setLayout(grid)
+        self.setGeometry(200, 200, 400, 300)
+  
+        self.setToolTip('Change information about a search task.')
+        self.e_id.setToolTip(SearchTask.tool_tips["id"])
+  
+    def setModel(self, model):
+        """Tell the widget which model it should use."""
+        #Put model into communication object
+        self.mapper.setModel(model)
+        #Tell: which widget should show which column
+        self.mapper.addMapping(self.e_id, 0)
+        self.mapper.addMapping(self.e_due_time, 1)
+        self.mapper.addMapping(self.e_server, 2)
+        self.mapper.addMapping(self.e_recurrence_pattern, 3)
+        self.mapper.addMapping(self.e_query_string, 4)
+        self.mapper.addMapping(self.e_n_listings, 5)
+        self.mapper.addMapping(self.e_price_min, 6)
+        self.mapper.addMapping(self.e_price_max, 7)
+        self.mapper.addMapping(self.e_currency, 8)
+        self.mapper.addMapping(self.e_expected_products, 9, "plainText")
+        #Go to first row
+        self.mapper.toFirst()
+
+
+    def setRow(self, index):
+        """
+        Set the row of the model that is accessed by the widget.
+        
+        Usually connected to signal ``activated`` of a ``QTreeView``.
+        
+        Parameter
+        ---------
+        index : QModelIndex
+        """
+        self.mapper.setCurrentModelIndex(index)
+
+
+
 class TaskWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
@@ -468,13 +579,13 @@ class TaskWidget(QSplitter):
     """
     def __init__(self, parent=None):
         super(TaskWidget, self).__init__(parent)
-#        self.edit_widget = TaskEditWidget()
+        self.edit_widget = SearchTaskEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
         
         #Assemble the child widgets
         self.addWidget(self.list_widget)
-#        self.addWidget(self.edit_widget)
+        self.addWidget(self.edit_widget)
     
         #Set various options of the view. #TODO: Delete unnecessary
         self.list_widget.setItemsExpandable(False)
@@ -509,7 +620,7 @@ class TaskWidget(QSplitter):
     def setModel(self, model):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(model)
-#        self.edit_widget.setModel(self.filter)
+        self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
@@ -522,7 +633,7 @@ class TaskWidget(QSplitter):
         Connected to signal ``currentRowChanged`` of 
         ``list_widget.selectionModel()``
         """
-#        self.edit_widget.setRow(current)
+        self.edit_widget.setRow(current)
         
     def newProduct(self):
         """Create a new product below the current product."""
@@ -530,7 +641,7 @@ class TaskWidget(QSplitter):
         model = self.list_widget.model()
         model.insertRows(row + 1, 1)
         index = model.index(row + 1, 0, QModelIndex())
-#        self.edit_widget.setRow(index)
+        self.edit_widget.setRow(index)
         self.list_widget.setCurrentIndex(index)
         
     def deleteProduct(self):
@@ -550,6 +661,8 @@ class TaskWidget(QSplitter):
         self.restoreState(setting_store.value("TaskWidget/state", ""))
         self.list_widget.header().restoreState(
                 setting_store.value("TaskWidget/list/header/state", ""))
+        #Hide multi line attribute expected products. TODO: remove this hack
+        self.list_widget.hideColumn(9)
 
 
 
@@ -650,10 +763,7 @@ class TaskModel(QAbstractTableModel):
             task = self.tasks[row]
             attr_name = attr_names[column]
             if attr_name == "due_time":
-                try:
-                    return task.due_time.isoformat(" ")
-                except ValueError:
-                    return "Date Error: " + repr(task.due_time)
+                return to_text_time(task.due_time)
             elif attr_name == "expected_products":
                 return u"\n".join(task.expected_products)
             else:
