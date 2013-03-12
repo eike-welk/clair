@@ -96,20 +96,20 @@ class ProductEditWidget(QWidget):
         l_id = QLabel("ID")
         l_name = QLabel("Name")
         l_description = QLabel("Description")
-        l_important_words = QLabel("Important \nWords")
+        l_important_words = QLabel("Important Words")
         l_categories = QLabel("Categories")
         
         grid = QGridLayout()
-        grid.addWidget(l_id, 0, 0)
-        grid.addWidget(self.e_id, 0, 1)
-        grid.addWidget(l_name, 1, 0)
-        grid.addWidget(self.e_name, 1, 1)
-        grid.addWidget(l_important_words, 2, 0)
-        grid.addWidget(self.e_important_words,2, 1)
-        grid.addWidget(l_categories, 3, 0)
-        grid.addWidget(self.e_categories, 3, 1)
-        grid.addWidget(l_description, 4, 0, 1, 2)
-        grid.addWidget(self.e_description, 5, 0, 4, 2)
+        grid.addWidget(l_id,               0, 0)
+        grid.addWidget(self.e_id,          0, 1, 1, 3)
+        grid.addWidget(l_name,             1, 0)
+        grid.addWidget(self.e_name,        1, 1, 1, 3)
+        grid.addWidget(l_categories,       2, 0, 1, 2)
+        grid.addWidget(self.e_categories,  3, 0, 2, 2)
+        grid.addWidget(l_important_words,  2, 2, 1, 2)
+        grid.addWidget(self.e_important_words,3, 2, 2, 2)
+        grid.addWidget(l_description,      5, 0, 1, 4)
+        grid.addWidget(self.e_description, 6, 0, 2, 4)
 
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
@@ -472,7 +472,7 @@ class SearchTaskEditWidget(QWidget):
     """
     Display and edit contents of a single ``SearchTask``.
     
-    The data is taken from a row of a ``ProductModel``. 
+    The data is taken from a row of a ``TaskModel``. 
     The communication between the model and the individual edit widgets, 
     is done by a ``QDataWidgetMapper``.
     """
@@ -901,6 +901,59 @@ class TaskModel(QAbstractTableModel):
 
 
 
+class ListingsEditWidget(QWidget):
+    """
+    Display and edit contents of a single listing.
+    
+    The data is taken from a row of a ``ListingsModel``. 
+    The communication between the model and the individual edit widgets, 
+    is done by a ``QDataWidgetMapper``.
+    """
+    def __init__(self):
+        super(ListingsEditWidget, self).__init__()
+        
+        #Transfers data between model and widgets
+        self.mapper = QDataWidgetMapper()
+        
+        self.e_id = QLineEdit()
+        
+        l_id = QLabel("ID")
+        
+        grid = QGridLayout()
+        grid.addWidget(l_id, 0, 0)
+        grid.addWidget(self.e_id, 0, 1)
+
+        self.setLayout(grid)
+        self.setGeometry(200, 200, 400, 300)
+  
+        self.setToolTip('Change information about a product.')
+        self.e_id.setToolTip(Product.tool_tips["id"])
+
+  
+    def setModel(self, model):
+        """Tell the widget which model it should use."""
+        #Put model into communication object
+        self.mapper.setModel(model)
+        #Tell: which widget should show which column
+        self.mapper.addMapping(self.e_id, 0)
+        #Go to first row
+        self.mapper.toFirst()
+
+
+    def setRow(self, index):
+        """
+        Set the row of the model that is accessed by the widget.
+        
+        Usually connected to signal ``activated`` of a ``QTreeView``.
+        
+        Parameter
+        ---------
+        index : QModelIndex
+        """
+        self.mapper.setCurrentModelIndex(index)
+
+
+
 class ListingsWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
@@ -910,13 +963,13 @@ class ListingsWidget(QSplitter):
     """
     def __init__(self, parent=None):
         super(ListingsWidget, self).__init__(parent)
-        self.edit_widget = None
+        self.edit_widget = ListingsEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
         
         #Assemble the child widgets
         self.addWidget(self.list_widget)
-#        self.addWidget(self.edit_widget)
+        self.addWidget(self.edit_widget)
     
         #Set various options of the view. #TODO: Delete unnecessary
         self.list_widget.setItemsExpandable(False)
@@ -938,7 +991,7 @@ class ListingsWidget(QSplitter):
     def setModel(self, model):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(model)
-#        self.edit_widget.setModel(self.filter)
+        self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
@@ -951,7 +1004,7 @@ class ListingsWidget(QSplitter):
         Connected to signal ``currentRowChanged`` of 
         ``list_widget.selectionModel()``
         """
-#        self.edit_widget.setRow(current)
+        self.edit_widget.setRow(current)
         
     def saveSettings(self, setting_store):
         """Save widget state, such as splitter position."""
@@ -964,6 +1017,7 @@ class ListingsWidget(QSplitter):
         self.restoreState(setting_store.value("ListingsWidget/state", ""))
         self.list_widget.header().restoreState(
                 setting_store.value("ListingsWidget/list/header/state", ""))
+
 
 
 class ListingsModel(QAbstractTableModel):
@@ -1165,15 +1219,53 @@ class GuiMain(QMainWindow):
         filemenu.addAction("&Save Configuration", self.saveConfiguration, 
                            QKeySequence.Save)
         filemenu.addAction("&Quit", self.close, QKeySequence.Quit)
-        productmenu = menubar.addMenu("&Listing")
+        filemenu.addAction("Clear Settings", self.clearSettings)
+        _listingmenu = menubar.addMenu("&Listing")
         productmenu = menubar.addMenu("&Product")
         productmenu.addAction(self.product_editor.action_new)
         productmenu.addAction(self.product_editor.action_delete)
-        productmenu = menubar.addMenu("&Task")
-        productmenu.addAction(self.task_editor.action_new)
-        productmenu.addAction(self.task_editor.action_delete)
+        taskmenu = menubar.addMenu("&Task")
+        taskmenu.addAction(self.task_editor.action_new)
+        taskmenu.addAction(self.task_editor.action_delete)
 
+
+    def askSaveModifiedFiles(self):
+        """
+        Test if files are modified. Ask if user wants to save modified files.
         
+        Returns
+        -------
+        str
+            The return code indicates what button the user has clicked, and 
+            what action has been taken. The function returns the following 
+            strings:
+            * "files-saved" : There were modified files, a dialog was shown,
+                              the user has clicked the "Save" button, and the 
+                              files have been saved.
+            * "discard"     : The user wants to discard the modified files. 
+            * "cancel"      : The user has clicked the "Cancel" button and
+                              wants to abort the operation.
+            * "all-clean"   : There are no modified files, no dialog has been
+                              shown.
+        """
+        if any([self.listings_model.dirty, self.product_model.dirty,
+                self.task_model.dirty]):
+            button = QMessageBox.warning(
+                self, "Clair Gui",
+                "The data has been modified.\nDo you want to save your changes?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save)
+            if button == QMessageBox.Save:
+                self.saveConfiguration()
+                return "files-saved"
+            elif button == QMessageBox.Discard:
+                return "discard"
+            else:
+                return "cancel"
+        else:
+            return "all-clean"
+
+
     def loadConfiguration(self, dirname=None):
         """
         Load all data files of a Clair installation.
@@ -1187,22 +1279,11 @@ class GuiMain(QMainWindow):
         """
         if dirname is None:
             #Interactive mode
-            #If there are any unsaved changes ask the user.
-            if any([self.listings_model.dirty, self.product_model.dirty,
-                    self.task_model.dirty]):
-                button = QMessageBox.warning(
-                    self, "Clair Gui",
-                    "The data has been modified.\n"
-                    "Do you want to save your changes?",
-                    QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
-                    QMessageBox.Save)
-                if button == QMessageBox.Save:
-                    self.saveConfiguration()
-                elif button == QMessageBox.Discard:
-                    pass
-                else:
-                    return
-            #Open new set of files.
+            #If there are unsaved changes, ask user, save changes if desired.
+            action = self.askSaveModifiedFiles()
+            if action == "cancel":
+                return
+            #Show file open dialog.
             filename = QFileDialog.getOpenFileName(
                 self, "Open Configuration, click on any file", os.getcwd(), "")
             dirname = os.path.dirname(filename)
@@ -1236,25 +1317,13 @@ class GuiMain(QMainWindow):
     
     def closeEvent(self, event):
         """Framework tells application that it wants to exit the program."""
-        #Save modified data before closing.
-        if any([self.listings_model.dirty, self.product_model.dirty,
-                self.task_model.dirty]):
-            button = QMessageBox.warning(
-                self, "Clair Gui",
-                "The data has been modified.\nDo you want to save your changes?",
-                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
-                QMessageBox.Save)
-            if button == QMessageBox.Save:
-                self.saveConfiguration()
-            elif button == QMessageBox.Discard:
-                pass
-            else:
-                event.ignore()
-                return
-            
+        #If there are unsaved changes, ask user, save changes if desired.
+        action = self.askSaveModifiedFiles()
+        if action == "cancel":
+            event.ignore()
+            return
         self.saveSettings()
         super(GuiMain, self).closeEvent(event)
-        
         
     def saveSettings(self):
         """Save application state information like window position."""
@@ -1270,26 +1339,45 @@ class GuiMain(QMainWindow):
  
     def loadSettings(self):
         """Read application state information like window position."""
-        settings = QSettings()
+        setting_store = QSettings()
         #Load GUI related information
-        self.restoreGeometry(settings.value("geometry", ""))
-        self.restoreState(settings.value("windowState", ""))
-        self.listings_editor.loadSettings(settings)
-        self.product_editor.loadSettings(settings)
-        self.task_editor.loadSettings(settings)
+        self.restoreGeometry(setting_store.value("geometry", ""))
+        self.restoreState(setting_store.value("windowState", ""))
+        self.listings_editor.loadSettings(setting_store)
+        self.product_editor.loadSettings(setting_store)
+        self.task_editor.loadSettings(setting_store)
         #Load last used data
-        conf_dir = settings.value("conf_dir", None)
+        conf_dir = setting_store.value("conf_dir", None)
         if conf_dir is not None and os.path.isdir(conf_dir):
             self.loadConfiguration(conf_dir)
-        
  
+    def clearSettings(self):
+        """Deletes all settings, and restarts the application"""
+        #If there are unsaved changes ask user, save changes if desired.
+        action = self.askSaveModifiedFiles()
+        if action == "cancel":
+            return
+        #Clear the settings
+        setting_store = QSettings()
+        setting_store.clear()
+        setting_store.sync()
+        #Exit application, and restart it
+        QApplication.exit(GuiMain.restart_code)
+
+    restart_code = 1000
+    
     @staticmethod
     def application_main():
         """
         The application's main function. 
         Create application and main window and run them.
         """
-        app = QApplication(sys.argv)
-        window = GuiMain()
-        window.show()
-        app.exec_()
+        while True:
+            app = QApplication(sys.argv)
+            window = GuiMain()
+            window.show()
+            ret = app.exec_()
+            if ret != GuiMain.restart_code:
+                break
+            del window
+            del app

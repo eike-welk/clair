@@ -411,7 +411,8 @@ class ListingsXMLConverter(XMLConverter):
         version = root_xml.version.text
         assert version == "0.1"
         
-        listing_xml = root_xml.listings.listing
+        try: listing_xml = root_xml.listings.listing
+        except AttributeError: return make_listing_frame(0)
         nrows = len(listing_xml)
         listings = make_listing_frame(nrows)
         for i, li in enumerate(listing_xml):    
@@ -486,8 +487,9 @@ class ProductXMLConverter(XMLConverter):
 #        print objectify.dump(root_xml)
         version = root_xml.version.text
         assert version == "0.1"
-               
-        product_xml = root_xml.products.product
+        
+        try: product_xml = root_xml.products.product
+        except AttributeError: return []
         product_list = []
         for pr in product_xml:    
             prod = Product(id=pr.id.pyval,
@@ -550,7 +552,8 @@ class TaskXMLConverter(XMLConverter):
         version = root_xml.version.text
         assert version == "0.1"
                
-        task_xml = root_xml.tasks.search_task
+        try: task_xml = root_xml.tasks.search_task
+        except AttributeError: return []
         task_list = []
         for tsk in task_xml:    
             prod = SearchTask(id=tsk.id.pyval,
