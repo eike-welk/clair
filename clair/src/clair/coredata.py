@@ -193,11 +193,12 @@ class SearchTask(Record):
             "Number of listings that should be returned by the server.", 
         "price_min":"Minimum price for searched items.", 
         "price_max":"Maximum price for searched items.", 
-        "currency":"Currency of the prices", 
+        "currency":"Currency of the prices.", 
         "expected_products":
-            "<p>IDs of products that are expected in this listing.</p>"
+            "<p>IDs of products that are expected in listings found by this "
+            "search.</p>"
             "<p>The product identification algorithm searches only for "
-            "these products. Each line is one product.</p>"}
+            "products in this list. Each line is one product.</p>"}
     
     def __init__(self, id, due_time, server, query_string, #IGNORE:W0622
                  recurrence_pattern=None, n_listings=100,

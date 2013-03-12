@@ -65,7 +65,7 @@ def relative(*path_components):
     return path.abspath(path.join(path.dirname(__file__), *path_components))
 
 
-def test_ProductWidget():
+def test_ProductEditWidget():
     """Test the ``ProductEditWidget``"""
     from clair.qtgui import ProductEditWidget
     
@@ -82,7 +82,7 @@ def test_ProductWidget():
     print "End"
     
     
-def test_ProductListWidget():
+def test_ProductWidget():
     from clair.qtgui import ProductWidget
     
     print "Start"
@@ -160,6 +160,24 @@ def test_ProductModel():
     print "End"
 
 
+def test_SearchTaskEditWidget():
+    """Test the ``ProductEditWidget``"""
+    from clair.qtgui import SearchTaskEditWidget
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    view = SearchTaskEditWidget()
+    model = create_task_model()
+    view.setModel(model)
+    view.setRow(model.index(1, 0))
+    
+    view.show()
+    app.exec_()
+    print model.tasks
+    print "End"
+    
+    
 def test_TaskWidget():
     from clair.qtgui import TaskWidget
     
@@ -308,9 +326,10 @@ def experiment_qt():
     
     
 if __name__ == '__main__':
+#    test_ProductEditWidget()
 #    test_ProductWidget()
-#    test_ProductListWidget()
 #    test_ProductModel()
+#    test_SearchTaskEditWidget()
 #    test_TaskWidget()
 #    test_TaskModel()
 #    test_ListingsWidget()

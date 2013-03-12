@@ -498,7 +498,7 @@ class SearchTaskEditWidget(QWidget):
         l_server = QLabel("Server")
         l_recurrence_pattern = QLabel("Recurrence")
         l_query_string = QLabel("Query String")
-        l_n_listings = QLabel("Numer Listings")
+        l_n_listings = QLabel("Number Listings")
         l_price_min = QLabel("Price Min")
         l_price_max = QLabel("Price Max")
 #        l_currency = QLabel("Currency")
@@ -536,6 +536,17 @@ class SearchTaskEditWidget(QWidget):
   
         self.setToolTip('Change information about a search task.')
         self.e_id.setToolTip(SearchTask.tool_tips["id"])
+        self.e_due_time.setToolTip(SearchTask.tool_tips["due_time"])
+        self.e_server.setToolTip(SearchTask.tool_tips["server"])
+        self.e_recurrence_pattern.setToolTip(
+                                    SearchTask.tool_tips["recurrence_pattern"])
+        self.e_query_string.setToolTip(SearchTask.tool_tips["query_string"])
+        self.e_n_listings.setToolTip(SearchTask.tool_tips["n_listings"])
+        self.e_price_min.setToolTip(SearchTask.tool_tips["price_min"])
+        self.e_price_max.setToolTip(SearchTask.tool_tips["price_max"])
+        self.e_currency.setToolTip(SearchTask.tool_tips["currency"])
+        self.e_expected_products.setToolTip(
+                                    SearchTask.tool_tips["expected_products"])
   
     def setModel(self, model):
         """Tell the widget which model it should use."""
