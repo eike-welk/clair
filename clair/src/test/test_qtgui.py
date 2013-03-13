@@ -256,6 +256,44 @@ def test_TaskModel():
     print "End"
 
 
+def test_DataWidgetHtmlView():
+    """Test ListingsEditWidget, which displays a DataFrame of listings."""
+    from clair.qtgui import DataWidgetHtmlView
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    view = DataWidgetHtmlView()
+    view.setHtml("Baz buz <b>Fooo</b> bar.")
+    view.setTabContents(1)
+    view.setTabContents(2)
+    view.setTabContents(0)
+    
+    view.show()
+    app.exec_()
+    print "End"
+
+
+def test_ListingsEditWidget():
+    """Test ListingsEditWidget, which displays a single listing."""
+    from clair.qtgui import ListingsEditWidget, ListingsModel
+    from clair.coredata import make_listing_frame
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    listings = make_listing_frame(4)
+    model = ListingsModel()
+    model.setListings(listings)
+    view = ListingsEditWidget()
+    view.setModel(model)
+    view.setRow(model.index(1, 0))
+    
+    view.show()
+    app.exec_()
+    print "End"
+
+
 def test_ListingsWidget():
     """Test ListingsWidget, which displays a DataFrame of listings."""
     from clair.qtgui import ListingsWidget, ListingsModel
@@ -332,6 +370,8 @@ if __name__ == '__main__':
 #    test_SearchTaskEditWidget()
 #    test_TaskWidget()
 #    test_TaskModel()
+#    test_DataWidgetHtmlView()
+#    test_ListingsEditWidget()
 #    test_ListingsWidget()
 #    test_ListingsModel()
     test_GuiMain()

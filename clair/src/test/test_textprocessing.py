@@ -164,6 +164,18 @@ html_nasty = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "
 </html>
 """
 
+def test_HtmlTool_to_nice_text():
+    """Test HTML cleanup algorithm."""
+    from clair.textprocessing import HtmlTool
+    
+    html_nice = HtmlTool.to_nice_text(html_nasty)
+    print html_nasty
+    print html_nice
+    
+    assert html_nice.find(u"Blitzgerät") != -1
+    assert html_nice.find(u"Rückseite") != -1
+    
+    
 def test_HtmlTool_clean_html():
     """Test HTML cleanup algorithm."""
     from clair.textprocessing import HtmlTool
@@ -321,10 +333,11 @@ def experiment_CollectText():
 
 if __name__ == "__main__":
 #    test_HtmlTool_remove_html()
+    test_HtmlTool_to_nice_text()
 #    test_HtmlTool_clean_html()
 #    test_DataStore()
 #    test_CollectText()
 #    experiment_update_all_listings()
-    experiment_CollectText()
+#    experiment_CollectText()
     
     pass #IGNORE:W0107

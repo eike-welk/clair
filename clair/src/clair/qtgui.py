@@ -44,15 +44,17 @@ from datetime import datetime
 
 import dateutil
 import pandas as pd
-from PyQt4.QtCore import (Qt, pyqtSignal,  QModelIndex, QAbstractTableModel, 
-                          QSettings, QCoreApplication)
+from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex, 
+                          QAbstractTableModel, QSettings, QCoreApplication)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
                          QMainWindow, QTabWidget, QApplication, QFileDialog,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
-                         QItemSelectionModel, QMessageBox)
+                         QItemSelectionModel, QMessageBox, QFont,)
+from PyQt4.QtWebKit import QWebView
 
 from clair.coredata import make_listing_frame, Product, SearchTask, DataStore
+from clair.textprocessing import HtmlTool
 
 
 
@@ -901,6 +903,64 @@ class TaskModel(QAbstractTableModel):
 
 
 
+class DataWidgetHtmlView(QTabWidget):
+    """
+    A widget that can display HTML, and works together with 
+    ``QDataWidgetMapper``
+    
+    The class has a property ``html``, that can be used by ``QDataWidgetMapper``
+    to put HTML data into the widget.
+    
+    TODO: convert to a tab widget that can alternatively show a pure text view.
+    """
+    def __init__(self, parent=None):
+        super(DataWidgetHtmlView, self).__init__(parent)
+        self.html_str = None
+        self.contents_loaded = [False, False, False]
+        self.html_view = QWebView()
+        self.text_view = QTextEdit()
+        self.source_view = QTextEdit()
+        
+        self.addTab(self.html_view, "HTML")
+        self.addTab(self.text_view, "Text")
+        self.addTab(self.source_view, "Source")
+        self.text_view.setReadOnly(True)
+        self.source_view.setReadOnly(True)
+        
+        self.currentChanged.connect(self.setTabContents)
+        
+        
+    def setTabContents(self, itab):
+        """
+        Sets the contents of the visible tab. Converts the contents only once.
+        """
+        #Only do loading and conversion operations if necessary
+        if self.contents_loaded[itab]:
+            return
+        self.contents_loaded[itab] = True
+        
+        if itab == 0:
+            self.html_view.setHtml(self.html_str)
+        elif itab == 1:
+            text = HtmlTool.to_nice_text(self.html_str)
+            self.text_view.setPlainText(text)
+        else:
+            self.source_view.setPlainText(self.html_str)
+            
+        
+    def getHtml(self):
+        return self.html_str
+    
+    def setHtml(self, html_str):
+        self.html_str = html_str
+        self.contents_loaded = [False, False, False]
+        self.setTabContents(self.currentIndex())
+        
+    html = pyqtProperty(str, getHtml, setHtml, 
+                        doc="The html content of the widget.")
+    
+    
+    
 class ListingsEditWidget(QWidget):
     """
     Display and edit contents of a single listing.
@@ -912,22 +972,84 @@ class ListingsEditWidget(QWidget):
     def __init__(self):
         super(ListingsEditWidget, self).__init__()
         
+        bigF = QFont()
+        bigF.setPointSize(12)
+        
         #Transfers data between model and widgets
         self.mapper = QDataWidgetMapper()
         
-        self.e_id = QLineEdit()
+        self.v_id = QLabel("---")
+        self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
+                                          Qt.TextSelectableByKeyboard)
+        self.v_title = QLabel("---")
+        self.v_title.setFont(bigF)
+        self.v_title.setWordWrap(True)
+        self.v_title.setTextInteractionFlags(Qt.TextSelectableByMouse | 
+                                             Qt.TextSelectableByKeyboard)
+        self.v_image = QLabel("Image\nHere!")
+        self.v_price = QLabel("xxx")
+        self.v_currency1 = QLabel("---")
+        self.v_shipping = QLabel("xxx")
+        self.v_currency2 = QLabel("---")
+        self.v_type = QLabel("---")
+        self.v_end_time = QLabel("0000-00-00T00:00:00")
+        self.v_sold = QLabel("---")
+        self.v_active = QLabel("---")
+        self.v_condition = QLabel("---")
+        self.v_postcode = QLabel("---")
+        self.v_location = QLabel("---")
+        self.v_location.setWordWrap(True)
+        self.v_country = QLabel("---")
+        self.v_description = DataWidgetHtmlView()
         
         l_id = QLabel("ID")
+        l_shipping = QLabel("(Shipping)")
+        l_end_time = QLabel("Ends")
+        l_sold = QLabel("Sold")
+        L_active = QLabel("Active")
+        L_condition = QLabel("Condition")
+        l_location = QLabel("Location")
         
-        grid = QGridLayout()
-        grid.addWidget(l_id, 0, 0)
-        grid.addWidget(self.e_id, 0, 1)
+        #Main layout
+        lmain = QGridLayout()
+        lmain.addWidget(self.v_title,     0, 0, 1, 3)
+        lmain.addWidget(self.v_image,     1, 0, 4, 1)
+        
+        #Table of small values
+        table = QGridLayout()
+        #cols 1, 2 
+        table.addWidget(self.v_price,     1, 1)
+        table.addWidget(self.v_currency1, 1, 2)
+        table.addWidget(self.v_shipping,  2, 1)
+        table.addWidget(self.v_currency2, 2, 2)
+        table.addWidget(l_sold,           3, 1)
+        table.addWidget(self.v_sold,      3, 2)
+        table.addWidget(L_active,         4, 1)
+        table.addWidget(self.v_active,    4, 2)
+        #cols 3, 4
+        table.addWidget(self.v_type,      1, 3)
+        table.addWidget(l_shipping,       2, 3, 1, 2)
+        table.addWidget(l_end_time,       3, 3)
+        table.addWidget(self.v_end_time,  3, 4)
+        table.addWidget(L_condition,      4, 3)
+        table.addWidget(self.v_condition, 4, 4)
+        table.addWidget(l_id,             6, 3)
+        table.addWidget(self.v_id,        6, 4)
+        #cols 1, 2, 3, 4
+        table.addWidget(l_location,       5, 1)
+        table.addWidget(self.v_postcode,  5, 2)
+        table.addWidget(self.v_location,  5, 3)
+        table.addWidget(self.v_country,   5, 4)
+        #Add table to main layout
+        lmain.addLayout(table, 1, 1, 4, 2)
 
-        self.setLayout(grid)
+        lmain.addWidget(self.v_description, 5, 0, 2, 3)
+        
+        self.setLayout(lmain)
         self.setGeometry(200, 200, 400, 300)
   
-        self.setToolTip('Change information about a product.')
-        self.e_id.setToolTip(Product.tool_tips["id"])
+        self.setToolTip('Change information about a listing.')
+        self.v_id.setToolTip(Product.tool_tips["id"])
 
   
     def setModel(self, model):
@@ -935,7 +1057,21 @@ class ListingsEditWidget(QWidget):
         #Put model into communication object
         self.mapper.setModel(model)
         #Tell: which widget should show which column
-        self.mapper.addMapping(self.e_id, 0)
+        self.mapper.addMapping(self.v_id,        0, "text")
+        self.mapper.addMapping(self.v_title,     8, "text")
+        self.mapper.addMapping(self.v_price,     14, "text")
+        self.mapper.addMapping(self.v_currency1, 13, "text")
+        self.mapper.addMapping(self.v_shipping,  15, "text")
+        self.mapper.addMapping(self.v_currency2, 13, "text")
+        self.mapper.addMapping(self.v_sold,      12, "text")
+        self.mapper.addMapping(self.v_active,    11, "text")
+        self.mapper.addMapping(self.v_type,      16, "text")
+        self.mapper.addMapping(self.v_end_time,  17, "text")
+        self.mapper.addMapping(self.v_condition, 21, "text")
+        self.mapper.addMapping(self.v_postcode,  19, "text")
+        self.mapper.addMapping(self.v_location,  18, "text")
+        self.mapper.addMapping(self.v_country,   20, "text")
+        self.mapper.addMapping(self.v_description, 9, "html")
         #Go to first row
         self.mapper.toFirst()
 

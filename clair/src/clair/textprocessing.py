@@ -59,15 +59,23 @@ class HtmlTool(object):
     tag = re.compile(r"<.*?>", re.DOTALL)
     #Consecutive whitespace characters
     nwhites = re.compile(r"[\s]+")
+    #<p>, <div>, <br> tags and associated closing tags
+    p_div = re.compile(r"</?(p|div|br).*?>", 
+                       re.IGNORECASE | re.DOTALL)
+    #Consecutive whitespace, but no newlines
+    nspace = re.compile("[^\S\n]+", re.UNICODE)
+    #At least two consecutive newlines
+    n2ret = re.compile("\n\n+")
+    #A return followed by a space
+    retspace = re.compile("(\n )")
+    
     #For converting HTML entities to unicode
     html_parser = HTMLParser.HTMLParser()
-    
     #Remove unwanted tags
     cleaner = lxml.html.clean.Cleaner(remove_unknown_tags=True,
                                       page_structure=False,
                                       style=True,
                                       remove_tags=["div", "a", "img"])
-    
     
     @staticmethod
     def remove_html(html):
@@ -86,11 +94,32 @@ class HtmlTool(object):
         text = unicode(text)
         return text
 
-
+    @staticmethod
+    def to_nice_text(html):
+        """Remove all HTML tags, but produce a nicely formatted text."""
+        if html is None:
+            return u""
+        if isinstance(html, float) and isnan(html):
+            return u""
+        text = HtmlTool.script_sheet.sub("", html)
+        text = HtmlTool.comment.sub("", text)
+        text = HtmlTool.nwhites.sub(" ", text)
+        text = HtmlTool.p_div.sub("\n", text) #convert <p>, <div>, <br> to "\n"
+        text = HtmlTool.tag.sub("", text)     #remove all tags
+        text = HtmlTool.html_parser.unescape(text)
+        #Get whitespace right
+        text = HtmlTool.nspace.sub(" ", text)
+        text = HtmlTool.retspace.sub("\n", text)
+        text = HtmlTool.n2ret.sub("\n\n", text)
+        text = text.strip()
+        text = unicode(text)
+        return text
+    
     @staticmethod
     def clean_html(html):
         """
         Beautify html, remove any messy or unsafe tags.
+        TODO: Fix this method, it has problems with umlauts, and produces ugly html.
         """
         return HtmlTool.cleaner.clean_html(html)
     
