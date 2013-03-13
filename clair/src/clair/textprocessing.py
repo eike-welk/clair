@@ -101,7 +101,8 @@ class HtmlTool(object):
             return u""
         if isinstance(html, float) and isnan(html):
             return u""
-        text = HtmlTool.script_sheet.sub("", html)
+        text = unicode(html)
+        text = HtmlTool.script_sheet.sub("", text)
         text = HtmlTool.comment.sub("", text)
         text = HtmlTool.nwhites.sub(" ", text)
         text = HtmlTool.p_div.sub("\n", text) #convert <p>, <div>, <br> to "\n"
@@ -112,7 +113,6 @@ class HtmlTool(object):
         text = HtmlTool.retspace.sub("\n", text)
         text = HtmlTool.n2ret.sub("\n\n", text)
         text = text.strip()
-        text = unicode(text)
         return text
     
     @staticmethod

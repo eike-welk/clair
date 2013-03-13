@@ -105,7 +105,7 @@ def test_HtmlTool_remove_html():
     assert text == " 1 < 2 > 0.5 "
    
    
-html_nasty = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+html_nasty = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
         <title>
@@ -168,12 +168,13 @@ def test_HtmlTool_to_nice_text():
     """Test HTML cleanup algorithm."""
     from clair.textprocessing import HtmlTool
     
-    html_nice = HtmlTool.to_nice_text(html_nasty)
+    text_nice = HtmlTool.to_nice_text(html_nasty)
     print html_nasty
-    print html_nice
+    print text_nice
     
-    assert html_nice.find(u"Blitzgerät") != -1
-    assert html_nice.find(u"Rückseite") != -1
+    assert text_nice.find(u"Blitzgerät") != -1
+    assert text_nice.find(u"Rückseite") != -1
+    assert len(text_nice.split("\n")) == 8
     
     
 def test_HtmlTool_clean_html():
