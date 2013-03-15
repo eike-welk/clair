@@ -166,8 +166,10 @@ class EbayFindListings(object):
             logging.error("Ebay error in EbayFindListings.parse_xml: \n" + 
                           etree.tostring(root, pretty_print=True))
             return make_listing_frame(0)
-
-        item = root.searchResult.item
+        
+        try: item = root.searchResult.item
+        except AttributeError: 
+            return make_listing_frame(0)
         nrows = len(item)
         listings = make_listing_frame(nrows)
         for i, itemi in enumerate(item):

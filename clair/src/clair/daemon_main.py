@@ -131,19 +131,19 @@ class MainObj(object):
             freq = dateutil.rrule.MONTHLY
             byhour = 0
             bymonthday = 1
-            rand_max = 15 * 24 * 60 * 60 #sec
+            rand_max = 15 * 24 * 60 * 60 #sec - 15 days
         elif recurrence_pattern in ["w", "week", "weekly"]:
             freq = dateutil.rrule.WEEKLY
             byhour = 0
             byweekday = 0
-            rand_max = 3.5 * 24 * 60 * 60 #sec
+            rand_max = 3.5 * 24 * 60 * 60 #sec - 3.5 days
         elif recurrence_pattern in ["d", "day", "daily"]:
             freq = dateutil.rrule.DAILY
             byhour = 0
-            rand_max = 12 * 60 * 60 #sec
+            rand_max = 12 * 60 * 60 #sec - 12 hours
         elif recurrence_pattern in ["h", "hour", "hourly"]:
             freq = dateutil.rrule.HOURLY
-            rand_max = 30 * 60 #sec
+            rand_max = 30 * 60 #sec - 30 minutes
         else:
             raise ValueError("Unkown recurrence_pattern: " + 
                              str(recurrence_pattern))

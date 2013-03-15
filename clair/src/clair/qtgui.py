@@ -1000,6 +1000,8 @@ class ListingsEditWidget(QWidget):
         self.v_location = QLabel("---")
         self.v_location.setWordWrap(True)
         self.v_country = QLabel("---")
+        self.v_prod_specs = QLabel("---")
+        self.v_prod_specs.setWordWrap(True)
         self.v_description = DataWidgetHtmlView()
         
         l_id = QLabel("ID")
@@ -1012,8 +1014,8 @@ class ListingsEditWidget(QWidget):
         
         #Main layout
         lmain = QGridLayout()
-        lmain.addWidget(self.v_title,     0, 0, 1, 3)
-        lmain.addWidget(self.v_image,     1, 0, 4, 1)
+        lmain.addWidget(self.v_title,       0, 0, 1, 3)
+        lmain.addWidget(self.v_image,       1, 0, 4, 1)
         
         #Table of small values
         table = QGridLayout()
@@ -1041,9 +1043,10 @@ class ListingsEditWidget(QWidget):
         table.addWidget(self.v_location,  5, 3)
         table.addWidget(self.v_country,   5, 4)
         #Add table to main layout
-        lmain.addLayout(table, 1, 1, 4, 2)
+        lmain.addLayout(table,              1, 1, 4, 2)
 
-        lmain.addWidget(self.v_description, 5, 0, 2, 3)
+        lmain.addWidget(self.v_prod_specs,  5, 0, 1, 3)
+        lmain.addWidget(self.v_description, 6, 0, 2, 3)
         
         self.setLayout(lmain)
         self.setGeometry(200, 200, 400, 300)
@@ -1057,20 +1060,21 @@ class ListingsEditWidget(QWidget):
         #Put model into communication object
         self.mapper.setModel(model)
         #Tell: which widget should show which column
-        self.mapper.addMapping(self.v_id,        0, "text")
-        self.mapper.addMapping(self.v_title,     8, "text")
-        self.mapper.addMapping(self.v_price,     14, "text")
-        self.mapper.addMapping(self.v_currency1, 13, "text")
-        self.mapper.addMapping(self.v_shipping,  15, "text")
-        self.mapper.addMapping(self.v_currency2, 13, "text")
-        self.mapper.addMapping(self.v_sold,      12, "text")
-        self.mapper.addMapping(self.v_active,    11, "text")
-        self.mapper.addMapping(self.v_type,      16, "text")
-        self.mapper.addMapping(self.v_end_time,  17, "text")
-        self.mapper.addMapping(self.v_condition, 21, "text")
-        self.mapper.addMapping(self.v_postcode,  19, "text")
-        self.mapper.addMapping(self.v_location,  18, "text")
-        self.mapper.addMapping(self.v_country,   20, "text")
+        self.mapper.addMapping(self.v_id,          0, "text")
+        self.mapper.addMapping(self.v_title,       8, "text")
+        self.mapper.addMapping(self.v_price,      14, "text")
+        self.mapper.addMapping(self.v_currency1,  13, "text")
+        self.mapper.addMapping(self.v_shipping,   15, "text")
+        self.mapper.addMapping(self.v_currency2,  13, "text")
+        self.mapper.addMapping(self.v_sold,       12, "text")
+        self.mapper.addMapping(self.v_active,     11, "text")
+        self.mapper.addMapping(self.v_type,       16, "text")
+        self.mapper.addMapping(self.v_end_time,   17, "text")
+        self.mapper.addMapping(self.v_condition,  21, "text")
+        self.mapper.addMapping(self.v_postcode,   19, "text")
+        self.mapper.addMapping(self.v_location,   18, "text")
+        self.mapper.addMapping(self.v_country,    20, "text")
+        self.mapper.addMapping(self.v_prod_specs, 10, "text")
         self.mapper.addMapping(self.v_description, 9, "html")
         #Go to first row
         self.mapper.toFirst()
@@ -1212,6 +1216,12 @@ class ListingsModel(QAbstractTableModel):
         else:
             return default_flags
     
+    attr_names = ['id', 'training_sample', 'search_task', 'expected_products', 
+                  'products', 'products_absent', 'thumbnail', 'image', 
+                  'title', 'description', 'prod_spec', 'active', 'sold', 
+                  'currency', 'price', 'shipping', 'type', 'time', 'location', 
+                  'postcode', 'country', 'condition', 'server', 'server_id', 
+                  'final_price', 'url_webui']
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """
@@ -1227,8 +1237,8 @@ class ListingsModel(QAbstractTableModel):
         """
         if orientation != Qt.Horizontal or role != Qt.DisplayRole:
             return None
-        header_names = list(self.listings.columns)
-        return header_names[section]
+#        header_names = list(self.listings.columns)
+        return ListingsModel.attr_names[section]
 
 
     def data(self, index, role=Qt.DisplayRole):
@@ -1244,14 +1254,17 @@ class ListingsModel(QAbstractTableModel):
 
         row = index.row()
         column = index.column()
+        aname = ListingsModel.attr_names[column]
         
-        if role in [Qt.DisplayRole, Qt.EditRole]:
-            rawval = self.listings.icol(column).iget(row)
+        if role == Qt.DisplayRole:
+            rawval = self.listings[aname].iget(row)
             rawstr = unicode(rawval)
             lines = rawstr.split("\n", 1)
             return lines[0]
-            
-        
+        elif role == Qt.EditRole:
+            rawval = self.listings[aname].iget(row)
+            rawstr = unicode(rawval)
+            return rawstr
         #TODO: Tool tips
 #        elif role == Qt.ToolTipRole:
 #            aname = attr_names[column]
@@ -1280,10 +1293,11 @@ class ListingsModel(QAbstractTableModel):
         
         row = index.row()
         column = index.column()
+        aname = ListingsModel.attr_names[column]
         if value in ["nan", "None"]:
-            value = None             #None is converted to nan if necessary
+            value = None   #None is converted automatically to nan if necessary
         try:
-            self.listings.icol(column)[row] = value
+            self.listings[aname][row] = value
         except (TypeError, ValueError):
             return False
             
