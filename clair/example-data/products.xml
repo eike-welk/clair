@@ -78,5 +78,47 @@ Note! There are multiple versions of this lens
         <category>photo.system.generic.flash</category>
       </categories>
     </product>
+    <product>
+      <id>tamron-17-50-f/2.8--1-Nikon</id>
+      <name>Tamron AF 17-50mm f/2.8 SP XR Di II LD Aspherical [IF] (Nikon)</name>
+      <description>High quality, but cheap normal zoom.
+This lens is optically very good, only cromatic aberation is a slight problem.
+Mechanically the lens is only moderately good.
+Fast focus speed, because external motor is used.
+
+Note: There is a second version of this lens, with vibration reduction, which is optically slightly inferior.</description>
+      <important_words>
+        <word></word>
+      </important_words>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>tamron-17-50-f/2.8--2-Nikon</id>
+      <name>Tamron AF 17-50mm f/2.8 SP XR Di II LD Aspherical [IF] VC (Nikon)</name>
+      <description>High quality standard zoom.
+Fast focus speed, even though internal motor is used.
+Lens has vibration reduction, which works very well. (4 stops claimed by manufacturer)
+Optical performance is good, with sharp centers, but blurry corners at the wide end.
+
+Note: There is a second version of this lens, *without* vibration reduction, which is optically better.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>tokina-16-50-f/2.8--1-Nikon</id>
+      <name>Tokina AF 16-50mm f/2.8 AT-X Pro DX (Nikon)</name>
+      <description>High quality normal zoom.
+Fast focus speed, because external motor is used.
+Very good build quality.
+A very similar lens is sold by Pentax (DA* 16-50mm f/2.8), but the Tokina version is not weather protected. </description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
   </products>
 </product_storage>
