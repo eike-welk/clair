@@ -362,9 +362,9 @@ class EbayGetListings(object):
             try: listings["postcode"][i] = itemi.PostalCode.text
             except AttributeError: pass
             listings["country"][i] = itemi.Country.text
-            listings["condition"][i] = convert_ebay_condition( #1.: new, 0.: worthless
-                                                    itemi.ConditionID.text)      
-            
+            try: listings["condition"][i] = convert_ebay_condition( #1.: new, 0.: worthless
+                                                    itemi.ConditionID.text) 
+            except AttributeError: pass
             listings["server"][i] = "Ebay-" + itemi.Site.text   #string to identify the server
             listings["server_id"][i] = itemi.ItemID.text #ID of item on server
 #            listings["data_directory"] = ""
