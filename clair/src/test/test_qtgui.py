@@ -256,6 +256,52 @@ def test_TaskModel():
     print "End"
 
 
+def test_RadioButtonModel():
+    """Test class RadioButtonModel"""
+    from clair.qtgui import RadioButtonModel
+    
+    mo = RadioButtonModel(3, 2)
+    
+    #Test size
+    assert mo.columnCount() == 5
+    assert mo.rowCount() == 1
+    
+    i00 = mo.index(0, 0)
+    i01 = mo.index(0, 1)
+    i02 = mo.index(0, 2)
+    i03 = mo.index(0, 3)
+    i04 = mo.index(0, 4)
+    
+    #Test the radio button aspect
+    #Set field [0,0] to True
+    mo.setData(i00, True)
+    assert all([mo.data(i00), not mo.data(i01), not mo.data(i02)])
+    #Set field [0,1] to True. field [0,0] must become False automatically
+    mo.setData(i01, True)
+    assert all([not mo.data(i00), mo.data(i01), not mo.data(i02)])
+    #Set field [0,2] to True. other fields] must become False automatically
+    mo.setData(i02, True)
+    assert all([not mo.data(i00), not mo.data(i01), mo.data(i02)])
+    
+    #Test regular fields
+    mo.setData(i03, "Foo")
+    mo.setData(i04, "Bar")
+    assert mo.data(i03) == "Foo" and mo.data(i04) == "Bar"
+    mo.setData(i03, "Boo")
+    mo.setData(i04, "Baz")
+    assert mo.data(i03) == "Boo" and mo.data(i04) == "Baz"
+    
+    #Test adding and deleting lines
+    mo.insertRows(0, 2)
+    assert mo.rowCount() == 3
+    assert mo.data(mo.index(2, 3)) == "Boo"
+    mo.removeRows(0, 2)
+    assert mo.rowCount() == 1
+    assert mo.data(mo.index(0, 3)) == "Boo"
+    
+    print "finished successfully."
+    
+    
 def test_DataWidgetHtmlView():
     """Test ListingsEditWidget, which displays a DataFrame of listings."""
     from clair.qtgui import DataWidgetHtmlView
@@ -370,11 +416,12 @@ if __name__ == '__main__':
 #    test_SearchTaskEditWidget()
 #    test_TaskWidget()
 #    test_TaskModel()
+    test_RadioButtonModel()
 #    test_DataWidgetHtmlView()
 #    test_ListingsEditWidget()
 #    test_ListingsWidget()
 #    test_ListingsModel()
-    test_GuiMain()
+#    test_GuiMain()
     
 #    experiment_qt()
     

@@ -329,10 +329,12 @@ class ProductModel(QAbstractTableModel):
         index: QModelIndex
         role: int 
         """
-        assert index.model() == self
+#        assert index.model() == self
+        if not index.isValid():
+            return None
+        
         attr_names = ["id", "name", "categories", "important_words", 
                       "description"]
-
         row = index.row()
         column = index.column()
         
@@ -766,9 +768,11 @@ class TaskModel(QAbstractTableModel):
         index: QModelIndex
         role: int 
         """
-        assert index.model() == self
+#        assert index.model() == self
+        if not index.isValid():
+            return None
+        
         attr_names = TaskModel.attr_names
-
         row = index.row()
         column = index.column()
         
@@ -903,6 +907,217 @@ class TaskModel(QAbstractTableModel):
 
 
 
+class RadioButtonModel(QAbstractTableModel):
+    """
+    Represent a matrix of binary values, together with text fields. 
+    However each row acts like a group of radio buttons: 
+    Only one value in each row can be True, all others must be False.
+    """
+    def __init__(self, n_binvals, n_textvals, parent=None):
+        super(RadioButtonModel, self).__init__(parent)
+        self.n_binvals = n_binvals
+        self.n_textvals = n_textvals
+        self.values = [[False for _ in range(self.n_binvals)] + 
+                       [""    for _ in range(self.n_textvals)] ]
+        self.header_names = ["" for _ in range(self.n_binvals + 
+                                               self.n_textvals)]
+        self.tool_tips = ["" for _ in range(self.n_binvals + self.n_textvals)]
+        self.dirty = False
+    
+#    def setProducts(self, products):
+#        """Put list of products into model"""
+#        #Tell the view(s) that old data is gone.
+#        self.beginRemoveRows(QModelIndex(), 0, len(self.products))
+#        self.endRemoveRows()
+#        #Change the data
+#        self.products = products
+#        self.dirty = False
+#        #Tell the view(s) that all data has changed.
+#        self.layoutChanged.emit()
+
+    def rowCount(self, parent=QModelIndex()):
+        """Return number of rows."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        return len(self.values)
+    
+    def columnCount(self, parent=QModelIndex()):
+        """Return number of columns."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        return self.n_binvals + self.n_textvals
+    
+    def supportedDropActions(self):
+        """Say which actions are supported for drag-drop."""
+        return Qt.MoveAction
+ 
+    def flags(self, index):
+        """
+        Determines the possible actions for the item at this index.
+        
+        Parameters
+        ----------
+        index: QModelIndex
+        """
+        default_flags = super(RadioButtonModel, self).flags(index)
+        
+        if index.isValid():
+            return Qt.ItemIsEditable | default_flags
+        else:
+            return default_flags
+    
+    
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """
+        Return the text for the column headers.
+        
+        Parameters
+        -----------
+        section: int
+            Column number
+        orientation: 
+            Qt.Vertical or Qt.Horizontal
+        role: int
+        """
+        if orientation != Qt.Horizontal or role != Qt.DisplayRole:
+            return None
+        
+        return self.header_names[section]
+
+
+    def data(self, index, role=Qt.DisplayRole):
+        """
+        Return the contents of the array at a certain index.
+        
+        Parameters
+        -----------
+        index: QModelIndex
+        role: int 
+        """
+#        assert index.model() == self
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        column = index.column()
+        
+        if role in [Qt.DisplayRole, Qt.EditRole]:
+            return self.values[row][column]
+        elif role == Qt.ToolTipRole:
+            return self.tool_tips[column]
+                        
+        return None
+    
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        """
+        Change the data in the model.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        value: object
+        role : int
+        """
+#        assert index.model() == self
+        if role != Qt.EditRole:
+            return False
+        if not index.isValid():
+            return False
+        
+        irow = index.row()
+        icol = index.column()
+        row = self.values[irow]
+        if icol < self.n_binvals:
+            #The binary values act like radio buttons: only one can be True
+            row[0:self.n_binvals] = [False] * self.n_binvals
+            row[icol] = value
+        else:
+            #The other fields act as regular fields
+            row[icol] = value
+            
+        self.dirty = True
+        self.dataChanged.emit(index, index)
+        return True
+    
+    
+    def setItemData(self, index, roles):
+        """
+        Change data in model. Intention is to change data more efficiently,
+        because data with with several roles is changed at once.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        roles : dict[int, object]
+        """
+        #Only data with Qt.EditRole can be changed
+        if Qt.EditRole not in roles:
+            return False
+        return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+    
+        
+    def insertRows(self, row, count, parent=QModelIndex()):
+        """
+        Insert "empty" rows into the list.
+        
+        Parameters
+        ----------
+        row : int
+            The new rows are inserted before the row with this index
+        count : int
+            Number of rows that are inserted.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were inserted successfully, False otherwise.
+        """
+        if parent.isValid(): #There are only top level items
+            return False
+        
+        self.beginInsertRows(parent, row, row + count - 1)
+        for i in range(count):
+            new_row = [False for _ in range(self.n_binvals)] + \
+                      [""    for _ in range(self.n_textvals)]
+            self.values.insert(row + i, new_row)
+        self.endInsertRows()
+        
+        self.dirty = True
+        return True
+    
+    
+    def removeRows(self, row, count, parent=QModelIndex()):
+        """
+        Remove rows from the list.
+        
+        Parameters
+        ----------
+        row : int
+            Index of first row that is removed.
+        count : int
+            Number of rows that are removed.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were removed successfully, False otherwise.
+
+        """
+        if parent.isValid(): #There are only top level items
+            return False
+        
+        self.beginRemoveRows(parent, row, row + count - 1)
+        del self.values[row:row + count]
+        self.endRemoveRows()
+        
+        self.dirty = True
+        return True
+
+
+
 class DataWidgetHtmlView(QTabWidget):
     """
     A widget that can display HTML, and works together with 
@@ -911,7 +1126,10 @@ class DataWidgetHtmlView(QTabWidget):
     The class has a property ``html``, that can be used by ``QDataWidgetMapper``
     to put HTML data into the widget.
     
-    TODO: convert to a tab widget that can alternatively show a pure text view.
+    The widget has 3 tabs, that show the contents in different formats:
+    * Graphically rendered HTML.
+    * Pure text, with newlines at the right places.
+    * HTML source code.
     """
     def __init__(self, parent=None):
         super(DataWidgetHtmlView, self).__init__(parent)
@@ -1250,7 +1468,9 @@ class ListingsModel(QAbstractTableModel):
         index: QModelIndex
         role: int 
         """
-        assert index.model() == self
+#        assert index.model() == self
+        if not index.isValid():
+            return None
 
         row = index.row()
         column = index.column()
