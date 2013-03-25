@@ -323,7 +323,7 @@ def test_LearnDataModel():
     
     #Test size
     assert mo.columnCount() == 4
-    assert mo.rowCount() == 3
+    assert mo.rowCount() == 4
     
     #Test data conversion
     #1. row: [True, False, "foo", ...]
