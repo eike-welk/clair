@@ -44,7 +44,7 @@ from datetime import datetime
 
 import dateutil
 import pandas as pd
-from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex, 
+from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QTimer, QModelIndex,
                           QAbstractTableModel, QSettings, QCoreApplication)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
                          QMainWindow, QTabWidget, QApplication, QFileDialog,
@@ -367,6 +367,12 @@ class ProductModel(QAbstractTableModel):
         value: object
         role : int
         
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
+        
         TODO: Warning when ID is changed
         """
         assert index.model() == self
@@ -405,6 +411,12 @@ class ProductModel(QAbstractTableModel):
         ----------
         index : QModelIndex
         roles : dict[int, object]
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
         """
         #Only data with Qt.EditRole can be changed
         if Qt.EditRole not in roles:
@@ -802,6 +814,12 @@ class TaskModel(QAbstractTableModel):
         value: object
         role : int
         
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
+        
         TODO: Warning when ID is changed
         """
         assert index.model() == self
@@ -839,6 +857,12 @@ class TaskModel(QAbstractTableModel):
         ----------
         index : QModelIndex
         roles : dict[int, object]
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
         """
         #Only data with Qt.EditRole can be changed
         if Qt.EditRole not in roles:
@@ -915,25 +939,51 @@ class RadioButtonModel(QAbstractTableModel):
     """
     def __init__(self, n_binvals, n_textvals, parent=None):
         super(RadioButtonModel, self).__init__(parent)
+        #number of bool values at start of row
         self.n_binvals = n_binvals
+        #Number of other (text) values at end of row
         self.n_textvals = n_textvals
-        self.values = [[False for _ in range(self.n_binvals)] + 
-                       [""    for _ in range(self.n_textvals)] ]
+        #The stored values, nested list, first index rows, second columns: 
+        #list[list[bool, bool, ..., str, str, ...]]
+        self.values = []
+#        self.insertRows(0, 1)
         self.header_names = ["" for _ in range(self.n_binvals + 
                                                self.n_textvals)]
         self.tool_tips = ["" for _ in range(self.n_binvals + self.n_textvals)]
+        #True if values were changed
         self.dirty = False
     
-#    def setProducts(self, products):
-#        """Put list of products into model"""
-#        #Tell the view(s) that old data is gone.
-#        self.beginRemoveRows(QModelIndex(), 0, len(self.products))
-#        self.endRemoveRows()
-#        #Change the data
-#        self.products = products
-#        self.dirty = False
-#        #Tell the view(s) that all data has changed.
-#        self.layoutChanged.emit()
+    def changeUnderlyingData(self):
+        """
+        Change the data from which ``self.values`` is constructed.
+        Should be re-implemented in derived class, or monkey-patched.
+        """
+        pass
+    
+    def setValues(self, values):
+        """
+        Change all elements of the table at once.
+        
+        Argument
+        --------
+        values : list[list[bool, bool, ..., str, str, ...]]
+            Nested list, first index rows, second index columns.
+            First columns are binary values (number: ``self.n_binvals``),
+            remaining columns are strings (number: ``self.n_textvals``).  
+        """
+        assert isinstance(values, list) 
+        for row in values:
+            assert isinstance(row, list)
+            assert len(row) == self.n_binvals + self.n_textvals
+            
+        #Tell the view(s) that old data is gone.
+        self.beginRemoveRows(QModelIndex(), 0, len(self.values))
+        self.endRemoveRows()
+        #Change the data
+        self.values = values
+        self.dirty = False
+        #Tell the view(s) that all data has changed.
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=QModelIndex()):
         """Return number of rows."""
@@ -962,7 +1012,12 @@ class RadioButtonModel(QAbstractTableModel):
         default_flags = super(RadioButtonModel, self).flags(index)
         
         if index.isValid():
-            return Qt.ItemIsEditable | default_flags
+            icol = index.column()
+            if icol < self.n_binvals:
+                return Qt.ItemIsUserCheckable | Qt.ItemIsEditable | \
+                       default_flags
+            else:
+                return Qt.ItemIsEditable | default_flags
         else:
             return default_flags
     
@@ -998,13 +1053,15 @@ class RadioButtonModel(QAbstractTableModel):
         if not index.isValid():
             return None
 
-        row = index.row()
-        column = index.column()
+        irow = index.row()
+        icol = index.column()
         
-        if role in [Qt.DisplayRole, Qt.EditRole]:
-            return self.values[row][column]
+        if icol < self.n_binvals and role in [Qt.CheckStateRole]:
+            return self.values[irow][icol]
+        elif icol >= self.n_binvals and role in [Qt.DisplayRole, Qt.EditRole]:
+            return self.values[irow][icol]
         elif role == Qt.ToolTipRole:
-            return self.tool_tips[column]
+            return self.tool_tips[icol]
                         
         return None
     
@@ -1018,9 +1075,15 @@ class RadioButtonModel(QAbstractTableModel):
         index : QModelIndex
         value: object
         role : int
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
         """
 #        assert index.model() == self
-        if role != Qt.EditRole:
+        if role not in [Qt.EditRole, Qt.CheckStateRole]:
             return False
         if not index.isValid():
             return False
@@ -1031,13 +1094,15 @@ class RadioButtonModel(QAbstractTableModel):
         if icol < self.n_binvals:
             #The binary values act like radio buttons: only one can be True
             row[0:self.n_binvals] = [False] * self.n_binvals
-            row[icol] = value
+            row[icol] = value #Tree view sets ``2`` for checked
         else:
             #The other fields act as regular fields
             row[icol] = value
             
         self.dirty = True
-        self.dataChanged.emit(index, index)
+        self.dataChanged.emit(self.index(irow, 0), 
+                              self.index(irow, self.n_binvals - 1))
+        self.changeUnderlyingData()
         return True
     
     
@@ -1050,11 +1115,20 @@ class RadioButtonModel(QAbstractTableModel):
         ----------
         index : QModelIndex
         roles : dict[int, object]
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
         """
-        #Only data with Qt.EditRole can be changed
-        if Qt.EditRole not in roles:
+        #Only data with Qt.EditRole or Qt.CheckState can be changed
+        if Qt.CheckState in roles:
+            return self.setData(index, roles[Qt.CheckState], Qt.CheckState)
+        elif Qt.EditRole in roles:
+            return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+        else:
             return False
-        return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
     
         
     def insertRows(self, row, count, parent=QModelIndex()):
@@ -1085,6 +1159,7 @@ class RadioButtonModel(QAbstractTableModel):
         self.endInsertRows()
         
         self.dirty = True
+        self.changeUnderlyingData()
         return True
     
     
@@ -1114,7 +1189,128 @@ class RadioButtonModel(QAbstractTableModel):
         self.endRemoveRows()
         
         self.dirty = True
+        self.changeUnderlyingData()
         return True
+
+
+
+class LearnDataModel(RadioButtonModel):
+    """
+    Store data for the learning and product recognition algorithms temporarily.
+    Transform the data for display in GUI.
+    Provide interface to ``QDataWidgetMapper``.
+    """
+    def __init__(self, parent=None):
+        super(LearnDataModel, self).__init__(2, 2, parent)
+        #internal storage for the properties: list[basestring]
+        self._expected_products = []
+        self._products = []
+        self._products_absent = []
+        #Timer for updating the GUI representation
+        self.update_timer = QTimer()
+        self.update_timer.setSingleShot(True)
+        self.update_timer.setInterval(100)
+        self.update_timer.timeout.connect(self.changeGuiData)
+        #Contents of column headers
+        self.header_names = ["Present", "Absent", "ID", "Name"]
+        self.tool_tips = ["Product is present in this listing.",
+                          "Product is absent in this listing.",
+                          "Product ID",
+                          "Product name"]
+        
+        
+    def getExpProds(self):
+        return self._expected_products
+    
+    def setExpProds(self, products):
+        self._expected_products = products
+        if not self.update_timer.isActive():
+            self.update_timer.start()
+            
+    expectedProducts = pyqtProperty(
+        list, getExpProds, setExpProds, 
+        doc="Products that the recognition algorithm searches for. "
+            "list[basestring]")
+
+
+    def getProds(self):
+        return self._products
+    
+    def setProds(self, products):
+        self._products = products
+        if not self.update_timer.isActive():
+            self.update_timer.start()
+        
+    products = pyqtProperty(
+        list, getProds, setProds, 
+        doc="Products that are in a specific listing. "
+            "list[basestring]")
+        
+        
+    def getProdsAbs(self):
+        return self._products_absent
+    
+    def setProdsAbs(self, products):
+        self._products_absent = products
+        if not self.update_timer.isActive():
+            self.update_timer.start()
+        
+    productsAbsent = pyqtProperty(
+        list, getProdsAbs, setProdsAbs, 
+        doc="Products that are not in a specific listing. "
+            "list[basestring]")
+
+    def changeGuiData(self):
+        """Compute the GUI data, and change it."""
+        #create list of all used product IDs
+        #preserve sequence of expected_products, additional ID are appended
+        #TODO: remove duplicates from _expected_products
+        mentioned_prods = set(self._products + self._products_absent)
+        expected_missing = mentioned_prods - set(self._expected_products)
+        product_id_list = self._expected_products + list(expected_missing)
+        
+        gui_vals = []
+        for prod in product_id_list:
+            row = [False, False, prod, "-"]
+            if prod in self._products:
+                row[0] = True
+            if prod in self._products_absent:
+                row[1] = True
+            gui_vals.append(row) 
+        
+        self.setValues(gui_vals)
+        #Add one empty row as means to add products to list
+        self.insertRows(self.rowCount(), 1)
+        
+        
+    def changeUnderlyingData(self):
+        """Compute data for learning algorithm from GUI data."""
+        #TODO: update field ``expected_products`` of related search tasks
+        expected_products = []
+        products = []
+        products_absent = []
+        for row in self.values:
+            prod = unicode(row[2]).strip()
+            #rows with no product IDs are considered deleted
+            if  prod == u"":
+                continue
+            expected_products.append(prod)
+            if row[0] and row[1]:
+                pass
+            elif row[0]:
+                products.append(prod)
+            elif row[1]:
+                products_absent.append(prod)
+        
+        self.expectedProducts = expected_products
+        self.products = products
+        self.productsAbsent = products_absent
+        #Changing the properties triggers unnecessary GUI updates 
+        self.update_timer.stop()
+        
+        #Add one empty row as means to add products to list, if necessary
+        if not self.values[-1][2] == "":
+            self.insertRows(self.rowCount(), 1)
 
 
 
@@ -1503,6 +1699,12 @@ class ListingsModel(QAbstractTableModel):
         value: object
         role : int
         
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
+        
         TODO: Warning when ID is changed
         """
         assert index.model() == self
@@ -1535,6 +1737,12 @@ class ListingsModel(QAbstractTableModel):
         ----------
         index : QModelIndex
         roles : dict[int, object]
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
         """
         #Only data with Qt.EditRole can be changed
         if Qt.EditRole not in roles:

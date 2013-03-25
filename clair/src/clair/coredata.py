@@ -56,12 +56,12 @@ def make_listing_frame(nrows):
     listings["training_sample"]   = nan   #This is training sample if True
 #    listings["query_string"]      = None  #String with search keywords
     listings["search_task"]       = None  #ID (string) of search task, 
-                                          #    that returned this listing
+    #                                     #    that returned this listing
     listings["expected_products"] = None  #list of product IDs (strings)
     
     listings["products"]          = None  #Products in this listing. 
     listings["products_absent"]   = None  #Products not in this listing. 
-                                          #    List of product IDs (strings)
+    #                                     #    List of product IDs (strings)
 
     listings["thumbnail"]   = None  #URL of small image
     listings["image"]       = None  #URL of large image

@@ -259,8 +259,11 @@ def test_TaskModel():
 def test_RadioButtonModel():
     """Test class RadioButtonModel"""
     from clair.qtgui import RadioButtonModel
+    csr =  Qt.CheckStateRole
     
     mo = RadioButtonModel(3, 2)
+    
+    mo.setValues([[False, False, False, "one", "two"]])
     
     #Test size
     assert mo.columnCount() == 5
@@ -275,13 +278,13 @@ def test_RadioButtonModel():
     #Test the radio button aspect
     #Set field [0,0] to True
     mo.setData(i00, True)
-    assert all([mo.data(i00), not mo.data(i01), not mo.data(i02)])
+    assert all([mo.data(i00, csr), not mo.data(i01, csr), not mo.data(i02, csr)])
     #Set field [0,1] to True. field [0,0] must become False automatically
     mo.setData(i01, True)
-    assert all([not mo.data(i00), mo.data(i01), not mo.data(i02)])
+    assert all([not mo.data(i00, csr), mo.data(i01, csr), not mo.data(i02, csr)])
     #Set field [0,2] to True. other fields] must become False automatically
     mo.setData(i02, True)
-    assert all([not mo.data(i00), not mo.data(i01), mo.data(i02)])
+    assert all([not mo.data(i00, csr), not mo.data(i01, csr), mo.data(i02, csr)])
     
     #Test regular fields
     mo.setData(i03, "Foo")
@@ -302,6 +305,85 @@ def test_RadioButtonModel():
     print "finished successfully."
     
     
+def test_LearnDataModel():
+    """Test class RadioButtonModel"""
+    from clair.qtgui import LearnDataModel
+    csr =  Qt.CheckStateRole
+    
+    mo = LearnDataModel()
+    
+    #Create test data
+    #Product "foo" is present, "bar" absent, nothing is known about "baz" 
+    mo.expectedProducts = ["foo", "bar", "baz"]
+    mo.products         = ["foo"]
+    mo.productsAbsent   = ["bar"]
+    
+    #Compute the GUI data
+    mo.changeGuiData()
+    
+    #Test size
+    assert mo.columnCount() == 4
+    assert mo.rowCount() == 3
+    
+    #Test data conversion
+    #1. row: [True, False, "foo", ...]
+    assert mo.data(mo.index(0, 0), csr) == True
+    assert mo.data(mo.index(0, 1), csr) == False
+    assert mo.data(mo.index(0, 2)) == "foo"
+    #2. row: [False, True, "bar", ...]
+    assert mo.data(mo.index(1, 0), csr) == False
+    assert mo.data(mo.index(1, 1), csr) == True
+    assert mo.data(mo.index(1, 2)) == "bar"
+    #1. row: [False, False, "baz", ...]
+    assert mo.data(mo.index(2, 0), csr) == False
+    assert mo.data(mo.index(2, 1), csr) == False
+    assert mo.data(mo.index(2, 2)) == "baz"
+    
+    #Change the data
+    mo.setData(mo.index(0, 0), False, csr)
+    mo.setData(mo.index(1, 0), True, csr)
+    mo.setData(mo.index(2, 1), True, csr)
+    
+    #Test conversion back to internal format
+    assert mo.expectedProducts == ["foo", "bar", "baz"]
+    assert mo.products         == ["bar"]
+    assert mo.productsAbsent   == ["baz"]
+    
+    print "finished successfully."
+    
+
+def test_LearnDataModel_usage():
+    """Test class RadioButtonModel"""
+    from clair.qtgui import LearnDataModel
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    mo = LearnDataModel()
+    
+    #Create test data
+    #Product "foo" is present, "bar" absent, nothing is known about "baz" 
+    mo.expectedProducts = ["foo", "bar", "baz"]
+    mo.products         = ["foo"]
+    mo.productsAbsent   = ["bar"]
+    
+    #Compute the GUI data
+#    mo.changeGuiData()
+
+    view = QTreeView()
+    view.setModel(mo)
+    
+    view.show()
+    app.exec_()
+    
+    print mo.values
+    print "expectedProducts:", mo.expectedProducts
+    print "products:        ", mo.products
+    print "productsAbsent:  ", mo.productsAbsent
+    
+    print "End"
+    
+
 def test_DataWidgetHtmlView():
     """Test ListingsEditWidget, which displays a DataFrame of listings."""
     from clair.qtgui import DataWidgetHtmlView
@@ -317,6 +399,7 @@ def test_DataWidgetHtmlView():
     
     view.show()
     app.exec_()
+    
     print "End"
 
 
@@ -416,7 +499,9 @@ if __name__ == '__main__':
 #    test_SearchTaskEditWidget()
 #    test_TaskWidget()
 #    test_TaskModel()
-    test_RadioButtonModel()
+#    test_RadioButtonModel()
+#    test_LearnDataModel()
+    test_LearnDataModel_usage()
 #    test_DataWidgetHtmlView()
 #    test_ListingsEditWidget()
 #    test_ListingsWidget()
