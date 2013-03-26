@@ -47,13 +47,14 @@ from numpy import isnan
 import pandas as pd
 from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
                           QAbstractItemModel, QAbstractTableModel, 
-                          QSettings, QCoreApplication)
+                          QSettings, QCoreApplication, QVariant,)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
-                         QMainWindow, QTabWidget, QCheckBox, 
-                         QApplication, QFileDialog,
+                         QMainWindow, QTabWidget, QCheckBox, QComboBox,
+                         QApplication, QFileDialog, QMessageBox,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
-                         QItemSelectionModel, QMessageBox, QFont,)
+                         QItemSelectionModel, QItemEditorCreatorBase, QFont,
+                         QStyledItemDelegate, QItemEditorFactory,)
 from PyQt4.QtWebKit import QWebView
 
 from clair.coredata import make_listing_frame, Product, SearchTask, DataStore
@@ -179,9 +180,9 @@ class ProductWidget(QSplitter):
         self.list_widget.setAcceptDrops(False)
         self.list_widget.setDropIndicatorShown(True)
         self.list_widget.setDefaultDropAction(Qt.MoveAction)
-        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
-                                         #QAbstractItemView.AnyKeyPressed |
-                                         QAbstractItemView.SelectedClicked)
+#        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+#                                         #QAbstractItemView.AnyKeyPressed |
+#                                         QAbstractItemView.SelectedClicked)
         self.list_widget.setRootIsDecorated(False)
         self.list_widget.setSortingEnabled(True)
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -486,7 +487,7 @@ class ProductModel(QAbstractTableModel):
         return True
 
 
-    def dataById(self, prod_id):
+    def getProductByID(self, prod_id):
         """
         Access products though their product ID. 
         Do not change products through this method!
@@ -497,6 +498,12 @@ class ProductModel(QAbstractTableModel):
                 return prod
         else:
             return None
+    
+    def getProductIDList(self):
+        """Return IDs of all products stored in the model."""
+        prod_ids = [p.id for p in self.products]
+        prod_ids.sort()
+        return prod_ids
         
         
 
@@ -637,9 +644,9 @@ class TaskWidget(QSplitter):
         self.list_widget.setAcceptDrops(False)
         self.list_widget.setDropIndicatorShown(True)
         self.list_widget.setDefaultDropAction(Qt.MoveAction)
-        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
-                                         #QAbstractItemView.AnyKeyPressed |
-                                         QAbstractItemView.SelectedClicked)
+#        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+#                                         #QAbstractItemView.AnyKeyPressed |
+#                                         QAbstractItemView.SelectedClicked)
         self.list_widget.setRootIsDecorated(False)
         self.list_widget.setSortingEnabled(True)
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -1247,7 +1254,7 @@ class LearnDataProxyModel(RadioButtonModel):
         
     def setProductModel(self, product_model):
         """Set model from which the product names are taken."""
-        assert hasattr(product_model, "dataById")
+        assert hasattr(product_model, "getProductByID")
         self.product_model = product_model
         
     def setRow(self, index):
@@ -1282,7 +1289,7 @@ class LearnDataProxyModel(RadioButtonModel):
         
         gui_vals = []
         for prod_id in product_id_list:
-            product = self.product_model.dataById(prod_id)
+            product = self.product_model.getProductByID(prod_id)
             prod_name = product.name if product is not None else ""
             row = [0, 0, prod_id, prod_name]
             if prod_id in products:
@@ -1324,12 +1331,63 @@ class LearnDataProxyModel(RadioButtonModel):
         sm.setData(sm.index(irow, self.col_products_absent), 
                    products_absent, Qt.EditRole)
         
-        #Add one empty row as means to add products to list, if necessary
-        if self.values[-1][2] != "":
-            self.changeGuiData()
+        #Update visible information, mainly for column 3, product name
+        self.changeGuiData()
+#        #Add one empty row as means to add products to list, if necessary
+#        if self.values[-1][2] != "":
+#            self.changeGuiData()
 
 
 
+class WritableCurrentTextComboBox(QComboBox):
+    """
+    Special ``QComboBox`` with writable property ``currentText``, that contains 
+    the current text. Used by ``EditorCreatorComboBox``.
+    """
+    def __init__(self, parent):
+        super(WritableCurrentTextComboBox, self).__init__(parent)
+        
+    def getCurrentText(self):
+        return super(WritableCurrentTextComboBox, self).currentText()
+    def setCurrentText(self, text):
+        self.setEditText(text)
+    currentText = pyqtProperty(unicode, user=True,
+                               fget=getCurrentText, fset=setCurrentText, 
+                               doc="Text that is currently in line edit.")
+    
+    
+    
+class EditorCreatorComboBox(QItemEditorCreatorBase):
+    """
+    Tell a view to edit a string with a ``WritableCurrentTextComboBox``.
+    The combo box is created, and prepared here. 
+    """
+    def __init__(self):
+        super(EditorCreatorComboBox, self).__init__()
+        self.items = []
+        
+    def setItems(self, items):
+        """
+        Change the items that can be selected with the combo box.
+        Parameter ``items``: list[basestring]
+        """
+        assert isinstance(items, list)
+        assert all([isinstance(s, basestring) for s in items])
+        self.items = items
+    
+    def createWidget(self, parent):
+        """Create the ``QComboBox`` and populate the list of items."""
+        combo = WritableCurrentTextComboBox(parent)
+        combo.insertItems(0, self.items)
+        combo.setEditable(True)
+        return combo
+    
+    def valuePropertyName(self):
+        """Tell which property of the combo box contains the original string."""
+        return "currentText"
+    
+    
+    
 class DataWidgetHtmlView(QTabWidget):
     """
     A widget that can display HTML, and works together with 
@@ -1402,12 +1460,14 @@ class ListingsEditWidget(QWidget):
     def __init__(self):
         super(ListingsEditWidget, self).__init__()
         
-        bigF = QFont()
-        bigF.setPointSize(12)
+        self.product_model = ProductModel
         
         #Transfer data between model and widgets
         self.mapper = QDataWidgetMapper()
         self.learn_model = LearnDataProxyModel()
+        
+        bigF = QFont()
+        bigF.setPointSize(12)
         
         self.v_id = QLabel("---")
         self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
@@ -1433,11 +1493,19 @@ class ListingsEditWidget(QWidget):
         self.v_country = QLabel("---")
         self.v_prod_specs = QLabel("---")
         self.v_prod_specs.setWordWrap(True)
-        self.v_is_training = QCheckBox("Is training sample")
+        self.v_is_training = QCheckBox("Is training sample")        
+        self.v_description = DataWidgetHtmlView()
+        
+        #Create widget for product recognition data, and related objects
         self.v_learn_view = QTreeView()
+        self.combo_box_creator = EditorCreatorComboBox()
+        editor_factory = QItemEditorFactory()
+        editor_factory.registerEditor(QVariant.String, self.combo_box_creator)
+        combo_delegate = QStyledItemDelegate()
+        combo_delegate.setItemEditorFactory(editor_factory)
+        self.v_learn_view.setItemDelegateForColumn(2, combo_delegate)
         self.v_learn_view.setModel(self.learn_model)
         self.v_learn_view.setRootIsDecorated(False)
-        self.v_description = DataWidgetHtmlView()
         
         l_id = QLabel("ID:")
         l_shipping = QLabel("(Shipping)")
@@ -1520,6 +1588,7 @@ class ListingsEditWidget(QWidget):
 
     def setProductModel(self, product_model):
         """Set product model (container)."""
+        self.product_model = product_model
         self.learn_model.setProductModel(product_model)
         
         
@@ -1535,6 +1604,9 @@ class ListingsEditWidget(QWidget):
         """
         self.mapper.setCurrentModelIndex(index)
         self.learn_model.setRow(index)
+        #TODO: this should be done with signals and slots
+        self.combo_box_creator.setItems(self.product_model.getProductIDList()) 
+
 
 
 
@@ -1562,9 +1634,9 @@ class ListingsWidget(QSplitter):
         self.list_widget.setAcceptDrops(False)
         self.list_widget.setDropIndicatorShown(True)
         self.list_widget.setDefaultDropAction(Qt.MoveAction)
-        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
-                                         #QAbstractItemView.AnyKeyPressed |
-                                         QAbstractItemView.SelectedClicked)
+#        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+#                                         #QAbstractItemView.AnyKeyPressed |
+#                                         QAbstractItemView.SelectedClicked)
         self.list_widget.setRootIsDecorated(False)
         self.list_widget.setSortingEnabled(True)
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -1602,12 +1674,18 @@ class ListingsWidget(QSplitter):
         setting_store.setValue("ListingsWidget/state", self.saveState())
         setting_store.setValue("ListingsWidget/list/header/state", 
                                self.list_widget.header().saveState())
+        setting_store.setValue(
+                            "ListingsWidget/editor/learn_list/header/state", 
+                            self.edit_widget.v_learn_view.header().saveState())
         
     def loadSettings(self, setting_store):
         """Load widget state, such as splitter position."""
         self.restoreState(setting_store.value("ListingsWidget/state", ""))
         self.list_widget.header().restoreState(
-                setting_store.value("ListingsWidget/list/header/state", ""))
+            setting_store.value("ListingsWidget/list/header/state", ""))
+        self.edit_widget.v_learn_view.header().restoreState(
+            setting_store.value("ListingsWidget/editor/learn_list/header/state", 
+                                ""))
 
 
 
@@ -1721,8 +1799,8 @@ class ListingsModel(QAbstractTableModel):
                 return rawval
             #Special treatments for bool, because bool(nan) == True
             elif aname in ["training_sample"]:
-                cooked = 0. if isinstance(rawval, float) and isnan(rawval) \
-                         else rawval
+                cooked = False if isinstance(rawval, float) and isnan(rawval) \
+                         else bool(rawval)
                 return cooked
             else:
                 return unicode(rawval)
