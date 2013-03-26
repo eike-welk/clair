@@ -335,17 +335,17 @@ def test_LearnDataProxyModel():
     
     #Test data conversion
     #1st row: [True, False, "foo", ...]
-    assert mo.data(mo.index(0, 0), csr) == True
-    assert mo.data(mo.index(0, 1), csr) == False
-    assert mo.data(mo.index(0, 2)) == "foo"
+    assert bool(mo.data(mo.index(0, 0), csr)) == True
+    assert bool(mo.data(mo.index(0, 1), csr)) == False
+    assert bool(mo.data(mo.index(0, 2))) == "foo"
     #2nd row: [False, True, "bar", ...]
-    assert mo.data(mo.index(1, 0), csr) == False
-    assert mo.data(mo.index(1, 1), csr) == True
-    assert mo.data(mo.index(1, 2)) == "bar"
+    assert bool(mo.data(mo.index(1, 0), csr)) == False
+    assert bool(mo.data(mo.index(1, 1), csr)) == True
+    assert bool(mo.data(mo.index(1, 2))) == "bar"
     #3rd row: [False, False, "baz", ...]
-    assert mo.data(mo.index(2, 0), csr) == False
-    assert mo.data(mo.index(2, 1), csr) == False
-    assert mo.data(mo.index(2, 2)) == "baz"
+    assert bool(mo.data(mo.index(2, 0), csr)) == False
+    assert bool(mo.data(mo.index(2, 1), csr)) == False
+    assert bool(mo.data(mo.index(2, 2))) == "baz"
     
     #Change the data
     mo.setData(mo.index(0, 0), False, csr)

@@ -43,6 +43,7 @@ import os
 from datetime import datetime
 
 import dateutil
+from numpy import isnan
 import pandas as pd
 from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
                           QAbstractItemModel, QAbstractTableModel, 
@@ -485,6 +486,19 @@ class ProductModel(QAbstractTableModel):
         return True
 
 
+    def dataById(self, prod_id):
+        """
+        Access products though their product ID. 
+        Do not change products through this method!
+        Returns: Product | None
+        """
+        for prod in self.products:
+            if prod.id == prod_id:
+                return prod
+        else:
+            return None
+        
+        
 
 class SearchTaskEditWidget(QWidget):
     """
@@ -1016,8 +1030,7 @@ class RadioButtonModel(QAbstractTableModel):
         if index.isValid():
             icol = index.column()
             if icol < self.n_binvals:
-                return Qt.ItemIsUserCheckable | Qt.ItemIsEditable | \
-                       default_flags
+                return Qt.ItemIsUserCheckable | default_flags
             else:
                 return Qt.ItemIsEditable | default_flags
         else:
@@ -1095,7 +1108,7 @@ class RadioButtonModel(QAbstractTableModel):
         row = self.values[irow]
         if icol < self.n_binvals:
             #The binary values act like radio buttons: only one can be True
-            row[0:self.n_binvals] = [False] * self.n_binvals
+            row[0:self.n_binvals] = [0] * self.n_binvals
             row[icol] = value #Tree view sets ``2`` for checked
         else:
             #The other fields act as regular fields
@@ -1204,7 +1217,9 @@ class LearnDataProxyModel(RadioButtonModel):
     def __init__(self, parent=None):
         super(LearnDataProxyModel, self).__init__(2, 2, parent)
         #The learning data is taken from this model
-        self.source_model = ListingsModel() #Empty dummy
+        self.source_model = ListingsModel() #dummy
+        #Model from which the product names are taken.
+        self.product_model = ProductModel() #dummy
         #Index that points to current row
         self.row_index = self.source_model.index(0, 0)
         #Columns from where source data is taken
@@ -1229,6 +1244,11 @@ class LearnDataProxyModel(RadioButtonModel):
         self.col_expected_products = expected_products
         self.col_products = products
         self.col_products_absent = products_absent    
+        
+    def setProductModel(self, product_model):
+        """Set model from which the product names are taken."""
+        assert hasattr(product_model, "dataById")
+        self.product_model = product_model
         
     def setRow(self, index):
         """Set the row of source model that is accessed."""
@@ -1261,17 +1281,19 @@ class LearnDataProxyModel(RadioButtonModel):
         product_id_list = expected_products + list(expected_missing)
         
         gui_vals = []
-        for prod in product_id_list:
-            row = [False, False, prod, "-"]
-            if prod in products:
-                row[0] = True
-            if prod in products_absent:
-                row[1] = True
-            gui_vals.append(row) 
-        
-        self.setValues(gui_vals)
+        for prod_id in product_id_list:
+            product = self.product_model.dataById(prod_id)
+            prod_name = product.name if product is not None else ""
+            row = [0, 0, prod_id, prod_name]
+            if prod_id in products:
+                row[0] = 2 #checkboxes are tristate: 2 == fully checked
+            if prod_id in products_absent:
+                row[1] = 2
+            gui_vals.append(row)
+            
         #Add one empty row as means to add products to list
-        self.insertRows(self.rowCount(), 1)
+        gui_vals.append([0, 0, "", ""])
+        self.setValues(gui_vals)
         
         
     def changeUnderlyingData(self):
@@ -1303,8 +1325,8 @@ class LearnDataProxyModel(RadioButtonModel):
                    products_absent, Qt.EditRole)
         
         #Add one empty row as means to add products to list, if necessary
-        if not self.values[-1][2] == "":
-            self.insertRows(self.rowCount(), 1)
+        if self.values[-1][2] != "":
+            self.changeGuiData()
 
 
 
@@ -1414,6 +1436,7 @@ class ListingsEditWidget(QWidget):
         self.v_is_training = QCheckBox("Is training sample")
         self.v_learn_view = QTreeView()
         self.v_learn_view.setModel(self.learn_model)
+        self.v_learn_view.setRootIsDecorated(False)
         self.v_description = DataWidgetHtmlView()
         
         l_id = QLabel("ID:")
@@ -1495,6 +1518,11 @@ class ListingsEditWidget(QWidget):
         self.learn_model.setSourceModel(model, 3, 4, 5)
         
 
+    def setProductModel(self, product_model):
+        """Set product model (container)."""
+        self.learn_model.setProductModel(product_model)
+        
+        
     def setRow(self, index):
         """
         Set the row of the model that is accessed by the widget.
@@ -1545,7 +1573,7 @@ class ListingsWidget(QSplitter):
                 
 
     def setModel(self, model):
-        """Tell view which model it should display and edit."""
+        """Set listings model (container). Displayed in large ``QTreeView``."""
         self.filter.setSourceModel(model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
@@ -1554,6 +1582,13 @@ class ListingsWidget(QSplitter):
         self.list_widget.selectionModel().currentRowChanged.connect(
                                                         self.slotRowChanged)
     
+    def setProductModel(self, product_model):
+        """
+        Set product model (container). 
+        Displayed as additional information in ``self.edit_widget``.
+        """
+        self.edit_widget.setProductModel(product_model)
+        
     def slotRowChanged(self, current, _previous):
         """
         The selected row has changed. Tells edit widget to show this row.
@@ -1682,9 +1717,13 @@ class ListingsModel(QAbstractTableModel):
             return lines[0]
         elif role == Qt.EditRole:
             rawval = self.listings[aname].iget(row)
-            if aname in ["training_sample", "expected_products", "products", 
-                         "products_absent"]:
+            if aname in ["expected_products", "products", "products_absent"]:
                 return rawval
+            #Special treatments for bool, because bool(nan) == True
+            elif aname in ["training_sample"]:
+                cooked = 0. if isinstance(rawval, float) and isnan(rawval) \
+                         else rawval
+                return cooked
             else:
                 return unicode(rawval)
         #TODO: Tool tips
@@ -1713,6 +1752,7 @@ class ListingsModel(QAbstractTableModel):
         
         TODO: Warning when ID is changed
         TODO: Special treatment of column "time": Convert string to ``datetime``
+              dateutil.parser.parse(value)
         """
         assert index.model() == self
         if role != Qt.EditRole:
@@ -1777,6 +1817,7 @@ class GuiMain(QMainWindow):
         self. setCentralWidget(self.main_tabs)
         self.main_tabs.addTab(self.listings_editor, "Listings")
         self.listings_editor.setModel(self.listings_model)
+        self.listings_editor.setProductModel(self.product_model)
         self.main_tabs.addTab(self.product_editor, "Products")
         self.product_editor.setModel(self.product_model)
         self.main_tabs.addTab(self.task_editor, "Tasks")
