@@ -194,8 +194,8 @@ def experiment_MainObj_main_download_listings():
     
     from clair.daemon_main import MainObj
 
-    conf_dir = relative("../../example-data")
-    data_dir = relative("../../example-data")
+    conf_dir = relative("../../../../clair-data")
+    data_dir = relative("../../../../clair-data")
     
     m = MainObj(conf_dir, data_dir)
     

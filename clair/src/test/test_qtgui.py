@@ -305,36 +305,44 @@ def test_RadioButtonModel():
     print "finished successfully."
     
     
-def test_LearnDataModel():
+def test_LearnDataProxyModel():
     """Test class RadioButtonModel"""
-    from clair.qtgui import LearnDataModel
+    from clair.qtgui import LearnDataProxyModel, ListingsModel
+    from clair.coredata import make_listing_frame
     csr =  Qt.CheckStateRole
-    
-    mo = LearnDataModel()
+
     
     #Create test data
+    listings = make_listing_frame(1)
     #Product "foo" is present, "bar" absent, nothing is known about "baz" 
-    mo.expectedProducts = ["foo", "bar", "baz"]
-    mo.products         = ["foo"]
-    mo.productsAbsent   = ["bar"]
+    listings["expected_products"][0] = ["foo", "bar", "baz"]
+    listings["products"][0]         = ["foo"]
+    listings["products_absent"][0]   = ["bar"]
+    #Create listings model that we can adapt
+    lsmod = ListingsModel()
+    lsmod.setListings(listings)
     
-    #Compute the GUI data
-    mo.changeGuiData()
+    
+    mo = LearnDataProxyModel()
+    mo.setSourceModel(lsmod, 3, 4, 5)
+    mo.setRow(lsmod.index(0, 0))
+    
+    print mo.values
     
     #Test size
     assert mo.columnCount() == 4
-    assert mo.rowCount() == 4
+    assert mo.rowCount() == 4    #includes additional empty row
     
     #Test data conversion
-    #1. row: [True, False, "foo", ...]
+    #1st row: [True, False, "foo", ...]
     assert mo.data(mo.index(0, 0), csr) == True
     assert mo.data(mo.index(0, 1), csr) == False
     assert mo.data(mo.index(0, 2)) == "foo"
-    #2. row: [False, True, "bar", ...]
+    #2nd row: [False, True, "bar", ...]
     assert mo.data(mo.index(1, 0), csr) == False
     assert mo.data(mo.index(1, 1), csr) == True
     assert mo.data(mo.index(1, 2)) == "bar"
-    #1. row: [False, False, "baz", ...]
+    #3rd row: [False, False, "baz", ...]
     assert mo.data(mo.index(2, 0), csr) == False
     assert mo.data(mo.index(2, 1), csr) == False
     assert mo.data(mo.index(2, 2)) == "baz"
@@ -345,30 +353,35 @@ def test_LearnDataModel():
     mo.setData(mo.index(2, 1), True, csr)
     
     #Test conversion back to internal format
-    assert mo.expectedProducts == ["foo", "bar", "baz"]
-    assert mo.products         == ["bar"]
-    assert mo.productsAbsent   == ["baz"]
+    assert listings["expected_products"][0] == ["foo", "bar", "baz"]
+    assert listings["products"][0]          == ["bar"]
+    assert listings["products_absent"][0]   == ["baz"]
     
     print "finished successfully."
     
 
-def test_LearnDataModel_usage():
+def test_LearnDataProxyModel_GUI():
     """Test class RadioButtonModel"""
-    from clair.qtgui import LearnDataModel
+    from clair.qtgui import LearnDataProxyModel, ListingsModel
+    from clair.coredata import make_listing_frame
     
     print "Start"
     app = QApplication(sys.argv)
     
-    mo = LearnDataModel()
-    
     #Create test data
+    listings = make_listing_frame(1)
     #Product "foo" is present, "bar" absent, nothing is known about "baz" 
-    mo.expectedProducts = ["foo", "bar", "baz"]
-    mo.products         = ["foo"]
-    mo.productsAbsent   = ["bar"]
+    listings["expected_products"][0] = ["foo", "bar", "baz"]
+    listings["products"][0]         = ["foo"]
+    listings["products_absent"][0]   = ["bar"]
+    #Create listings model that we can adapt
+    lsmod = ListingsModel()
+    lsmod.setListings(listings)
     
-    #Compute the GUI data
-#    mo.changeGuiData()
+    
+    mo = LearnDataProxyModel()
+    mo.setSourceModel(lsmod, 3, 4, 5)
+    mo.setRow(lsmod.index(0, 0))
 
     view = QTreeView()
     view.setModel(mo)
@@ -377,9 +390,9 @@ def test_LearnDataModel_usage():
     app.exec_()
     
     print mo.values
-    print "expectedProducts:", mo.expectedProducts
-    print "products:        ", mo.products
-    print "productsAbsent:  ", mo.productsAbsent
+    print "expectedProducts:", listings["expected_products"][0]
+    print "products:        ", listings["products"][0]
+    print "productsAbsent:  ", listings["products_absent"][0]
     
     print "End"
     
@@ -500,13 +513,13 @@ if __name__ == '__main__':
 #    test_TaskWidget()
 #    test_TaskModel()
 #    test_RadioButtonModel()
-#    test_LearnDataModel()
-    test_LearnDataModel_usage()
+#    test_LearnDataProxyModel()
+#    test_LearnDataProxyModel_GUI()
 #    test_DataWidgetHtmlView()
 #    test_ListingsEditWidget()
 #    test_ListingsWidget()
 #    test_ListingsModel()
-#    test_GuiMain()
+    test_GuiMain()
     
 #    experiment_qt()
     

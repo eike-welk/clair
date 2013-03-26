@@ -45,9 +45,8 @@ class HtmlTool(object):
     """
     Algorithms to process HTML.
     
-    TODO: HTML cleaning algorithm
-    * Reduce the huge size of the descriptions
-    * Keep some structure for better human readability
+    TODO: Look at html2text which converts HTML to markdown
+          https://github.com/aaronsw/html2text/blob/master/html2text.py
     """
     #Regular expressions to recognize different parts of HTML. 
     #Internal style sheets or JavaScript 

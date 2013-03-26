@@ -44,10 +44,12 @@ from datetime import datetime
 
 import dateutil
 import pandas as pd
-from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QTimer, QModelIndex,
-                          QAbstractTableModel, QSettings, QCoreApplication)
+from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
+                          QAbstractItemModel, QAbstractTableModel, 
+                          QSettings, QCoreApplication)
 from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
-                         QMainWindow, QTabWidget, QApplication, QFileDialog,
+                         QMainWindow, QTabWidget, QCheckBox, 
+                         QApplication, QFileDialog,
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
                          QItemSelectionModel, QMessageBox, QFont,)
@@ -1194,23 +1196,21 @@ class RadioButtonModel(QAbstractTableModel):
 
 
 
-class LearnDataModel(RadioButtonModel):
+class LearnDataProxyModel(RadioButtonModel):
     """
-    Store data for the learning and product recognition algorithms temporarily.
-    Transform the data for display in GUI.
-    Provide interface to ``QDataWidgetMapper``.
+    Convert data for learning and product recognition to format suitable for
+    display in GUI. Operates on one row of a ``ListingsModel``.
     """
     def __init__(self, parent=None):
-        super(LearnDataModel, self).__init__(2, 2, parent)
-        #internal storage for the properties: list[basestring]
-        self._expected_products = []
-        self._products = []
-        self._products_absent = []
-        #Timer for updating the GUI representation
-        self.update_timer = QTimer()
-        self.update_timer.setSingleShot(True)
-        self.update_timer.setInterval(100)
-        self.update_timer.timeout.connect(self.changeGuiData)
+        super(LearnDataProxyModel, self).__init__(2, 2, parent)
+        #The learning data is taken from this model
+        self.source_model = ListingsModel() #Empty dummy
+        #Index that points to current row
+        self.row_index = self.source_model.index(0, 0)
+        #Columns from where source data is taken
+        self.col_expected_products = None
+        self.col_products = None
+        self.col_products_absent = None
         #Contents of column headers
         self.header_names = ["Present", "Absent", "ID", "Name"]
         self.tool_tips = ["Product is present in this listing.",
@@ -1218,63 +1218,54 @@ class LearnDataModel(RadioButtonModel):
                           "Product ID",
                           "Product name"]
         
+    def setSourceModel(self, model, 
+                       expected_products, products, products_absent):
+        """Change model and columns from which the learning data is taken."""
+        assert isinstance(model, QAbstractItemModel)
+        assert isinstance(expected_products, int)
+        assert isinstance(products, int)
+        assert isinstance(products_absent, int)
+        self.source_model = model
+        self.col_expected_products = expected_products
+        self.col_products = products
+        self.col_products_absent = products_absent    
         
-    def getExpProds(self):
-        return self._expected_products
-    
-    def setExpProds(self, products):
-        self._expected_products = products
-        if not self.update_timer.isActive():
-            self.update_timer.start()
-            
-    expectedProducts = pyqtProperty(
-        list, getExpProds, setExpProds, 
-        doc="Products that the recognition algorithm searches for. "
-            "list[basestring]")
-
-
-    def getProds(self):
-        return self._products
-    
-    def setProds(self, products):
-        self._products = products
-        if not self.update_timer.isActive():
-            self.update_timer.start()
-        
-    products = pyqtProperty(
-        list, getProds, setProds, 
-        doc="Products that are in a specific listing. "
-            "list[basestring]")
-        
-        
-    def getProdsAbs(self):
-        return self._products_absent
-    
-    def setProdsAbs(self, products):
-        self._products_absent = products
-        if not self.update_timer.isActive():
-            self.update_timer.start()
-        
-    productsAbsent = pyqtProperty(
-        list, getProdsAbs, setProdsAbs, 
-        doc="Products that are not in a specific listing. "
-            "list[basestring]")
+    def setRow(self, index):
+        """Set the row of source model that is accessed."""
+        assert isinstance(index, QModelIndex)
+        self.row_index = index
+        self.changeGuiData()
 
     def changeGuiData(self):
         """Compute the GUI data, and change it."""
+        #Get the data from the source model
+        irow = self.row_index.row()
+        sm = self.source_model
+        expected_products = sm.data(sm.index(irow, self.col_expected_products), 
+                                    Qt.EditRole)
+        products          = sm.data(sm.index(irow, self.col_products), 
+                                    Qt.EditRole)
+        products_absent   = sm.data(sm.index(irow, self.col_products_absent), 
+                                    Qt.EditRole)
+        #Convert None to empty list
+        none2list = lambda l: l if l is not None else []
+        expected_products = none2list(expected_products)
+        products = none2list(products)
+        products_absent = none2list(products_absent)
+        
         #create list of all used product IDs
         #preserve sequence of expected_products, additional ID are appended
         #TODO: remove duplicates from _expected_products
-        mentioned_prods = set(self._products + self._products_absent)
-        expected_missing = mentioned_prods - set(self._expected_products)
-        product_id_list = self._expected_products + list(expected_missing)
+        mentioned_prods = set(products + products_absent)
+        expected_missing = mentioned_prods - set(expected_products)
+        product_id_list = expected_products + list(expected_missing)
         
         gui_vals = []
         for prod in product_id_list:
             row = [False, False, prod, "-"]
-            if prod in self._products:
+            if prod in products:
                 row[0] = True
-            if prod in self._products_absent:
+            if prod in products_absent:
                 row[1] = True
             gui_vals.append(row) 
         
@@ -1302,11 +1293,14 @@ class LearnDataModel(RadioButtonModel):
             elif row[1]:
                 products_absent.append(prod)
         
-        self.expectedProducts = expected_products
-        self.products = products
-        self.productsAbsent = products_absent
-        #Changing the properties triggers unnecessary GUI updates 
-        self.update_timer.stop()
+        #Put data into source model
+        irow = self.row_index.row()
+        sm = self.source_model
+        sm.setData(sm.index(irow, self.col_expected_products), 
+                   expected_products, Qt.EditRole)
+        sm.setData(sm.index(irow, self.col_products), products,Qt.EditRole)
+        sm.setData(sm.index(irow, self.col_products_absent), 
+                   products_absent, Qt.EditRole)
         
         #Add one empty row as means to add products to list, if necessary
         if not self.values[-1][2] == "":
@@ -1389,8 +1383,9 @@ class ListingsEditWidget(QWidget):
         bigF = QFont()
         bigF.setPointSize(12)
         
-        #Transfers data between model and widgets
+        #Transfer data between model and widgets
         self.mapper = QDataWidgetMapper()
+        self.learn_model = LearnDataProxyModel()
         
         self.v_id = QLabel("---")
         self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
@@ -1401,9 +1396,9 @@ class ListingsEditWidget(QWidget):
         self.v_title.setTextInteractionFlags(Qt.TextSelectableByMouse | 
                                              Qt.TextSelectableByKeyboard)
         self.v_image = QLabel("Image\nHere!")
-        self.v_price = QLabel("xxx")
+        self.v_price = QLabel("---")
         self.v_currency1 = QLabel("---")
-        self.v_shipping = QLabel("xxx")
+        self.v_shipping = QLabel("---")
         self.v_currency2 = QLabel("---")
         self.v_type = QLabel("---")
         self.v_end_time = QLabel("0000-00-00T00:00:00")
@@ -1416,15 +1411,18 @@ class ListingsEditWidget(QWidget):
         self.v_country = QLabel("---")
         self.v_prod_specs = QLabel("---")
         self.v_prod_specs.setWordWrap(True)
+        self.v_is_training = QCheckBox("Is training sample")
+        self.v_learn_view = QTreeView()
+        self.v_learn_view.setModel(self.learn_model)
         self.v_description = DataWidgetHtmlView()
         
-        l_id = QLabel("ID")
+        l_id = QLabel("ID:")
         l_shipping = QLabel("(Shipping)")
-        l_end_time = QLabel("Ends")
-        l_sold = QLabel("Sold")
-        L_active = QLabel("Active")
-        L_condition = QLabel("Condition")
-        l_location = QLabel("Location")
+        l_end_time = QLabel("Ends:")
+        l_sold = QLabel("Sold:")
+        L_active = QLabel("Active:")
+        L_condition = QLabel("Condition:")
+        l_location = QLabel("Location:")
         
         #Main layout
         lmain = QGridLayout()
@@ -1459,8 +1457,10 @@ class ListingsEditWidget(QWidget):
         #Add table to main layout
         lmain.addLayout(table,              1, 1, 4, 2)
 
-        lmain.addWidget(self.v_prod_specs,  5, 0, 1, 3)
-        lmain.addWidget(self.v_description, 6, 0, 2, 3)
+        lmain.addWidget(self.v_is_training, 5, 0)
+        lmain.addWidget(self.v_learn_view,  6, 0, 1, 3)
+        lmain.addWidget(self.v_prod_specs,  7, 0, 1, 3)
+        lmain.addWidget(self.v_description, 8, 0, 2, 3)
         
         self.setLayout(lmain)
         self.setGeometry(200, 200, 400, 300)
@@ -1488,11 +1488,12 @@ class ListingsEditWidget(QWidget):
         self.mapper.addMapping(self.v_postcode,   19, "text")
         self.mapper.addMapping(self.v_location,   18, "text")
         self.mapper.addMapping(self.v_country,    20, "text")
+        self.mapper.addMapping(self.v_is_training, 1, )
         self.mapper.addMapping(self.v_prod_specs, 10, "text")
         self.mapper.addMapping(self.v_description, 9, "html")
-        #Go to first row
-        self.mapper.toFirst()
-
+        
+        self.learn_model.setSourceModel(model, 3, 4, 5)
+        
 
     def setRow(self, index):
         """
@@ -1505,6 +1506,7 @@ class ListingsEditWidget(QWidget):
         index : QModelIndex
         """
         self.mapper.setCurrentModelIndex(index)
+        self.learn_model.setRow(index)
 
 
 
@@ -1674,13 +1676,17 @@ class ListingsModel(QAbstractTableModel):
         
         if role == Qt.DisplayRole:
             rawval = self.listings[aname].iget(row)
+            #return only first line of multi line string
             rawstr = unicode(rawval)
             lines = rawstr.split("\n", 1)
             return lines[0]
         elif role == Qt.EditRole:
             rawval = self.listings[aname].iget(row)
-            rawstr = unicode(rawval)
-            return rawstr
+            if aname in ["training_sample", "expected_products", "products", 
+                         "products_absent"]:
+                return rawval
+            else:
+                return unicode(rawval)
         #TODO: Tool tips
 #        elif role == Qt.ToolTipRole:
 #            aname = attr_names[column]
@@ -1706,6 +1712,7 @@ class ListingsModel(QAbstractTableModel):
             returns ``False`` otherwise.
         
         TODO: Warning when ID is changed
+        TODO: Special treatment of column "time": Convert string to ``datetime``
         """
         assert index.model() == self
         if role != Qt.EditRole:
