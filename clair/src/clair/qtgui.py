@@ -1460,7 +1460,7 @@ class ListingsEditWidget(QWidget):
     def __init__(self):
         super(ListingsEditWidget, self).__init__()
         
-        self.product_model = ProductModel
+        self.product_model = ProductModel()
         
         #Transfer data between model and widgets
         self.mapper = QDataWidgetMapper()
