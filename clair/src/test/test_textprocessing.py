@@ -281,7 +281,7 @@ def experiment_CollectText():
     #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
     tokenize_words_pattern = r"""
               \d+(\.\d+)?       # real numbers, e.g. 2.8, 82
-            | (\w\.)+           # abbreviations, e.g. z.B., e.g., U.S.A.
+            | (\w\.)+           # abbreviations, e.g., z.B., U.S.A.
             | \w+               # words
            # | [][.,;"'?():-_`]  # these are separate tokens
             """

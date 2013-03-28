@@ -1373,7 +1373,7 @@ class EditorCreatorComboBox(QItemEditorCreatorBase):
         """
         assert isinstance(items, list)
         assert all([isinstance(s, basestring) for s in items])
-        self.items = items
+        self.items = items + [u""]
     
     def createWidget(self, parent):
         """Create the ``QComboBox`` and populate the list of items."""

@@ -4,9 +4,7 @@
     <product>
       <id>nikon-18-105-f/3.5-5.6--1</id>
       <name>Nikon 18-105 mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens</name>
-      <description>Nikon 18-105mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens
-
-Moderately cheap super zoom, often often found in kits.
+      <description>Moderately cheap super zoom, often often found in kits.
 
 Note! There are multiple versions of this lens
       </description>
@@ -18,11 +16,30 @@ Note! There are multiple versions of this lens
       </categories>
     </product>
     <product>
+      <id>nikon-18-200-f/3.5-5.6--1</id>
+      <name>Nikon 18-200mm f/3.5-5.6 G ED-IF AF-S VR DX</name>
+      <description>Wide to long zoom lens with macro capabilities
+
+* slow
+* macro capabilities
+* image stabilization
+* mechanically good
+* optically good 
+
+
+
+
+
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-18-55-f/3.5-5.6--1</id>
       <name>Nikon 18-55 mm f/3.5-5.6 G ED AF-S DX Nikkor Lens</name>
-      <description>Nikon 18-55mm f/3.5-5.6 G ED AF-S DX Nikkor Lens
-
-Cheap normal zoom, often often found in kits.
+      <description>Cheap normal zoom, often often found in kits.
 
 Note! There are multiple versions of this lens
       </description>
@@ -32,14 +49,101 @@ Note! There are multiple versions of this lens
       </categories>
     </product>
     <product>
+      <id>nikon-18-70-f/3.5-4.5--1</id>
+      <name>Nikon 18-70mm f/3.5-4.5G ED IF AF-S DX</name>
+      <description>Cheap normal zoom, old, kit lens of Nikon D70.
+
+* Faster than contemporary kit lenses.
+* Longer range than contemporary kit lenses.
+* Built in silent wave motor.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-28-80-f/3.3-5.6--1</id>
+      <name>Nikon 28-80mm f/3.3-5.6  AF G</name>
+      <description>Cheap normal zoom lens
+
+* slow
+* full frame
+* optically good
+* fast focus
+* external focus motor</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-28-85-f/3.5-4.5--1</id>
+      <name>Nikon 28-85 mm f/3.5-4.5 AF</name>
+      <description>Old full frame normal zoom
+
+* Full frame</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-50-f/1.8--1</id>
+      <name>Nikon 50mm f/1.8 AF</name>
+      <description>Fast, cheap, very old, long/normal prime lens
+
+* Fast
+* External focus motor
+* Full frame
+* Optically very good
+
+There are several different versions of this lens.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-50-f/1.8-D--2</id>
+      <name>Nikon 50mm f/1.8 AF-D</name>
+      <description>Fast, cheap, long/normal prime lens
+
+* Fast
+* External focus motor
+* Full frame
+* Optically very good
+
+There are several different versions of this lens.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-50-f/1.8-G--3</id>
+      <name>Nikon 50mm f/1.8 AF-S G</name>
+      <description>Fast, relatively cheap, long/normal prime lens
+
+* Fast
+* Internal focus motor
+* Full frame
+
+There are several different versions of this lens.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-d70</id>
       <name>Nikon D70 Camera</name>
-      <description>Nikon D70 DSLR camera. 
-
-* Electronic shutter, very high flash sync speed.
+      <description>* Electronic shutter, very high flash sync speed.
 * Low sensitivity, bad for low light.
 * 6 Mpix
-      </description>
+
+Represents two products:
+* Nikon D70
+* Nikon D70s</description>
       <important_words/>
       <categories>
         <category>photo.system.nikon.camera</category>
@@ -48,8 +152,7 @@ Note! There are multiple versions of this lens
     <product>
       <id>nikon-d90</id>
       <name>Nikon D90 Camera</name>
-      <description>Nikon D90 DSLR camera
-
+      <description>* Mechanical shutter
 * Moderately good in high ISO</description>
       <important_words>
         <word></word>
@@ -61,7 +164,8 @@ Note! There are multiple versions of this lens
     <product>
       <id>nikon-sb-24</id>
       <name>Nikon SB-24 Flash</name>
-      <description>Nikon SB-24 Flash</description>
+      <description>*No optical slave
+*Few manual steps, to control amount of light.</description>
       <important_words/>
       <categories>
         <category>photo.system.generic.flash</category>
@@ -70,23 +174,57 @@ Note! There are multiple versions of this lens
     <product>
       <id>nikon-sb-26</id>
       <name>Nikon SB-26 Flash</name>
-      <description>Nikon SB-26 Flash
-
-* Has optical slave capability.</description>
+      <description>* Has optical slave capability.</description>
       <important_words/>
       <categories>
         <category>photo.system.generic.flash</category>
       </categories>
     </product>
     <product>
-      <id>tamron-17-50-f/2.8--1-Nikon</id>
-      <name>Tamron AF 17-50mm f/2.8 SP XR Di II LD Aspherical [IF] (Nikon)</name>
-      <description>High quality, but cheap normal zoom.
-This lens is optically very good, only cromatic aberation is a slight problem.
-Mechanically the lens is only moderately good.
-Fast focus speed, because external motor is used.
+      <id>sigma-28-200-f/3,5-5,6--1-Nikon</id>
+      <name>Sigma 28-200mm f/3,5-5,6 DG Macro (Nikon)</name>
+      <description></description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>sigma-70-200-f/2.8--1-Nikon</id>
+      <name>Sigma 70-200mm f/2.8 EX DG HSM (Nikon)</name>
+      <description>Long zoom lens, relatively cheap
 
-Note: There is a second version of this lens, with vibration reduction, which is optically slightly inferior.</description>
+* fast
+* full frame
+* mechanically very good
+* heavy
+* optically good
+
+There are four versions of this lens:
+
+* 2005: Sigma AF 70-200mm f/2.8 EX DG HSM 
+* 2006: Sigma AF 70-200mm f/2.8 EX DG Macro HSM 
+* 2007: Sigma AF 70-200mm f/2.8 EX DG Macro HSM II 
+* 2010: Sigma AF 70-200mm f/2.8 EX DG OS HSM 
+
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>tamron-17-50-f/2.8--1-Nikon</id>
+      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] (Nikon)</name>
+      <description>High quality, but cheap normal zoom.
+
+* Fast: f/2.8
+* Fast focus speed
+* Need (expensive) camera with focus motor
+* Optically very good, only cromatic aberation is a slight problem.
+* Mechanically the lens is only moderately good.
+
+Note: There is a second version of this lens, with vibration reduction, which is optically inferior.</description>
       <important_words>
         <word></word>
       </important_words>
@@ -96,11 +234,13 @@ Note: There is a second version of this lens, with vibration reduction, which is
     </product>
     <product>
       <id>tamron-17-50-f/2.8--2-Nikon</id>
-      <name>Tamron AF 17-50mm f/2.8 SP XR Di II LD Aspherical [IF] VC (Nikon)</name>
-      <description>High quality standard zoom.
-Fast focus speed, even though internal motor is used.
-Lens has vibration reduction, which works very well. (4 stops claimed by manufacturer)
-Optical performance is good, with sharp centers, but blurry corners at the wide end.
+      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] VC (Nikon)</name>
+      <description>High quality, but cheap, standard zoom.
+
+* Fast: f/2.8
+* Fast focus speed, even though internal motor is used.
+* Vibration reduction, which works very well. (4 stops claimed by manufacturer)
+* Optical performance is good, with sharp centers, but blurry corners at the wide end.
 
 Note: There is a second version of this lens, *without* vibration reduction, which is optically better.</description>
       <important_words/>
@@ -109,8 +249,57 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
       </categories>
     </product>
     <product>
+      <id>tamron-18-200-f/3.5-6.3--1-Nikon</id>
+      <name>Tamron 18-200mm f/3.5-6.3 XR Di II LD [IF] (Nikon)</name>
+      <description>Very cheap wide to long zoom lens.
+
+* Slow
+* Slow focus
+* External focus motor
+* Optically decent, but strong distortions
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>tamron-28-200-f/3.8-5.6--1-Nikon</id>
+      <name>Tamron 28-200mm f/3.8-5.6 XR IF (Nikon)</name>
+      <description>Very cheap and compact normal to long zoom lens.
+
+* good quality, optically and mechanically
+* Very small for its focal length
+* Slow
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>tamron-70-300-f/4.0-5.6--3-Nikon</id>
+      <name>Tamron 70-300mm f/4.0-5.6 AF Di LD Macro (Nikon)</name>
+      <description>Cheap long zoom lens with macro capabilities
+
+* Full frame
+* External focus motor
+* Mechanically good, but extends much when zooming
+* Front lens rotates when focussing
+* Opticaly good
+    * good to very good sharpness
+    * strong chomatic aberations
+    * contrast suffers at long end
+
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>tokina-16-50-f/2.8--1-Nikon</id>
-      <name>Tokina AF 16-50mm f/2.8 AT-X Pro DX (Nikon)</name>
+      <name>Tokina 16-50mm f/2.8 AT-X Pro DX (Nikon)</name>
       <description>High quality normal zoom.
 Fast focus speed, because external motor is used.
 Very good build quality.

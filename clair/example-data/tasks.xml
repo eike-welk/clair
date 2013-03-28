@@ -8,8 +8,8 @@
       <recurrence_pattern>daily</recurrence_pattern>
       <query_string>Nikon D70</query_string>
       <n_listings>100</n_listings>
-      <price_min>70</price_min>
-      <price_max>300</price_max>
+      <price_min>70.0</price_min>
+      <price_max>300.0</price_max>
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d70</product>
@@ -27,7 +27,6 @@
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
       </expected_products>
     </search_task>
     <search_task>
