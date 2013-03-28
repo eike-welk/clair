@@ -960,16 +960,23 @@ class RadioButtonModel(QAbstractTableModel):
     However each row acts like a group of radio buttons: 
     Only one value in each row can be True, all others must be False.
     """
-    def __init__(self, n_binvals, n_textvals, parent=None):
+    def __init__(self, n_binvals, n_textvals, editable_cols, parent=None):
+        assert isinstance(n_binvals, int)
+        assert isinstance(n_textvals, int)
+        assert isinstance(editable_cols, list)
+        assert all([isinstance(i, int) for i in editable_cols])
         super(RadioButtonModel, self).__init__(parent)
         #number of bool values at start of row
         self.n_binvals = n_binvals
         #Number of other (text) values at end of row
         self.n_textvals = n_textvals
+        #The column indexes of columns that can be edited: list[int]
+        self.editable_cols = editable_cols
         #The stored values, nested list, first index rows, second columns: 
-        #list[list[bool, bool, ..., str, str, ...]]
+        #list[list[int, int, ..., str, str, ...]]
+        #Boolean values for check boxes are really tri-state: 
+        #0: unchecked, 1: partially checked, 2: checked 
         self.values = []
-#        self.insertRows(0, 1)
         self.header_names = ["" for _ in range(self.n_binvals + 
                                                self.n_textvals)]
         self.tool_tips = ["" for _ in range(self.n_binvals + self.n_textvals)]
@@ -1032,16 +1039,16 @@ class RadioButtonModel(QAbstractTableModel):
         ----------
         index: QModelIndex
         """
-        default_flags = super(RadioButtonModel, self).flags(index)
-        
+        flags = super(RadioButtonModel, self).flags(index)
+                    
         if index.isValid():
             icol = index.column()
+            if icol in self.editable_cols:
+                flags |= Qt.ItemIsEditable
             if icol < self.n_binvals:
-                return Qt.ItemIsUserCheckable | default_flags
-            else:
-                return Qt.ItemIsEditable | default_flags
-        else:
-            return default_flags
+                flags |= Qt.ItemIsUserCheckable
+        
+        return flags
     
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -1222,7 +1229,7 @@ class LearnDataProxyModel(RadioButtonModel):
     display in GUI. Operates on one row of a ``ListingsModel``.
     """
     def __init__(self, parent=None):
-        super(LearnDataProxyModel, self).__init__(2, 2, parent)
+        super(LearnDataProxyModel, self).__init__(2, 2, [2], parent)
         #The learning data is taken from this model
         self.source_model = ListingsModel() #dummy
         #Model from which the product names are taken.
@@ -1359,12 +1366,34 @@ class WritableCurrentTextComboBox(QComboBox):
     
 class EditorCreatorComboBox(QItemEditorCreatorBase):
     """
-    Tell a view to edit a string with a ``WritableCurrentTextComboBox``.
-    The combo box is created, and prepared here. 
+    Tell a view to edit a string with a combo box. (Part of the model-view 
+    framework.)
+    
+    Uses special class ``WritableCurrentTextComboBox``.
+    The combo box is created, and equipped with its list of choices, by this
+    class.
+    
+    The choices (items) can be either provided as a list of strings,
+    or as a callback, that is called when the combo box is created. 
+    
+    This class is registered with ``QItemEditorFactory`` which is used by 
+    ``QStyledItemDelegate`` which is in turn used by ``QTreeView`` or an other 
+    view. ::
+    
+        self.v_learn_view = QTreeView()
+        combo_delegate = QStyledItemDelegate()
+        editor_factory = QItemEditorFactory()
+        self.combo_box_creator = EditorCreatorComboBox()
+        editor_factory.registerEditor(QVariant.String, self.combo_box_creator)
+        combo_delegate.setItemEditorFactory(editor_factory)
+        self.v_learn_view.setItemDelegateForColumn(2, combo_delegate)
     """
     def __init__(self):
         super(EditorCreatorComboBox, self).__init__()
-        self.items = []
+        #List of items (optional)
+        self.items = None
+        #Callback to get list of items (optional)
+        self.items_callback = None
         
     def setItems(self, items):
         """
@@ -1375,10 +1404,29 @@ class EditorCreatorComboBox(QItemEditorCreatorBase):
         assert all([isinstance(s, basestring) for s in items])
         self.items = items + [u""]
     
+    def setItemCallback(self, callback):
+        """
+        Change the callback function (or bound method) that provides this 
+        object with the list of choices for the combo box.
+        Parameter ``callback``: CallableType().returns(list[basestring])
+        """
+        self.items_callback = callback
+        
     def createWidget(self, parent):
-        """Create the ``QComboBox`` and populate the list of items."""
+        """
+        Create the ``QComboBox`` and populate the list of items.
+        Called by the model-view framework.
+        """
+        if self.items is not None:
+            items = self.items
+        elif self.items_callback is not None:
+            items = self.items_callback() + [u""]
+        else:
+            print "``EditorCreatorComboBox``: Error! " \
+                  "Choices (items) for combo box undefined!"
+            items = []
         combo = WritableCurrentTextComboBox(parent)
-        combo.insertItems(0, self.items)
+        combo.insertItems(0, items)
         combo.setEditable(True)
         return combo
     
@@ -1469,6 +1517,7 @@ class ListingsEditWidget(QWidget):
         bigF = QFont()
         bigF.setPointSize(12)
         
+        #Create the widgets that display one listing
         self.v_id = QLabel("---")
         self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
                                           Qt.TextSelectableByKeyboard)
@@ -1498,10 +1547,10 @@ class ListingsEditWidget(QWidget):
         
         #Create widget for product recognition data, and related objects
         self.v_learn_view = QTreeView()
-        self.combo_box_creator = EditorCreatorComboBox()
-        editor_factory = QItemEditorFactory()
-        editor_factory.registerEditor(QVariant.String, self.combo_box_creator)
         combo_delegate = QStyledItemDelegate()
+        editor_factory = QItemEditorFactory()
+        self.combo_box_creator = EditorCreatorComboBox()
+        editor_factory.registerEditor(QVariant.String, self.combo_box_creator)
         combo_delegate.setItemEditorFactory(editor_factory)
         self.v_learn_view.setItemDelegateForColumn(2, combo_delegate)
         self.v_learn_view.setModel(self.learn_model)
@@ -1590,6 +1639,9 @@ class ListingsEditWidget(QWidget):
         """Set product model (container)."""
         self.product_model = product_model
         self.learn_model.setProductModel(product_model)
+        #Put list of products into combo box 
+        self.combo_box_creator.setItemCallback(
+                                        self.product_model.getProductIDList)
         
         
     def setRow(self, index):
@@ -1604,9 +1656,6 @@ class ListingsEditWidget(QWidget):
         """
         self.mapper.setCurrentModelIndex(index)
         self.learn_model.setRow(index)
-        #TODO: this should be done with signals and slots
-        self.combo_box_creator.setItems(self.product_model.getProductIDList()) 
-
 
 
 

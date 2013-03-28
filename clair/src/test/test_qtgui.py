@@ -261,7 +261,7 @@ def test_RadioButtonModel():
     from clair.qtgui import RadioButtonModel
     csr =  Qt.CheckStateRole
     
-    mo = RadioButtonModel(3, 2)
+    mo = RadioButtonModel(3, 2, [3, 4])
     
     mo.setValues([[False, False, False, "one", "two"]])
     
