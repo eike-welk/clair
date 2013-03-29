@@ -2,8 +2,23 @@
   <version>0.1</version>
   <products>
     <product>
+      <id>nikon-16-85-f/3.5-5.6--1</id>
+      <name>Nikon 16-85mm f/3.5-5.6 G AF-S DX ED VR Lens</name>
+      <description>Wide to long zoom lens, relatively expensive.
+
+* slow
+* optically good
+* image stabilization 
+* internal focus motor
+* focust speed moderately fast</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-18-105-f/3.5-5.6--1</id>
-      <name>Nikon 18-105 mm f/3.5-5.6 AF-S DX VR ED Nikkor Lens</name>
+      <name>Nikon 18-105 mm f/3.5-5.6 AF-S DX VR ED Lens</name>
       <description>Moderately cheap super zoom, often often found in kits.
 
 Note! There are multiple versions of this lens
@@ -17,7 +32,7 @@ Note! There are multiple versions of this lens
     </product>
     <product>
       <id>nikon-18-200-f/3.5-5.6--1</id>
-      <name>Nikon 18-200mm f/3.5-5.6 G ED-IF AF-S VR DX</name>
+      <name>Nikon 18-200mm f/3.5-5.6 G ED-IF AF-S VR DX Lens</name>
       <description>Wide to long zoom lens with macro capabilities
 
 * slow
@@ -38,7 +53,7 @@ Note! There are multiple versions of this lens
     </product>
     <product>
       <id>nikon-18-55-f/3.5-5.6--1</id>
-      <name>Nikon 18-55 mm f/3.5-5.6 G ED AF-S DX Nikkor Lens</name>
+      <name>Nikon 18-55 mm f/3.5-5.6 G ED AF-S DX Lens</name>
       <description>Cheap normal zoom, often often found in kits.
 
 Note! There are multiple versions of this lens
@@ -50,7 +65,7 @@ Note! There are multiple versions of this lens
     </product>
     <product>
       <id>nikon-18-70-f/3.5-4.5--1</id>
-      <name>Nikon 18-70mm f/3.5-4.5G ED IF AF-S DX</name>
+      <name>Nikon 18-70mm f/3.5-4.5G ED IF AF-S DX Lens</name>
       <description>Cheap normal zoom, old, kit lens of Nikon D70.
 
 * Faster than contemporary kit lenses.
@@ -62,8 +77,23 @@ Note! There are multiple versions of this lens
       </categories>
     </product>
     <product>
+      <id>nikon-24-120-f/3.5-5.6--2</id>
+      <name>Nikon 24-120mm f/3.5-5.6 G ED IF AF-S VR Lens</name>
+      <description>Normal to long zoom lens
+
+* full frame
+* image stabilization
+* optically poor
+* internal focus motor
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-28-80-f/3.3-5.6--1</id>
-      <name>Nikon 28-80mm f/3.3-5.6  AF G</name>
+      <name>Nikon 28-80mm f/3.3-5.6  AF G Lens</name>
       <description>Cheap normal zoom lens
 
 * slow
@@ -78,7 +108,7 @@ Note! There are multiple versions of this lens
     </product>
     <product>
       <id>nikon-28-85-f/3.5-4.5--1</id>
-      <name>Nikon 28-85 mm f/3.5-4.5 AF</name>
+      <name>Nikon 28-85 mm f/3.5-4.5 AF Lens</name>
       <description>Old full frame normal zoom
 
 * Full frame</description>
@@ -89,7 +119,7 @@ Note! There are multiple versions of this lens
     </product>
     <product>
       <id>nikon-50-f/1.8--1</id>
-      <name>Nikon 50mm f/1.8 AF</name>
+      <name>Nikon 50mm f/1.8 AF Lens</name>
       <description>Fast, cheap, very old, long/normal prime lens
 
 * Fast
@@ -105,7 +135,7 @@ There are several different versions of this lens.</description>
     </product>
     <product>
       <id>nikon-50-f/1.8-D--2</id>
-      <name>Nikon 50mm f/1.8 AF-D</name>
+      <name>Nikon 50mm f/1.8 AF-D Lens</name>
       <description>Fast, cheap, long/normal prime lens
 
 * Fast
@@ -121,7 +151,7 @@ There are several different versions of this lens.</description>
     </product>
     <product>
       <id>nikon-50-f/1.8-G--3</id>
-      <name>Nikon 50mm f/1.8 AF-S G</name>
+      <name>Nikon 50mm f/1.8 AF-S G Lens</name>
       <description>Fast, relatively cheap, long/normal prime lens
 
 * Fast
@@ -181,8 +211,22 @@ Represents two products:
       </categories>
     </product>
     <product>
+      <id>sigma-18-50mm-f/3.5-5.6--1-nikon</id>
+      <name>Sigma 18-50mm f/3.5-5.6 DC AF Lens</name>
+      <description>Normal zoom lens, cheap.
+
+* front lens rotates while focussing
+* optically acceptable, sharp but much cromatic aberations
+
+Note: There are various 18-50mm lenses from Sigma, with big differences in quality.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>sigma-28-200-f/3,5-5,6--1-Nikon</id>
-      <name>Sigma 28-200mm f/3,5-5,6 DG Macro (Nikon)</name>
+      <name>Sigma 28-200mm f/3,5-5,6 DG Macro (Nikon) Lens</name>
       <description></description>
       <important_words/>
       <categories>
@@ -191,7 +235,7 @@ Represents two products:
     </product>
     <product>
       <id>sigma-70-200-f/2.8--1-Nikon</id>
-      <name>Sigma 70-200mm f/2.8 EX DG HSM (Nikon)</name>
+      <name>Sigma 70-200mm f/2.8 EX DG HSM (Nikon) Lens</name>
       <description>Long zoom lens, relatively cheap
 
 * fast
@@ -215,7 +259,7 @@ There are four versions of this lens:
     </product>
     <product>
       <id>tamron-17-50-f/2.8--1-Nikon</id>
-      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] (Nikon)</name>
+      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] (Nikon) Lens</name>
       <description>High quality, but cheap normal zoom.
 
 * Fast: f/2.8
@@ -234,7 +278,7 @@ Note: There is a second version of this lens, with vibration reduction, which is
     </product>
     <product>
       <id>tamron-17-50-f/2.8--2-Nikon</id>
-      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] VC (Nikon)</name>
+      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] VC (Nikon) Lens</name>
       <description>High quality, but cheap, standard zoom.
 
 * Fast: f/2.8
@@ -250,7 +294,7 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
     </product>
     <product>
       <id>tamron-18-200-f/3.5-6.3--1-Nikon</id>
-      <name>Tamron 18-200mm f/3.5-6.3 XR Di II LD [IF] (Nikon)</name>
+      <name>Tamron 18-200mm f/3.5-6.3 XR Di II LD [IF] (Nikon) Lens</name>
       <description>Very cheap wide to long zoom lens.
 
 * Slow
@@ -265,7 +309,7 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
     </product>
     <product>
       <id>tamron-28-200-f/3.8-5.6--1-Nikon</id>
-      <name>Tamron 28-200mm f/3.8-5.6 XR IF (Nikon)</name>
+      <name>Tamron 28-200mm f/3.8-5.6 XR IF (Nikon) Lens</name>
       <description>Very cheap and compact normal to long zoom lens.
 
 * good quality, optically and mechanically
@@ -279,7 +323,7 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
     </product>
     <product>
       <id>tamron-70-300-f/4.0-5.6--3-Nikon</id>
-      <name>Tamron 70-300mm f/4.0-5.6 AF Di LD Macro (Nikon)</name>
+      <name>Tamron 70-300mm f/4.0-5.6 AF Di LD Macro (Nikon) Lens</name>
       <description>Cheap long zoom lens with macro capabilities
 
 * Full frame
@@ -299,7 +343,7 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
     </product>
     <product>
       <id>tokina-16-50-f/2.8--1-Nikon</id>
-      <name>Tokina 16-50mm f/2.8 AT-X Pro DX (Nikon)</name>
+      <name>Tokina 16-50mm f/2.8 AT-X Pro DX (Nikon) Lens</name>
       <description>High quality normal zoom.
 Fast focus speed, because external motor is used.
 Very good build quality.
