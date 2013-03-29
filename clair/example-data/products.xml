@@ -322,6 +322,24 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
       </categories>
     </product>
     <product>
+      <id>tamron-70-300-f/4.0-5.6--1-Nikon</id>
+      <name>Tamron 70-300mm f/4.0-5.6 AF LD (Nikon) Lens</name>
+      <description>Old and cheap long zoom lens
+
+* Full frame
+* External focus motor
+* Mechanically probably decent
+* Front lens rotates when focussing
+* Opticaly probably decent
+
+Note:
+There are several versions of this lens.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>tamron-70-300-f/4.0-5.6--3-Nikon</id>
       <name>Tamron 70-300mm f/4.0-5.6 AF Di LD Macro (Nikon) Lens</name>
       <description>Cheap long zoom lens with macro capabilities
@@ -335,7 +353,8 @@ Note: There is a second version of this lens, *without* vibration reduction, whi
     * strong chomatic aberations
     * contrast suffers at long end
 
-</description>
+Note:
+There are several versions of this lens.</description>
       <important_words/>
       <categories>
         <category>photo.system.nikon.lens</category>
