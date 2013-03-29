@@ -211,6 +211,7 @@ def test_XmlBigFrameIO_read_write_dataframe():
     
     #Create test data
     frame1 = make_test_listings()
+#    print frame1
     
     #Create test object
     xml_io = XmlBigFrameIO(testdata_dir, basename, ListingsXMLConverter())
@@ -393,7 +394,7 @@ def test_DataStore():
     
 if __name__ == "__main__":
 #    test_ListingsXMLConverter()
-    test_TaskXMLConverter()
+#    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()
 #    test_Record()

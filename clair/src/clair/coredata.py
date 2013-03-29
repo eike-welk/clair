@@ -622,7 +622,7 @@ class XmlBigFrameIO(object):
         """
         Create a filename or glob pattern
         """
-        date_str = date.strftime("%Y-%m") if date is not None else "*"
+        date_str = date.strftime("%Y-%m-01") if date is not None else "*"
         #http://docs.python.org/2/library/string.html#formatstrings
         num_str = "{:0>3d}".format(number) if number is not None else "*"
         if compress == True:
@@ -796,8 +796,8 @@ class XmlBigFrameIO(object):
     
     
     def write_data(self, frame, 
-                        date_start=EARLIEST_DATE, date_end=LATEST_DATE,
-                        compress=False, overwrite=False):
+                   date_start=EARLIEST_DATE, date_end=LATEST_DATE,
+                   compress=False, overwrite=False):
         """
         Write a DataFrame to disk in XML format.
         
@@ -926,8 +926,6 @@ class DataStore(object):
     Store and access the various data objects.
     
     Does disk IO, and adding objects at runtime.
-    
-    TODO: put into ``coredata`` or ``daemon_main``, and port daemon(s) to it.
     """
     def __init__(self):
         self.data_dir = ""
@@ -962,7 +960,8 @@ class DataStore(object):
         self.listings = listings.combine_first(self.listings)
     
     
-    def read_data(self, data_dir):
+    def read_data(self, data_dir, 
+                  date_start=EARLIEST_DATE, date_end=LATEST_DATE):
         """Read the data from disk"""
         self.data_dir = data_dir
         
@@ -985,7 +984,7 @@ class DataStore(object):
         #Load listings
         load_listings = XmlBigFrameIO(self.data_dir, "listings", 
                                       ListingsXMLConverter())
-        self.merge_listings(load_listings.read_data())
+        self.merge_listings(load_listings.read_data(date_start, date_end))
         
         #TODO: load prices
         

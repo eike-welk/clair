@@ -31,17 +31,14 @@ from os import path
 from datetime import datetime, timedelta
 import time
 from random import randint
-from logging import debug, info, warning, error, critical
+import logging
 
 import dateutil.rrule
 import pandas as pd
 #import numpy as np
 
 from clair.network import EbayConnector
-from clair.coredata import (SearchTask, UpdateTask, 
-                            XmlSmallObjectIO, XmlBigFrameIO,
-                            ProductXMLConverter, TaskXMLConverter, 
-                            ListingsXMLConverter)
+from clair.coredata import SearchTask, UpdateTask, DataStore
 
 
 
@@ -50,49 +47,7 @@ class MainObj(object):
     def __init__(self, conf_dir, data_dir):
         self.data_dir = data_dir
         self.server = EbayConnector(path.join(conf_dir, "python-ebay.apikey"))
-        self.tasks = {}
-        self.products = {}
-        self.listings = pd.DataFrame()
-        self.prices = pd.DataFrame()
-    
-    
-    def add_products(self, products):
-        prod_list = products.values() if isinstance(products, dict) \
-                    else products 
-                    
-        for product in prod_list:
-            info("Adding product: {}".format(product.id))
-            self.products[product.id] = product
-
-
-    def add_tasks(self, tasks):
-        def setn(iterable_or_none):
-            if iterable_or_none is None:
-                return set()
-            return set(iterable_or_none)
-        
-        task_list = tasks.values() if isinstance(tasks, dict) else tasks
-        prod_ids = set(self.products.keys())
-        
-        for task in task_list:
-            info("Adding task: {}".format(task.id))
-            #Test if task references unknown product #TODO: or server
-            if isinstance(task, SearchTask):
-                un_prods = setn(task.expected_products) - prod_ids
-                if un_prods:    
-                    warning("Unknown product ID: '{pid}'. "
-                            "Referenced by task '{tid}'."
-                            .format(pid="', '".join(un_prods), 
-                                    tid=task.id))
-                        
-            self.tasks[task.id] = task
-            
-    
-    def merge_listings(self, listings):
-        info("Inserting {} listings".format(len(listings)))
-        #TODO: test if unknown products or tasks are referenced
-        self.listings = listings.combine_first(self.listings)
-    
+        self.data = DataStore()
     
     def compute_next_due_time(self, curr_time, recurrence_pattern, 
                               add_random=False):
@@ -178,7 +133,7 @@ class MainObj(object):
         * Number of seconds to sleep until the next task is due.
         """
         wakeup_time = datetime(9999, 12, 31) #The last possible month
-        for task in self.tasks.values():
+        for task in self.data.tasks.values():
             wakeup_time = min(task.due_time, wakeup_time)
             
         sleep_interval = wakeup_time - datetime.utcnow()
@@ -193,15 +148,15 @@ class MainObj(object):
         
         Removes single shot tasks.
         """
-        info("Executing due tasks.")
+        logging.info("Executing due tasks.")
         now = datetime.utcnow()
-        for key in self.tasks.keys():
-            task = self.tasks[key]
+        for key in self.data.tasks.keys():
+            task = self.data.tasks[key]
             #Test is task due
             if task.due_time > now:
                 continue
             
-            info("Executing task: {}".format(task.id))
+            logging.info("Executing task: {}".format(task.id))
             #Search for new listings
             #TODO: If a listing is found by multiple search tasks, create union
             #      of "expected_products" and maybe "search_tasks"
@@ -217,20 +172,20 @@ class MainObj(object):
                 lst_found["search_task"] = task.id
                 lst_found["expected_products"].fill(task.expected_products)
                 lst_found["server"] = task.server
-                self.merge_listings(lst_found)
+                self.data.merge_listings(lst_found)
             #Update known listings
             elif isinstance(task, UpdateTask):
-                lst_update = self.listings.ix[task.listings]
+                lst_update = self.data.listings.ix[task.listings]
                 lst_update = self.server.update_listings(lst_update)
                 lst_update["server"] = task.server
-                self.merge_listings(lst_update)
+                self.data.merge_listings(lst_update)
             else:
                 raise TypeError("Unknown task type:" + str(type(task)) + 
                                 "\ntask:\n" + str(task))
                 
             #Remove tasks that are executed only once.
             if task.recurrence_pattern is None:
-                del self.tasks[key]
+                del self.data.tasks[key]
             #Compute new due time for recurrent tasks
             else:
                 task.due_time = self.compute_next_due_time(
@@ -242,22 +197,22 @@ class MainObj(object):
         Create tasks that update the listing information shortly after the 
         end of them. We want to know the final price of each auction.
         """
-        info("Creating update tasks, to get final prices.")
-        if len(self.listings) == 0:
+        logging.info("Creating update tasks, to get final prices.")
+        if len(self.data.listings) == 0:
             return
 
         #Create administration information if it doesn't exist
         try:
-            self.listings["final_update_pending"]
+            self.data.listings["final_update_pending"]
         except KeyError:
-            self.listings["final_update_pending"] = 0.0
+            self.data.listings["final_update_pending"] = 0.0
         
         #Get listings where final price is unknown and 
         #    where no final update is pending.
         #Note! Three-valued logic: 1., 0., nan
-        where_no_final = ((self.listings["final_price"] != True) &
-                          (self.listings["final_update_pending"] != True))
-        no_final = self.listings[where_no_final]
+        where_no_final = ((self.data.listings["final_price"] != True) &
+                          (self.data.listings["final_update_pending"] != True))
+        no_final = self.data.listings[where_no_final]
         no_final = no_final.sort("time")
         if len(no_final) == 0:
             return
@@ -279,37 +234,27 @@ class MainObj(object):
                               server=None, recurrence_pattern=None, 
                               listings=listing_ids)
 #            print task
-            self.add_tasks([task])
+            self.data.add_tasks([task])
         
         #Remember the listings for which update tasks were just created
-        self.listings["final_update_pending"][where_no_final] = True
+        self.data.listings["final_update_pending"][where_no_final] = True
 
 
     def main_download_listings(self):
         """Simple main loop that downloads listings."""
-        #Load products
-        load_prods = XmlSmallObjectIO(self.data_dir, "products", 
-                                      ProductXMLConverter())
-        self.add_products(load_prods.read_data())
-        #Load tasks
-        load_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
-                                      TaskXMLConverter())
-        self.add_tasks(load_tasks.read_data())
-        #Load listings
+        #Only load listings from one month in past and one month in future
         date_start = datetime.utcnow() - timedelta(days=30)
         date_end = datetime.utcnow() + timedelta(days=30)
-        io_listings = XmlBigFrameIO(self.data_dir, "listings", 
-                                      ListingsXMLConverter())
-        self.merge_listings(io_listings.read_data(date_start, date_end))
+        self.data.read_data(self.data_dir, date_start, date_end)
         
         self.create_final_update_tasks()
         
         while 1:
             #sleep until a task is due
             next_due_time, sleep_secs = self.compute_next_wakeup_time()
-            info("Sleeping until: {}".format(next_due_time))
+            logging.info("Sleeping until: {}".format(next_due_time))
             time.sleep(sleep_secs)
 
             self.execute_tasks()
             self.create_final_update_tasks()
-            io_listings.write_data(self.listings, overwrite=True)
+            self.data.write_listings()

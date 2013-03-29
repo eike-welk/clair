@@ -107,37 +107,37 @@ def test_MainObj_execute_tasks():
     
     #Create product information and search tasks 
     m = MainObj(conf_dir, data_dir)
-    m.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
-                            None, None),
-                    Product("nikon-d70", "Nikon D70", "DSLR Camera", 
-                            None, None)])
-    m.add_tasks([SearchTask("s-nikon-d90", datetime(2000,1,1), "ebay-de", 
-                            "Nikon D90", "daily", 5, 10, 500, "EUR", 
-                            ["nikon-d90"]),
-                 SearchTask("s-nikon-d70", datetime(2000,1,1), "ebay-de", 
-                            "Nikon D70", "daily", 5, 10, 500, "EUR", 
-                            ["nikon-d70"])])
+    m.data.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
+                                 None, None),
+                         Product("nikon-d70", "Nikon D70", "DSLR Camera", 
+                                 None, None)])
+    m.data.add_tasks([SearchTask("s-nikon-d90", datetime(2000,1,1), "ebay-de", 
+                                 "Nikon D90", "daily", 5, 10, 500, "EUR", 
+                                 ["nikon-d90"]),
+                      SearchTask("s-nikon-d70", datetime(2000,1,1), "ebay-de", 
+                                 "Nikon D70", "daily", 5, 10, 500, "EUR", 
+                                 ["nikon-d70"])])
     
     #Execute the search tasks
     m.execute_tasks()
-    print m.tasks
-    print m.listings[["title", "price", "sold", "time"]].to_string()
+    print m.data.tasks
+    print m.data.listings[["title", "price", "sold", "time"]].to_string()
     
     #Create an update task, that updates all listings immediately, 
     # and is executed only once
-    upd_listings = m.listings["id"]
-    m.add_tasks([UpdateTask("update-1", datetime(2000,1,1), "ebay-de", None, 
-                           upd_listings)])
+    upd_listings = m.data.listings["id"]
+    m.data.add_tasks([UpdateTask("update-1", datetime(2000,1,1), "ebay-de", 
+                                 None, upd_listings)])
     
     #Execute the update task
     m.execute_tasks()
-    print m.tasks
-    print m.listings[["title", "price", "sold", "time", "server"]].to_string()
+    print m.data.tasks
+    print m.data.listings[["title", "price", "sold", "time", "server"]].to_string()
     
     #The search tasks must still exist, but the update task must be deleted
-    assert len(m.tasks) == 2
+    assert len(m.data.tasks) == 2
     #There must be about 10 listings, 5 from each search task
-    assert 8 <= len(m.listings) <= 10 #fewer listings: variants of the same item are removed
+    assert 8 <= len(m.data.listings) <= 10 #fewer listings: variants of the same item are removed
     
 #    print m.listings[["description", "price"]].to_string()
     wakeup_time, sleep_sec = m.compute_next_wakeup_time()
@@ -157,9 +157,9 @@ def test_MainObj_create_final_update_tasks():
     
     #Create product information and a search task
     m = MainObj(conf_dir, data_dir)
-    m.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
+    m.data.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
                             None, None)])
-    m.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", 
+    m.data.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", 
                             "Nikon D90", "daily", 30, 10, 500, "EUR", 
                             ["nikon-d90"])])
     
@@ -171,19 +171,19 @@ def test_MainObj_create_final_update_tasks():
     #Create update tasks to get the final price of the listings
     m.create_final_update_tasks()
 #    print m.tasks
-    assert len(m.tasks) == 3
-    assert 0.8 * 30 <= len(m.listings) <= 30
+    assert len(m.data.tasks) == 3
+    assert 0.8 * 30 <= len(m.data.listings) <= 30
     
     #The tasks must be created only once
     m.create_final_update_tasks()
-    assert len(m.tasks) == 3
+    assert len(m.data.tasks) == 3
     
     #continuous operation must be possible
-    m.tasks["nikon-d90"].due_time = datetime(2000,1,1)
+    m.data.tasks["nikon-d90"].due_time = datetime(2000,1,1)
     m.execute_tasks()
     m.create_final_update_tasks()
-    print m.tasks
-    print m.listings[["title", "price", "sold", "time"]].to_string()
+    print m.data.tasks
+    print m.data.listings[["title", "price", "sold", "time"]].to_string()
     
     print "finished!"
     
