@@ -4,7 +4,9 @@
     <listing>
       <id>eb-110685959294</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -143,7 +145,9 @@
     <listing>
       <id>eb-111013528170</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>nikon-18-70-f/3.5-4.5--1</product>
@@ -568,7 +572,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
     <listing>
       <id>eb-111014122908</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>nikon-18-70-f/3.5-4.5--1</product>
@@ -623,7 +629,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
     <listing>
       <id>eb-111014227879</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -698,7 +706,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
     <listing>
       <id>eb-121067430223</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -768,7 +778,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
     <listing>
       <id>eb-121069003715</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -857,7 +869,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
     <listing>
       <id>eb-121069181616</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -1127,7 +1141,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-121069258074</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -1394,7 +1410,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-121069685867</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -1694,7 +1712,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-121069760105</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -1966,7 +1986,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-121070219849</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -2228,7 +2250,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-121071848354</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -2289,7 +2313,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-121071970599</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -2352,7 +2378,9 @@ Megapixel, Live-View, HD-Videofunktion) Geh&#228;use&lt;/span&gt; &lt;/h1&gt;&lt
     <listing>
       <id>eb-130856759890</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -2416,7 +2444,9 @@ Megapixel, Live-View, HD-Videofunktion) Geh&#228;use&lt;/span&gt; &lt;/h1&gt;&lt
     <listing>
       <id>eb-140919320270</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -2683,7 +2713,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-150995887962</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -2951,7 +2983,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-150996222302</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -3114,7 +3148,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-150998022882</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -3172,7 +3208,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-150998235381</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -3324,7 +3362,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-150998238134</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -3474,7 +3514,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-151000912396</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -3555,7 +3597,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-160976523727</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>sigma-70-200-f/2.8--1-Nikon</product>
@@ -3590,7 +3634,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-160976738299</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -3651,7 +3697,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-160976739287</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -3712,7 +3760,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-160979529320</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -3793,7 +3843,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-160981379849</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -3874,7 +3926,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-160981379855</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -3955,7 +4009,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-170991060568</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -4034,7 +4090,9 @@ Versicherter Versand 5&#8364;</description>
     <listing>
       <id>eb-170991889386</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -4145,7 +4203,9 @@ und die Qualit&#228;t kennzeichnet.&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-170992041228</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -4177,7 +4237,9 @@ und die Qualit&#228;t kennzeichnet.&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-170993748621</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -4230,7 +4292,9 @@ und die Qualit&#228;t kennzeichnet.&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-170994835044</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -4278,7 +4342,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-170997833933</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>tamron-28-200-f/3.8-5.6--1-Nikon</product>
@@ -4349,7 +4415,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-181082071153</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -4395,7 +4463,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-181083350765</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>sigma-28-200-f/3,5-5,6--1-Nikon</product>
@@ -4478,7 +4548,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-181083435828</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -4632,7 +4704,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-181084029172</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -4698,7 +4772,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-181084668027</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -4776,7 +4852,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-181088686418</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -4872,7 +4950,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-190799327120</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -5025,7 +5105,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-190799327492</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -5179,7 +5261,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-190799813090</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -5245,7 +5329,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-190799915394</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -5309,7 +5395,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-190800171016</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -5385,7 +5473,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
     <listing>
       <id>eb-190801657503</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -5473,7 +5563,9 @@ Auktionen. Da biete ich das passende Zoomobjektiv an. Wird in Originalverpackung
     <listing>
       <id>eb-190801744711</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-18-105-f/3.5-5.6--1</product>
@@ -5895,7 +5987,9 @@ Verst&#228;ndnis.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-200895437825</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-18-105-f/3.5-5.6--1</product>
@@ -5962,7 +6056,9 @@ Verst&#228;ndnis.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-200897961168</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -6927,7 +7023,9 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
     <listing>
       <id>eb-221190151997</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -6989,7 +7087,9 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
     <listing>
       <id>eb-221190966703</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -7137,7 +7237,9 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
     <listing>
       <id>eb-221190992061</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -7234,7 +7336,9 @@ mit SD7/8.
     <listing>
       <id>eb-221191661237</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -7295,14 +7399,18 @@ mit SD7/8.
     </listing>
     <listing>
       <id>eb-221192086675</id>
-      <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <training_sample>1.0</training_sample>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>nan</thumbnail>
       <image>http://i.ebayimg.com/00/s/NzgxWDk1Mw==/z/hY8AAMXQjWtRJMMg/$T2eC16hHJF0E9nmFTL6RBRJMMfd1hg~~60_1.JPG?set_id=880000500F</image>
       <title>Nikon d90 body</title>
@@ -7326,14 +7434,17 @@ mit SD7/8.
     </listing>
     <listing>
       <id>eb-221192460887</id>
-      <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <training_sample>1.0</training_sample>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/2211924608878080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/NTI4WDc0MA==/z/pxgAAMXQVgBRHOx0/$T2eC16ZHJHYE9nzpebHSBRHO)0KGKQ~~60_1.GIF?set_id=8800005007</image>
       <title>Sehr sch&#246;ne und makellose Nikon D90 +Zubeh&#246;rpaket (Akku, Ladeger&#228;t, Speicher)</title>
@@ -7629,14 +7740,18 @@ content="text/html; charset=iso-8859-1"&gt;
     </listing>
     <listing>
       <id>eb-221192633155</id>
-      <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <training_sample>1.0</training_sample>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/2211926331558080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/NzY4WDEwMjQ=/z/uRAAAMXQfFJRJo-q/$T2eC16RHJGoE9nuQfRtIBRJo-qRR,!~~60_1.JPG?set_id=880000500F</image>
       <title>Nikon D90 body</title>
@@ -7690,7 +7805,9 @@ content="text/html; charset=iso-8859-1"&gt;
     <listing>
       <id>eb-230930916632</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-18-200-f/3.5-5.6--1</product>
@@ -7757,7 +7874,9 @@ content="text/html; charset=iso-8859-1"&gt;
     <listing>
       <id>eb-230930980942</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>tamron-70-300-f/4.0-5.6--3-Nikon</product>
@@ -7832,7 +7951,9 @@ content="text/html; charset=iso-8859-1"&gt;
     <listing>
       <id>eb-230931012365</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -7896,7 +8017,9 @@ content="text/html; charset=iso-8859-1"&gt;
     <listing>
       <id>eb-230931117797</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -8327,14 +8450,18 @@ content="text/html; charset=iso-8859-1"&gt;
     </listing>
     <listing>
       <id>eb-230932039934</id>
-      <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <training_sample>1.0</training_sample>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs3.ebaystatic.com/pict/2309320399348080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/MTUwWDIwMA==/z/b2AAAOxyyF5RI3ci/$(KGrHqR,!g4FEVBWGVpfBRI3ch1p9g~~60_1.JPG?set_id=8800004005</image>
       <title>Nikon D90 Body OVP</title>
@@ -8376,7 +8503,9 @@ content="text/html; charset=iso-8859-1"&gt;
     <listing>
       <id>eb-230934505849</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -8915,14 +9044,18 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
     </listing>
     <listing>
       <id>eb-251229351783</id>
-      <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <training_sample>1.0</training_sample>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-18-105-f/3.5-5.6--1</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/2512293517838080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/24/!!d6sK4Q!mM~$(KGrHqUOKisEu,)I-SPWBLr4N!Ip3g~~_8.JPG?set_id=89040003C1</image>
       <title>Nikon D90 12,3 MP Digitalkamera - Schwarz (Kit mit 18-105 mm - f/3.5-5.6 G...</title>
@@ -8979,14 +9112,18 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
     </listing>
     <listing>
       <id>eb-251230804983</id>
-      <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <training_sample>1.0</training_sample>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/2512308049838080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/MTA4MVgxNjAw/z/tV8AAOxyK~hRIRwF/$T2eC16FHJF8E9nnC6MK(BRIRwEijSg~~60_1.JPG?set_id=880000500F</image>
       <title>Nikon D90 Body Geh&#228;use in schwarz</title>
@@ -9040,7 +9177,9 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
     <listing>
       <id>eb-251233276536</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -9179,7 +9318,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-251233517007</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -9376,7 +9517,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-251233627981</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -9521,7 +9664,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-251234304377</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -9667,7 +9812,9 @@ document.write('&lt;img  alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 
     <listing>
       <id>eb-251234363561</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -9885,7 +10032,9 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
     <listing>
       <id>eb-251234365776</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -10103,7 +10252,9 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
     <listing>
       <id>eb-251234366480</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -10320,7 +10471,9 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
     <listing>
       <id>eb-251234502249</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -10429,7 +10582,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-251234657714</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -10616,7 +10771,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-251235626475</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -10726,7 +10883,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-251236284665</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -10967,7 +11126,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-261171584497</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>nikon-18-70-f/3.5-4.5--1</product>
@@ -11102,7 +11263,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-261172863746</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>nikon-50-f/1.8--1</product>
@@ -11165,7 +11328,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-271157995332</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-18-105-f/3.5-5.6--1</product>
@@ -11233,7 +11398,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-271158020150</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
       </expected_products>
@@ -11294,7 +11461,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-271159194678</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -11370,7 +11539,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-271160538663</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -11489,7 +11660,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-271161525001</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -11613,7 +11786,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-271162082135</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -11757,7 +11932,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-281065968068</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -11810,7 +11987,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-281067094887</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -11841,7 +12020,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-281068710798</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -11979,7 +12160,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-281068740587</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -12089,7 +12272,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-281070312609</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -12227,7 +12412,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-281070312619</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -12346,7 +12533,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-290867791648</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -14152,7 +14341,9 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
     <listing>
       <id>eb-290869787636</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>nikon-28-80-f/3.3-5.6--1</product>
@@ -14218,7 +14409,9 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
     <listing>
       <id>eb-300863140158</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>tamron-18-200-f/3.5-6.3--1-Nikon</product>
@@ -14252,7 +14445,9 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
     <listing>
       <id>eb-310580920764</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -15855,7 +16050,9 @@ fn_bilder('', '', '', '', '', '', '', '');
     <listing>
       <id>eb-310601014516</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
       </expected_products>
@@ -15922,7 +16119,9 @@ R&#252;ckgabeanspruch. </description>
     <listing>
       <id>eb-310606499476</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -16100,7 +16299,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-310607225419</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -16294,7 +16495,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-310609577047</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -16472,7 +16675,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-321074815277</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
       </expected_products>
@@ -16533,7 +16738,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-321074862007</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
         <product>nikon-18-70-f/3.5-4.5--1</product>
@@ -16612,7 +16819,9 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
     <listing>
       <id>eb-321074880778</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -16722,7 +16931,9 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
     <listing>
       <id>eb-321079979337</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -16778,7 +16989,9 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
     <listing>
       <id>eb-330874789917</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -16837,7 +17050,9 @@ erhalten; keine Garantie, da Privatverkauf; R&#252;ckgabem&#246;glichkeit 14 Tag
     <listing>
       <id>eb-330875799403</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
       </expected_products>
@@ -16910,7 +17125,9 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
     <listing>
       <id>eb-330876366458</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -16947,7 +17164,9 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
     <listing>
       <id>eb-350714412796</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -17115,7 +17334,9 @@ width="178" /&gt;&lt;/a&gt;&lt;/p&gt;
     <listing>
       <id>eb-350717753316</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -17168,7 +17389,9 @@ width="178" /&gt;&lt;/a&gt;&lt;/p&gt;
     <listing>
       <id>eb-350718621431</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -17234,7 +17457,9 @@ width="178" /&gt;&lt;/a&gt;&lt;/p&gt;
     <listing>
       <id>eb-360598362610</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -17498,7 +17723,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
     <listing>
       <id>eb-360599486093</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -17613,7 +17840,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360599535988</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-sb-24</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-24</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-24</product>
       </expected_products>
@@ -17753,7 +17982,9 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
     <listing>
       <id>eb-360600450363</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -17830,7 +18061,9 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
     <listing>
       <id>eb-360600450371</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -17917,7 +18150,9 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
     <listing>
       <id>eb-360600679289</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -18027,7 +18262,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360600690952</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -18211,7 +18448,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360600791630</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -18412,7 +18651,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360601645471</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -18609,7 +18850,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360601668672</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -18850,7 +19093,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360602080790</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -18965,7 +19210,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360602514211</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -19104,7 +19351,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-360603010668</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -19300,7 +19549,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-370764369593</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -19442,7 +19693,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     <listing>
       <id>eb-370765590208</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -19668,7 +19921,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370765661248</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -19846,7 +20101,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370765851050</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -20026,7 +20283,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370767212209</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -20238,7 +20497,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370767212213</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -20418,7 +20679,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370767355610</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -20596,7 +20859,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370767426055</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -20806,7 +21071,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370767935986</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -20986,7 +21253,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-370767963351</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -21164,7 +21433,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380580682855</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -21223,7 +21494,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380580682873</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -21292,7 +21565,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380580682985</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -21364,7 +21639,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380580683159</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -21423,7 +21700,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380580683236</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -21495,7 +21774,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380582045437</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -21908,7 +22189,9 @@ Tele/Weitwinkel-Vorsatz-Objektiven.&lt;/th&gt;
     <listing>
       <id>eb-380583762021</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -22120,7 +22403,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380583779724</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -22330,7 +22615,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380584342671</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -22540,7 +22827,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380585494206</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -22962,7 +23251,9 @@ Tele/Weitwinkel-Vorsatz-Objektiven.&lt;/th&gt;
     <listing>
       <id>eb-380585888368</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -23188,7 +23479,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380586147936</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -23400,7 +23693,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-380586181065</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-sb-26</search_task>
+      <search_tasks>
+        <task>s-nikon-sb-26</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
@@ -23610,7 +23905,9 @@ function MM_swapImage() { //v3.0
     <listing>
       <id>eb-390436378950</id>
       <training_sample>1.0</training_sample>
-      <search_task>s-nikon-d70</search_task>
+      <search_tasks>
+        <task>s-nikon-d70</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d70</product>
       </expected_products>
@@ -23810,7 +24107,9 @@ wechsel1();
     <listing>
       <id>eb-400419181436</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -23897,7 +24196,9 @@ wechsel1();
     <listing>
       <id>eb-400420541082</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -23990,7 +24291,9 @@ wechsel1();
     <listing>
       <id>eb-400420921828</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
@@ -24088,7 +24391,9 @@ wechsel1();
     <listing>
       <id>eb-400421528030</id>
       <training_sample>nan</training_sample>
-      <search_task>s-nikon-d90</search_task>
+      <search_tasks>
+        <task>s-nikon-d90</task>
+      </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>

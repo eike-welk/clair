@@ -1794,12 +1794,12 @@ class ListingsModel(QAbstractTableModel):
         else:
             return default_flags
     
-    attr_names = ['id', 'training_sample', 'search_task', 'expected_products', 
-                  'products', 'products_absent', 'thumbnail', 'image', 
-                  'title', 'description', 'prod_spec', 'active', 'sold', 
-                  'currency', 'price', 'shipping', 'type', 'time', 'location', 
-                  'postcode', 'country', 'condition', 'server', 'server_id', 
-                  'final_price', 'url_webui']
+    attr_names = ["id", "training_sample", "search_tasks", "expected_products", 
+                  "products", "products_absent", "thumbnail", "image", 
+                  "title", "description", "prod_spec", "active", "sold", 
+                  "currency", "price", "shipping", "type", "time", "location", 
+                  "postcode", "country", "condition", "server", "server_id", 
+                  "final_price", "url_webui"]
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """

@@ -160,8 +160,6 @@ class MainObj(object):
             #Search for new listings
             #TODO: If a listing is found by multiple search tasks, create union
             #      of "expected_products" and maybe "search_tasks"
-            #TODO: convert "search_task" to list "search_tasks"
-            #      is this complication justified?
             if isinstance(task, SearchTask):
                 lst_found = self.server.find_listings(
                                             keywords=task.query_string, 
@@ -169,7 +167,7 @@ class MainObj(object):
                                             price_min=task.price_min, 
                                             price_max=task.price_max, 
                                             currency=task.currency)
-                lst_found["search_task"] = task.id
+                lst_found["search_tasks"].fill([task.id])
                 lst_found["expected_products"].fill(task.expected_products)
                 lst_found["server"] = task.server
                 self.data.merge_listings(lst_found)

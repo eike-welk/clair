@@ -55,8 +55,8 @@ def make_listing_frame(nrows):
     listings["id"]                = None  #internal unique ID of each listing.
     listings["training_sample"]   = nan   #This is training sample if True
 #    listings["query_string"]      = None  #String with search keywords
-    listings["search_task"]       = None  #ID (string) of search task, 
-    #                                     #    that returned this listing
+    listings["search_tasks"]      = None  #List of task IDs (strings) of search 
+    #                                     #    tasks, that returned this listing
     listings["expected_products"] = None  #list of product IDs (strings)
     
     listings["products"]          = None  #Products in this listing. 
@@ -348,7 +348,7 @@ class XMLConverter(object):
         
         
 
-class ListingsXMLConverter(XMLConverter):
+class XMLConverterListings(XMLConverter):
     """
     Convert listings to and from XML
     
@@ -367,8 +367,7 @@ class ListingsXMLConverter(XMLConverter):
             li_xml = E.listing(
                 E.id(li["id"]),
                 E.training_sample(float(li["training_sample"])),
-                E.search_task(li["search_task"]),
-#                E.query_string(li["query_string"]),
+                E.search_tasks(*self.to_xml_list("task", li["search_tasks"])),
                 E.expected_products(*self.to_xml_list(
                                         "product", li["expected_products"])),
                 E.products(*self.to_xml_list("product", li["products"])),
@@ -418,8 +417,11 @@ class ListingsXMLConverter(XMLConverter):
         for i, li in enumerate(listing_xml):    
             listings["id"][i] = ustr(li.id.pyval) 
             listings["training_sample"][i] = li.training_sample.pyval
-            listings["search_task"][i] = ustr(li.search_task.pyval)
-#            listings["query_string"][i] = ustr(li.query_string.pyval)
+            try: listings["search_tasks"][i] = [ustr(li.search_task.pyval)] #TODO: remove after 2013-04-30
+            except AttributeError: pass
+            try: listings["search_tasks"][i] = self.from_xml_list(
+                                            "task", li.search_tasks)
+            except AttributeError: pass
             listings["expected_products"][i] = self.from_xml_list(
                                             "product", li.expected_products)
             listings["products"][i] = self.from_xml_list(
@@ -457,7 +459,7 @@ class ListingsXMLConverter(XMLConverter):
 
 
 
-class ProductXMLConverter(XMLConverter):
+class XMLConverterProducts(XMLConverter):
     """Convert a list of Product objects to and from XML"""
     def to_xml(self, product_list):
         """Convert dictionary of Product to XML"""
@@ -505,7 +507,7 @@ class ProductXMLConverter(XMLConverter):
 
 
 
-class TaskXMLConverter(XMLConverter):
+class XMLConverterTasks(XMLConverter):
     """
     Convert list of task objects to and from XML
     
@@ -579,7 +581,7 @@ class TaskXMLConverter(XMLConverter):
 EARLIEST_DATE = datetime(1, 1, 1)
 LATEST_DATE = datetime(9999, 12, 31) 
 
-class XmlBigFrameIO(object):
+class XmlIOBigFrame(object):
     """
     Store big DataFrame objects as XML files.
     
@@ -852,12 +854,12 @@ class XmlBigFrameIO(object):
         
 
 
-class XmlSmallObjectIO(object):
+class XmlIOSmallObject(object):
     """
     Store small objects as XML files.
     
     Trivial wrapper around open, os.rename, os.remove. Has identical interface 
-    as XmlBigFrameIO.
+    as XmlIOBigFrame.
     
     Constructor Parameters
     ----------------------
@@ -967,23 +969,23 @@ class DataStore(object):
         
         #Load products
         try:
-            load_prods = XmlSmallObjectIO(self.data_dir, "products", 
-                                          ProductXMLConverter())
+            load_prods = XmlIOSmallObject(self.data_dir, "products", 
+                                          XMLConverterProducts())
             self.add_products(load_prods.read_data())
         except IOError, err:
             logging.warning("Could not load product data: " + str(err))
 
         #Load tasks
         try:
-            load_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
-                                          TaskXMLConverter())
+            load_tasks = XmlIOSmallObject(self.data_dir, "tasks", 
+                                          XMLConverterTasks())
             self.add_tasks(load_tasks.read_data())
         except IOError, err:
             logging.warning("Could not load task data: " + str(err))
             
         #Load listings
-        load_listings = XmlBigFrameIO(self.data_dir, "listings", 
-                                      ListingsXMLConverter())
+        load_listings = XmlIOBigFrame(self.data_dir, "listings", 
+                                      XMLConverterListings())
         self.merge_listings(load_listings.read_data(date_start, date_end))
         
         #TODO: load prices
@@ -993,24 +995,24 @@ class DataStore(object):
     
     def write_listings(self):
         """Write listings to disk."""
-        io_listings = XmlBigFrameIO(self.data_dir, "listings", 
-                                    ListingsXMLConverter())
+        io_listings = XmlIOBigFrame(self.data_dir, "listings", 
+                                    XMLConverterListings())
         io_listings.write_data(self.listings, overwrite=True)
     
     def write_products(self):
         """Write products to disk."""
         prodlist = self.products.values()
         prodlist.sort(key=lambda prod: prod.id) 
-        io_products = XmlSmallObjectIO(self.data_dir, "products", 
-                                       ProductXMLConverter())
+        io_products = XmlIOSmallObject(self.data_dir, "products", 
+                                       XMLConverterProducts())
         io_products.write_data(prodlist)
         
     def write_tasks(self):
         """Write tasks to disk."""
         tasklist = self.tasks.values()
         tasklist.sort(key=lambda task: task.id) 
-        io_tasks = XmlSmallObjectIO(self.data_dir, "tasks", 
-                                    TaskXMLConverter())
+        io_tasks = XmlIOSmallObject(self.data_dir, "tasks", 
+                                    XMLConverterTasks())
         io_tasks.write_data(tasklist)
         
         
@@ -1040,11 +1042,12 @@ class DataStore(object):
         
         #Test if ``self.listings`` contains unknown product, or task IDs.
         for lid in self.listings.index:
-            search_task = self.listings["search_task"][lid]
-            if search_task not in task_ids:
+            found_tasks = setn(self.listings["search_tasks"][lid])
+            unk_tasks = found_tasks - task_ids
+            if unk_tasks:
                 logging.warning("Unknown task ID: '{tid}', "
                                 "in listings['search_task']['{lid}']."
-                                .format(tid=search_task, lid=lid))
+                                .format(tid="', '".join(unk_products), lid=lid))
             found_prods = setn(self.listings["expected_products"][lid])
             unk_products = found_prods - prod_ids
             if unk_products:

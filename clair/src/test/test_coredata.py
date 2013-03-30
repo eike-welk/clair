@@ -63,7 +63,7 @@ def make_test_listings():
     fr["id"] = ["eb-123", "eb-456", "eb-457"]
     
     fr["training_sample"][0] = True 
-    fr["search_task"][0] = "s-nikon-d90"
+    fr["search_tasks"][0] = ["s-nikon-d90"]
 #    fr["query_string"][0] = "Nikon D90"
     
     fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
@@ -128,7 +128,7 @@ def assert_frames_equal(fr1, fr2):
 
 def test_ListingsXMLConverter():
     """Test conversion of listings to and from XML"""
-    from clair.coredata import ListingsXMLConverter
+    from clair.coredata import XMLConverterListings
     
     #Create DataFrame with 3 listings. 
     #row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
@@ -136,7 +136,7 @@ def test_ListingsXMLConverter():
     print ls1
     print
     
-    conv = ListingsXMLConverter()
+    conv = XMLConverterListings()
     
     #The test: convert to XML and back.
     xml = conv.to_xml(ls1)
@@ -149,7 +149,7 @@ def test_ListingsXMLConverter():
 
 def test_XmlBigFrameIO_read_write_text():
     """Test reading and writing text files"""
-    from clair.coredata import XmlBigFrameIO
+    from clair.coredata import XmlIOBigFrame
     
     testdata_dir = relative("../../testdata")
     basename = "test-file"
@@ -159,7 +159,7 @@ def test_XmlBigFrameIO_read_write_text():
     os.system("rm " + testdata_pattern)
     
     #Create test object
-    xml_io = XmlBigFrameIO(testdata_dir, basename, None)
+    xml_io = XmlIOBigFrame(testdata_dir, basename, None)
 
     #Create nonsense files
     fname_ok = xml_io.make_filename(datetime(2012, 3, 3), 0, False)
@@ -200,7 +200,7 @@ def test_XmlBigFrameIO_read_write_text():
     
 def test_XmlBigFrameIO_read_write_dataframe():
     """Test reading and writing DataFrame objects as XML"""
-    from clair.coredata import XmlBigFrameIO, ListingsXMLConverter
+    from clair.coredata import XmlIOBigFrame, XMLConverterListings
     
     testdata_dir = relative("../../testdata")
     basename = "test-listings"
@@ -214,7 +214,7 @@ def test_XmlBigFrameIO_read_write_dataframe():
 #    print frame1
     
     #Create test object
-    xml_io = XmlBigFrameIO(testdata_dir, basename, ListingsXMLConverter())
+    xml_io = XmlIOBigFrame(testdata_dir, basename, XMLConverterListings())
     #datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)
     
     #Write and read XML files, written data must be same as read data.
@@ -275,7 +275,7 @@ def test_Record():
     
 def test_ProductXMLConverter():
     """Test conversion of product objects from and to XML"""
-    from clair.coredata import Product, ProductXMLConverter
+    from clair.coredata import Product, XMLConverterProducts
     
     pl1 = [Product("a1", "A1 thing", "The A1 is great.", ["Foo", "A2"], 
                         ["bar", "baz"]),
@@ -283,7 +283,7 @@ def test_ProductXMLConverter():
            Product("", "", "", [], [])
            ]
     
-    conv = ProductXMLConverter()
+    conv = XMLConverterProducts()
     
     #Convert dict of products to XML
     pd_xml = conv.to_xml(pl1)
@@ -310,7 +310,7 @@ def test_ProductXMLConverter():
     
 def test_TaskXMLConverter():
     """Test conversion of product objects from and to XML"""
-    from clair.coredata import SearchTask, UpdateTask, TaskXMLConverter
+    from clair.coredata import SearchTask, UpdateTask, XMLConverterTasks
     
     td1 = [SearchTask("s-nikon-d90", datetime(2000, 1, 1, 20, 30), 
                       "ebay-de", "Nikon D90", "daily", 500, 170, 700, "EUR", 
@@ -321,7 +321,7 @@ def test_TaskXMLConverter():
                       "ebay-de", "Nikon SB24",),
            ]
     
-    conv = TaskXMLConverter()
+    conv = XMLConverterTasks()
     
     #Convert dict of products to XML
     td_xml = conv.to_xml(td1)
@@ -340,7 +340,7 @@ def test_TaskXMLConverter():
     
 def test_XmlSmallObjectIO():
     """Test file writer object for small data structures."""
-    from clair.coredata import Product, ProductXMLConverter, XmlSmallObjectIO
+    from clair.coredata import Product, XMLConverterProducts, XmlIOSmallObject
     
     testdata_dir = relative("../../testdata")
     basename = "test-products"
@@ -355,7 +355,7 @@ def test_XmlSmallObjectIO():
            Product("b1", "PRoduct B1", "The B2 is versatile."),
            ]
     
-    io = XmlSmallObjectIO(testdata_dir, basename, ProductXMLConverter())
+    io = XmlIOSmallObject(testdata_dir, basename, XMLConverterProducts())
     
     #Write into empty directory
     io.write_data(pd1)
@@ -390,6 +390,8 @@ def test_DataStore():
     assert len(d.tasks) > 0
     assert len(d.listings) > 0
     
+    print "finished"
+    
     
     
 if __name__ == "__main__":
@@ -400,5 +402,6 @@ if __name__ == "__main__":
 #    test_Record()
 #    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
+    test_DataStore()
     
     pass
