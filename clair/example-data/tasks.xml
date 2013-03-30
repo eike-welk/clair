@@ -59,7 +59,7 @@
     </search_task>
     <search_task>
       <id>s-tamron-17-50-f/2.8--Nikon</id>
-      <due_time>0200-01-01 00:00:00</due_time>
+      <due_time>2000-01-01 00:00:00</due_time>
       <server>ebay.de</server>
       <recurrence_pattern>daily</recurrence_pattern>
       <query_string>Tamron 17-50 2.8 Nikon</query_string>

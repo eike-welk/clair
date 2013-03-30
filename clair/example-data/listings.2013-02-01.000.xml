@@ -9516,16 +9516,17 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-251233627981</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs2.ebaystatic.com/pict/2512336279818080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/NDgwWDY0MA==/$T2eC16hHJGwE9n)yVTwvBQuVn85q)w~~60_1.JPG?set_id=8800005007</image>
       <title>5mm-14mm AUTOFOKUS SUPER WEITWINKEL+MAKRO f&#252;r NIKON D7000D90D300D5200D5000D300s </title>
@@ -11460,16 +11461,19 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-271159194678</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>xxx-unknown-lens</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+        <product>xxx-unknown-lens</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs3.ebaystatic.com/pict/2711591946788080_3.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/NzY4WDEwMjQ=/z/RhcAAMXQ8OdRI9ST/$(KGrHqF,!oEFEDFzjJHTBRI9SS49sQ~~60_1.JPG?set_id=880000500F</image>
       <title>Nikon D90  inkl. Nikon 35-70mm f/3,3-4,5 Makroobjektiv und Batteriegriff</title>
@@ -11538,16 +11542,20 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-271160538663</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-80-200-f/2.8--2</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-80-200-f/2.8--2</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/2711605386638080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/ODAwWDgwMA==/z/Rd8AAMXQjWtRJ3U1/$(KGrHqV,!oMFEL(8s!!WBRJ3U1J5c!~~60_1.JPG?set_id=8800005007</image>
       <title>Nikon AF Nikkor 80-200 mm 1:2,8 ED *NEUWERTIG* f. D7000 D800 D700 D300 D90 ...</title>
@@ -12019,16 +12027,20 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-281068710798</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-70-300-f/4-5.6--1</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-70-300-f/4-5.6--1</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs3.ebaystatic.com/pict/2810687107988080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/ODAwWDgwMA==/z/gxcAAMXQ8OdRJ3-Z/$(KGrHqZ,!i!FE!z0jDG,BRJ3-Y0N1Q~~60_1.JPG?set_id=8800005007</image>
       <title>Nikon AF-D Nikkor 70-300 mm 1:4-5,6 ED *wie NEU* f. D7000 D300 D200 D90 D80 ...</title>
@@ -12159,16 +12171,20 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-281068740587</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>xxx-unknown-lens</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>xxx-unknown-lens</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/2810687405878080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/ODAwWDgwMA==/z/AlcAAMXQ8odRHmmz/$(KGrHqQOKocFEYylPzuJBRHmmzMYWw~~60_1.JPG?set_id=8800005007</image>
       <title>Nikon AF-D Nikkor 24-120 mm *TOP* f&#252;r D90 D100 D200 D300 D700 D800 D7000 ...</title>
@@ -16118,15 +16134,17 @@ R&#252;ckgabeanspruch. </description>
     </listing>
     <listing>
       <id>eb-310606499476</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-sb-26</task>
       </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-sb-26</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/3106064994768080_1.jpg</thumbnail>
       <image>http://media.meinfoto.com/img/artikel400/700020_1.jpg</image>
       <title>Funkblitzausl&#246;ser f. Nikon Speedlight SB-26 SB-25 SB-24</title>
@@ -16818,16 +16836,17 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
     </listing>
     <listing>
       <id>eb-321074880778</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-d90</product>
+      </products>
+      <products_absent/>
       <thumbnail>http://thumbs3.ebaystatic.com/pict/3210748807788080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/MTIwMFgxNjAw/z/L6QAAMXQlUNRIRiO/$T2eC16h,!)EE9s2ui)UrBRIRiNwwUg~~60_1.JPG?set_id=880000500F</image>
       <title>NIKON D90 Body Digitalkamera Spiegelreflex</title>
@@ -17049,7 +17068,7 @@ erhalten; keine Garantie, da Privatverkauf; R&#252;ckgabem&#246;glichkeit 14 Tag
     </listing>
     <listing>
       <id>eb-330875799403</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
@@ -17981,16 +18000,18 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
     </listing>
     <listing>
       <id>eb-360600450363</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-85-f/1.8-D--1</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/3606004503638080_1.jpg</thumbnail>
       <image>http://sogus2.de/fotos/18_Februar/DSC_2656.JPG</image>
       <title>Nikon AF-D Nikkor 85mm 1:1,8 in OVP f&#252;r D80 D90 D200 D300 D700 D800 *NEUWERTIG*</title>
@@ -18060,16 +18081,20 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
     </listing>
     <listing>
       <id>eb-360600450371</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-70-210-f/4--1</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-70-210-f/4--1</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/3606004503718080_1.jpg</thumbnail>
       <image>http://sogus2.de/fotos/18_Februar/DSC_2679.JPG</image>
       <title>Nikon AF Nikkor 70-210 mm 1:4 Macro f&#252;r D80 D90 D200 D300 D700 D800  *NEUWERTIG*</title>
@@ -18261,16 +18286,17 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-360600690952</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/3606006909528080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/NDgwWDY0MA==/$T2eC16VHJGQE9noM,KY+BQkoQpE4tw~~60_1.JPG?set_id=8800005007</image>
       <title>28-300mm AUTOFOKUS ZOOM+MAKRO TELE OBJEKTIV f&#252;r NIKON D3X D90D800D800E D700D60D3</title>
@@ -19692,7 +19718,7 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
     </listing>
     <listing>
       <id>eb-370765590208</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
@@ -19700,8 +19726,10 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
         <product>nikon-d90</product>
         <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/3707655902088080_1.jpg</thumbnail>
       <image>http://media.meinfoto.com/img/artikel400/522008_1.jpg</image>
       <title>3 Tage: Fisheye Objektiv 8mm f3.5 f&#252;r Nikon D3000 D90</title>
@@ -19920,15 +19948,17 @@ function MM_swapImage() { //v3.0
     </listing>
     <listing>
       <id>eb-370765661248</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-sb-26</task>
       </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-sb-26</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/3707656612488080_1.jpg</thumbnail>
       <image>http://media.meinfoto.com/img/artikel400/700030_1.jpg</image>
       <title>Funkblitzausl&#246;ser f. Nikon Speedlight SB-26 SB-25 SB-24</title>
@@ -21638,16 +21668,20 @@ function MM_swapImage() { //v3.0
     </listing>
     <listing>
       <id>eb-380580683159</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-16-85-f/3.5-5.6--1</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-16-85-f/3.5-5.6--1</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs4.ebaystatic.com/pict/3805806831598080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/s/MTA2NFgxNjAw/$T2eC16FHJGoE9nuQeVy(BQ4ES6(KKg~~60_1.JPG?set_id=8800005007</image>
       <title>Nikon AF-S VR Nikkor 16-85mm wie NEU f&#252;r D7000 D300S S5pro D5000 D90 D3000 D300 </title>
@@ -21699,16 +21733,20 @@ function MM_swapImage() { //v3.0
     </listing>
     <listing>
       <id>eb-380580683236</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>nikon-50-f/1.4-G--2</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>nikon-50-f/1.4-G--2</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/3805806832368080_1.jpg</thumbnail>
       <image>http://i.ebayimg.com/00/$(KGrHqUOKooE4tmopr7oBO(35zhMCQ~~_8.JPG?set_id=89040003C1</image>
       <title>Nikon AF-S 50mm f1,4 wie NEU f&#252;r D300 D600 D700 D800 D3 D4 D3S D7000 D5000 D90</title>
@@ -22402,15 +22440,17 @@ function MM_swapImage() { //v3.0
     </listing>
     <listing>
       <id>eb-380583779724</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-sb-26</task>
       </search_tasks>
       <expected_products>
         <product>nikon-sb-26</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-sb-26</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/3805837797248080_1.jpg</thumbnail>
       <image>http://media.meinfoto.com/img/artikel400/700020_1.jpg</image>
       <title>3 Tage: Funkblitzausl&#246;ser f. Nikon Speedlight SB-26 SB-25 SB-24</title>
@@ -22826,16 +22866,20 @@ function MM_swapImage() { //v3.0
     </listing>
     <listing>
       <id>eb-380585494206</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
+        <product>sigma-10-20-f/4-5.6--1-nikon</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products>
+        <product>sigma-10-20-f/4-5.6--1-nikon</product>
+      </products>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs3.ebaystatic.com/pict/3805854942068080_1.jpg</thumbnail>
       <image>http://www.foto-markt.de/bilder/2011/September/9g9r52l-IMG_8509.JPG</image>
       <title>Nikon AF 10-20mm F4-5.6 Sigma EX DC HSM Objektiv Lens Nikon DX AF D D90 D7000</title>
@@ -24106,16 +24150,17 @@ wechsel1();
     </listing>
     <listing>
       <id>eb-400419181436</id>
-      <training_sample>nan</training_sample>
+      <training_sample>1.0</training_sample>
       <search_tasks>
         <task>s-nikon-d90</task>
       </search_tasks>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-sb-24</product>
       </expected_products>
-      <products xsi:nil="true"/>
-      <products_absent xsi:nil="true"/>
+      <products/>
+      <products_absent>
+        <product>nikon-d90</product>
+      </products_absent>
       <thumbnail>http://thumbs1.ebaystatic.com/pict/4004191814368080_1.jpg</thumbnail>
       <image>http://sogus2.de/fotos/21_Februar/DSC_3155.JPG</image>
       <title>Nikon AF Nikkor 70-210 mm 1:4 Macro f&#252;r D80 D90 D200 D300 D700 D800</title>

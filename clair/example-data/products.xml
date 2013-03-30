@@ -118,6 +118,45 @@ Note! There are multiple versions of this lens
       </categories>
     </product>
     <product>
+      <id>nikon-50-f/1.4-D--1</id>
+      <name>Nikon 50mm f/1.4 AF-D Lens</name>
+      <description>Very fast long/normal lens, relatively expensive.
+
+* very fast
+* full frame
+* mechanically very good
+* external focus motor
+* optically good to very good, however:
+    * soft in the corners at wide apertures
+    * low contrast at wide apertures
+    * ugly bokeh at wide appertures
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-50-f/1.4-G--2</id>
+      <name>Nikon 50mm f/1.4 AF-S G Lens</name>
+      <description>Very fast long/normal lens, relatively expensive.
+
+* very fast
+* full frame
+* mechanically very good
+* internal focus motor
+* relativelay slow focus
+* optically good to very good, however:
+    * soft in the corners at wide apertures
+    * low contrast at wide apertures
+    * ugly bokeh at wide appertures
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-50-f/1.8--1</id>
       <name>Nikon 50mm f/1.8 AF Lens</name>
       <description>Fast, cheap, very old, long/normal prime lens
@@ -159,6 +198,76 @@ There are several different versions of this lens.</description>
 * Full frame
 
 There are several different versions of this lens.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-70-210-f/4--1</id>
+      <name>Nikon 70-210mm f/4 AF</name>
+      <description>Old slow long zoom lens
+
+* slow
+* optically decent
+
+* full frame
+* external focus motor
+* slow focus speed</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-70-300-f/4-5.6--1</id>
+      <name>Nikon 70-300mm f/4-5.6  AF Lens</name>
+      <description>Bad old long zoom lens.
+
+* slow
+* bad
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-80-200-f/2.8--2</id>
+      <name>Nikon 80-200mm f/2.8 AF Lens</name>
+      <description>Old, fast long zoom lens.
+
+* from 1988
+* pus-pull zoom
+
+* fast 
+* full frame
+* mechanically very good
+* external focus motor
+* slow focus speed
+* optically good
+
+There is a large number of versions of this lens. See:
+http://www.kenrockwell.com/nikon/80-200mm-history.htm
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-85-f/1.8-D--1</id>
+      <name>Nikon 85mm f/1.8 AF-D</name>
+      <description>Very Fast long lens, relatively expensive.
+
+* very fast
+* full frame
+* mechanically very good
+* external focus motor
+* very fast focus speed
+* optically extremely good
+
+</description>
       <important_words/>
       <categories>
         <category>photo.system.nikon.lens</category>
@@ -208,6 +317,22 @@ Represents two products:
       <important_words/>
       <categories>
         <category>photo.system.generic.flash</category>
+      </categories>
+    </product>
+    <product>
+      <id>sigma-10-20-f/4-5.6--1-nikon</id>
+      <name>Sigma 10-20mm f/4-5.6 AF EX DC HSM</name>
+      <description>Ultra wide angle zoom lens.
+
+* slow
+* optically very good
+* mechanically very good
+* internal focus motor
+* very fast focus speed
+</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
       </categories>
     </product>
     <product>
@@ -370,6 +495,19 @@ A very similar lens is sold by Pentax (DA* 16-50mm f/2.8), but the Tokina versio
       <important_words/>
       <categories>
         <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>xxx-unknown-lens</id>
+      <name>Unkown Dummy Lens</name>
+      <description>Placholder for unknown, or uninteresting lenses.
+
+Can be considered in price computations.</description>
+      <important_words>
+        <word></word>
+      </important_words>
+      <categories>
+        <category>photo.system.xxx.lens</category>
       </categories>
     </product>
   </products>
