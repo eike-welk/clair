@@ -2039,16 +2039,19 @@ class GuiMain(QMainWindow):
             #Show file open dialog.
             filename = QFileDialog.getOpenFileName(
                 self, "Open Configuration, click on any file", os.getcwd(), "")
+            #Do nothing if user has pressed the cancel button.
+            if not filename:
+                return
             dirname = os.path.dirname(filename)
             
         #Load the data
-        self.data.products = {}
-        self.data.tasks = {}
-        self.data.listings = pd.DataFrame()
+        self.data.products = []
+        self.data.tasks = []
+        self.data.listings = make_listing_frame(0)
         self.data.read_data(dirname)
         self.listings_model.setListings(self.data.listings)
-        self.product_model.setProducts(self.data.products.values())
-        self.task_model.setTasks(self.data.tasks.values())
+        self.product_model.setProducts(self.data.products)
+        self.task_model.setTasks(self.data.tasks)
         
         
     def saveConfiguration(self):
@@ -2057,13 +2060,9 @@ class GuiMain(QMainWindow):
         self.data.write_listings()
         self.listings_model.dirty = False
         #save products
-        self.data.products = {}
-        self.data.add_products(self.product_model.products)
         self.data.write_products()
         self.product_model.dirty = False
         #save tasks
-        self.data.tasks={}
-        self.data.add_tasks(self.task_model.tasks)
         self.data.write_tasks()
         self.task_model.dirty = False
         self.statusBar().showMessage("Configuration saved.", 5000)

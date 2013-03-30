@@ -107,7 +107,7 @@ def test_MainObj_execute_tasks():
     
     #Create product information and search tasks 
     m = MainObj(conf_dir, data_dir)
-    m.data.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
+    m.data.set_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
                                  None, None),
                          Product("nikon-d70", "Nikon D70", "DSLR Camera", 
                                  None, None)])
@@ -157,7 +157,7 @@ def test_MainObj_create_final_update_tasks():
     
     #Create product information and a search task
     m = MainObj(conf_dir, data_dir)
-    m.data.add_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
+    m.data.set_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
                             None, None)])
     m.data.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", 
                             "Nikon D90", "daily", 30, 10, 500, "EUR", 
@@ -165,12 +165,12 @@ def test_MainObj_create_final_update_tasks():
     
     #Execute the search task
     m.execute_tasks()
-#    print m.tasks
-#    print m.listings[["title", "price", "sold", "time"]].to_string()
+#    print m.data.tasks
+#    print m.data.listings[["title", "price", "sold", "time"]].to_string()
     
     #Create update tasks to get the final price of the listings
     m.create_final_update_tasks()
-#    print m.tasks
+#    print m.data.tasks
     assert len(m.data.tasks) == 3
     assert 0.8 * 30 <= len(m.data.listings) <= 30
     
@@ -179,7 +179,7 @@ def test_MainObj_create_final_update_tasks():
     assert len(m.data.tasks) == 3
     
     #continuous operation must be possible
-    m.data.tasks["nikon-d90"].due_time = datetime(2000,1,1)
+    m.data.tasks[0].due_time = datetime(2000,1,1)
     m.execute_tasks()
     m.create_final_update_tasks()
     print m.data.tasks
@@ -187,7 +187,8 @@ def test_MainObj_create_final_update_tasks():
     
     print "finished!"
    
-    
+
+@pytest.mark.skipif #IGNORE:E1101
 def test_MainObj_main_download_listings():
     """Test MainObj.create_final_update_tasks"""
     
@@ -232,6 +233,6 @@ if __name__ == "__main__":
 #    test_MainObj_create_final_update_tasks()
 #    test_MainObj_main_download_listings()
 
-#    experiment_MainObj_main_download_listings()
+    experiment_MainObj_main_download_listings()
     
     pass

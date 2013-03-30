@@ -929,31 +929,27 @@ class DataStore(object):
     """
     def __init__(self):
         self.data_dir = ""
-        self.tasks = {}
-        self.products = {}
+        self.tasks = []
+        self.products = []
         self.listings = make_listing_frame(0)
 #        self.prices = pd.DataFrame()
     
-    
-    def add_products(self, products):
+    def set_products(self, products):
         """
-        Add products to ``self.products``. tasks: list[product] | dict[_:product]
+        Set products to ``self.products``. tasks: list[product] | dict[_:product]
         """
         prod_list = products.values() if isinstance(products, dict) \
                     else products 
-        for product in prod_list:
-            logging.info("Adding product: {}".format(product.id))
-            self.products[product.id] = product
-
+        logging.info("Setting {} products.".format(len(prod_list)))
+        self.products = prod_list
 
     def add_tasks(self, tasks):
         """Add tasks to ``self.tasks``. tasks: list[task] | dict[_:task]"""
-        task_list = tasks.values() if isinstance(tasks, dict) \
-                    else tasks
-        for task in task_list:
-            logging.info("Adding task: {}".format(task.id))
-            self.tasks[task.id] = task
-    
+        task_list = tasks.values() if isinstance(tasks, dict) else tasks
+        logging.info("Adding {} tasks.".format(len(task_list)))
+        for task in tasks:
+            logging.debug("Adding task: '{}'".format(task.id))
+        self.tasks.extend(task_list)
     
     def merge_listings(self, listings):
         logging.info("Merging {} listings".format(len(listings)))
@@ -962,14 +958,14 @@ class DataStore(object):
     
     def read_data(self, data_dir, 
                   date_start=EARLIEST_DATE, date_end=LATEST_DATE):
-        """Read the data from disk"""
+        """Read the data from disk."""
         self.data_dir = data_dir
         
         #Load products
         try:
             load_prods = XmlIOSmallObject(self.data_dir, "products", 
                                           XMLConverterProducts())
-            self.add_products(load_prods.read_data())
+            self.set_products(load_prods.read_data())
         except IOError, err:
             logging.warning("Could not load product data: " + str(err))
 
@@ -999,19 +995,17 @@ class DataStore(object):
     
     def write_products(self):
         """Write products to disk."""
-        prodlist = self.products.values()
-        prodlist.sort(key=lambda prod: prod.id) 
+        self.products.sort(key=lambda prod: prod.id) 
         io_products = XmlIOSmallObject(self.data_dir, "products", 
                                        XMLConverterProducts())
-        io_products.write_data(prodlist)
+        io_products.write_data(self.products)
         
     def write_tasks(self):
         """Write tasks to disk."""
-        tasklist = self.tasks.values()
-        tasklist.sort(key=lambda task: task.id) 
+        self.tasks.sort(key=lambda task: task.id) 
         io_tasks = XmlIOSmallObject(self.data_dir, "tasks", 
                                     XMLConverterTasks())
-        io_tasks.write_data(tasklist)
+        io_tasks.write_data(self.tasks)
         
         
     def check_consistency(self):
@@ -1020,15 +1014,17 @@ class DataStore(object):
         #TODO: test for unknown server IDs in SearchTask or listings.
         #TODO: return inconsistencies in some format for the GUI
         """
+        logging.debug("Testing data consistency.")
+        
         def setn(iterable_or_none):
             if iterable_or_none is None:
                 return set()
             return set(iterable_or_none)
         
-        prod_ids = set(self.products.keys())
-        task_ids = set(self.tasks.keys())
+        prod_ids = set([p.id for p in self.products])
+        task_ids = set([t.id for t in self.tasks])
    
-        for task in self.tasks.values():
+        for task in self.tasks:
             #Test if task contains unknown product IDs
             if isinstance(task, SearchTask):
                 unk_products = setn(task.expected_products) - prod_ids

@@ -402,6 +402,6 @@ if __name__ == "__main__":
 #    test_Record()
 #    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
-    test_DataStore()
+#    test_DataStore()
     
     pass

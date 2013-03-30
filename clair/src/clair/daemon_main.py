@@ -133,7 +133,7 @@ class MainObj(object):
         * Number of seconds to sleep until the next task is due.
         """
         wakeup_time = datetime(9999, 12, 31) #The last possible month
-        for task in self.data.tasks.values():
+        for task in self.data.tasks:
             wakeup_time = min(task.due_time, wakeup_time)
             
         sleep_interval = wakeup_time - datetime.utcnow()
@@ -189,8 +189,8 @@ class MainObj(object):
         """
         logging.info("Executing due tasks.")
         now = datetime.utcnow()
-        for key in self.data.tasks.keys():
-            task = self.data.tasks[key]
+        dead_tasks = []
+        for itask, task in enumerate(self.data.tasks):
             #Test is task due
             if task.due_time > now:
                 continue
@@ -204,19 +204,24 @@ class MainObj(object):
                 lst_update = self.data.listings.ix[task.listings]
                 lst_update = self.server.update_listings(lst_update)
                 lst_update["server"] = task.server
-                lst_update["final_price"] = True
+#                lst_update["final_price"] = True #Use as flag, just to be sure
                 self.data.merge_listings(lst_update)
             else:
                 raise TypeError("Unknown task type:" + str(type(task)) + 
                                 "\ntask:\n" + str(task))
-                
-            #Remove tasks that are executed only once.
+            
+            #Mark non-recurrent tasks for removal
             if task.recurrence_pattern is None:
-                del self.data.tasks[key]
+                dead_tasks.append(itask)
             #Compute new due time for recurrent tasks
             else:
                 task.due_time = self.compute_next_due_time(
                             datetime.utcnow(), task.recurrence_pattern, True)
+
+        #Remove dead (non recurrent) tasks, after they have been executed.
+        dead_tasks.reverse()
+        for itask in dead_tasks:
+            del self.data.tasks[itask]    
     
     
     def create_final_update_tasks(self):
@@ -251,6 +256,7 @@ class MainObj(object):
         groups = no_final.groupby(group_nums)
         
         #Create one update task for each group
+        update_tasks = []
         id_start = "update-"
         for i, group in groups:
             latest_time = group["time"].max()
@@ -261,7 +267,9 @@ class MainObj(object):
                               server=None, recurrence_pattern=None, 
                               listings=listing_ids)
 #            print task
-            self.data.add_tasks([task])
+            update_tasks.append(task)
+            
+        self.data.add_tasks(update_tasks)
         
         #Remember the listings for which update tasks were just created
         self.data.listings["final_update_pending"][where_no_final] = True
