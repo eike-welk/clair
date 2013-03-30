@@ -140,6 +140,45 @@ class MainObj(object):
         sleep_sec = max(sleep_interval.total_seconds(), 0.) 
         
         return wakeup_time, sleep_sec
+    
+    
+    def execute_search_task(self, task):
+        """Search for new listings. Execute a search task."""
+        assert isinstance(task, SearchTask)
+        
+        #Get new listings from server
+        lst_found = self.server.find_listings(
+                                    keywords=task.query_string, 
+                                    n_listings=task.n_listings, 
+                                    price_min=task.price_min, 
+                                    price_max=task.price_max, 
+                                    currency=task.currency)
+        lst_found["search_tasks"].fill([task.id])
+        lst_found["expected_products"].fill(task.expected_products)
+        lst_found["server"] = task.server
+        
+        #Sane handling of listings that are found by multiple search tasks. ff.
+        def unique_list(dupli_list):
+            "Create unique, and sorted, list list of strings."
+            uniq_list = list(set(dupli_list))
+            uniq_list.sort()
+            return uniq_list
+        #Get IDs of listings that have already been found by other tasks
+        common_ids = list(set(lst_found.index).intersection(
+                                        set(self.data.listings.index)))
+        
+        #Union of "search_tasks" fields between existing and new listings
+        lst_found["search_tasks"][common_ids] += \
+            self.data.listings["search_tasks"][common_ids]
+        lst_found["search_tasks"] = lst_found["search_tasks"].map(unique_list)
+        
+        #Union of "expected_products" fields between existing and new listings
+        lst_found["expected_products"][common_ids] += \
+            self.data.listings["expected_products"][common_ids]
+        lst_found["expected_products"] = \
+            lst_found["expected_products"].map(unique_list)
+        
+        self.data.merge_listings(lst_found)
         
         
     def execute_tasks(self):
@@ -158,24 +197,14 @@ class MainObj(object):
             
             logging.info("Executing task: {}".format(task.id))
             #Search for new listings
-            #TODO: If a listing is found by multiple search tasks, create union
-            #      of "expected_products" and maybe "search_tasks"
             if isinstance(task, SearchTask):
-                lst_found = self.server.find_listings(
-                                            keywords=task.query_string, 
-                                            n_listings=task.n_listings, 
-                                            price_min=task.price_min, 
-                                            price_max=task.price_max, 
-                                            currency=task.currency)
-                lst_found["search_tasks"].fill([task.id])
-                lst_found["expected_products"].fill(task.expected_products)
-                lst_found["server"] = task.server
-                self.data.merge_listings(lst_found)
+                self.execute_search_task(task)
             #Update known listings
             elif isinstance(task, UpdateTask):
                 lst_update = self.data.listings.ix[task.listings]
                 lst_update = self.server.update_listings(lst_update)
                 lst_update["server"] = task.server
+                lst_update["final_price"] = True
                 self.data.merge_listings(lst_update)
             else:
                 raise TypeError("Unknown task type:" + str(type(task)) + 
@@ -238,8 +267,15 @@ class MainObj(object):
         self.data.listings["final_update_pending"][where_no_final] = True
 
 
-    def main_download_listings(self):
-        """Simple main loop that downloads listings."""
+    def main_download_listings(self, nloops=-1):
+        """
+        Simple main loop that downloads listings.
+        
+        Parameters
+        ----------
+        nloops : int 
+            Number of cycles in the main loop. -1 means: loop infinitely.
+        """
         #Only load listings from one month in past and one month in future
         date_start = datetime.utcnow() - timedelta(days=30)
         date_end = datetime.utcnow() + timedelta(days=30)
@@ -247,7 +283,7 @@ class MainObj(object):
         
         self.create_final_update_tasks()
         
-        while 1:
+        while nloops:
             #sleep until a task is due
             next_due_time, sleep_secs = self.compute_next_wakeup_time()
             logging.info("Sleeping until: {}".format(next_due_time))
@@ -256,3 +292,5 @@ class MainObj(object):
             self.execute_tasks()
             self.create_final_update_tasks()
             self.data.write_listings()
+            
+            nloops -= 1

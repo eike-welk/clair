@@ -186,20 +186,41 @@ def test_MainObj_create_final_update_tasks():
     print m.data.listings[["title", "price", "sold", "time"]].to_string()
     
     print "finished!"
+   
     
+def test_MainObj_main_download_listings():
+    """Test MainObj.create_final_update_tasks"""
+    
+    from clair.daemon_main import MainObj
 
+    example_data = relative("../../example-data")
+    conf_dir = relative("../../test-data/test-download-listings")
+    data_dir = relative("../../test-data/test-download-listings")
+    
+    #Create a fresh copy of the example data
+    os.system("rm -rf " + data_dir)
+    os.system("cp -r " + example_data + " " + data_dir)
+    
+    m = MainObj(conf_dir, data_dir)
+    
+    m.main_download_listings(1)
+    
+    print "finished!"
+    
+    
 def experiment_MainObj_main_download_listings():
     """Test MainObj.create_final_update_tasks"""
-#    pytest.skip("Test goes into infinite loop.") #IGNORE:E1101
     
     from clair.daemon_main import MainObj
 
     conf_dir = relative("../../../../clair-data")
     data_dir = relative("../../../../clair-data")
+#    conf_dir = relative("../../example-data-1")
+#    data_dir = relative("../../example-data-1")
     
     m = MainObj(conf_dir, data_dir)
     
-    m.main_download_listings()
+    m.main_download_listings(-1)
     
     print "finished!"
 
@@ -209,7 +230,8 @@ if __name__ == "__main__":
 #    test_MainObj_compute_next_due_time()
 #    test_MainObj_execute_tasks()
 #    test_MainObj_create_final_update_tasks()
+#    test_MainObj_main_download_listings()
 
-    experiment_MainObj_main_download_listings()
+#    experiment_MainObj_main_download_listings()
     
     pass

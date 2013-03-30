@@ -31,8 +31,11 @@ nosetests.xml
 
 # Mr Developer
 .mr.developer.cfg
+
+#Eclipse stuff
 #.project
 #.pydevproject
+clair/.settings/
 
 # Vim swap files
 *.swp
@@ -41,4 +44,5 @@ nosetests.xml
 *.apikey
 
 #test data
-clair/testdata/
+clair/test-data/
+clair/test-data-1/

@@ -151,7 +151,7 @@ def test_XmlBigFrameIO_read_write_text():
     """Test reading and writing text files"""
     from clair.coredata import XmlIOBigFrame
     
-    testdata_dir = relative("../../testdata")
+    testdata_dir = relative("../../test-data")
     basename = "test-file"
     
     #Remove test files
@@ -202,7 +202,7 @@ def test_XmlBigFrameIO_read_write_dataframe():
     """Test reading and writing DataFrame objects as XML"""
     from clair.coredata import XmlIOBigFrame, XMLConverterListings
     
-    testdata_dir = relative("../../testdata")
+    testdata_dir = relative("../../test-data")
     basename = "test-listings"
     
     #Remove test files
@@ -342,7 +342,7 @@ def test_XmlSmallObjectIO():
     """Test file writer object for small data structures."""
     from clair.coredata import Product, XMLConverterProducts, XmlIOSmallObject
     
-    testdata_dir = relative("../../testdata")
+    testdata_dir = relative("../../test-data")
     basename = "test-products"
     
     #Remove test files

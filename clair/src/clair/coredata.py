@@ -49,9 +49,7 @@ def make_listing_frame(nrows):
     Each row represents a listing. The columns represent the listing's 
     attributes. The object contains no data, nearly all values are None or nan.
     """
-    index=[str(i) for i in range(nrows)]
-    
-    listings = pd.DataFrame(index=index)
+    listings = pd.DataFrame(index=range(nrows))
     listings["id"]                = None  #internal unique ID of each listing.
     listings["training_sample"]   = nan   #This is training sample if True
 #    listings["query_string"]      = None  #String with search keywords
@@ -933,7 +931,7 @@ class DataStore(object):
         self.data_dir = ""
         self.tasks = {}
         self.products = {}
-        self.listings = pd.DataFrame()
+        self.listings = make_listing_frame(0)
 #        self.prices = pd.DataFrame()
     
     
