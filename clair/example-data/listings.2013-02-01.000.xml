@@ -137,7 +137,9 @@
       <postcode>87700</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>photo-porst-memmingen</seller>
+      <buyer>a***a</buyer>
+      <server>ebay-de</server>
       <server_id>110685959294</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-Blitzgeraet-Blitz-SB700-SB-700-D80-D90-D5000-usw-/110685959294</url_webui>
@@ -564,6 +566,8 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
       <postcode>7620</postcode>
       <country>ES</country>
       <condition>0.7</condition>
+      <seller>begtiel312</seller>
+      <buyer>9***8</buyer>
       <server>ebay-de</server>
       <server_id>111013528170</server_id>
       <final_price>1.0</final_price>
@@ -594,8 +598,8 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
           <value>Schwarz</value>
         </kv_pair>
         <kv_pair>
-          <key>Marke</key>
-          <value>Nikon</value>
+          <key>Megapixel</key>
+          <value>6.0 MP</value>
         </kv_pair>
         <kv_pair>
           <key>Produktpakete</key>
@@ -606,8 +610,8 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
           <value>Digital SLR</value>
         </kv_pair>
         <kv_pair>
-          <key>Megapixel</key>
-          <value>6.0 MP</value>
+          <key>Marke</key>
+          <value>Nikon</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -621,7 +625,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
       <postcode>85049</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>schoengeist_1979</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>111014122908</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-18-70mm-Nikkor-Objektiv-/111014122908</url_webui>
@@ -698,7 +704,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
       <postcode>4623</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Austria</server>
+      <seller>2315manfred</seller>
+      <buyer>u***u</buyer>
+      <server>ebay-de</server>
       <server_id>111014227879</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Nur-Gehaeuse-/111014227879</url_webui>
@@ -770,7 +778,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
       <postcode>74321</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>tequilaweb</seller>
+      <buyer>r***a</buyer>
+      <server>ebay-de</server>
       <server_id>121067430223</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-SB-26-Aufsteckblitz-Lumiquest-Softbox-Blitz-Diffusor-LQ-103-/121067430223</url_webui>
@@ -838,16 +848,16 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -861,7 +871,9 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
       <postcode>99752</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>blackstier2007</seller>
+      <buyer>s***2</buyer>
+      <server>ebay-de</server>
       <server_id>121069003715</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-DSLR-Schwarz-3-Objektiven-Menge-extras-TOP-/121069003715</url_webui>
@@ -1133,7 +1145,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>60489</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>121069181616</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Nur-Gehaeuse-OVP-Haendler-/121069181616</url_webui>
@@ -1402,7 +1416,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>60489</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>121069258074</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-6-1-MP-Schwarz-Nur-Gehaeuse-OVP-Fachhaendler-/121069258074</url_webui>
@@ -1681,16 +1697,16 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -1704,7 +1720,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>60489</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer>r***5</buyer>
+      <server>ebay-de</server>
       <server_id>121069685867</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Kit-18-105-mm-f-3-5-5-6-G-Haendler-/121069685867</url_webui>
@@ -1955,16 +1973,16 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -1978,7 +1996,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>61381</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer>6***0</buyer>
+      <server>ebay-de</server>
       <server_id>121069760105</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Schwarz-Kit-18-105mm-inkl-OVP-Fachhaendler-/121069760105</url_webui>
@@ -2242,7 +2262,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>60489</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer>i***t</buyer>
+      <server>ebay-de</server>
       <server_id>121070219849</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Nur-Gehaeuse-OVP-vom-Haendler-/121070219849</url_webui>
@@ -2305,7 +2327,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>22949</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>barnihamburg</seller>
+      <buyer>t***a</buyer>
+      <server>ebay-de</server>
       <server_id>121071848354</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-6-1-MP-Digitalkamera-Nikkor-Objektiven-18-55-mm-55-200-/121071848354</url_webui>
@@ -2370,7 +2394,9 @@ Megapixel, Live-View, HD-Videofunktion) Geh&#228;use&lt;/span&gt; &lt;/h1&gt;&lt
       <postcode>22527</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>ambozz.technikz</seller>
+      <buyer>d***o</buyer>
+      <server>ebay-de</server>
       <server_id>121071970599</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-SLR-Digitalkamera-12-Megapixel-Live-View-HD-Videofunktion-Gehaeuse-/121071970599</url_webui>
@@ -2436,6 +2462,8 @@ Megapixel, Live-View, HD-Videofunktion) Geh&#228;use&lt;/span&gt; &lt;/h1&gt;&lt
       <postcode>99092</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>maik6958</seller>
+      <buyer>a***1</buyer>
       <server>ebay-de</server>
       <server_id>130856759890</server_id>
       <final_price>1.0</final_price>
@@ -2705,7 +2733,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>60489</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>140919320270</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Nur-Gehaeuse-vom-Fachhaendler-/140919320270</url_webui>
@@ -2975,7 +3005,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>86633</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>kostfastnix47</seller>
+      <buyer>o***e</buyer>
+      <server>ebay-de</server>
       <server_id>150995887962</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-Speedlight-SB-24-/150995887962</url_webui>
@@ -3109,8 +3141,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Eingebauter Blitz</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -3125,8 +3157,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>AV out</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -3140,7 +3172,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>9456</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>low-budget-ana</seller>
+      <buyer>b***1</buyer>
+      <server>ebay-de</server>
       <server_id>150996222302</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Kit-18-105-mm-f-3-5-5-6-G-/150996222302</url_webui>
@@ -3200,7 +3234,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>klixonhund</seller>
+      <buyer>e***r</buyer>
+      <server>ebay-de</server>
       <server_id>150998022882</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-SB26-Aufsteckblitz-/150998022882</url_webui>
@@ -3327,20 +3363,20 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Manueller Fokus</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Fokussierung</key>
+          <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -3354,7 +3390,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>gigacore</seller>
+      <buyer>l***l</buyer>
+      <server>ebay-de</server>
       <server_id>150998235381</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AiS-35-70mm-3-5-NIKKOR-Zoom-35-70-F3-5-Objektiv-D700-D300-D200-D90-D80-/150998235381</url_webui>
@@ -3479,20 +3517,20 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Manueller Fokus</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Fokussierung</key>
+          <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -3506,7 +3544,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>gigacore</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>150998238134</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AiS-28-85mm-f-3-5-4-5-NIKKOR-TOP-Zoom-Objektiv-28-85-f-D700-D300-D200-D90-/150998238134</url_webui>
@@ -3562,8 +3602,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Bildstabilisierung</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -3574,8 +3614,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -3589,7 +3629,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>63071</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>netfrog-ffm</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>151000912396</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-DSLR-6-1-MP-Nikkor-AF-35-70mm-Objektiv-Black-Edition-Zub-/151000912396</url_webui>
@@ -3626,7 +3668,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>78239</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>feuerstein-arlen</seller>
+      <buyer>v***i</buyer>
+      <server>ebay-de</server>
       <server_id>160976523727</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Sigma-APO-1-2-8D-70-200-HSM-Objektiv-Nikon-AF-/160976523727</url_webui>
@@ -3689,7 +3733,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>8010</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Austria</server>
+      <seller>engineerich</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>160976738299</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-6-1-MP-Digitalkamera-Schwarz-Kit-18-55mm-Objektiv-/160976738299</url_webui>
@@ -3752,7 +3798,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>8010</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Austria</server>
+      <seller>engineerich</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>160976739287</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-6-1-MP-Digitalkamera-Schwarz-Kit-18-55mm-Objektiv-/160976739287</url_webui>
@@ -3808,8 +3856,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Originalverpackung</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -3820,8 +3868,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -3835,7 +3883,9 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>63071</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>netfrog-ffm</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>160979529320</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-DSLR-6-1-MP-Nikkor-AF-35-70mm-Objektiv-Black-Edition-OVP-Zub-/160979529320</url_webui>
@@ -3918,6 +3968,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>63071</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>netfrog-ffm</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>160981379849</server_id>
       <final_price>1.0</final_price>
@@ -4001,6 +4053,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
       <postcode>63071</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>netfrog-ffm</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>160981379855</server_id>
       <final_price>1.0</final_price>
@@ -4055,8 +4109,8 @@ Versicherter Versand 5&#8364;</description>
           <value>AF-Hilfslicht</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>Aufsteckblitz</value>
+          <key>Condition</key>
+          <value>Sehr guter Zustand</value>
         </kv_pair>
         <kv_pair>
           <key>F&#252;r</key>
@@ -4067,8 +4121,8 @@ Versicherter Versand 5&#8364;</description>
           <value>Keine</value>
         </kv_pair>
         <kv_pair>
-          <key>Condition</key>
-          <value>Sehr guter Zustand</value>
+          <key>Produktart</key>
+          <value>Aufsteckblitz</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4082,7 +4136,9 @@ Versicherter Versand 5&#8364;</description>
       <postcode>40764</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>wertvoller_plunder</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>170991060568</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/NIKON-SB-26-sehr-guter-Zustand-/170991060568</url_webui>
@@ -4195,7 +4251,9 @@ und die Qualit&#228;t kennzeichnet.&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/span
       <postcode>44789</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>lauritzel</seller>
+      <buyer>1***1</buyer>
+      <server>ebay-de</server>
       <server_id>170991889386</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Gehaeuse-12-3-MP-SanDisk-4GB-sehr-guter-Zustand-/170991889386</url_webui>
@@ -4229,7 +4287,9 @@ und die Qualit&#228;t kennzeichnet.&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/span
       <postcode>2620</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Austria</server>
+      <seller>saelentum</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>170992041228</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-Body-sehr-guter-Zustand-very-good-condition-/170992041228</url_webui>
@@ -4284,7 +4344,9 @@ und die Qualit&#228;t kennzeichnet.&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/span
       <postcode>56761</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>kazimierzforys</seller>
+      <buyer>l***i</buyer>
+      <server>ebay-de</server>
       <server_id>170993748621</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Elektronenblitzgeraet-SB-26-neuwertich-/170993748621</url_webui>
@@ -4334,7 +4396,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>22927</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>firstclass-garagesale</seller>
+      <buyer>l***l</buyer>
+      <server>ebay-de</server>
       <server_id>170994835044</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-Kit-SCHNAPPCHEN-/170994835044</url_webui>
@@ -4384,16 +4448,16 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4407,6 +4471,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>82467</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>8x88</seller>
+      <buyer>r***k</buyer>
       <server>ebay-de</server>
       <server_id>170997833933</server_id>
       <final_price>1.0</final_price>
@@ -4455,7 +4521,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>51143</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>bighague</seller>
+      <buyer>h***i</buyer>
+      <server>ebay-de</server>
       <server_id>181082071153</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D-90-Nikkor-18-70-mm-NEUWERTIG-/181082071153</url_webui>
@@ -4509,8 +4577,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Dioptrienausgleich</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -4525,8 +4593,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4540,7 +4608,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>33175</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>dkloke</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>181083350765</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-Digitalkamera-28-200mm-Objektiv-/181083350765</url_webui>
@@ -4696,7 +4766,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>safranfasan</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>181083435828</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AiS-28-85mm-3-5-4-5-NIKKOR-Zoom-Objektiv-28-85-f-D700-D300-D200-D90-D7000-/181083435828</url_webui>
@@ -4764,6 +4836,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>nan</postcode>
       <country>LU</country>
       <condition>1.0</condition>
+      <seller>webstore-photo</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>181084029172</server_id>
       <final_price>1.0</final_price>
@@ -4817,8 +4891,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Bildstabilisierung</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -4829,8 +4903,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>HDMI</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4844,7 +4918,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>27749</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>kaikamikaze</seller>
+      <buyer>r***a</buyer>
+      <server>ebay-de</server>
       <server_id>181084668027</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Kit-18-105-mm-mit-Garantie-TOP-/181084668027</url_webui>
@@ -4907,8 +4983,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>null</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -4927,8 +5003,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Komponentenanschluss||USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4942,7 +5018,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>18106</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>konrad.pssc</seller>
+      <buyer>b***u</buyer>
+      <server>ebay-de</server>
       <server_id>181088686418</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-DSLR-Zubehoerpaket-2-Objektive-2-Akkus-BHG-Fotorucksack-/181088686418</url_webui>
@@ -5070,20 +5148,20 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Manueller Fokus</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Fokussierung</key>
+          <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5097,7 +5175,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>datisnejoode</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>190799327120</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AiS-28-85mm-f-3-5-4-5-NIKKOR-TOP-Zoom-Objektiv-28-85-f-D700-D300-D200-D90-/190799327120</url_webui>
@@ -5226,20 +5306,20 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Autofokus &amp; Manueller Fokus</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Fokussierung</key>
+          <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5253,7 +5333,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>datisnejoode</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>190799327492</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/NIKKOR-AF-28-85mm-4-5-6-N-Nikon-28-85-Zoom-Objektiv-D700-D300-D200-D90-D7000-/190799327492</url_webui>
@@ -5294,16 +5376,16 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>JAA805DA</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>x5.8</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>x5.8</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -5321,7 +5403,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>85296</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>lecastell</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>190799813090</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-S-DX-VR-18-105-3-5-5-6G-ED-Nikon-D90-D5200-D5100-D3200-D3100-/190799813090</url_webui>
@@ -5387,7 +5471,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>7745</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>mucknock</seller>
+      <buyer>a***1</buyer>
+      <server>ebay-de</server>
       <server_id>190799915394</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Body-/190799915394</url_webui>
@@ -5465,7 +5551,9 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
       <postcode>26901</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>friedrich2cpf</seller>
+      <buyer>d***1</buyer>
+      <server>ebay-de</server>
       <server_id>190800171016</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-/190800171016</url_webui>
@@ -5555,6 +5643,8 @@ Auktionen. Da biete ich das passende Zoomobjektiv an. Wird in Originalverpackung
       <postcode>41334</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>myflexible</seller>
+      <buyer>o***i</buyer>
       <server>ebay-de</server>
       <server_id>190801657503</server_id>
       <final_price>1.0</final_price>
@@ -5979,7 +6069,9 @@ Verst&#228;ndnis.&lt;/span&gt;&lt;/p&gt;
       <postcode>48249</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fuuuchs</seller>
+      <buyer>o***h</buyer>
+      <server>ebay-de</server>
       <server_id>190801744711</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Erst-6500-Ausloesungen-TOPZUSTAND-OVP-/190801744711</url_webui>
@@ -6025,16 +6117,16 @@ Verst&#228;ndnis.&lt;/span&gt;&lt;/p&gt;
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -6048,7 +6140,9 @@ Verst&#228;ndnis.&lt;/span&gt;&lt;/p&gt;
       <postcode>59439</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>ace-0912</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>200895437825</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-DSLR-18-105-mm-VR-DX-Objektiv-5-Jahre-Garantie-/200895437825</url_webui>
@@ -6960,6 +7054,10 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
+          <key>Objektivtyp II</key>
+          <value>Tele</value>
+        </kv_pair>
+        <kv_pair>
           <key>Objektivtyp</key>
           <value>Feste Brennweite</value>
         </kv_pair>
@@ -6970,10 +7068,6 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
         <kv_pair>
           <key>MPN</key>
           <value>JAA638DA</value>
-        </kv_pair>
-        <kv_pair>
-          <key>Objektivtyp II</key>
-          <value>Tele</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
@@ -7015,7 +7109,9 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>nikon-service-point-munich</seller>
+      <buyer>s***o</buyer>
+      <server>ebay-de</server>
       <server_id>200897961168</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-S-DX-MICRO-40-2-8G-Nikon-D7000-D90-D5200-D5100-D3200-D3100-u-a-/200897961168</url_webui>
@@ -7079,7 +7175,9 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
       <postcode>30449</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>bruno_sok</seller>
+      <buyer>e***.</buyer>
+      <server>ebay-de</server>
       <server_id>221190151997</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Gehaeuse-Body-D-90-D-90-/221190151997</url_webui>
@@ -7229,7 +7327,9 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
       <postcode>66129</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>monikamaxi10</seller>
+      <buyer>p***m</buyer>
+      <server>ebay-de</server>
       <server_id>221190966703</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-Autofokus-Blitzgeraet-SB-24-/221190966703</url_webui>
@@ -7328,7 +7428,9 @@ mit SD7/8.
       <postcode>86316</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>schwarzer-kor</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>221190992061</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-Speedlight-SB-24-Profi-Blitz-Blitzgeraet-Kamera-/221190992061</url_webui>
@@ -7392,7 +7494,9 @@ mit SD7/8.
       <postcode>10589</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>lilly0178</seller>
+      <buyer>o***o</buyer>
+      <server>ebay-de</server>
       <server_id>221191661237</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Gehaeuse-accugriff-nur-100-ausloesungen-/221191661237</url_webui>
@@ -7427,7 +7531,9 @@ mit SD7/8.
       <postcode>53225</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>theen69</seller>
+      <buyer>o***s</buyer>
+      <server>ebay-de</server>
       <server_id>221192086675</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-d90-body-/221192086675</url_webui>
@@ -7733,6 +7839,8 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>26603</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>reisefotografie</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>221192460887</server_id>
       <final_price>1.0</final_price>
@@ -7797,6 +7905,8 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>47533</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>berni57</seller>
+      <buyer>k***e</buyer>
       <server>ebay-de</server>
       <server_id>221192633155</server_id>
       <final_price>1.0</final_price>
@@ -7843,16 +7953,16 @@ content="text/html; charset=iso-8859-1"&gt;
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>11,1x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>11,1x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -7866,7 +7976,9 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>32657</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>the_plumb_picker</seller>
+      <buyer>b***r</buyer>
+      <server>ebay-de</server>
       <server_id>230930916632</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Kit-18-200mm-Objektiv-/230930916632</url_webui>
@@ -7943,7 +8055,9 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>22457</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>thetan2</seller>
+      <buyer>t***n</buyer>
+      <server>ebay-de</server>
       <server_id>230930980942</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-6-1-MP-Digitalkamera-Schwarz-Tamron-Objektiv-/230930980942</url_webui>
@@ -8009,7 +8123,9 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>72108</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>schnupfi3</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>230931012365</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-Schwarz-/230931012365</url_webui>
@@ -8443,7 +8559,9 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>82110</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>caliber7.62</seller>
+      <buyer>r***d</buyer>
+      <server>ebay-de</server>
       <server_id>230931117797</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-DSLR-Body-Nur-Gehaeuse-OVP-viel-Ausstattung-/230931117797</url_webui>
@@ -8472,16 +8590,16 @@ content="text/html; charset=iso-8859-1"&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Megapixel</key>
-          <value>12.3 MP</value>
+          <key>Modell</key>
+          <value>D90</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
-          <key>Modell</key>
-          <value>D90</value>
+          <key>Megapixel</key>
+          <value>12.3 MP</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -8495,7 +8613,9 @@ content="text/html; charset=iso-8859-1"&gt;
       <postcode>12047</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>currywursteria</seller>
+      <buyer>u***0</buyer>
+      <server>ebay-de</server>
       <server_id>230932039934</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Body-OVP-/230932039934</url_webui>
@@ -9037,7 +9157,9 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>v1977v</seller>
+      <buyer>r***r</buyer>
+      <server>ebay-de</server>
       <server_id>230934505849</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70S-Digitalkamera-Spiegelreflexkamera-top-Zustand-/230934505849</url_webui>
@@ -9082,16 +9204,16 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -9105,7 +9227,9 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
       <postcode>44309</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>hochzeitsshop-oda-de</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251229351783</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Kit-18-105-mm-f-3-5-5-6-G-/251229351783</url_webui>
@@ -9169,7 +9293,9 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
       <postcode>23689</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>thermo-tomek</seller>
+      <buyer>a***j</buyer>
+      <server>ebay-de</server>
       <server_id>251230804983</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Body-Gehaeuse-schwarz-/251230804983</url_webui>
@@ -9310,7 +9436,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251233276536</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/1000mm-1500-500mm-Super-Teleobjektiv-NIKON-D300D3D40X-D40D80D2Xs-D200D70s-/251233276536</url_webui>
@@ -9509,7 +9637,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251233517007</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/18-125mm-ZOOM-OBJEKTIV-NIKON-D70D2H-D1-500-5-F6-F5-Fuji-FinePix-S1S2S3S5Pro-/251233517007</url_webui>
@@ -9657,7 +9787,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer>v***l</buyer>
+      <server>ebay-de</server>
       <server_id>251233627981</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/5mm-14mm-AUTOFOKUS-SUPER-WEITWINKEL-MAKRO-NIKON-D7000D90D300D5200D5000D300s-/251233627981</url_webui>
@@ -9805,7 +9937,9 @@ document.write('&lt;img  alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251234304377</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/6mm-19mm-AF-S-WEITWINKEL-MAKRO-NIKON-D5000D90D60D300D40X-D80D2Xs-D200-D70s-/251234304377</url_webui>
@@ -9994,16 +10128,16 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>Mehr als 2,0x</value>
+          <key>Anschlussart</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>Mehr als 2,0x</value>
         </kv_pair>
         <kv_pair>
           <key>Objektivbrennweite</key>
@@ -10025,7 +10159,9 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251234363561</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/2000-4000-mm-650-1300mm-ZOOM-SUPER-TELE-OBJEKTIV-NIKON-D70s-D50D2Hs-D2X-D70-/251234363561</url_webui>
@@ -10214,16 +10350,16 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>Mehr als 2,0x</value>
+          <key>Anschlussart</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>Mehr als 2,0x</value>
         </kv_pair>
         <kv_pair>
           <key>Objektivbrennweite</key>
@@ -10245,7 +10381,9 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251234365776</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/2000-4000-mm-650-1300mm-ZOOM-SUPER-TELE-OBJEKTIV-NIKON-D70D2H-D100D1X-D1H-D1-/251234365776</url_webui>
@@ -10433,16 +10571,16 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>Mehr als 2,0x</value>
+          <key>Anschlussart</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>Mehr als 2,0x</value>
         </kv_pair>
         <kv_pair>
           <key>Objektivbrennweite</key>
@@ -10464,7 +10602,9 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251234366480</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/2000-4000-mm-650-1300mm-ZOOM-SUPER-TELE-OBJEKTIV-NIKON-D3000D5000D3X-D90D800-/251234366480</url_webui>
@@ -10575,7 +10715,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251234502249</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/1000mm-1500-500mm-Super-Teleobjektiv-NIKON-D3000D5000D3X-D90D800D800E-D700-/251234502249</url_webui>
@@ -10764,7 +10906,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>251234657714</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/100-400mm-AUTOFOKUS-ZOOM-SUPER-TELE-OBJEKTIV-f-NIKON-D90D800D700D60D300D3D1D800E-/251234657714</url_webui>
@@ -10876,6 +11020,8 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>251235626475</server_id>
       <final_price>1.0</final_price>
@@ -11119,6 +11265,8 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>fotogeschaeft</seller>
+      <buyer>g***a</buyer>
       <server>ebay-de</server>
       <server_id>251236284665</server_id>
       <final_price>1.0</final_price>
@@ -11233,16 +11381,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -11256,7 +11404,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>1020</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fleahole</seller>
+      <buyer>0***0</buyer>
+      <server>ebay-de</server>
       <server_id>261171584497</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-Schwarz-Kit-18-70mm-Objektiv-/261171584497</url_webui>
@@ -11321,7 +11471,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>34125</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>holunderpleuel</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>261172863746</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-Schwarz-Zubehoerpaket-/261172863746</url_webui>
@@ -11368,16 +11520,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -11391,7 +11543,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>95326</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>mordillo1107</seller>
+      <buyer>n***a</buyer>
+      <server>ebay-de</server>
       <server_id>271157995332</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Schwarz-Kit-18-105-mm-f-3-5-5-6-G-/271157995332</url_webui>
@@ -11454,7 +11608,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>53840</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fraukuless</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>271158020150</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-Body-NEU-/271158020150</url_webui>
@@ -11535,7 +11691,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>85716</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>waldgnarf</seller>
+      <buyer>t***f</buyer>
+      <server>ebay-de</server>
       <server_id>271159194678</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-inkl-Nikon-35-70mm-f-3-3-4-5-Makroobjektiv-Batteriegriff-/271159194678</url_webui>
@@ -11660,7 +11818,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>treubrockelt1968</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>271160538663</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-Nikkor-80-200-mm-1-2-8-ED-NEUWERTIG-f-D7000-D800-D700-D300-D90-/271160538663</url_webui>
@@ -11786,7 +11946,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>treubrockelt1968</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>271161525001</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-D-Nikkor-28-mm-1-2-8-TOP-ZUSTAND-f-D90-D200-D300-D7000-/271161525001</url_webui>
@@ -11932,7 +12094,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>98744</postcode>
       <country>DE</country>
       <condition>0.775</condition>
-      <server>Ebay-Germany</server>
+      <seller>handyangebote</seller>
+      <buyer>r***s</buyer>
+      <server>ebay-de</server>
       <server_id>271162082135</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-Ohne-Objektiv-Zustand-Sehr-Gut-2-Zoll-6-1MP-DSLR-2-/271162082135</url_webui>
@@ -11987,7 +12151,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>10587</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>laviaregia</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>281065968068</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/NIKON-SPEEDLIGHT-SB-24-Aufsteckblitz-zahlreiche-NIKON-KAMERAS-/281065968068</url_webui>
@@ -12020,7 +12186,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>63860</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>frank_werner_1</seller>
+      <buyer>k***e</buyer>
+      <server>ebay-de</server>
       <server_id>281067094887</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-/281067094887</url_webui>
@@ -12137,16 +12305,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>JAA726DC</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>x4.3</value>
+          <key>Anschlussart</key>
+          <value>Nikon AF</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon AF</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>x4.3</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -12164,7 +12332,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>treubrockelt1968</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>281068710798</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-D-Nikkor-70-300-mm-1-4-5-6-ED-wie-NEU-f-D7000-D300-D200-D90-D80-/281068710798</url_webui>
@@ -12280,7 +12450,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>treubrockelt1968</seller>
+      <buyer>c***9</buyer>
+      <server>ebay-de</server>
       <server_id>281068740587</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-D-Nikkor-24-120-mm-TOP-D90-D100-D200-D300-D700-D800-D7000-/281068740587</url_webui>
@@ -12393,16 +12565,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>JAA726DC</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>x4.3</value>
+          <key>Anschlussart</key>
+          <value>Nikon AF</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon AF</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>x4.3</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -12420,7 +12592,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>treubrockelt1968</seller>
+      <buyer>l***k</buyer>
+      <server>ebay-de</server>
       <server_id>281070312609</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-D-Nikkor-70-300-mm-1-4-5-6-ED-wie-NEU-f-D7000-D300-D200-D90-D80-/281070312609</url_webui>
@@ -12541,6 +12715,8 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>treubrockelt1968</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>281070312619</server_id>
       <final_price>1.0</final_price>
@@ -14349,7 +14525,9 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
       <postcode>82319</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>vogelandre</seller>
+      <buyer>l***c</buyer>
+      <server>ebay-de</server>
       <server_id>290867791648</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Body-top-neu-/290867791648</url_webui>
@@ -14417,6 +14595,8 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
       <postcode>3500</postcode>
       <country>AT</country>
       <condition>0.7</condition>
+      <seller>ales_borszek</seller>
+      <buyer>3***s</buyer>
       <server>ebay-de</server>
       <server_id>290869787636</server_id>
       <final_price>1.0</final_price>
@@ -14453,7 +14633,9 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
       <postcode>95326</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>hbs-nick</seller>
+      <buyer>1***a</buyer>
+      <server>ebay-de</server>
       <server_id>300863140158</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-Tamron-18-200-mm-/300863140158</url_webui>
@@ -16058,6 +16240,8 @@ fn_bilder('', '', '', '', '', '', '', '');
       <postcode>86641</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>team-foto</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>310580920764</server_id>
       <final_price>1.0</final_price>
@@ -16127,7 +16311,9 @@ R&#252;ckgabeanspruch. </description>
       <postcode>48249</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sverigefreak72</seller>
+      <buyer>a***m</buyer>
+      <server>ebay-de</server>
       <server_id>310601014516</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Gehaeuse-MB-D80-Handgriff-Zubehoerpaket-nur-2479-Ausloesungen-/310601014516</url_webui>
@@ -16309,7 +16495,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>310606499476</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/310606499476</url_webui>
@@ -16505,7 +16693,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>310607225419</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Fisheye-Objektiv-8mm-f3-5-Nikon-D3000-D90-/310607225419</url_webui>
@@ -16685,7 +16875,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>310609577047</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/310609577047</url_webui>
@@ -16748,7 +16940,9 @@ function MM_swapImage() { //v3.0
       <postcode>88239</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sn307</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>321074815277</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-12-3-MP-Digitalkamera-DSLR-Batteriegriff-MB-Schwarz-Nur-Gehaeuse-/321074815277</url_webui>
@@ -16829,7 +17023,9 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
       <postcode>54441</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>99book</seller>
+      <buyer>o***n</buyer>
+      <server>ebay-de</server>
       <server_id>321074862007</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D-70s-6-1-MP-Digitalkamera-Kit-18-70mm-Objektiv-Originalverpackung-/321074862007</url_webui>
@@ -16942,7 +17138,9 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
       <postcode>55122</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>herberts-modellbahn</seller>
+      <buyer>5***i</buyer>
+      <server>ebay-de</server>
       <server_id>321074880778</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/NIKON-D90-Body-Digitalkamera-Spiegelreflex-/321074880778</url_webui>
@@ -17000,6 +17198,8 @@ Zoom-Nikkor 18-70mm f/3.5-4.5 G IF ED&lt;o:p&gt;&lt;/o:p&gt;&lt;/font&gt;&lt;/sp
       <postcode>29410</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>zwentee</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>321079979337</server_id>
       <final_price>1.0</final_price>
@@ -17061,7 +17261,9 @@ erhalten; keine Garantie, da Privatverkauf; R&#252;ckgabem&#246;glichkeit 14 Tag
       <postcode>70327</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>mascha7mascha</seller>
+      <buyer>n***n</buyer>
+      <server>ebay-de</server>
       <server_id>330874789917</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-Speedlight-SB24-Aufsteckblitz-/330874789917</url_webui>
@@ -17109,8 +17311,8 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -17121,8 +17323,8 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
           <value>Keine</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -17136,7 +17338,9 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
       <postcode>66822</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fluffy193</seller>
+      <buyer>1***1</buyer>
+      <server>ebay-de</server>
       <server_id>330875799403</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D90-Body-Zub-und-orig-Rechnung-/330875799403</url_webui>
@@ -17175,7 +17379,9 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
       <postcode>1170</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Austria</server>
+      <seller>audantrop</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>330876366458</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-SB-24-Autofocus-Blitzgeraet-/330876366458</url_webui>
@@ -17345,7 +17551,9 @@ width="178" /&gt;&lt;/a&gt;&lt;/p&gt;
       <postcode>27404</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>avides</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>350714412796</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-GP-1-GPS-Empfaenger-D3X-D90-Geotagging-/350714412796</url_webui>
@@ -17400,7 +17608,9 @@ width="178" /&gt;&lt;/a&gt;&lt;/p&gt;
       <postcode xsi:nil="true"/>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>tookacats</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>350717753316</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/NIKON-Blitzgeraet-SPEEDLIGHT-SB-24-Aufsteckblitz-SB24-/350717753316</url_webui>
@@ -17468,7 +17678,9 @@ width="178" /&gt;&lt;/a&gt;&lt;/p&gt;
       <postcode>1060</postcode>
       <country>AT</country>
       <condition>0.7</condition>
-      <server>Ebay-Austria</server>
+      <seller>tomillu</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>350718621431</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-Schwarz-div-Zubehoer-/350718621431</url_webui>
@@ -17734,7 +17946,9 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
       <postcode>60489</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>flip4shop</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360598362610</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70-6-1-MP-Digitalkamera-Schwarz-Nur-Gehaeuse-OVP-Fachhaendler-/360598362610</url_webui>
@@ -17851,7 +18065,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360599486093</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/1000mm-1500-500mm-Super-Teleobjektiv-NIKON-D2Hs-D2X-D70D2H-D100D1X-D1H-D1-/360599486093</url_webui>
@@ -17993,7 +18209,9 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
       <postcode>81675</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>dreiecktuch</seller>
+      <buyer>r***r</buyer>
+      <server>ebay-de</server>
       <server_id>360599535988</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-Speedlight-SB-24-Autofokus-Blitz-digital-SB24-TTL-/360599535988</url_webui>
@@ -18047,20 +18265,20 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Autofokus &amp; Manueller Fokus</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/1,8</value>
+          <key>Fokussierung</key>
+          <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Teleobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/1,8</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -18074,7 +18292,9 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sogus</seller>
+      <buyer>n***n</buyer>
+      <server>ebay-de</server>
       <server_id>360600450363</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-D-Nikkor-85mm-1-1-8-OVP-D80-D90-D200-D300-D700-D800-NEUWERTIG-/360600450363</url_webui>
@@ -18167,7 +18387,9 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sogus</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360600450371</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-Nikkor-70-210-mm-1-4-Macro-D80-D90-D200-D300-D700-D800-NEUWERTIG-/360600450371</url_webui>
@@ -18279,7 +18501,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360600679289</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/500mm-NIKKOR-TELEOBJEKTIV-NIKON-f-D5000D3X-D90D800D700D60D300D3D40D80D1D40D800E-/360600679289</url_webui>
@@ -18466,7 +18690,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer>o***o</buyer>
+      <server>ebay-de</server>
       <server_id>360600690952</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/28-300mm-AUTOFOKUS-ZOOM-MAKRO-TELE-OBJEKTIV-NIKON-D3X-D90D800D800E-D700D60D3-/360600690952</url_webui>
@@ -18669,7 +18895,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360600791630</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/18-125mm-ZOOM-OBJEKTIV-NIKON-D7000D300s-D90D300D80D2Xs-D200D70s-D50D2Hs-D2X-/360600791630</url_webui>
@@ -18868,7 +19096,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360601645471</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/100-400mm-AUTOFOKUS-ZOOM-SUPER-TELE-OBJEKTIV-NIKON-D40X-D40D80D2Xs-D200D70s-/360601645471</url_webui>
@@ -19111,7 +19341,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360601668672</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/100-1000mm-ZOOM-SUPER-TELE-OBJEKTIV-NIKON-D3000D5000D3X-D90D800E-D700D60D300-/360601668672</url_webui>
@@ -19228,7 +19460,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360602080790</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/1000mm-1500-500mm-Super-Teleobjektiv-NIKON-D2Hs-D2X-D70D2H-D100D1X-D1H-D1-/360602080790</url_webui>
@@ -19369,7 +19603,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>360602514211</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/1000mm-1500-500mm-Super-Teleobjektiv-NIKON-D300D3D40X-D40D80D2Xs-D200D70s-/360602514211</url_webui>
@@ -19567,6 +19803,8 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>67360</postcode>
       <country>DE</country>
       <condition>0.7</condition>
+      <seller>fotogeschaeft</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>360603010668</server_id>
       <final_price>1.0</final_price>
@@ -19711,7 +19949,9 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
       <postcode>56564</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotoexperte</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370764369593</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-D70s-Gehaeuse-ohne-Objektiv-gebraucht-D-70S-Body-6984-Ausloesungen-/370764369593</url_webui>
@@ -19941,7 +20181,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370765590208</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Fisheye-Objektiv-8mm-f3-5-Nikon-D3000-D90-/370765590208</url_webui>
@@ -20123,7 +20365,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370765661248</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/370765661248</url_webui>
@@ -20305,7 +20549,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370765851050</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Profi-Tele-500mm-Nikon-D300-D300s-D40x-D80-D700-D70-/370765851050</url_webui>
@@ -20519,7 +20765,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370767212209</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Teleobjektiv-500mm-Nikon-D200-D700-D40-D90-D80-D70s-/370767212209</url_webui>
@@ -20701,7 +20949,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370767212213</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Teleobjektiv-500mm-Nikon-D200-D700-D40-D90-D80-D70s-/370767212213</url_webui>
@@ -20881,7 +21131,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370767355610</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/370767355610</url_webui>
@@ -21093,7 +21345,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>370767426055</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/370767426055</url_webui>
@@ -21275,6 +21529,8 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>370767935986</server_id>
       <final_price>1.0</final_price>
@@ -21455,6 +21711,8 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
+      <seller>fotospezialistin</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>370767963351</server_id>
       <final_price>1.0</final_price>
@@ -21516,7 +21774,9 @@ function MM_swapImage() { //v3.0
       <postcode>58739</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sergej1979</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380580682855</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-S-VR-Nikkor-16-85mm-NEU-D7000-D300S-S5pro-D5000-D90-D3000-D300-/380580682855</url_webui>
@@ -21587,7 +21847,9 @@ function MM_swapImage() { //v3.0
       <postcode>58739</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sergej1979</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380580682873</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-SB-900-Speedlight-D7000-D700-D300-D300S-D90-D600-D800-D200-D5000-D3000-/380580682873</url_webui>
@@ -21661,7 +21923,9 @@ function MM_swapImage() { //v3.0
       <postcode>58739</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sergej1979</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380580682985</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-S-50mm-f1-4-NEU-D300-D600-D700-D800-D3-D4-D3S-D7000-D5000-D90-/380580682985</url_webui>
@@ -21726,7 +21990,9 @@ function MM_swapImage() { //v3.0
       <postcode>58739</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sergej1979</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380580683159</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-S-VR-Nikkor-16-85mm-NEU-D7000-D300S-S5pro-D5000-D90-D3000-D300-/380580683159</url_webui>
@@ -21804,7 +22070,9 @@ function MM_swapImage() { //v3.0
       <postcode>58739</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sergej1979</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380580683236</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-S-50mm-f1-4-NEU-D300-D600-D700-D800-D3-D4-D3S-D7000-D5000-D90-/380580683236</url_webui>
@@ -22188,12 +22456,12 @@ Tele/Weitwinkel-Vorsatz-Objektiven.&lt;/th&gt;
           <value>x2.8</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Autofokus &amp; Manueller Fokus</value>
-        </kv_pair>
-        <kv_pair>
           <key>Maximale Lichtst&#228;rke</key>
           <value>F/2,8</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Fokussierung</key>
+          <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Anschlussart</key>
@@ -22219,7 +22487,9 @@ Tele/Weitwinkel-Vorsatz-Objektiven.&lt;/th&gt;
       <postcode>73230</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>foto-markt</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380582045437</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-D-18-50mm-1-2-8-EX-Sigma-DC-Objektiv-Lens-D90-D7000-D80-D300-D200-/380582045437</url_webui>
@@ -22433,7 +22703,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380583762021</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Profi-Tele-500mm-Nikon-D300-D300s-D40x-D80-D700-D70-/380583762021</url_webui>
@@ -22647,7 +22919,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380583779724</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/380583779724</url_webui>
@@ -22859,7 +23133,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380584342671</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Funkblitzausloeser-f-Nikon-Speedlight-SB-26-SB-25-SB-24-/380584342671</url_webui>
@@ -23256,12 +23532,12 @@ Tele/Weitwinkel-Vorsatz-Objektiven.&lt;/th&gt;
           <value>x2</value>
         </kv_pair>
         <kv_pair>
-          <key>Fokussierung</key>
-          <value>Autofokus &amp; Manueller Fokus</value>
-        </kv_pair>
-        <kv_pair>
           <key>Maximale Lichtst&#228;rke</key>
           <value>F/4,0</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Fokussierung</key>
+          <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
           <key>Anschlussart</key>
@@ -23287,7 +23563,9 @@ Tele/Weitwinkel-Vorsatz-Objektiven.&lt;/th&gt;
       <postcode>73230</postcode>
       <country>DE</country>
       <condition>0.925</condition>
-      <server>Ebay-Germany</server>
+      <seller>foto-markt</seller>
+      <buyer>8***h</buyer>
+      <server>ebay-de</server>
       <server_id>380585494206</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-10-20mm-F4-5-6-Sigma-EX-DC-HSM-Objektiv-Lens-Nikon-DX-AF-D-D90-D7000-/380585494206</url_webui>
@@ -23515,7 +23793,9 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>380585888368</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/3-Tage-Fisheye-Objektiv-8mm-f3-5-Nikon-D3000-D90-/380585888368</url_webui>
@@ -23729,6 +24009,8 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>380586147936</server_id>
       <final_price>1.0</final_price>
@@ -23941,6 +24223,8 @@ function MM_swapImage() { //v3.0
       <postcode>14059</postcode>
       <country>DE</country>
       <condition>1.0</condition>
+      <seller>touch.the.sky</seller>
+      <buyer xsi:nil="true"/>
       <server>ebay-de</server>
       <server_id>380586181065</server_id>
       <final_price>1.0</final_price>
@@ -24104,8 +24388,8 @@ wechsel1();
           <value>2070g.</value>
         </kv_pair>
         <kv_pair>
-          <key>Herstellergarantie</key>
-          <value>5 Jahre</value>
+          <key>Au&#223;enma&#223;</key>
+          <value>36cm x 25cm x 48cm (BxTxH)</value>
         </kv_pair>
         <kv_pair>
           <key>Besonderheiten</key>
@@ -24124,8 +24408,8 @@ wechsel1();
           <value>Kamera: DSLR/SLR/TLR</value>
         </kv_pair>
         <kv_pair>
-          <key>Au&#223;enma&#223;</key>
-          <value>36cm x 25cm x 48cm (BxTxH)</value>
+          <key>Herstellergarantie</key>
+          <value>5 Jahre</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -24143,7 +24427,9 @@ wechsel1();
       <postcode>15236</postcode>
       <country>DE</country>
       <condition>1.0</condition>
-      <server>Ebay-Germany</server>
+      <seller>tristar37</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>390436378950</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Fotorucksack-Stativ-f-NIKON-D90-D80-D70-D60-D50-D40-Kalahari-K-71-NEU-/390436378950</url_webui>
@@ -24233,7 +24519,9 @@ wechsel1();
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sogus</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>400419181436</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-Nikkor-70-210-mm-1-4-Macro-D80-D90-D200-D300-D700-D800-/400419181436</url_webui>
@@ -24328,7 +24616,9 @@ wechsel1();
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sogus</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>400420541082</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-Nikkor-28mm-1-2-8-D80-D90-D200-D300-D700-D800-NEUWERTIG-/400420541082</url_webui>
@@ -24428,7 +24718,9 @@ wechsel1();
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sogus</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>400420921828</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-Nikkor-50mm-1-1-4-D80-D90-D200-D300-D700-D800-NEUWERTIG-/400420921828</url_webui>
@@ -24517,7 +24809,9 @@ wechsel1();
       <postcode>nan</postcode>
       <country>DE</country>
       <condition>0.7</condition>
-      <server>Ebay-Germany</server>
+      <seller>sogus</seller>
+      <buyer xsi:nil="true"/>
+      <server>ebay-de</server>
       <server_id>400421528030</server_id>
       <final_price>1.0</final_price>
       <url_webui>http://www.ebay.de/itm/Nikon-AF-Nikkor-70-210-mm-1-4-Macro-D80-D90-D200-D300-D700-D800-/400421528030</url_webui>
