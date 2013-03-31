@@ -334,7 +334,7 @@ def experiment_CollectText():
 
 if __name__ == "__main__":
 #    test_HtmlTool_remove_html()
-    test_HtmlTool_to_nice_text()
+#    test_HtmlTool_to_nice_text()
 #    test_HtmlTool_clean_html()
 #    test_DataStore()
 #    test_CollectText()

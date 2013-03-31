@@ -368,7 +368,7 @@ class EbayGetListings(object):
             listings["seller"][i] = itemi.Seller.UserID.text
             try: listings["buyer"][i] = itemi.HighBidder.UserID.text
             except AttributeError: pass
-            listings["server"][i] = "Ebay-" + itemi.Site.text   #string to identify the server
+#            listings["server"][i] = "Ebay-" + itemi.Site.text   #string to identify the server
             listings["server_id"][i] = itemi.ItemID.text #ID of item on server
 #            listings["data_directory"] = ""
             listings["url_webui"][i] = itemi.ViewItemURLForNaturalSearch.text
