@@ -1799,7 +1799,7 @@ class ListingsModel(QAbstractTableModel):
                   "title", "description", "prod_spec", "active", "sold", 
                   "currency", "price", "shipping", "type", "time", "location", 
                   "postcode", "country", "condition", "server", "server_id", 
-                  "final_price", "url_webui"]
+                  "final_price", "url_webui", "seller", "buyer"]
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """

@@ -81,8 +81,8 @@ def make_listing_frame(nrows):
     listings["postcode"]    = None  #Postal code of location
     listings["country"]     = None  #Country of item location
     listings["condition"]   = nan   #1.: new, 0.: completely unusable
-    #TODO: listings["seller"]     = None  #User name of seller
-    #TODO: listings["buyer"]      = None  
+    listings["seller"]      = None  #User name of seller
+    listings["buyer"]       = None  #User name of buyer
     
     listings["server"]      = None  #string to identify the server
     listings["server_id"]   = None  #ID of listing on the server
@@ -387,6 +387,8 @@ class XMLConverterListings(XMLConverter):
                 E.postcode(li["postcode"]),
                 E.country(li["country"]),
                 E.condition(float(li["condition"])),
+                E.seller(li["seller"]),
+                E.buyer(li["buyer"]),
                 E.server(li["server"]),
                 E.server_id(li["server_id"]),
                 E.final_price(float(li["final_price"])),
@@ -443,6 +445,10 @@ class XMLConverterListings(XMLConverter):
             listings["postcode"][i] = ustr(li.postcode.pyval)
             listings["country"][i] = ustr(li.country.pyval)
             listings["condition"][i] = li.condition.pyval
+            try: listings["seller"][i] = ustr(li.seller.pyval)
+            except AttributeError: pass
+            try: listings["buyer"][i] = ustr(li.buyer.pyval)
+            except AttributeError: pass
             listings["server"][i] = ustr(li.server.pyval)
             listings["server_id"][i] = ustr(li.server_id.pyval) #ID of listing on server
             listings["final_price"][i] = li.final_price.pyval

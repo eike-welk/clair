@@ -1049,7 +1049,7 @@ if __name__ == '__main__':
 #    test_EbayFindListings_find()
     
 #    test_EbayGetListings_download()
-    test_EbayGetListings_parse()
+#    test_EbayGetListings_parse()
 #    test_EbayGetListings_get_listings()
     
 #    test_EbayConnector_find_listings()
