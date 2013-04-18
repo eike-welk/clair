@@ -159,7 +159,7 @@ class MainObj(object):
         
         #Sane handling of listings that are found by multiple search tasks. ff.
         def unique_list(dupli_list):
-            "Create unique, and sorted, list list of strings."
+            "Create unique, and sorted, list of strings."
             uniq_list = list(set(dupli_list))
             uniq_list.sort()
             return uniq_list
@@ -300,5 +300,6 @@ class MainObj(object):
             self.execute_tasks()
             self.create_final_update_tasks()
             self.data.write_listings()
+            self.data.write_tasks()
             
             nloops -= 1
