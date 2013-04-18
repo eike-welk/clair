@@ -36,6 +36,7 @@ import lxml.html.clean
 import pandas as pd
 from numpy import isnan
 import nltk
+from nltk import RegexpTokenizer
 
 from clair.coredata import DataStore
 
@@ -124,6 +125,73 @@ class HtmlTool(object):
     
     
 
+class Tokenizer(object):
+    """Create tokens for the learning algorithms."""
+    
+    @staticmethod
+    def to_text_dict(in_dict):
+        """Convert dictionary to text. Pattern: 'key: value,'"""
+        if in_dict is None:
+            return u""
+        if isinstance(in_dict, float) and isnan(in_dict):
+            return u""
+        
+        text = ""
+        for key, value in in_dict.iteritems():
+            text += unicode(key) + ": " + unicode(value) + ", "
+        return text
+
+    #Split string into words
+    #Alternative tokenizers: ``nltk.wordpunct_tokenize`` or ``nltk.word_tokenize``???
+    #Important: don't split real numbers "2.8" "3,5" important for lenses.
+    #Example for ``nltk.RegexpTokenizer``
+    #>>> text = 'That U.S.A. poster-print costs $12.40...'
+    #>>> pattern = r'''(?x)    # set flag to allow verbose regexps
+    #...     ([A-Z]\.)+        # abbreviations, e.g. U.S.A.
+    #...   | \w+(-\w+)*        # words with optional internal hyphens
+    #...   | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
+    #...   | \.\.\.            # ellipsis
+    #...   | [][.,;"'?():-_`]  # these are separate tokens
+    #... '''
+    #>>> nltk.regexp_tokenize(text, pattern)
+    #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
+    word_tokenizer_pattern = r"""
+              \d+(\.\d+)?       # real numbers, e.g. 2.8, 82
+            | (\w\.)+           # abbreviations, e.g., z.B., U.S.A.
+            | \w+               # words
+           # | [][.,;"'?():-_`]  # these are separate tokens
+            """
+    word_tokenizer = RegexpTokenizer(word_tokenizer_pattern, 
+                                      gaps=False, discard_empty=True,
+                                      flags=re.UNICODE | re.MULTILINE | 
+                                            re.DOTALL | re.VERBOSE)
+    
+    @staticmethod
+    def extract_words(listing, 
+                      use_title=False, use_description=False, 
+                      use_prod_spec=False, use_seller=False):
+        """Extract words from a listing."""
+        word_tokenizer = Tokenizer.word_tokenizer
+        words = []
+        
+        if use_title:
+            string = listing["title"]
+            if string:
+                words += word_tokenizer.tokenize(string.lower())
+        if use_description:
+            string = listing["description"]
+            if string:
+                words += word_tokenizer.tokenize(string.lower())
+        if use_prod_spec:
+            string = Tokenizer.to_text_dict(listing["prod_spec"])
+            words += word_tokenizer.tokenize(string.lower())
+        if use_seller:
+            words += [listing["seller"]]
+            
+        return words
+    
+    
+    
 class CollectText(object):
     """Extract text from listings"""
     def __init__(self):
