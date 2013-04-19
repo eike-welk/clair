@@ -229,6 +229,30 @@ def test_CollectText():
     print "finished"
 
 
+def test_split_random():
+    """Test splitting frame into two fractions randomly."""
+    from clair.textprocessing import split_random
+    
+    df = pd.DataFrame({"aaa":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
+#    print df
+    
+    frac1, frac2 = split_random(df, 0.3)
+#    print frac1
+#    print frac2
+    assert len(frac1) == 3 and len(frac2) == 7
+    
+    frac1, frac2 = split_random(df, 0.8)
+#    print frac1
+#    print frac2
+    assert len(frac1) == 8 and len(frac2) == 2
+    
+    #Simple test for randomness
+    print split_random(df, 0.4)[0].index
+    assert any(split_random(df, 0.4)[0].index != split_random(df, 0.4)[0].index)
+    
+    print "finished"
+    
+    
 def experiment_update_all_listings():
     """Update all listings."""
     from clair.coredata import DataStore
@@ -338,6 +362,7 @@ if __name__ == "__main__":
 #    test_HtmlTool_clean_html()
 #    test_DataStore()
 #    test_CollectText()
+    test_split_random()
 #    experiment_update_all_listings()
 #    experiment_CollectText()
     

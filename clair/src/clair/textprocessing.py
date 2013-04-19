@@ -28,7 +28,8 @@ from __future__ import division
 from __future__ import absolute_import              
 
 import re 
-import logging 
+import logging
+import random
 import HTMLParser
 
 #import lxml.html
@@ -128,6 +129,13 @@ class HtmlTool(object):
 class Tokenizer(object):
     """Create tokens for the learning algorithms."""
     
+    def __init__(self, use_title=True, use_description=True, 
+                 use_prod_spec=True, use_seller=True):
+        self.use_title = use_title
+        self.use_description = use_description
+        self.use_prod_spec = use_prod_spec
+        self.use_seller = use_seller
+    
     @staticmethod
     def to_text_dict(in_dict):
         """Convert dictionary to text. Pattern: 'key: value,'"""
@@ -166,30 +174,69 @@ class Tokenizer(object):
                                       flags=re.UNICODE | re.MULTILINE | 
                                             re.DOTALL | re.VERBOSE)
     
-    @staticmethod
-    def extract_words(listing, 
-                      use_title=False, use_description=False, 
-                      use_prod_spec=False, use_seller=False):
+    def extract_words(self, listing):
         """Extract words from a listing."""
         word_tokenizer = Tokenizer.word_tokenizer
         words = []
         
-        if use_title:
+        if self.use_title:
             string = listing["title"]
             if string:
                 words += word_tokenizer.tokenize(string.lower())
-        if use_description:
+        if self.use_description:
             string = listing["description"]
             if string:
                 words += word_tokenizer.tokenize(string.lower())
-        if use_prod_spec:
+        if self.use_prod_spec:
             string = Tokenizer.to_text_dict(listing["prod_spec"])
             words += word_tokenizer.tokenize(string.lower())
-        if use_seller:
+        if self.use_seller:
             words += [listing["seller"]]
             
         return words
     
+    def extract_features(self, listing):
+        """Create the feature dict for a single listing."""
+        words = self.extract_words(listing)
+        features = {"contains_" + word: True for word in words}
+        return features
+    
+
+
+def split_random(data_frame, fraction):
+    """Split rows of ``DataFrame`` randomly into two parts."""
+    assert 0.0 <= fraction <= 1.0
+    
+    #Always generate the indexes of the smaller fraction
+    swap_fractions = False
+    if fraction > 0.5:
+        fraction = 1 - fraction
+        swap_fractions = True
+        
+    #Create set of indexes that will be in the first (smaller) fraction
+    element_idxs = set()
+    len_data = len(data_frame)
+    n_idx_wanted = int(round(len_data * fraction))
+    for _ in xrange(n_idx_wanted):
+        idx = int(random.random() * len_data)
+        element_idxs.add(idx)
+    while len(element_idxs) < n_idx_wanted:
+        idx = int(random.random() * len_data)
+        element_idxs.add(idx)
+        
+    #Create series with `True` for each row in fraction-1
+    fancy_idx = pd.Series(False, index=range(len_data))
+    for idx in element_idxs:
+        fancy_idx[idx] = True
+    
+    #Split the data frame's rows in two fractions
+    frac1 = data_frame[fancy_idx]
+    frac2 = data_frame[~fancy_idx]
+    if swap_fractions:
+        frac1, frac2 = frac2, frac1
+        
+    return frac1, frac2
+        
     
     
 class CollectText(object):
