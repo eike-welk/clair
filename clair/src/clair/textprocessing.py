@@ -28,6 +28,7 @@ from __future__ import division
 from __future__ import absolute_import              
 
 import re 
+import os.path as path
 import logging
 import random
 import HTMLParser
@@ -37,7 +38,7 @@ import lxml.html.clean
 import pandas as pd
 from numpy import isnan
 import nltk
-from nltk import RegexpTokenizer
+from nltk import RegexpTokenizer, FreqDist
 
 from clair.coredata import DataStore
 
@@ -126,11 +127,17 @@ class HtmlTool(object):
     
     
 
-class Tokenizer(object):
-    """Create tokens for the learning algorithms."""
+class FeatureExtractor(object):
+    """
+    Create feature sets from listings, for the learning algorithms.
     
-    def __init__(self, use_title=True, use_description=True, 
+    Also creates list of words that are used in a listing. 
+    """
+    
+    def __init__(self, feature_words=[], use_title=True, use_description=True, #IGNORE:W0102
                  use_prod_spec=True, use_seller=True):
+        assert all([isinstance(w, basestring) for w in feature_words])
+        self.feature_words = feature_words
         self.use_title = use_title
         self.use_description = use_description
         self.use_prod_spec = use_prod_spec
@@ -164,7 +171,7 @@ class Tokenizer(object):
     #>>> nltk.regexp_tokenize(text, pattern)
     #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
     word_tokenizer_pattern = r"""
-              \d+(\.\d+)?       # real numbers, e.g. 2.8, 82
+              \d+(\.\d+)?       # real numbers, e.g. 2.8, 42
             | (\w\.)+           # abbreviations, e.g., z.B., U.S.A.
             | \w+               # words
            # | [][.,;"'?():-_`]  # these are separate tokens
@@ -176,7 +183,7 @@ class Tokenizer(object):
     
     def extract_words(self, listing):
         """Extract words from a listing."""
-        word_tokenizer = Tokenizer.word_tokenizer
+        word_tokenizer = FeatureExtractor.word_tokenizer
         words = []
         
         if self.use_title:
@@ -185,26 +192,159 @@ class Tokenizer(object):
                 words += word_tokenizer.tokenize(string.lower())
         if self.use_description:
             string = listing["description"]
-            if string:
-                words += word_tokenizer.tokenize(string.lower())
+            string = HtmlTool.remove_html(string)
+            words += word_tokenizer.tokenize(string.lower())
         if self.use_prod_spec:
-            string = Tokenizer.to_text_dict(listing["prod_spec"])
+            string = FeatureExtractor.to_text_dict(listing["prod_spec"])
             words += word_tokenizer.tokenize(string.lower())
         if self.use_seller:
-            words += [listing["seller"]]
-            
+            seller = listing["seller"]
+            if seller:
+                words += [seller]
+        
         return words
     
     def extract_features(self, listing):
         """Create the feature dict for a single listing."""
-        words = self.extract_words(listing)
-        features = {"contains_" + word: True for word in words}
+        listing_words = set(self.extract_words(listing))
+        features = {}
+        for word in self.feature_words:
+            features["contains-" + word] = word in listing_words
         return features
     
 
 
+class ProductFinder(object):
+    """Identify products in a ``DataFrame`` of listings."""
+    def __init__(self, product_id, n_features=2000):
+        #ID of product that is identified by this object
+        self.product_id = product_id
+        #size of feature dict
+        self.n_features = n_features
+        self.feature_extractor = FeatureExtractor() #Dummy
+        self.classifier = None
+        
+
+    def filter_trainig_samples(self, all_listings):
+        """Filter matching training samples from ``DataFrame`` of listings."""
+        product_name = self.product_id
+        
+        def is_training_sample(listing):
+            "Determine if listing is training sample for the correct product."
+#            print listing.name            
+            products = listing["products"]
+            products_absent = listing["products_absent"]
+            if products is None or products_absent is None:
+                return False
+            return (listing["training_sample"] == 1.0 and 
+                    (product_name in products or 
+                     product_name in products_absent))
+            
+        where_sample = all_listings.apply(is_training_sample, axis=1)
+        return all_listings.ix[where_sample]
+    
+    
+    def filter_candidate_listings(self, all_listings):
+        """
+        Filter listings that may contain the desired product from 
+        ``DataFrame`` of listings.
+        """
+        product_name = self.product_id
+        
+        def is_candidate(listing):
+            "Determine if product is expected in this listing."
+#            print listing.name            
+            expected_products = listing["expected_products"]
+            if expected_products is None:
+                return False
+            return (listing["training_sample"] != 1.0 and 
+                    product_name in expected_products)
+            
+        where_sample = all_listings.apply(is_candidate, axis=1)
+        return all_listings.ix[where_sample]
+    
+    
+    def create_labeled_features(self, listings):
+        "Create labeled features to train or check the recognition algorithm."
+        labeled_features = []
+        for _, listing in listings.iterrows():
+            features = self.feature_extractor.extract_features(listing)
+            contains_product = self.product_id in listing["products"]
+            assert contains_product != (self.product_id in listing["products_absent"])
+            labeled_features.append((features, contains_product))
+            
+        return labeled_features
+    
+        
+    def train_finder(self, listings):
+        """Train the product identification algorithm with example data."""
+        logging.info("Start training of recognizer for product: {0}; \n"
+                     "Number listings: {1}; Number features: {2}"
+                     .format(self.product_id, len(listings), self.n_features))
+        
+        #Create list of most common words, 
+        # and put it into feature extractor
+        #TODO: remove stop-words
+        self.feature_extractor = FeatureExtractor()
+        word_freqs = FreqDist()
+        for _, listing in listings.iterrows():
+            words = self.feature_extractor.extract_words(listing)
+            word_freqs.update(words)
+        common_words = word_freqs.keys()[:self.n_features]
+        self.feature_extractor = FeatureExtractor(common_words)
+        logging.debug("Number individual words: {0}; hapaxes: {1}"
+                      .format(len(word_freqs), len(word_freqs.hapaxes())))
+        logging.debug("Most common words: {}".format(word_freqs.keys()[:100]))
+        
+        #Train the classifier
+        train_set = self.create_labeled_features(listings)
+        self.classifier = nltk.NaiveBayesClassifier.train(train_set)
+        self.classifier.show_most_informative_features(20)
+        
+        
+    def compute_accuracy(self, listings):
+        "Test accuracy of classifier."
+        logging.debug("Start testing accuracy of recognizer for product {0};"
+                      "Number listings: {1}"
+                      .format(self.product_id, format(len(listings))))
+        test_set = self.create_labeled_features(listings)
+        accuracy = nltk.classify.accuracy(self.classifier, test_set)
+        logging.info("Accuracy of recognizer for product {0}: {1}"
+                     .format(self.product_id, accuracy))
+        return accuracy
+        
+    
+    def contains_product(self, listing):
+        """
+        Return ``True`` if listing contains the product for which this finder
+        was trained. Return ``False`` otherwise.
+        """
+        assert isinstance(listing, pd.Series)
+        features = self.feature_extractor.extract_features(listing)
+        prod_yn = self.classifier.classify(features)
+        return prod_yn
+    
+    
+    
 def split_random(data_frame, fraction):
-    """Split rows of ``DataFrame`` randomly into two parts."""
+    """
+    Split rows of ``DataFrame`` randomly into two parts.
+    
+    Parametes
+    ----------
+    
+    data_frame : ``pd.DataFrame``
+        Container for rows that are randomly distributed into two parts.
+        
+    fraction : float
+        Must be in range 0..1. Fraction of the rows that are placed
+        in the first part of the result.
+        
+    Returns
+    --------
+    ``pd.DataFrame, pd.DataFrame``
+        The two parts into which ``data_frame`` is split.
+    """
     assert 0.0 <= fraction <= 1.0
     
     #Always generate the indexes of the smaller fraction

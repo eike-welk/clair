@@ -27,7 +27,7 @@ Put module description here.
 from __future__ import division
 from __future__ import absolute_import  
             
-#import pytest #contains `skip`, `fail`, `raises`, `config`
+import pytest #contains `skip`, `fail`, `raises`, `config`
 import os
 import glob
 import time

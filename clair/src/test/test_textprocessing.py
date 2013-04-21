@@ -229,6 +229,88 @@ def test_CollectText():
     print "finished"
 
 
+def test_FeatureExtractor():
+    """Test ``FeatureExtractor`` class."""
+    from clair.textprocessing import FeatureExtractor
+    from clair.coredata import DataStore
+    
+    data_dir = relative("../../example-data")
+    data = DataStore()
+    data.read_data(data_dir)
+    listing = data.listings.ix["eb-110685959294"]
+    
+    #Words to test different extraction functionality
+    #                from title and description, test entities
+    feature_words = ["nikon", "photo", "d90", u"blitzgerät",
+    #                seller, item specifics
+                     "photo-porst-memmingen", "mpn",
+    #                words that are not in listing
+                     "foo", "bar"]
+    
+    extractor = FeatureExtractor(feature_words)
+    features = extractor.extract_features(listing)
+    
+    print features
+    
+    assert features['contains-photo'] == True
+    assert features['contains-photo-porst-memmingen'] == True
+    assert features['contains-nikon'] == True
+    assert features['contains-mpn'] == True
+    assert features['contains-d90'] == True
+    assert features[u'contains-blitzgerät'] == True
+    
+    assert features['contains-foo'] == False
+    assert features['contains-bar'] == False
+    
+    print "finished"
+    
+    
+def test_ProductFinder():
+    """Test ``FeatureExtractor`` class."""
+    from clair.textprocessing import ProductFinder, split_random
+    from clair.coredata import DataStore
+    
+    data_dir = relative("../../example-data")
+    data = DataStore()
+    data.read_data(data_dir)
+    
+    finder = ProductFinder("nikon-d70")
+    
+    print "Test: filter_trainig_samples"
+    samples = train_samples = finder.filter_trainig_samples(data.listings)
+    print "Number training samples:", len(samples)
+#    print samples
+    assert len(samples) > 100
+    assert all(samples["training_sample"] == True)
+    pe = samples["products"].map(lambda l: "nikon-d70" in l)
+    pa = samples["products_absent"].map(lambda l: "nikon-d70" in l)
+    assert all(pe | pa)
+        
+    print "\nTest: filter_candidate_listings"
+    samples = cand_samples = finder.filter_candidate_listings(data.listings)
+    print "Number candidate samples:", len(samples)
+    assert len(samples) > 10
+    assert all(samples["training_sample"] != 1.0)
+    pe = samples["expected_products"].map(lambda l: "nikon-d70" in l)
+    assert all(pe)
+    
+    print "\nTest: train_finder, compute_accuracy"
+    train_set, test_set = split_random(train_samples, 0.8)
+    finder.train_finder(train_set)
+    finder.compute_accuracy(test_set)
+    
+    print "\nTest: contains_product"
+    for i, (_, listing) in enumerate(cand_samples.iterrows()):
+        if i >= 10:
+            break
+        contains = finder.contains_product(listing)
+        print listing["title"]
+        print "Contains", finder.product_id, ":", contains
+        print 
+    
+    print "finished"
+    
+    
 def test_split_random():
     """Test splitting frame into two fractions randomly."""
     from clair.textprocessing import split_random
@@ -289,7 +371,7 @@ def experiment_CollectText():
     ct.merge_listings(ds.listings)
     
     tt = ct.get_total_text()
-    print len(tt)
+    print "Number characters:          ", len(tt)
     #tokenization
     #TODO: use: ``nltk.wordpunct_tokenize`` or ``nltk.word_tokenize``???
     #TODO: don't split real numbers "2.8" "3,5" important for lenses.
@@ -317,27 +399,29 @@ def experiment_CollectText():
 #    wbounds = re.compile(r"[\s\xa0,.:;!(){}[\]]+")
 #    nwhites = re.compile(r"[\s]+")
 #    words = wbounds.split(tt.lower())
-    print len(words)
+    print "Number words:               ", len(words)
     
     unique_words = set(words)
-    print len(unique_words)
+    print "Number individual words:    ", len(unique_words)
 #    print unique_words
     
     word_freqs = FreqDist(words)
 #    word_freqs.plot(200)
-    print word_freqs.keys()[:200]
-    print word_freqs.keys()[-200:]
+    print "Most frequent words: ", word_freqs.keys()[:200]
+    print "Least frequent words:",word_freqs.keys()[-200:]
+    
     for i, word in enumerate(word_freqs):
         if word_freqs[word] == 1:
             break
-        
     print i, "non unique words, first unique word is:", word
     
     word_keys = word_freqs.keys()
-    print 'word_freqs["1.4"] =', word_freqs["1.4"], word_keys.index("1.4")
-    print 'word_freqs["2.8"] =', word_freqs["2.8"], word_keys.index("2.8")
-    print 'word_freqs["3.5"] =', word_freqs["3.5"]  
-    print 'word_freqs["5.6"] =', word_freqs["5.6"]
+    print 'word_freqs["1.4"] =  ', word_freqs["1.4"],   "index:", word_keys.index("1.4")
+    print 'word_freqs["2.8"] =  ', word_freqs["2.8"],   "index:", word_keys.index("2.8")
+    print 'word_freqs["3.5"] =  ', word_freqs["3.5"],   "index:", word_keys.index("3.5")  
+    print 'word_freqs["5.6"] =  ', word_freqs["5.6"],   "index:", word_keys.index("5.6")  
+    print 'word_freqs["nikon"] =', word_freqs["nikon"], "index:", word_keys.index("nikon")  
+    print 'word_freqs["d90"] =  ', word_freqs["d90"],   "index:", word_keys.index("d90")  
     
 #    #Why are there words like "font-size" in the text?
 #    search_word = "getelementbyid"
@@ -362,7 +446,9 @@ if __name__ == "__main__":
 #    test_HtmlTool_clean_html()
 #    test_DataStore()
 #    test_CollectText()
-    test_split_random()
+#    test_FeatureExtractor()
+    test_ProductFinder()
+#    test_split_random()
 #    experiment_update_all_listings()
 #    experiment_CollectText()
     
