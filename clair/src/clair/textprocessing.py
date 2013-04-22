@@ -36,7 +36,7 @@ import HTMLParser
 #import lxml.html
 import lxml.html.clean
 import pandas as pd
-from numpy import isnan
+from numpy import nan, isnan
 import nltk
 from nltk import RegexpTokenizer, FreqDist
 
@@ -215,7 +215,17 @@ class FeatureExtractor(object):
 
 
 class ProductFinder(object):
-    """Identify products in a ``DataFrame`` of listings."""
+    """
+    Identify products in a ``DataFrame`` of listings.
+        
+    Together with ``FeatureExtractor`` this class embodies a very 
+    simple text classification algorithm. The text is classified into:
+    *contains product* (``True``) vs. *does not contain product* (``False``).
+    
+    The algorithm is almost exactly as the *Document Classification* 
+    algorithm in:
+    http://nltk.org/book/ch06.html#code-document-classify-fd
+    """
     def __init__(self, product_id, n_features=2000):
         #ID of product that is identified by this object
         self.product_id = product_id
@@ -276,14 +286,27 @@ class ProductFinder(object):
         return labeled_features
     
         
-    def train_finder(self, listings):
-        """Train the product identification algorithm with example data."""
-        logging.info("Start training of recognizer for product: {0}; \n"
-                     "Number listings: {1}; Number features: {2}"
-                     .format(self.product_id, len(listings), self.n_features))
+    def train_finder(self, all_listings):
+        """
+        Train the product identification algorithm with example data.
+        """
+        logging.info("Start training of recognizer for product: {0}"
+                     .format(self.product_id))
         
-        #Create list of most common words, 
-        # and put it into feature extractor
+        #select example listings for the finder's product
+        listings = self.filter_trainig_samples(all_listings)
+        logging.info("Number listings: {0}; Number features: {1}"
+                     .format(len(listings), self.n_features))
+        if len(listings) < 50:
+            #TODO: More statistics: too few positive or negative samples.
+            #      Statistics could be collected by ``filter_trainig_samples``.
+            logging.warn("Product {0}. Can't compute classifier. "
+                         "Too few listings."
+                         .format(self.product_id))
+            self.classifier = None
+            return
+        
+        #Create list of most common words, and put it into feature extractor
         #TODO: remove stop-words
         self.feature_extractor = FeatureExtractor()
         word_freqs = FreqDist()
@@ -307,10 +330,20 @@ class ProductFinder(object):
         logging.debug("Start testing accuracy of recognizer for product {0};"
                       "Number listings: {1}"
                       .format(self.product_id, format(len(listings))))
+        if self.classifier is None:
+            logging.warn("Can't compute recognition accuracy for product {0}. "
+                         "No classifier was trained. "
+                         "Probably too few training samples"
+                         .format(self.product_id))
+            return nan
+        
         test_set = self.create_labeled_features(listings)
         accuracy = nltk.classify.accuracy(self.classifier, test_set)
         logging.info("Accuracy of recognizer for product {0}: {1}"
                      .format(self.product_id, accuracy))
+        if accuracy < 0.8:
+            logging.warn("Product {0}. Accuracy is very bad!"
+                         .format(self.product_id)) 
         return accuracy
         
     
@@ -320,6 +353,13 @@ class ProductFinder(object):
         was trained. Return ``False`` otherwise.
         """
         assert isinstance(listing, pd.Series)
+        if self.classifier is None:
+            logging.warn("Can't recognize product {0}. "
+                         "No classifier was trained. "
+                         "Probably too few training samples"
+                         .format(self.product_id))
+            return None
+
         features = self.feature_extractor.extract_features(listing)
         prod_yn = self.classifier.classify(features)
         return prod_yn
