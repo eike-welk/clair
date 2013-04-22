@@ -32,6 +32,7 @@ import os.path as path
 import logging
 import random
 import HTMLParser
+import cPickle
 
 #import lxml.html
 import lxml.html.clean
@@ -40,7 +41,7 @@ from numpy import nan, isnan
 import nltk
 from nltk import RegexpTokenizer, FreqDist
 
-from clair.coredata import DataStore
+from clair.coredata import Product, DataStore
 
 
 
@@ -214,10 +215,10 @@ class FeatureExtractor(object):
     
 
 
-class ProductFinder(object):
+class ProductRecognizer(object):
     """
     Identify products in a ``DataFrame`` of listings.
-        
+    
     Together with ``FeatureExtractor`` this class embodies a very 
     simple text classification algorithm. The text is classified into:
     *contains product* (``True``) vs. *does not contain product* (``False``).
@@ -365,12 +366,65 @@ class ProductFinder(object):
         return prod_yn
     
     
+
+class RecognizerController(object):
+    """Coordinate the recognition of products in listings."""
+    def __init__(self):
+        self.recognizers = {}
+        
+    def create_recognizers(self, data_dir, products, listings, all_new=False):
+        """
+        Load recognizers from disk, or create new recognizers and train them.
+        Each product gets a dedicated recognizer.
+        The recognizer objects are stored on disk.
+        """
+        assert isinstance(data_dir, basestring)
+        assert isinstance(products, list)
+        assert all([isinstance(p, Product) for p in products])
+        assert isinstance(listings, pd.DataFrame)
+        assert isinstance(all_new, bool)
+        
+        #load products from disk
+        file_name = path.join(data_dir, "product-recognizers.pickle")
+        if not all_new:
+            try:
+                pickle_file = open(file_name, "rb")
+                self.recognizers = cPickle.load(pickle_file)
+                pickle_file.close()
+                logging.info("Loaded {} recognizers from disk."
+                             .format(len(self.recognizers)))
+            except IOError, err:
+                logging.debug("Loading recognizers from file failed: {}"
+                              .format(err))
+        
+        #create and train recognizers if necessary
+        #TODO: check for new training samples
+        train_listings = listings[listings["training_sample"] == 1.0]
+        for product in products:
+            product_id = product.id
+            if product_id not in self.recognizers or \
+               self.recognizers[product_id].classifier is None:
+                finder = ProductRecognizer(product_id)
+                finder.train_finder(train_listings)
+                self.recognizers[product_id] = finder
     
+        #Store recognizers on disk
+        pickle_file = open(file_name, "wb")
+        cPickle.dump(self.recognizers, pickle_file, protocol=1)
+        pickle_file.close()
+    
+    
+    def recognize_products(self, listings):
+        """Iterate over the listings and identify the expected products."""
+        raise NotImplementedError()
+    
+    
+
 def split_random(data_frame, fraction):
     """
-    Split rows of ``DataFrame`` randomly into two parts.
+    Split ``DataFrame`` row-wise and randomly into two parts.
     
-    Parametes
+    Parameters
     ----------
     
     data_frame : ``pd.DataFrame``
@@ -404,7 +458,7 @@ def split_random(data_frame, fraction):
         idx = int(random.random() * len_data)
         element_idxs.add(idx)
         
-    #Create series with `True` for each row in fraction-1
+    #Create series with `True` for each row in 1st fraction.
     fancy_idx = pd.Series(False, index=range(len_data))
     for idx in element_idxs:
         fancy_idx[idx] = True
@@ -420,7 +474,8 @@ def split_random(data_frame, fraction):
     
     
 class CollectText(object):
-    """Extract text from listings"""
+    """TODO: remove class. 
+    Extract text from listings"""
     def __init__(self):
         self.texts = pd.DataFrame()
         

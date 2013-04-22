@@ -265,16 +265,16 @@ def test_FeatureExtractor():
     print "finished"
     
     
-def test_ProductFinder():
+def test_ProductRecognizer():
     """Test ``FeatureExtractor`` class."""
-    from clair.textprocessing import ProductFinder, split_random
+    from clair.textprocessing import ProductRecognizer, split_random
     from clair.coredata import DataStore
     
     data_dir = relative("../../example-data")
     data = DataStore()
     data.read_data(data_dir)
     
-    finder = ProductFinder("nikon-d70")
+    finder = ProductRecognizer("nikon-d70")
     
     print "Test: filter_trainig_samples"
     samples = train_samples = finder.filter_trainig_samples(data.listings)
@@ -310,6 +310,22 @@ def test_ProductFinder():
     
     print "finished"
     
+    
+def test_RecognizerController():
+    """Test ``FeatureExtractor`` class."""
+    from clair.textprocessing import RecognizerController
+    from clair.coredata import DataStore
+    
+    data_dir = relative("../../example-data")
+    data = DataStore()
+    data.read_data(data_dir)
+    
+    controller = RecognizerController()
+    
+    controller.create_recognizers(data_dir, data.products, data.listings)
+    
+    print "finished"
+
     
 def test_split_random():
     """Test splitting frame into two fractions randomly."""
@@ -447,7 +463,8 @@ if __name__ == "__main__":
 #    test_DataStore()
 #    test_CollectText()
 #    test_FeatureExtractor()
-    test_ProductFinder()
+#    test_ProductRecognizer()
+    test_RecognizerController()
 #    test_split_random()
 #    experiment_update_all_listings()
 #    experiment_CollectText()
