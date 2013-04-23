@@ -65,6 +65,20 @@ def relative(*path_components):
     return path.abspath(path.join(path.dirname(__file__), *path_components))
 
 
+def test_RecognizerWidget():
+    """Test the ``ProductEditWidget``"""
+    from clair.qtgui import RecognizerWidget
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    view = RecognizerWidget()
+    
+    view.show()
+    app.exec_()
+    print "End"
+    
+    
 def test_ProductEditWidget():
     """Test the ``ProductEditWidget``"""
     from clair.qtgui import ProductEditWidget
@@ -506,6 +520,7 @@ def experiment_qt():
     
     
 if __name__ == '__main__':
+#    test_RecognizerWidget()
 #    test_ProductEditWidget()
 #    test_ProductWidget()
 #    test_ProductModel()

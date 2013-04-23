@@ -58,7 +58,7 @@ from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter,
 from PyQt4.QtWebKit import QWebView
 
 from clair.coredata import make_listing_frame, Product, SearchTask, DataStore
-from clair.textprocessing import HtmlTool
+from clair.textprocessing import HtmlTool, RecognizerController
 
 
 
@@ -77,6 +77,59 @@ def to_text_time(time):
     
     
     
+class RecognizerWidget(QWidget):
+    """
+    Manipulate a single product recognizer
+    """
+    def __init__(self):
+        super(RecognizerWidget, self).__init__()
+        
+        #Transfers data between model and widgets
+        self.mapper = QDataWidgetMapper()
+        #Stores the product recognition algorithms.
+        self.recognizers = RecognizerController()
+        #Stores all important data
+        self.data = DataStore() #Dummy
+        
+        self.v_id = QLabel()
+        
+        l_id = QLabel("ID")
+        
+        grid = QGridLayout()
+        grid.addWidget(l_id,               0, 0)
+        grid.addWidget(self.v_id,          0, 1, 1, 3)
+
+        self.setLayout(grid)
+        self.setGeometry(200, 200, 400, 300)
+  
+        self.setToolTip("Change settings for product recognition algorithms.")
+        self.v_id.setToolTip("ID of product that is recognized.")
+
+  
+    def setModel(self, model):
+        """Tell the widget which model it should use."""
+        #Put model into communication object
+        self.mapper.setModel(model)
+        #Tell: which widget should show which column
+        self.mapper.addMapping(self.v_id, 0, "text")
+        #Go to first row
+        self.mapper.toFirst()
+
+
+    def setRow(self, index):
+        """
+        Set the row of the model that is accessed by the widget.
+        
+        Usually connected to signal ``activated`` of a ``QTreeView``.
+        
+        Parameter
+        ---------
+        index : QModelIndex
+        """
+        self.mapper.setCurrentModelIndex(index)
+
+
+
 class ProductEditWidget(QWidget):
     """
     Display and edit contents of a single ``Product``.
@@ -93,7 +146,7 @@ class ProductEditWidget(QWidget):
         #Transfers data between model and widgets
         self.mapper = QDataWidgetMapper()
         
-        self.e_id = QLineEdit()
+        self.v_id = QLineEdit()
         self.e_name = QLineEdit()
         self.e_description = QTextEdit()
         self.e_important_words = QTextEdit()
@@ -107,7 +160,7 @@ class ProductEditWidget(QWidget):
         
         grid = QGridLayout()
         grid.addWidget(l_id,               0, 0)
-        grid.addWidget(self.e_id,          0, 1, 1, 3)
+        grid.addWidget(self.v_id,          0, 1, 1, 3)
         grid.addWidget(l_name,             1, 0)
         grid.addWidget(self.e_name,        1, 1, 1, 3)
         grid.addWidget(l_categories,       2, 0, 1, 2)
@@ -121,7 +174,7 @@ class ProductEditWidget(QWidget):
         self.setGeometry(200, 200, 400, 300)
   
         self.setToolTip('Change information about a product.')
-        self.e_id.setToolTip(Product.tool_tips["id"])
+        self.v_id.setToolTip(Product.tool_tips["id"])
         self.e_name.setToolTip(Product.tool_tips["name"])
         self.e_important_words.setToolTip(Product.tool_tips["important_words"])
         self.e_categories.setToolTip(Product.tool_tips["categories"])
@@ -133,7 +186,7 @@ class ProductEditWidget(QWidget):
         #Put model into communication object
         self.mapper.setModel(model)
         #Tell: which widget should show which column
-        self.mapper.addMapping(self.e_id, 0)
+        self.mapper.addMapping(self.v_id, 0)
         self.mapper.addMapping(self.e_name, 1)
         self.mapper.addMapping(self.e_categories, 2, "plainText")
         self.mapper.addMapping(self.e_important_words, 3, "plainText")
@@ -159,7 +212,7 @@ class ProductEditWidget(QWidget):
 class ProductWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
-    the list a whole, and an other pane that shows a single product.
+    the whole list, and an other pane that shows a single product.
     
     The data is taken from a ``ProductModel``.
     """
@@ -167,11 +220,16 @@ class ProductWidget(QSplitter):
         super(ProductWidget, self).__init__(parent)
         self.edit_widget = ProductEditWidget()
         self.list_widget = QTreeView()
+        self.reco_widget = RecognizerWidget()
         self.filter = QSortFilterProxyModel()
+        self.sub_splitter = QSplitter()
+        self.sub_splitter.setOrientation(Qt.Vertical)
         
         #Assemble the child widgets
         self.addWidget(self.list_widget)
-        self.addWidget(self.edit_widget)
+        self.addWidget(self.sub_splitter)
+        self.sub_splitter.addWidget(self.edit_widget)
+        self.sub_splitter.addWidget(self.reco_widget)
     
         #Set various options of the view. #TODO: Delete unnecessary
         self.list_widget.setItemsExpandable(False)
@@ -203,10 +261,11 @@ class ProductWidget(QSplitter):
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         
 
-    def setModel(self, model):
+    def setModel(self, product_model):
         """Tell view which model it should display and edit."""
-        self.filter.setSourceModel(model)
+        self.filter.setSourceModel(product_model)
         self.edit_widget.setModel(self.filter)
+        self.reco_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
@@ -220,6 +279,7 @@ class ProductWidget(QSplitter):
         ``list_widget.selectionModel()``
         """
         self.edit_widget.setRow(current)
+        self.reco_widget.setRow(current)
         
     def newProduct(self):
         """Create a new product below the current product."""
@@ -241,12 +301,16 @@ class ProductWidget(QSplitter):
         setting_store.setValue("ProductWidget/state", self.saveState())
         setting_store.setValue("ProductWidget/list/header/state", 
                                self.list_widget.header().saveState())
+        setting_store.setValue("ProductWidget/sub_splitter/state", 
+                               self.sub_splitter.saveState())
         
     def loadSettings(self, setting_store):
         """Load widget state, such as splitter position."""
         self.restoreState(setting_store.value("ProductWidget/state", ""))
         self.list_widget.header().restoreState(
                 setting_store.value("ProductWidget/list/header/state", ""))
+        self.sub_splitter.restoreState(
+                setting_store.value("ProductWidget/sub_splitter/state", ""))
         #Hide description. TODO: remove this hack
         self.list_widget.hideColumn(4)
 
@@ -521,7 +585,7 @@ class SearchTaskEditWidget(QWidget):
         #Transfers data between model and widgets
         self.mapper = QDataWidgetMapper()
         
-        self.e_id = QLineEdit()
+        self.v_id = QLineEdit()
         self.e_due_time = QLineEdit()
         self.e_server = QLineEdit()
         self.e_recurrence_pattern = QLineEdit()
@@ -550,7 +614,7 @@ class SearchTaskEditWidget(QWidget):
         
         grid = QGridLayout()
         grid.addWidget(l_id, 0, 0)
-        grid.addWidget(self.e_id, 0, 1, 1, 2)
+        grid.addWidget(self.v_id, 0, 1, 1, 2)
         grid.addWidget(l_due_time, 1, 0)
         grid.addWidget(self.e_due_time, 1, 1, 1, 2)
         grid.addWidget(l_server, 2, 0)
@@ -574,7 +638,7 @@ class SearchTaskEditWidget(QWidget):
         self.setGeometry(200, 200, 400, 300)
   
         self.setToolTip('Change information about a search task.')
-        self.e_id.setToolTip(SearchTask.tool_tips["id"])
+        self.v_id.setToolTip(SearchTask.tool_tips["id"])
         self.e_due_time.setToolTip(SearchTask.tool_tips["due_time"])
         self.e_server.setToolTip(SearchTask.tool_tips["server"])
         self.e_recurrence_pattern.setToolTip(
@@ -592,7 +656,7 @@ class SearchTaskEditWidget(QWidget):
         #Put model into communication object
         self.mapper.setModel(model)
         #Tell: which widget should show which column
-        self.mapper.addMapping(self.e_id, 0)
+        self.mapper.addMapping(self.v_id, 0)
         self.mapper.addMapping(self.e_due_time, 1)
         self.mapper.addMapping(self.e_server, 2)
         self.mapper.addMapping(self.e_recurrence_pattern, 3)
@@ -623,7 +687,7 @@ class SearchTaskEditWidget(QWidget):
 class TaskWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
-    the list a whole, and an other pane that shows a single product.
+    the whole list, and an other pane that shows a single task.
     
     The data is taken from a ``ProductModel``.
     """
@@ -1662,7 +1726,7 @@ class ListingsEditWidget(QWidget):
 class ListingsWidget(QSplitter):
     """
     Display and edit a list of ``Product`` objects. There is a pane that shows
-    the list a whole, and an other pane that shows a single product.
+    the whole list, and an other pane that shows a single product.
     
     The data is taken from a ``ProductModel``.
     """
