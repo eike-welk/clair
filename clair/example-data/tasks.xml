@@ -72,5 +72,19 @@
         <product>tamron-17-50-f/2.8--2-Nikon</product>
       </expected_products>
     </search_task>
+    <search_task>
+      <id>s-tokina-17-50-f/2.8--Nikon</id>
+      <due_time>2000-12-31 00:00:00</due_time>
+      <server>ebay.de</server>
+      <recurrence_pattern>daily</recurrence_pattern>
+      <query_string>Tamron 17-50 2.8 Nikon</query_string>
+      <n_listings>100</n_listings>
+      <price_min>100.0</price_min>
+      <price_max>1000.0</price_max>
+      <currency>EUR</currency>
+      <expected_products>
+        <product>tokina-16-50-f/2.8--1-Nikon</product>
+      </expected_products>
+    </search_task>
   </tasks>
 </task_storage>
