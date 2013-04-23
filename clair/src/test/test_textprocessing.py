@@ -193,42 +193,6 @@ def test_HtmlTool_clean_html():
     assert html_nice.find("Blitzger&auml;t") != -1
     
     
-def test_CollectText():
-    """Test text collection object"""
-    from clair.textprocessing import CollectText
-    
-    #Convert some test data
-    c = CollectText()
-    l1 = make_test_listings()
-    c.merge_listings(l1)
-#    print c.texts
-    print c.texts.to_string()
-    assert len(c.texts) == 3
-    assert set(c.texts.columns) == set(["title", "description", "prod_spec"])
-    
-    #Process the example listings
-    c = CollectText()
-    c.insert_listings_from_files(relative("../../example-data"))
-    print c.texts
-#    print c.texts.to_string()
-    assert len(c.texts) >= 100
-    assert set(c.texts.columns) == set(["title", "description", "prod_spec"])
-    
-    lt = c.get_listings_text()
-#    print lt
-    assert len(lt) == len(c.texts)
-    assert isinstance(lt.ix[3], unicode)
-    assert  lt.map(lambda u: isinstance(u, unicode)).all()
-
-    tt = c.get_total_text()
-#    print tt
-    print "len(tt) =", len(tt)
-    assert isinstance(tt, unicode) 
-    assert len(tt) > 1000
-    
-    print "finished"
-
-
 def test_FeatureExtractor():
     """Test ``FeatureExtractor`` class."""
     from clair.textprocessing import FeatureExtractor
@@ -374,102 +338,18 @@ def experiment_update_all_listings():
     ds.merge_listings(listings_upd)
     ds.write_listings()
     
-    print "finished"
+    print "finished"    
+    
 
-
-def experiment_CollectText():
-    """Experiment with the text collection algorithm."""
-    from clair.textprocessing import CollectText
-    from clair.coredata import DataStore
-    from nltk import FreqDist
-
-    ds = DataStore()
-    ct = CollectText()
-    
-    ds.read_data(relative("../../example-data"))
-    ct.merge_listings(ds.listings)
-    
-    tt = ct.get_total_text()
-    print "Number characters:          ", len(tt)
-    #tokenization
-    #TODO: use: ``nltk.wordpunct_tokenize`` or ``nltk.word_tokenize``???
-    #TODO: don't split real numbers "2.8" "3,5" important for lenses.
-    #>>> text = 'That U.S.A. poster-print costs $12.40...'
-    #>>> pattern = r'''(?x)    # set flag to allow verbose regexps
-    #...     ([A-Z]\.)+        # abbreviations, e.g. U.S.A.
-    #...   | \w+(-\w+)*        # words with optional internal hyphens
-    #...   | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
-    #...   | \.\.\.            # ellipsis
-    #...   | [][.,;"'?():-_`]  # these are separate tokens
-    #... '''
-    #>>> nltk.regexp_tokenize(text, pattern)
-    #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
-    tokenize_words_pattern = r"""
-              \d+(\.\d+)?       # real numbers, e.g. 2.8, 82
-            | (\w\.)+           # abbreviations, e.g., z.B., U.S.A.
-            | \w+               # words
-           # | [][.,;"'?():-_`]  # these are separate tokens
-            """
-    tokenize_words = RegexpTokenizer(tokenize_words_pattern, 
-                                     gaps=False, discard_empty=True,
-                                     flags=re.UNICODE | re.MULTILINE | 
-                                           re.DOTALL | re.VERBOSE)
-    words = tokenize_words.tokenize(tt.lower())
-#    wbounds = re.compile(r"[\s\xa0,.:;!(){}[\]]+")
-#    nwhites = re.compile(r"[\s]+")
-#    words = wbounds.split(tt.lower())
-    print "Number words:               ", len(words)
-    
-    unique_words = set(words)
-    print "Number individual words:    ", len(unique_words)
-#    print unique_words
-    
-    word_freqs = FreqDist(words)
-#    word_freqs.plot(200)
-    print "Most frequent words: ", word_freqs.keys()[:200]
-    print "Least frequent words:",word_freqs.keys()[-200:]
-    
-    for i, word in enumerate(word_freqs):
-        if word_freqs[word] == 1:
-            break
-    print i, "non unique words, first unique word is:", word
-    
-    word_keys = word_freqs.keys()
-    print 'word_freqs["1.4"] =  ', word_freqs["1.4"],   "index:", word_keys.index("1.4")
-    print 'word_freqs["2.8"] =  ', word_freqs["2.8"],   "index:", word_keys.index("2.8")
-    print 'word_freqs["3.5"] =  ', word_freqs["3.5"],   "index:", word_keys.index("3.5")  
-    print 'word_freqs["5.6"] =  ', word_freqs["5.6"],   "index:", word_keys.index("5.6")  
-    print 'word_freqs["nikon"] =', word_freqs["nikon"], "index:", word_keys.index("nikon")  
-    print 'word_freqs["d90"] =  ', word_freqs["d90"],   "index:", word_keys.index("d90")  
-    
-#    #Why are there words like "font-size" in the text?
-#    search_word = "getelementbyid"
-#    listing_texts = ct.get_listings_text()
-#    for lid, text in listing_texts.iteritems():
-#        i = text.lower().find(search_word)
-#        if i != -1:
-#            print "Found word:", search_word, "listing ID:", lid, "text position:", i
-#            print "Text -------------------------------------"
-#            print text
-#            print "HTML ---------------------------------------"
-#            print ds.listings["description"][lid]
-#            break
-    
-    print "finished"
-    
-    
 
 if __name__ == "__main__":
 #    test_HtmlTool_remove_html()
 #    test_HtmlTool_to_nice_text()
 #    test_HtmlTool_clean_html()
-#    test_DataStore()
-#    test_CollectText()
 #    test_FeatureExtractor()
 #    test_ProductRecognizer()
     test_RecognizerController()
 #    test_split_random()
 #    experiment_update_all_listings()
-#    experiment_CollectText()
     
     pass #IGNORE:W0107
