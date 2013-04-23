@@ -278,10 +278,16 @@ class ProductRecognizer(object):
     def create_labeled_features(self, listings):
         "Create labeled features to train or check the recognition algorithm."
         labeled_features = []
-        for _, listing in listings.iterrows():
+        for product_id, listing in listings.iterrows():
             features = self.feature_extractor.extract_features(listing)
             contains_product = self.product_id in listing["products"]
-            assert contains_product != (self.product_id in listing["products_absent"])
+            if contains_product \
+               == (self.product_id in listing["products_absent"]):
+                #ignore contradicting information
+                logging.warn(
+                    "Training sample with contradicting information: {}."
+                    .format(product_id))
+                continue
             labeled_features.append((features, contains_product))
             
         return labeled_features
@@ -298,7 +304,7 @@ class ProductRecognizer(object):
         listings = self.filter_trainig_samples(all_listings)
         logging.info("Number listings: {0}; Number features: {1}"
                      .format(len(listings), self.n_features))
-        if len(listings) < 50:
+        if len(listings) < 30:
             #TODO: More statistics: too few positive or negative samples.
             #      Statistics could be collected by ``filter_trainig_samples``.
             logging.warn("Product {0}. Can't compute classifier. "
@@ -338,6 +344,7 @@ class ProductRecognizer(object):
                          .format(self.product_id))
             return nan
         
+        listings = self.filter_trainig_samples(listings)
         test_set = self.create_labeled_features(listings)
         accuracy = nltk.classify.accuracy(self.classifier, test_set)
         logging.info("Accuracy of recognizer for product {0}: {1}"
@@ -416,8 +423,35 @@ class RecognizerController(object):
     
     def recognize_products(self, listings):
         """Iterate over the listings and identify the expected products."""
-        raise NotImplementedError()
-    
+        n_train, n_regular = 0, 0
+        for prod_id, listing in listings.iterrows():
+            if listing["training_sample"] == 1.0:
+                n_train += 1
+                continue
+            
+            logging.debug("{}, '{}'".format(prod_id, listing["title"]))
+            n_regular += 1 
+            products, products_absent = [], []
+            #Try to identify all expected products
+            for product_id in listing["expected_products"]:
+                recognizer = self.recognizers[product_id]
+                contains_product = recognizer.contains_product(listing)
+                #`contains_product` can be `None`, if recognizer doesn't work
+                if contains_product == True:
+                    logging.debug(" " * 18 + "contains: {}".format(product_id))
+                    products.append(product_id)
+                elif contains_product == False:
+                    products_absent.append(product_id)
+            #store recognition results in original data frame
+            if products == [] and products_absent == []:
+                continue #Don't store if nothing was detected.
+            listings["training_sample"][prod_id] = 0.0
+            listings["products"][prod_id] = products
+            listings["products_absent"][prod_id] = products_absent
+        
+        logging.debug("Classified {0} listings, ignored {1} training samples."
+                      .format(n_regular, n_train))
+        
     
 
 def split_random(data_frame, fraction):

@@ -312,7 +312,7 @@ def test_ProductRecognizer():
     
     
 def test_RecognizerController():
-    """Test ``FeatureExtractor`` class."""
+    """Test ``RecognizerController`` class."""
     from clair.textprocessing import RecognizerController
     from clair.coredata import DataStore
     
@@ -321,8 +321,11 @@ def test_RecognizerController():
     data.read_data(data_dir)
     
     controller = RecognizerController()
-    
     controller.create_recognizers(data_dir, data.products, data.listings)
+    controller.recognize_products(data.listings)
+    
+    #TODO: assertions
+#    data.write_listings()
     
     print "finished"
 
