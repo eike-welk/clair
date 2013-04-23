@@ -39,6 +39,7 @@ import pandas as pd
 
 from clair.network import EbayConnector
 from clair.coredata import SearchTask, UpdateTask, DataStore
+from clair.textprocessing import RecognizerController
 
 
 
@@ -48,6 +49,8 @@ class MainObj(object):
         self.data_dir = data_dir
         self.server = EbayConnector(path.join(conf_dir, "python-ebay.apikey"))
         self.data = DataStore()
+        self.recognizers = RecognizerController()
+        
     
     def compute_next_due_time(self, curr_time, recurrence_pattern, 
                               add_random=False):
@@ -143,7 +146,7 @@ class MainObj(object):
     
     
     def execute_search_task(self, task):
-        """Search for new listings. Execute a search task."""
+        """Search for new listings. Executes a search task."""
         assert isinstance(task, SearchTask)
         
         #Get new listings from server
@@ -181,6 +184,23 @@ class MainObj(object):
         self.data.merge_listings(lst_found)
         
         
+    def execute_update_task(self, task):
+        """
+        Download the complete information of known listings. 
+        Executes an update task.
+        Tries to recognize products in updated tasks.
+        """
+        #Download the tasks
+        lst_update = self.data.listings.ix[task.listings]
+        lst_update = self.server.update_listings(lst_update)
+        lst_update["server"] = task.server
+#        lst_update["final_price"] = True #Use as flag, just to be sure
+        self.data.merge_listings(lst_update)
+        
+        #Recognize products
+        self.recognizers.recognize_products(task.listings, self.data.listings)
+        
+        
     def execute_tasks(self):
         """
         Execute the due tasks in ``self.tasks``.
@@ -201,11 +221,7 @@ class MainObj(object):
                 self.execute_search_task(task)
             #Update known listings
             elif isinstance(task, UpdateTask):
-                lst_update = self.data.listings.ix[task.listings]
-                lst_update = self.server.update_listings(lst_update)
-                lst_update["server"] = task.server
-#                lst_update["final_price"] = True #Use as flag, just to be sure
-                self.data.merge_listings(lst_update)
+                self.execute_update_task(task)
             else:
                 raise TypeError("Unknown task type:" + str(type(task)) + 
                                 "\ntask:\n" + str(task))
@@ -227,7 +243,8 @@ class MainObj(object):
     def create_final_update_tasks(self):
         """
         Create tasks that update the listing information shortly after the 
-        end of them. We want to know the final price of each auction.
+        auctions end. We want to know the final price of each auction.
+        20 auctions are updated at once.
         """
         logging.info("Creating update tasks, to get final prices.")
         if len(self.data.listings) == 0:
@@ -289,6 +306,7 @@ class MainObj(object):
         date_end = datetime.utcnow() + timedelta(days=30)
         self.data.read_data(self.data_dir, date_start, date_end)
         
+        self.recognizers.read_recognizers(self.data_dir)
         self.create_final_update_tasks()
         
         while nloops:

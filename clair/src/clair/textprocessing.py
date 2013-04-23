@@ -379,75 +379,94 @@ class RecognizerController(object):
     def __init__(self):
         self.recognizers = {}
         
-    def create_recognizers(self, data_dir, products, listings, all_new=False):
+    def create_file_name(self, data_dir):
+        "Create file name for storing recognizers on disk."
+        return path.join(data_dir, "product-recognizers.pickle")
+    
+    def read_recognizers(self, data_dir):
         """
-        Load recognizers from disk, or create new recognizers and train them.
-        Each product gets a dedicated recognizer.
-        The recognizer objects are stored on disk.
+        Load recognizers from disk. Each product gets a dedicated recognizer.
+        """
+        assert isinstance(data_dir, basestring)
+        
+        #load ``ProductRecognizer`` objects from disk
+        file_name = self.create_file_name(data_dir)
+        try:
+            pickle_file = open(file_name, "rb")
+            self.recognizers = cPickle.load(pickle_file)
+            pickle_file.close()
+            logging.info("Loaded {} recognizers from disk."
+                         .format(len(self.recognizers)))
+        except IOError, err:
+            logging.debug("Loading recognizers from disk failed: {}"
+                          .format(err))
+    
+    
+    def train_recognizers(self, data_dir, products, listings):
+        """
+        Create new recognizers and train them. Each product gets a 
+        dedicated recognizer.
+        The trained recognizer objects are stored on disk.
         """
         assert isinstance(data_dir, basestring)
         assert isinstance(products, list)
         assert all([isinstance(p, Product) for p in products])
         assert isinstance(listings, pd.DataFrame)
-        assert isinstance(all_new, bool)
-        
-        #load products from disk
-        file_name = path.join(data_dir, "product-recognizers.pickle")
-        if not all_new:
-            try:
-                pickle_file = open(file_name, "rb")
-                self.recognizers = cPickle.load(pickle_file)
-                pickle_file.close()
-                logging.info("Loaded {} recognizers from disk."
-                             .format(len(self.recognizers)))
-            except IOError, err:
-                logging.debug("Loading recognizers from file failed: {}"
-                              .format(err))
         
         #create and train recognizers if necessary
-        #TODO: check for new training samples
+        #TODO: check for new training samples, and train only if new training
+        #      samples exist
         train_listings = listings[listings["training_sample"] == 1.0]
         for product in products:
-            product_id = product.id
-            if product_id not in self.recognizers or \
-               self.recognizers[product_id].classifier is None:
-                finder = ProductRecognizer(product_id)
-                finder.train_finder(train_listings)
-                self.recognizers[product_id] = finder
+            finder = ProductRecognizer(product.id)
+            finder.train_finder(train_listings)
+            self.recognizers[product.id] = finder
+#            #Test is mostly nonsense: How well can finder express the data?
+#            finder.compute_accuracy(train_listings)
     
         #Store recognizers on disk
+        file_name = self.create_file_name(data_dir)
         pickle_file = open(file_name, "wb")
         cPickle.dump(self.recognizers, pickle_file, protocol=1)
         pickle_file.close()
     
     
-    def recognize_products(self, listings):
-        """Iterate over the listings and identify the expected products."""
+    def recognize_products(self, candidate_ids, all_listings):
+        """
+        Iterate over ``candidate_ids`` and identify expected products in listings
+        with these IDs.
+        """
         n_train, n_regular = 0, 0
-        for prod_id, listing in listings.iterrows():
+        for prod_id in candidate_ids:
+            listing = all_listings.ix[prod_id]
             if listing["training_sample"] == 1.0:
                 n_train += 1
                 continue
             
-            logging.debug("{}, '{}'".format(prod_id, listing["title"]))
+            logging.debug(u"{}, '{}'".format(prod_id, listing["title"]))
             n_regular += 1 
             products, products_absent = [], []
             #Try to identify all expected products
             for product_id in listing["expected_products"]:
-                recognizer = self.recognizers[product_id]
-                contains_product = recognizer.contains_product(listing)
-                #`contains_product` can be `None`, if recognizer doesn't work
-                if contains_product == True:
-                    logging.debug(" " * 18 + "contains: {}".format(product_id))
-                    products.append(product_id)
-                elif contains_product == False:
-                    products_absent.append(product_id)
+                try:
+                    recognizer = self.recognizers[product_id]
+                    contains_product = recognizer.contains_product(listing)
+                    #`contains_product` can be `None`, if recognizer doesn't work
+                    if contains_product == True:
+                        logging.debug(" " * 18 + "contains: {}".
+                                      format(product_id))
+                        products.append(product_id)
+                    elif contains_product == False:
+                        products_absent.append(product_id)
+                except KeyError:
+                    pass
+                    
             #store recognition results in original data frame
             if products == [] and products_absent == []:
                 continue #Don't store if nothing was detected.
-            listings["training_sample"][prod_id] = 0.0
-            listings["products"][prod_id] = products
-            listings["products_absent"][prod_id] = products_absent
+            all_listings["training_sample"][prod_id] = 0.0
+            all_listings["products"][prod_id] = products
+            all_listings["products_absent"][prod_id] = products_absent
         
         logging.debug("Classified {0} listings, ignored {1} training samples."
                       .format(n_regular, n_train))

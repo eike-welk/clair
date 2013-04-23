@@ -285,8 +285,13 @@ def test_RecognizerController():
     data.read_data(data_dir)
     
     controller = RecognizerController()
-    controller.create_recognizers(data_dir, data.products, data.listings)
-    controller.recognize_products(data.listings)
+    #create new recognizers and train them
+    controller.train_recognizers(data_dir, data.products, data.listings)
+    #Load the newly created recognizers from disk. 
+    #Unnecessary here, only for testing.
+    controller.read_recognizers(data_dir)
+    #Iterate over all listings and recognize products
+    controller.recognize_products(data.listings.index, data.listings)
     
     #TODO: assertions
 #    data.write_listings()
