@@ -2,6 +2,20 @@
   <version>0.1</version>
   <tasks>
     <search_task>
+      <id>s-nikon-80-200-f/2.8--2</id>
+      <due_time>2000-12-31 00:00:00</due_time>
+      <server>ebay.de</server>
+      <recurrence_pattern>daily</recurrence_pattern>
+      <query_string>Nikon 80-200 2.8</query_string>
+      <n_listings>100</n_listings>
+      <price_min>0</price_min>
+      <price_max>1000</price_max>
+      <currency>EUR</currency>
+      <expected_products>
+        <product>nikon-80-200-f/2.8--2</product>
+      </expected_products>
+    </search_task>
+    <search_task>
       <id>s-nikon-d70</id>
       <due_time>2000-01-01 00:00:00</due_time>
       <server>ebay-de</server>
@@ -58,6 +72,20 @@
       </expected_products>
     </search_task>
     <search_task>
+      <id>s-sigma-70-200-f/2.8--1-Nikon</id>
+      <due_time>2000-12-31 00:00:00</due_time>
+      <server>ebay.de</server>
+      <recurrence_pattern>daily</recurrence_pattern>
+      <query_string>Sigma 70-200 2.8 Nikon</query_string>
+      <n_listings>100</n_listings>
+      <price_min>50</price_min>
+      <price_max>1000</price_max>
+      <currency>EUR</currency>
+      <expected_products>
+        <product>sigma-70-200-f/2.8--1-Nikon</product>
+      </expected_products>
+    </search_task>
+    <search_task>
       <id>s-tamron-17-50-f/2.8--Nikon</id>
       <due_time>2000-01-01 00:00:00</due_time>
       <server>ebay.de</server>
@@ -77,10 +105,10 @@
       <due_time>2000-12-31 00:00:00</due_time>
       <server>ebay.de</server>
       <recurrence_pattern>daily</recurrence_pattern>
-      <query_string>Tamron 17-50 2.8 Nikon</query_string>
+      <query_string>Tokina 17-50 2.8 Nikon</query_string>
       <n_listings>100</n_listings>
-      <price_min>100.0</price_min>
-      <price_max>1000.0</price_max>
+      <price_min>50</price_min>
+      <price_max>1000</price_max>
       <currency>EUR</currency>
       <expected_products>
         <product>tokina-16-50-f/2.8--1-Nikon</product>
