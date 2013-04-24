@@ -114,6 +114,9 @@ def test_MainObj_execute_tasks():
     m.data.add_tasks([SearchTask("s-nikon-d90", datetime(2000,1,1), "ebay-de", 
                                  "Nikon D90", "daily", 5, 10, 500, "EUR", 
                                  ["nikon-d90"]),
+                      SearchTask("s-nikon-d90-2", datetime(2000,1,1), "ebay-de", 
+                                 "Nikon D90", "daily", 5, 10, 500, "EUR", 
+                                 ["nikon-d90"]),
                       SearchTask("s-nikon-d70", datetime(2000,1,1), "ebay-de", 
                                  "Nikon D70", "daily", 5, 10, 500, "EUR", 
                                  ["nikon-d70"])])
@@ -133,17 +136,57 @@ def test_MainObj_execute_tasks():
     m.execute_tasks()
     print m.data.tasks
     print m.data.listings[["title", "price", "sold", "time", "server"]].to_string()
+    #    print m.listings[["description", "price"]].to_string()
     
-    #The search tasks must still exist, but the update task must be deleted
-    assert len(m.data.tasks) == 2
-    #There must be about 10 listings, 5 from each search task
-    assert 8 <= len(m.data.listings) <= 10 #fewer listings: variants of the same item are removed
-    
-#    print m.listings[["description", "price"]].to_string()
     wakeup_time, sleep_sec = m.compute_next_wakeup_time()
-    
     print "wakeup_time:", wakeup_time, "sleep_sec:", sleep_sec
     
+    #The search tasks must still exist, but the update task must be deleted
+    assert len(m.data.tasks) == 3
+    
+    #There must be about 10 listings, 5 from each search task, 
+    #but "s-nikon-d90" and "s-nikon-d90-2" have the same search string, and 
+    #should find the same listings
+    assert 8 <= len(m.data.listings) <= 12 #fewer listings: variants of the same item are removed
+    
+    #Test correct behavior if multiple search tasks find the same listings:
+    #There is a 2nd ``SearchTask`` that also searches for "Nikon D90",
+    #but with different name: "s-nikon-d90-2".
+    #This this task must appear in the "search_tasks" field.   
+    tasks_lens = [0, 0, 0, 0] #Histogram of length of "search_tasks" list
+    prods_lens = [0, 0, 0, 0] #Histogram of length of "expected_products" list
+    n_2_d90 = 0
+    for _, listing in m.data.listings.iterrows():
+#        print listing
+        #Compute histogram of length of "search_tasks" list
+        n_tasks = len(listing["search_tasks"])
+        tasks_lens[n_tasks] += 1
+        #Compute histogram of length of "search_tasks" list
+        n_prods = len(listing["expected_products"])
+        prods_lens[n_prods] += 1
+        #how many listings have "s-nikon-d90" and "s-nikon-d90-2" in "search_tasks"
+        if "s-nikon-d90" in listing["search_tasks"] and \
+           "s-nikon-d90-2" in listing["search_tasks"]:
+            n_2_d90 += 1
+    #These tests may sometimes fail, some listings contain D90 and D70 in 
+    #their title.
+    print "tasks_lens", tasks_lens
+    assert tasks_lens[0] == 0 #listings without a search task: impossible
+    assert tasks_lens[1] == 5 #listings with one search task: D70
+    assert tasks_lens[2] == 5 #listings with two search tasks:
+    #                          "s-nikon-d90", "s-nikon-d90-2"
+    assert tasks_lens[3] == 0 #listings with three search tasks: unlikely
+    #listings with two search tasks: "s-nikon-d90", "s-nikon-d90-2"
+    assert n_2_d90 == 5
+    print "prods_lens", prods_lens
+    assert prods_lens[0] == 0 #listings without an expected product: impossible
+    assert prods_lens[1] == 10 #listings with one product: D70 or D90
+    assert prods_lens[2] == 0 #listings with two products: unlikely
+    assert prods_lens[3] == 0 #listings with three products: impossible
+    
+    #Test if update has really happened: Only update tasks download descriptions
+    assert all([d is not None for d in listing["description"]])
+
     print "finished!"
 
     
@@ -190,7 +233,7 @@ def test_MainObj_create_final_update_tasks():
 
 @pytest.mark.skipif #IGNORE:E1101
 def test_MainObj_main_download_listings():
-    """Test MainObj.create_final_update_tasks"""
+    """Test MainObj.main_download_listings"""
     
     from clair.daemon_main import MainObj
 
@@ -210,7 +253,7 @@ def test_MainObj_main_download_listings():
     
     
 def experiment_MainObj_main_download_listings():
-    """Test MainObj.create_final_update_tasks"""
+    """Experiment with MainObj.main_download_listings"""
     
     from clair.daemon_main import MainObj
 

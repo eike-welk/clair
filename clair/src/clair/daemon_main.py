@@ -156,33 +156,28 @@ class MainObj(object):
                                     price_min=task.price_min, 
                                     price_max=task.price_max, 
                                     currency=task.currency)
+        #fill in additional information, mainly for product recognition
         lst_found["search_tasks"].fill([task.id])
         lst_found["expected_products"].fill(task.expected_products)
         lst_found["server"] = task.server
         
         #Sane handling of listings that are found by multiple search tasks.
-        def unique_list(dupli_list):
-            "Create unique, and sorted, list of strings."
-            uniq_list = list(set(dupli_list))
-            uniq_list.sort()
-            return uniq_list
         #Get IDs of listings that have already been found by other tasks
         common_ids = list(set(lst_found.index).intersection(
                                         set(self.data.listings.index)))
-        
-        #TODO: use a loop that iterates over ``common_ids`` instead of this
-        #      hard to understand vectorized algorithm. 
-        #      Get rid of function ``unique_list``
-        #Union of "search_tasks" fields between existing and new listings
-        lst_found["search_tasks"][common_ids] += \
-            self.data.listings["search_tasks"][common_ids]
-        lst_found["search_tasks"] = lst_found["search_tasks"].map(unique_list)
-        
-        #Union of "expected_products" fields between existing and new listings
-        lst_found["expected_products"][common_ids] += \
-            self.data.listings["expected_products"][common_ids]
-        lst_found["expected_products"] = \
-            lst_found["expected_products"].map(unique_list)
+        for idx in common_ids:
+            #Union of "search_tasks" list between existing and new listings
+            tasks = lst_found["search_tasks"][idx] + \
+                    self.data.listings["search_tasks"][idx]
+            tasks = list(set(tasks))
+            tasks.sort()
+            lst_found["search_tasks"][idx] = tasks
+            #Union of "expected_products" list between existing and new listings
+            prods = lst_found["expected_products"][idx] + \
+                    self.data.listings["expected_products"][idx]
+            prods = list(set(prods))
+            prods.sort()
+            lst_found["expected_products"][idx] = prods
         
         self.data.merge_listings(lst_found)
         
