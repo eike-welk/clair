@@ -160,7 +160,7 @@ class MainObj(object):
         lst_found["expected_products"].fill(task.expected_products)
         lst_found["server"] = task.server
         
-        #Sane handling of listings that are found by multiple search tasks. ff.
+        #Sane handling of listings that are found by multiple search tasks.
         def unique_list(dupli_list):
             "Create unique, and sorted, list of strings."
             uniq_list = list(set(dupli_list))
@@ -170,6 +170,9 @@ class MainObj(object):
         common_ids = list(set(lst_found.index).intersection(
                                         set(self.data.listings.index)))
         
+        #TODO: use a loop that iterates over ``common_ids`` instead of this
+        #      hard to understand vectorized algorithm. 
+        #      Get rid of function ``unique_list``
         #Union of "search_tasks" fields between existing and new listings
         lst_found["search_tasks"][common_ids] += \
             self.data.listings["search_tasks"][common_ids]
@@ -198,7 +201,8 @@ class MainObj(object):
         self.data.merge_listings(lst_update)
         
         #Recognize products
-        self.recognizers.recognize_products(task.listings, self.data.listings)
+        self.recognizers.recognize_products(lst_update.index, 
+                                            self.data.listings)
         
         
     def execute_tasks(self):
