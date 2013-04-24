@@ -977,6 +977,7 @@ class DataStore(object):
 
         #Load tasks
         try:
+            self.tasks = []
             load_tasks = XmlIOSmallObject(self.data_dir, "tasks", 
                                           XMLConverterTasks())
             self.add_tasks(load_tasks.read_data())
@@ -984,6 +985,7 @@ class DataStore(object):
             logging.warning("Could not load task data: " + str(err))
             
         #Load listings
+        self.listings = make_listing_frame(0)
         load_listings = XmlIOBigFrame(self.data_dir, "listings", 
                                       XMLConverterListings())
         self.merge_listings(load_listings.read_data(date_start, date_end))

@@ -48,9 +48,9 @@ import pandas as pd
 from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
                           QAbstractItemModel, QAbstractTableModel, 
                           QSettings, QCoreApplication, QVariant,)
-from PyQt4.QtGui import (QWidget, QLabel, QLineEdit, QTextEdit, QSplitter, 
-                         QMainWindow, QTabWidget, QCheckBox, QComboBox,
-                         QApplication, QFileDialog, QMessageBox,
+from PyQt4.QtGui import (QWidget, QLabel, QPushButton, QLineEdit, QTextEdit, 
+                         QSplitter, QMainWindow, QTabWidget, QCheckBox, 
+                         QComboBox, QFileDialog, QMessageBox, QApplication, 
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
                          QItemSelectionModel, QItemEditorCreatorBase, QFont,
@@ -87,17 +87,29 @@ class RecognizerWidget(QWidget):
         #Transfers data between model and widgets
         self.mapper = QDataWidgetMapper()
         #Stores the product recognition algorithms.
-        self.recognizers = RecognizerController()
-        #Stores all important data
+        self.recognizers = RecognizerController() #Dummy
+        #Stores all important data of the application
         self.data = DataStore() #Dummy
         
         self.v_id = QLabel()
         
         l_id = QLabel("ID")
         
+        b_train_1 = QPushButton("&Train Recognizer")
+        b_train_all = QPushButton("Train &All Recognizers")
+        b_validate = QPushButton("Validate Recognizer")
+        b_test = QPushButton("&Test Recognizer")
+        b_run = QPushButton("&Run Recognizers")
+        
         grid = QGridLayout()
         grid.addWidget(l_id,               0, 0)
-        grid.addWidget(self.v_id,          0, 1, 1, 3)
+        grid.addWidget(self.v_id,          0, 1, 1, 2)
+        grid.addWidget(b_train_1,          1, 0)
+        grid.addWidget(b_train_all,        1, 1)
+        grid.addWidget(b_validate,         2, 0)
+        grid.addWidget(b_test,             2, 1)
+        grid.addWidget(b_run,              2, 2)
+        grid.setRowStretch (3, 1)
 
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
@@ -106,7 +118,7 @@ class RecognizerWidget(QWidget):
         self.v_id.setToolTip("ID of product that is recognized.")
 
   
-    def setModel(self, model):
+    def setModel(self, model, recognizers, data):
         """Tell the widget which model it should use."""
         #Put model into communication object
         self.mapper.setModel(model)
@@ -114,6 +126,9 @@ class RecognizerWidget(QWidget):
         self.mapper.addMapping(self.v_id, 0, "text")
         #Go to first row
         self.mapper.toFirst()
+        #set product recognizers and data storage.
+        self.recognizers = recognizers
+        self.data = data
 
 
     def setRow(self, index):
@@ -169,6 +184,7 @@ class ProductEditWidget(QWidget):
         grid.addWidget(self.e_important_words,3, 2, 2, 2)
         grid.addWidget(l_description,      5, 0, 1, 4)
         grid.addWidget(self.e_description, 6, 0, 2, 4)
+        grid.setRowStretch (6, 1)
 
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
@@ -261,11 +277,11 @@ class ProductWidget(QSplitter):
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         
 
-    def setModel(self, product_model):
+    def setModel(self, product_model, recognizers, data):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(product_model)
         self.edit_widget.setModel(self.filter)
-        self.reco_widget.setModel(self.filter)
+        self.reco_widget.setModel(self.filter, recognizers, data)
         self.list_widget.setModel(self.filter)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
@@ -633,6 +649,7 @@ class SearchTaskEditWidget(QWidget):
         grid.addWidget(l_currency2, 7, 2)
         grid.addWidget(l_expected_products, 8, 0, 1, 3)
         grid.addWidget(self.e_expected_products, 9, 0, 2, 3)
+        grid.setRowStretch (11, 1)
         
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
@@ -1996,6 +2013,9 @@ class GuiMain(QMainWindow):
         
         #Create data attributes
         self.data = DataStore()
+        self.recognizers = RecognizerController()
+        
+        #Create the GUI components
         self.main_tabs = QTabWidget()
         self.listings_editor = ListingsWidget()
         self.listings_model = ListingsModel()
@@ -2010,7 +2030,8 @@ class GuiMain(QMainWindow):
         self.listings_editor.setModel(self.listings_model)
         self.listings_editor.setProductModel(self.product_model)
         self.main_tabs.addTab(self.product_editor, "Products")
-        self.product_editor.setModel(self.product_model)
+        self.product_editor.setModel(self.product_model, self.recognizers, 
+                                     self.data)
         self.main_tabs.addTab(self.task_editor, "Tasks")
         self.task_editor.setModel(self.task_model)
         
@@ -2066,7 +2087,7 @@ class GuiMain(QMainWindow):
                               shown.
         """
         if any([self.listings_model.dirty, self.product_model.dirty,
-                self.task_model.dirty]):
+                self.task_model.dirty, self.recognizers.dirty]):
             button = QMessageBox.warning(
                 self, "Clair Gui",
                 "The data has been modified.\nDo you want to save your changes?",
@@ -2109,10 +2130,9 @@ class GuiMain(QMainWindow):
             dirname = os.path.dirname(filename)
             
         #Load the data
-        self.data.products = []
-        self.data.tasks = []
-        self.data.listings = make_listing_frame(0)
         self.data.read_data(dirname)
+        self.recognizers.read_recognizers(dirname)
+        #Put data into GUI
         self.listings_model.setListings(self.data.listings)
         self.product_model.setProducts(self.data.products)
         self.task_model.setTasks(self.data.tasks)
@@ -2129,6 +2149,8 @@ class GuiMain(QMainWindow):
         #save tasks
         self.data.write_tasks()
         self.task_model.dirty = False
+        #save recognizers
+        self.recognizers.write_recognizers()
         self.statusBar().showMessage("Configuration saved.", 5000)
     
     def closeEvent(self, event):

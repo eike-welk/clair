@@ -378,6 +378,8 @@ class RecognizerController(object):
     """Coordinate the recognition of products in listings."""
     def __init__(self):
         self.recognizers = {}
+        self.data_dir = ""
+        self.dirty = False
         
     def create_file_name(self, data_dir):
         "Create file name for storing recognizers on disk."
@@ -388,27 +390,39 @@ class RecognizerController(object):
         Load recognizers from disk. Each product gets a dedicated recognizer.
         """
         assert isinstance(data_dir, basestring)
-        
-        #load ``ProductRecognizer`` objects from disk
-        file_name = self.create_file_name(data_dir)
-        try:
+        try:        
+            self.data_dir = data_dir
+            file_name = self.create_file_name(data_dir)      
             pickle_file = open(file_name, "rb")
             self.recognizers = cPickle.load(pickle_file)
             pickle_file.close()
+            self.dirty = False
             logging.info("Loaded {} recognizers from disk."
                          .format(len(self.recognizers)))
         except IOError, err:
-            logging.debug("Loading recognizers from disk failed: {}"
+            logging.error("Loading recognizers from disk failed: {}"
+                          .format(err))
+    
+    def write_recognizers(self):
+        """Store recognizers on disk"""
+        try:
+            file_name = self.create_file_name(self.data_dir)
+            pickle_file = open(file_name, "wb")
+            cPickle.dump(self.recognizers, pickle_file, protocol=1)
+            pickle_file.close()
+            self.dirty = False
+            logging.info("Wrote {} recognizers to disk."
+                         .format(len(self.recognizers)))
+        except IOError, err:
+            logging.error("Writing recognizers to disk failed: {}"
                           .format(err))
     
     
-    def train_recognizers(self, data_dir, products, listings):
+    def train_recognizers(self, products, listings):
         """
         Create new recognizers and train them. Each product gets a 
         dedicated recognizer.
-        The trained recognizer objects are stored on disk.
         """
-        assert isinstance(data_dir, basestring)
         assert isinstance(products, list)
         assert all([isinstance(p, Product) for p in products])
         assert isinstance(listings, pd.DataFrame)
@@ -423,18 +437,13 @@ class RecognizerController(object):
             self.recognizers[product.id] = finder
 #            #Test is mostly nonsense: How well can finder express the data?
 #            finder.compute_accuracy(train_listings)
-    
-        #Store recognizers on disk
-        file_name = self.create_file_name(data_dir)
-        pickle_file = open(file_name, "wb")
-        cPickle.dump(self.recognizers, pickle_file, protocol=1)
-        pickle_file.close()
+        self.dirty = True
     
     
     def recognize_products(self, candidate_ids, all_listings):
         """
-        Iterate over ``candidate_ids`` and identify expected products in listings
-        with these IDs.
+        Iterate over ``candidate_ids`` and identify expected products in 
+        ``all_listings`` with these IDs.
         """
         n_train, n_regular = 0, 0
         for prod_id in candidate_ids:
