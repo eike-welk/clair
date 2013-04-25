@@ -373,8 +373,6 @@ class ProductWidget(QSplitter):
                 setting_store.value("ProductWidget/list/header/state", ""))
         self.sub_splitter.restoreState(
                 setting_store.value("ProductWidget/sub_splitter/state", ""))
-        #Hide description. TODO: remove this hack
-        self.list_widget.hideColumn(4)
 
 
 
@@ -385,16 +383,16 @@ class ProductModel(QAbstractTableModel):
     """
     def __init__(self, parent=None):
         super(ProductModel, self).__init__(parent)
-        self.products = []
+        self.data_store = DataStore() #Dummy
         self.dirty = False
     
-    def setProducts(self, products):
+    def setDataStore(self, data_store):
         """Put list of products into model"""
         #Tell the view(s) that old data is gone.
-        self.beginRemoveRows(QModelIndex(), 0, len(self.products))
+        self.beginRemoveRows(QModelIndex(), 0, len(self.data_store.products))
         self.endRemoveRows()
         #Change the data
-        self.products = products
+        self.data_store = data_store
         self.dirty = False
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
@@ -403,7 +401,7 @@ class ProductModel(QAbstractTableModel):
         """Return number of products in list."""
         if parent.isValid(): #There are only top level items
             return 0
-        return len(self.products)
+        return len(self.data_store.products)
     
     def columnCount(self, parent=QModelIndex()):
         """Return number of accessible product attributes."""
@@ -450,6 +448,8 @@ class ProductModel(QAbstractTableModel):
         return header_names[section]
 
 
+    attr_names = ["id", "name", "categories", "important_words", "description"]
+    
     def data(self, index, role=Qt.DisplayRole):
         """
         Return the contents of the product list in the right way.
@@ -463,26 +463,31 @@ class ProductModel(QAbstractTableModel):
         if not index.isValid():
             return None
         
-        attr_names = ["id", "name", "categories", "important_words", 
-                      "description"]
         row = index.row()
         column = index.column()
+        attr_name = ProductModel.attr_names[column]
         
-        if role in [Qt.DisplayRole, Qt.EditRole]:
-            prod = self.products[row]
-            if column == 0:
-                return prod.id
-            elif column == 1:
-                return prod.name
-            elif column == 2:
-                return u"\n".join(prod.categories)
-            elif column == 3:
-                return u"\n".join(prod.important_words)
-            elif column == 4:
-                return prod.description
+        if role  == Qt.DisplayRole:
+            #Return only one line of big fields for list view
+            prod = self.data_store.products[row]
+            if attr_name in ["categories", "important_words"]:
+                attr = getattr(prod, attr_name)
+                return attr[0] if attr else ""
+            elif attr_name == "description":
+                description = prod.description
+                return description.split("\n")[0]
+            else:
+                return getattr(prod, attr_name)
+        elif role == Qt.EditRole:
+            #Return full data for editing
+            prod = self.data_store.products[row]
+            if attr_name in ["categories", "important_words"]:
+                attr = getattr(prod, attr_name)
+                return u"\n".join(attr)
+            else:
+                return getattr(prod, attr_name)
         elif role == Qt.ToolTipRole:
-            aname = attr_names[column]
-            return Product.tool_tips[aname]
+            return Product.tool_tips[attr_name]
                         
         return None
     
@@ -513,19 +518,14 @@ class ProductModel(QAbstractTableModel):
         
         row = index.row()
         column = index.column()
-        prod = self.products[row]
-        if column == 0:
-            prod.id = value
-        elif column == 1:
-            prod.name = value
-        elif column == 2:
+        attr_name = ProductModel.attr_names[column]
+        prod = self.data_store.products[row]
+        
+        if attr_name in ["categories", "important_words"]:
             val_list = value.split("\n")
-            prod.categories = val_list
-        elif column == 3:
-            val_list = value.split("\n")
-            prod.important_words = val_list
-        elif column == 4:
-            prod.description = value
+            setattr(prod, attr_name, val_list)
+        else:
+            setattr(prod, attr_name, value)
             
         self.dirty = True
         self.dataChanged.emit(index, index)
@@ -577,7 +577,7 @@ class ProductModel(QAbstractTableModel):
         self.beginInsertRows(parent, row, row + count - 1)
         for i in range(count):
             new_prod = Product(u"---", u"", u"", [], [])
-            self.products.insert(row + i, new_prod)
+            self.data_store.products.insert(row + i, new_prod)
         self.endInsertRows()
         
         self.dirty = True
@@ -606,7 +606,7 @@ class ProductModel(QAbstractTableModel):
             return False
         
         self.beginRemoveRows(parent, row, row + count - 1)
-        del self.products[row:row + count]
+        del self.data_store.products[row:row + count]
         self.endRemoveRows()
         
         self.dirty = True
@@ -619,7 +619,7 @@ class ProductModel(QAbstractTableModel):
         Do not change products through this method!
         Returns: Product | None
         """
-        for prod in self.products:
+        for prod in self.data_store.products:
             if prod.id == prod_id:
                 return prod
         else:
@@ -627,7 +627,7 @@ class ProductModel(QAbstractTableModel):
     
     def getProductIDList(self):
         """Return IDs of all products stored in the model."""
-        prod_ids = [p.id for p in self.products]
+        prod_ids = [p.id for p in self.data_store.products]
         prod_ids.sort()
         return prod_ids
         
@@ -838,8 +838,6 @@ class TaskWidget(QSplitter):
         self.restoreState(setting_store.value("TaskWidget/state", ""))
         self.list_widget.header().restoreState(
                 setting_store.value("TaskWidget/list/header/state", ""))
-        #Hide multi line attribute expected products. TODO: remove this hack
-        self.list_widget.hideColumn(9)
 
 
 
@@ -851,16 +849,16 @@ class TaskModel(QAbstractTableModel):
     """
     def __init__(self, parent=None):
         super(TaskModel, self).__init__(parent)
-        self.tasks = []
+        self.data_store = DataStore() #Dummy
         self.dirty = False
     
-    def setTasks(self, tasks):
+    def setDataStore(self, data_store):
         """Put list of tasks into model"""
         #Tell the view(s) that old data is gone.
-        self.beginRemoveRows(QModelIndex(), 0, len(self.tasks))
+        self.beginRemoveRows(QModelIndex(), 0, len(self.data_store.tasks))
         self.endRemoveRows()
         #Change the data
-        self.tasks = tasks
+        self.data_store = data_store
         self.dirty = False
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
@@ -869,7 +867,7 @@ class TaskModel(QAbstractTableModel):
         """Return number of tasks in list."""
         if parent.isValid(): #There are only top level items
             return 0
-        return len(self.tasks)
+        return len(self.data_store.tasks)
     
     def columnCount(self, parent=QModelIndex()):
         """Return number of accessible task attributes."""
@@ -934,13 +932,23 @@ class TaskModel(QAbstractTableModel):
         if not index.isValid():
             return None
         
-        attr_names = TaskModel.attr_names
         row = index.row()
         column = index.column()
+        attr_name = TaskModel.attr_names[column]
         
-        if role in [Qt.DisplayRole, Qt.EditRole]:
-            task = self.tasks[row]
-            attr_name = attr_names[column]
+        if role == Qt.DisplayRole:
+            #Return only one line of big fields for list view
+            task = self.data_store.tasks[row]
+            if attr_name == "due_time":
+                return to_text_time(task.due_time)
+            elif attr_name == "expected_products":
+                expected_products = task.expected_products
+                return expected_products[0] if expected_products else ""
+            else:
+                return getattr(task, attr_name)
+        elif role == Qt.EditRole:
+            #Return full data for editing
+            task = self.data_store.tasks[row]
             if attr_name == "due_time":
                 return to_text_time(task.due_time)
             elif attr_name == "expected_products":
@@ -948,8 +956,7 @@ class TaskModel(QAbstractTableModel):
             else:
                 return getattr(task, attr_name)
         elif role == Qt.ToolTipRole:
-            aname = attr_names[column]
-            return SearchTask.tool_tips[aname]
+            return SearchTask.tool_tips[attr_name]
                         
         return None
     
@@ -980,7 +987,7 @@ class TaskModel(QAbstractTableModel):
         
         row = index.row()
         column = index.column()
-        task = self.tasks[row]
+        task = self.data_store.tasks[row]
         attr_name = TaskModel.attr_names[column]
         
         if attr_name == "due_time":
@@ -1044,7 +1051,7 @@ class TaskModel(QAbstractTableModel):
         for i in range(count):
             new_prod = SearchTask("--", datetime(9999, 12, 31), "", "", 
                                   "daily", 100, 0, 1000, "EUR", [])
-            self.tasks.insert(row + i, new_prod)
+            self.data_store.tasks.insert(row + i, new_prod)
         self.endInsertRows()
         
         self.dirty = True
@@ -1073,7 +1080,7 @@ class TaskModel(QAbstractTableModel):
             return False
         
         self.beginRemoveRows(parent, row, row + count - 1)
-        del self.tasks[row:row + count]
+        del self.data_store.tasks[row:row + count]
         self.endRemoveRows()
         
         self.dirty = True
@@ -1872,17 +1879,17 @@ class ListingsModel(QAbstractTableModel):
     """
     def __init__(self, parent=None):
         super(ListingsModel, self).__init__(parent)
-        self.listings = make_listing_frame(0)
+        self.data_store = DataStore() #Dummy
         self.dirty = False
     
-    def setListings(self, listings):
+    def setDataStore(self, data_store):
         """Put list of products into model"""
         #Tell the view(s) that old data is gone.
-        rows, _ = self.listings.shape
+        rows, _ = self.data_store.listings.shape
         self.beginRemoveRows(QModelIndex(), 0, rows)
         self.endRemoveRows()
         #Change the data
-        self.listings = listings
+        self.data_store = data_store
         self.dirty = False
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
@@ -1891,14 +1898,14 @@ class ListingsModel(QAbstractTableModel):
         """Return number of products in list."""
         if parent.isValid(): #There are only top level items
             return 0
-        rows, _ = self.listings.shape
+        rows, _ = self.data_store.listings.shape
         return rows
     
     def columnCount(self, parent=QModelIndex()):
         """Return number of accessible product attributes."""
         if parent.isValid(): #There are only top level items
             return 0
-        _, cols = self.listings.shape
+        _, cols = self.data_store.listings.shape
         return cols
     
     def supportedDropActions(self):
@@ -1964,13 +1971,13 @@ class ListingsModel(QAbstractTableModel):
         aname = ListingsModel.attr_names[column]
         
         if role == Qt.DisplayRole:
-            rawval = self.listings[aname].iget(row)
+            rawval = self.data_store.listings[aname].iget(row)
             #return only first line of multi line string
             rawstr = unicode(rawval)
             lines = rawstr.split("\n", 1)
             return lines[0]
         elif role == Qt.EditRole:
-            rawval = self.listings[aname].iget(row)
+            rawval = self.data_store.listings[aname].iget(row)
             if aname in ["expected_products", "products", "products_absent"]:
                 return rawval
             #Special treatments for bool, because bool(nan) == True
@@ -2020,10 +2027,10 @@ class ListingsModel(QAbstractTableModel):
         if value in ["nan", "None"]:
             value = None   #None is converted automatically to nan if necessary
         try:
-            self.listings[aname][row] = value
+            self.data_store.listings[aname][row] = value
         except (TypeError, ValueError):
             return False
-            
+        
         self.dirty = True
         self.dataChanged.emit(index, index)
         return True
@@ -2179,9 +2186,9 @@ class GuiMain(QMainWindow):
         self.data.read_data(dirname)
         self.recognizers.read_recognizers(dirname)
         #Put data into GUI
-        self.listings_model.setListings(self.data.listings)
-        self.product_model.setProducts(self.data.products)
-        self.task_model.setTasks(self.data.tasks)
+        self.listings_model.setDataStore(self.data)
+        self.product_model.setDataStore(self.data)
+        self.task_model.setDataStore(self.data)
         
         
     def saveConfiguration(self):

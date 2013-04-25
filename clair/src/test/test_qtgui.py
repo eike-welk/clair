@@ -87,35 +87,37 @@ def test_ProductEditWidget():
     app = QApplication(sys.argv)
     
     view = ProductEditWidget()
-    model = create_product_model()
+    model, _ = create_product_model()
     view.setModel(model)
     
     view.show()
     app.exec_()
-    print model.products
+    print model.data_store.products
     print "End"
     
     
 def test_ProductWidget():
     from clair.qtgui import ProductWidget
+    from clair.textprocessing import RecognizerController
     
     print "Start"
     app = QApplication(sys.argv)
     
     view = ProductWidget()
-    model = create_product_model()
-    view.setModel(model)
+    model, data_store = create_product_model()
+    recognizers = RecognizerController()
+    view.setModel(model, recognizers, data_store)
     
     view.show()
     app.exec_()
-    print model.products
+    print model.data_store.products
     print "End"
     
 
 def create_product_model():
     """Create a Qt-model-view model that contains products, for testing."""
     from clair.qtgui import ProductModel
-    from clair.coredata import Product
+    from clair.coredata import Product, DataStore
     
     products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
                         ["Nikon", "D 90"], ["photo.system.nikon.camera",
@@ -123,9 +125,11 @@ def create_product_model():
                 Product("nikon-d70", "Nikon D70", "Nikon D70 DSLR camera.", 
                         ["Nikon", "D 70"], ["photo.system.nikon.camera",
                                             "photo.camera.system.nikon"])]
+    data_store = DataStore()
+    data_store.set_products(products)
     model = ProductModel()
-    model.setProducts(products)
-    return model
+    model.setDataStore(data_store)
+    return model, data_store
     
 
 def test_ProductModel():
@@ -133,7 +137,7 @@ def test_ProductModel():
     Test ProductModel, an adapter for a list of ``Product`` objects
     to Qt's model-view architecture.
     """
-    model = create_product_model()
+    model, _ = create_product_model()
     
     #Get table dimensions
     assert model.rowCount() == 2
@@ -170,7 +174,7 @@ def test_ProductModel():
     assert model.rowCount() == 2
     assert names == ['foo', 'Nikon D70']
     
-    print model.products
+    print model.data_store.products
     print "End"
 
 
@@ -188,7 +192,7 @@ def test_SearchTaskEditWidget():
     
     view.show()
     app.exec_()
-    print model.tasks
+    print model.data_store.tasks
     print "End"
     
     
@@ -204,14 +208,14 @@ def test_TaskWidget():
     
     view.show()
     app.exec_()
-    print model.tasks
+    print model.data_store.tasks
     print "End"
     
 
 def create_task_model():
     """Create a Qt-model-view model that contains tasks, for testing."""
     from clair.qtgui import TaskModel
-    from clair.coredata import SearchTask
+    from clair.coredata import SearchTask, DataStore
     
     tasks = [SearchTask("s-nikon-d90", datetime(2000, 1, 1), "ebay-de", 
                            "Nikon D90", "daily", "100", "150", "300", "EUR", 
@@ -219,8 +223,10 @@ def create_task_model():
                 SearchTask("s-nikon-d70", datetime(2000, 1, 1), "ebay-de", 
                            "Nikon D70", "daily", "100", "75", "150", "EUR", 
                            ["nikon-d70", "nikon-18-105-f/3.5-5.6--1"]),]
+    data_store = DataStore()
+    data_store.add_tasks(tasks)
     model = TaskModel()
-    model.setTasks(tasks)
+    model.setDataStore(data_store)
     return model
     
 
@@ -266,7 +272,7 @@ def test_TaskModel():
     assert model.rowCount() == 2
     assert ids == ['foo', 's-nikon-d70']
     
-    print model.tasks
+    print model.data_store.tasks
     print "End"
 
 
@@ -322,7 +328,7 @@ def test_RadioButtonModel():
 def test_LearnDataProxyModel():
     """Test class RadioButtonModel"""
     from clair.qtgui import LearnDataProxyModel, ListingsModel
-    from clair.coredata import make_listing_frame
+    from clair.coredata import make_listing_frame, DataStore
     csr =  Qt.CheckStateRole
 
     
@@ -332,9 +338,11 @@ def test_LearnDataProxyModel():
     listings["expected_products"][0] = ["foo", "bar", "baz"]
     listings["products"][0]         = ["foo"]
     listings["products_absent"][0]   = ["bar"]
+    data_store = DataStore()
+    data_store.merge_listings(listings)
     #Create listings model that we can adapt
     lsmod = ListingsModel()
-    lsmod.setListings(listings)
+    lsmod.setDataStore(data_store)
     
     
     mo = LearnDataProxyModel()
@@ -367,9 +375,9 @@ def test_LearnDataProxyModel():
     mo.setData(mo.index(2, 1), True, csr)
     
     #Test conversion back to internal format
-    assert listings["expected_products"][0] == ["foo", "bar", "baz"]
-    assert listings["products"][0]          == ["bar"]
-    assert listings["products_absent"][0]   == ["baz"]
+    assert data_store.listings["expected_products"][0] == ["foo", "bar", "baz"]
+    assert data_store.listings["products"][0]          == ["bar"]
+    assert data_store.listings["products_absent"][0]   == ["baz"]
     
     print "finished successfully."
     
@@ -377,7 +385,7 @@ def test_LearnDataProxyModel():
 def test_LearnDataProxyModel_GUI():
     """Test class RadioButtonModel"""
     from clair.qtgui import LearnDataProxyModel, ListingsModel
-    from clair.coredata import make_listing_frame
+    from clair.coredata import make_listing_frame, DataStore
     
     print "Start"
     app = QApplication(sys.argv)
@@ -388,10 +396,11 @@ def test_LearnDataProxyModel_GUI():
     listings["expected_products"][0] = ["foo", "bar", "baz"]
     listings["products"][0]         = ["foo"]
     listings["products_absent"][0]   = ["bar"]
+    data_store = DataStore()
+    data_store.merge_listings(listings)
     #Create listings model that we can adapt
     lsmod = ListingsModel()
-    lsmod.setListings(listings)
-    
+    lsmod.setDataStore(data_store)
     
     mo = LearnDataProxyModel()
     mo.setSourceModel(lsmod, 3, 4, 5)
@@ -404,9 +413,9 @@ def test_LearnDataProxyModel_GUI():
     app.exec_()
     
     print mo.values
-    print "expectedProducts:", listings["expected_products"][0]
-    print "products:        ", listings["products"][0]
-    print "productsAbsent:  ", listings["products_absent"][0]
+    print "expectedProducts:", data_store.listings["expected_products"][0]
+    print "products:        ", data_store.listings["products"][0]
+    print "productsAbsent:  ", data_store.listings["products_absent"][0]
     
     print "End"
     
@@ -433,14 +442,17 @@ def test_DataWidgetHtmlView():
 def test_ListingsEditWidget():
     """Test ListingsEditWidget, which displays a single listing."""
     from clair.qtgui import ListingsEditWidget, ListingsModel
-    from clair.coredata import make_listing_frame
+    from clair.coredata import make_listing_frame, DataStore
     
     print "Start"
     app = QApplication(sys.argv)
     
     listings = make_listing_frame(4)
+    data_store = DataStore()
+    data_store.merge_listings(listings)
+    
     model = ListingsModel()
-    model.setListings(listings)
+    model.setDataStore(data_store)
     view = ListingsEditWidget()
     view.setModel(model)
     view.setRow(model.index(1, 0))
@@ -453,14 +465,17 @@ def test_ListingsEditWidget():
 def test_ListingsWidget():
     """Test ListingsWidget, which displays a DataFrame of listings."""
     from clair.qtgui import ListingsWidget, ListingsModel
-    from clair.coredata import make_listing_frame
+    from clair.coredata import make_listing_frame, DataStore
     
     print "Start"
     app = QApplication(sys.argv)
     
     listings = make_listing_frame(4)
+    data_store = DataStore()
+    data_store.merge_listings(listings)
+    
     model = ListingsModel()
-    model.setListings(listings)
+    model.setDataStore(data_store)
     view = ListingsWidget()
     view.setModel(model) 
     
@@ -472,12 +487,14 @@ def test_ListingsWidget():
 def test_ListingsModel():
     """Test ListingsModel"""
     from clair.coredata import make_listing_frame
-    from clair.qtgui import ListingsModel
+    from clair.qtgui import ListingsModel, DataStore
     
     listings = make_listing_frame(4)
+    data_store = DataStore()
+    data_store.merge_listings(listings)
     
     model = ListingsModel()
-    model.setListings(listings)
+    model.setDataStore(data_store)
     
     #Get table dimensions
     assert model.rowCount() == 4
