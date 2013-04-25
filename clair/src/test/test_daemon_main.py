@@ -155,7 +155,7 @@ def test_MainObj_execute_tasks():
     #This this task must appear in the "search_tasks" field.   
     tasks_lens = [0, 0, 0, 0] #Histogram of length of "search_tasks" list
     prods_lens = [0, 0, 0, 0] #Histogram of length of "expected_products" list
-    n_2_d90 = 0
+    n_2_d90 = 0 #Number of listings that were found by "s-nikon-d90" and "s-nikon-d90-2".
     for _, listing in m.data.listings.iterrows():
 #        print listing
         #Compute histogram of length of "search_tasks" list
@@ -164,7 +164,7 @@ def test_MainObj_execute_tasks():
         #Compute histogram of length of "search_tasks" list
         n_prods = len(listing["expected_products"])
         prods_lens[n_prods] += 1
-        #how many listings have "s-nikon-d90" and "s-nikon-d90-2" in "search_tasks"
+        #how many listings have "s-nikon-d90" and "s-nikon-d90-2" in "search_tasks" field
         if "s-nikon-d90" in listing["search_tasks"] and \
            "s-nikon-d90-2" in listing["search_tasks"]:
             n_2_d90 += 1
@@ -176,7 +176,7 @@ def test_MainObj_execute_tasks():
     assert tasks_lens[2] == 5 #listings with two search tasks:
     #                          "s-nikon-d90", "s-nikon-d90-2"
     assert tasks_lens[3] == 0 #listings with three search tasks: unlikely
-    #listings with two search tasks: "s-nikon-d90", "s-nikon-d90-2"
+    #listings that were found by search tasks: "s-nikon-d90" and "s-nikon-d90-2"
     assert n_2_d90 == 5
     print "prods_lens", prods_lens
     assert prods_lens[0] == 0 #listings without an expected product: impossible

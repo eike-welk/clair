@@ -41,6 +41,8 @@ sip.setapi("QVariant", 2)
 import sys
 import os
 from datetime import datetime
+import logging
+import time
 
 import dateutil
 from numpy import isnan
@@ -50,7 +52,8 @@ from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
                           QSettings, QCoreApplication, QVariant,)
 from PyQt4.QtGui import (QWidget, QLabel, QPushButton, QLineEdit, QTextEdit, 
                          QSplitter, QMainWindow, QTabWidget, QCheckBox, 
-                         QComboBox, QFileDialog, QMessageBox, QApplication, 
+                         QComboBox, QFileDialog, QMessageBox, QProgressDialog,
+                         QApplication, 
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
                          QItemSelectionModel, QItemEditorCreatorBase, QFont,
@@ -95,7 +98,7 @@ class RecognizerWidget(QWidget):
         
         l_id = QLabel("ID")
         
-        b_train_1 = QPushButton("&Train Recognizer")
+        b_train_curr = QPushButton("&Train Recognizer")
         b_train_all = QPushButton("Train &All Recognizers")
         b_validate = QPushButton("Validate Recognizer")
         b_test = QPushButton("&Test Recognizer")
@@ -104,7 +107,7 @@ class RecognizerWidget(QWidget):
         grid = QGridLayout()
         grid.addWidget(l_id,               0, 0)
         grid.addWidget(self.v_id,          0, 1, 1, 2)
-        grid.addWidget(b_train_1,          1, 0)
+        grid.addWidget(b_train_curr,       1, 0)
         grid.addWidget(b_train_all,        1, 1)
         grid.addWidget(b_validate,         2, 0)
         grid.addWidget(b_test,             2, 1)
@@ -114,8 +117,11 @@ class RecognizerWidget(QWidget):
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
   
-        self.setToolTip("Change settings for product recognition algorithms.")
-        self.v_id.setToolTip("ID of product that is recognized.")
+        self.setToolTip("Train and run product recognition algorithms.")
+        self.v_id.setToolTip("ID of current product.")
+        
+        b_train_curr.clicked.connect(self.train_current_recognizer)
+        b_train_all.clicked.connect(self.train_all_recognizers)
 
   
     def setModel(self, model, recognizers, data):
@@ -143,6 +149,46 @@ class RecognizerWidget(QWidget):
         """
         self.mapper.setCurrentModelIndex(index)
 
+    def train_current_recognizer(self):
+        "Train recognizer for current product"
+        logging.debug("Train recognizer for current product")
+        #Create progress dialog
+        max_progress = 10
+        progd = QProgressDialog("Train recognizer for current product", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(0)
+        #Progress dialog does not appear instantaneously.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        #Get the current product
+        curr_prod = self.v_id.text()
+        prod_list = []
+        for prod in self.data.products:
+            if prod.id == curr_prod:
+                prod_list.append(prod)
+                break
+        #Train the recognizer for this product
+        self.recognizers.train_recognizers(prod_list, self.data.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+            
+        
+    def train_all_recognizers(self):
+        "Train recognizers for all products."
+        logging.debug("Train recognizers for all products.")
+        #Create progress dialog
+        max_progress = len(self.data.products) * 10
+        progd = QProgressDialog("Train recognizers for all products", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(0)
+        #Progress dialog does not appear instantaneously.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        #Train the recognizers
+        self.recognizers.train_recognizers(self.data.products, 
+                                           self.data.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
 
 
 class ProductEditWidget(QWidget):

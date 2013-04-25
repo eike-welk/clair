@@ -378,7 +378,7 @@ class RecognizerController(object):
     """Coordinate the recognition of products in listings."""
     def __init__(self):
         self.recognizers = {}
-        self.data_dir = ""
+        self.data_dir = None
         self.dirty = False
         
     def create_file_name(self, data_dir):
@@ -403,8 +403,12 @@ class RecognizerController(object):
             logging.error("Loading recognizers from disk failed: {}"
                           .format(err))
     
-    def write_recognizers(self):
+    def write_recognizers(self, data_dir=None):
         """Store recognizers on disk"""
+        if data_dir is not None:
+            self.data_dir = data_dir
+        if self.data_dir is None:
+            raise Exception("Unknown data directory. Can't sve file.")
         try:
             file_name = self.create_file_name(self.data_dir)
             pickle_file = open(file_name, "wb")
@@ -418,7 +422,7 @@ class RecognizerController(object):
                           .format(err))
     
     
-    def train_recognizers(self, products, listings):
+    def train_recognizers(self, products, listings, progress_dialog=None):
         """
         Create new recognizers and train them. Each product gets a 
         dedicated recognizer.
@@ -431,12 +435,15 @@ class RecognizerController(object):
         #TODO: check for new training samples, and train only if new training
         #      samples exist
         train_listings = listings[listings["training_sample"] == 1.0]
-        for product in products:
+        for i, product in enumerate(products):
             finder = ProductRecognizer(product.id)
             finder.train_finder(train_listings)
             self.recognizers[product.id] = finder
-#            #Test is mostly nonsense: How well can finder express the data?
-#            finder.compute_accuracy(train_listings)
+            #Drive event loop, and advance progress dialog if it exists
+            if progress_dialog is not None:
+                progress_dialog.setValue(i * 10)
+                if progress_dialog.wasCanceled():
+                    break
         self.dirty = True
     
     
@@ -448,11 +455,13 @@ class RecognizerController(object):
         n_train, n_regular = 0, 0
         for prod_id in candidate_ids:
             listing = all_listings.ix[prod_id]
+            logging.debug(u"{}, '{}'".format(prod_id, listing["title"]))
+            
             if listing["training_sample"] == 1.0:
                 n_train += 1
+                logging.debug("-" * 18 + "Training sample.")
                 continue
             
-            logging.debug(u"{}, '{}'".format(prod_id, listing["title"]))
             n_regular += 1 
             products, products_absent = [], []
             #Try to identify all expected products
