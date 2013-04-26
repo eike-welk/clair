@@ -447,16 +447,24 @@ class RecognizerController(object):
         self.dirty = True
     
     
-    def recognize_products(self, candidate_ids, all_listings):
+    def recognize_products(self, candidate_ids, all_listings, 
+                           progress_dialog=None):
         """
         Iterate over ``candidate_ids`` and identify expected products in 
         ``all_listings`` with these IDs.
         """
         n_train, n_regular = 0, 0
-        for prod_id in candidate_ids:
+        for i, prod_id in enumerate(candidate_ids):
+            #Drive event loop, and advance progress dialog if it exists
+            if progress_dialog is not None:
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+                
             listing = all_listings.ix[prod_id]
             logging.debug(u"{}, '{}'".format(prod_id, listing["title"]))
             
+            #Don't classify training samples
             if listing["training_sample"] == 1.0:
                 n_train += 1
                 logging.debug("-" * 18 + "Training sample.")
@@ -478,7 +486,7 @@ class RecognizerController(object):
                         products_absent.append(product_id)
                 except KeyError:
                     pass
-                    
+            
             #store recognition results in original data frame
             if products == [] and products_absent == []:
                 continue #Don't store if nothing was detected.

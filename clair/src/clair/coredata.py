@@ -939,7 +939,11 @@ class DataStore(object):
         self.products = []
         self.listings = make_listing_frame(0)
 #        self.prices = pd.DataFrame()
-    
+        #Flags for saving to disk. If True, data must be saved to disk.
+        self.products_dirty = False
+        self.tasks_dirty = False
+        self.listings_dirty = False
+        
     def set_products(self, products):
         """
         Set products to ``self.products``. tasks: list[product] | dict[_:product]
@@ -948,6 +952,7 @@ class DataStore(object):
                     else products 
         logging.info("Setting {} products.".format(len(prod_list)))
         self.products = prod_list
+        self.products_dirty = True
 
     def add_tasks(self, tasks):
         """Add tasks to ``self.tasks``. tasks: list[task] | dict[_:task]"""
@@ -956,10 +961,12 @@ class DataStore(object):
         for task in tasks:
             logging.debug("Adding task: '{}'".format(task.id))
         self.tasks.extend(task_list)
+        self.tasks_dirty = True
     
     def merge_listings(self, listings):
         logging.info("Merging {} listings".format(len(listings)))
         self.listings = listings.combine_first(self.listings)
+        self.listings_dirty = True
     
     
     def read_data(self, data_dir, 
@@ -993,6 +1000,9 @@ class DataStore(object):
         #TODO: load prices
         
         self.check_consistency()
+        self.products_dirty = False
+        self.tasks_dirty = False
+        self.listings_dirty = False
     
     
     def write_listings(self):
@@ -1000,6 +1010,7 @@ class DataStore(object):
         io_listings = XmlIOBigFrame(self.data_dir, "listings", 
                                     XMLConverterListings())
         io_listings.write_data(self.listings, overwrite=True)
+        self.listings_dirty = False
     
     def write_products(self):
         """Write products to disk."""
@@ -1007,6 +1018,7 @@ class DataStore(object):
         io_products = XmlIOSmallObject(self.data_dir, "products", 
                                        XMLConverterProducts())
         io_products.write_data(self.products)
+        self.products_dirty = False
         
     def write_tasks(self):
         """Write tasks to disk."""
@@ -1014,6 +1026,7 @@ class DataStore(object):
         io_tasks = XmlIOSmallObject(self.data_dir, "tasks", 
                                     XMLConverterTasks())
         io_tasks.write_data(self.tasks)
+        self.tasks_dirty = False
         
         
     def check_consistency(self):
@@ -1021,6 +1034,8 @@ class DataStore(object):
         Test if the references between the various objects are consistent.
         #TODO: test for unknown server IDs in SearchTask or listings.
         #TODO: return inconsistencies in some format for the GUI
+        #TODO: search for tasks with duplicate IDs
+        #TODO: search for products with duplicate IDs
         """
         logging.debug("Testing data consistency.")
         
@@ -1043,6 +1058,7 @@ class DataStore(object):
                                     tid=task.id))
         
         #Test if ``self.listings`` contains unknown product, or task IDs.
+        #Iterate over all listings
         for lid in self.listings.index:
             found_tasks = setn(self.listings["search_tasks"][lid])
             unk_tasks = found_tasks - task_ids
@@ -1068,3 +1084,4 @@ class DataStore(object):
                 logging.warning("Unknown product ID '{pid}', "
                                 "in listings['products_absent']['{lid}']."
                                 .format(pid="', '".join(unk_products), lid=lid))
+#        logging.debug("Testing data consistency finished.")

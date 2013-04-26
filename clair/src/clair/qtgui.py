@@ -52,7 +52,8 @@ from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
                           QSettings, QCoreApplication, QVariant,)
 from PyQt4.QtGui import (QWidget, QLabel, QPushButton, QLineEdit, QTextEdit, 
                          QSplitter, QMainWindow, QTabWidget, QCheckBox, 
-                         QComboBox, QFileDialog, QMessageBox, QProgressDialog,
+                         QComboBox, QGroupBox, 
+                         QFileDialog, QMessageBox, QProgressDialog,
                          QApplication, 
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
                          QDataWidgetMapper, QSortFilterProxyModel, QKeySequence,
@@ -122,6 +123,9 @@ class RecognizerWidget(QWidget):
         
         b_train_curr.clicked.connect(self.train_current_recognizer)
         b_train_all.clicked.connect(self.train_all_recognizers)
+        b_validate.clicked.connect(self.validate_recognizer)
+        b_test.clicked.connect(self.test_recognizer)
+        b_run.clicked.connect(self.run_recognizers)
 
   
     def setModel(self, model, recognizers, data):
@@ -158,7 +162,7 @@ class RecognizerWidget(QWidget):
                                 0, max_progress, self)
         progd.setWindowModality(Qt.WindowModal)
         progd.setMinimumDuration(0)
-        #Progress dialog does not appear instantaneously.
+        #Progress dialog only appears after a few calls to ``setValue``.
         for i in range(6): progd.setValue(i); time.sleep(0.01)
         #Get the current product
         curr_prod = self.v_id.text()
@@ -182,13 +186,52 @@ class RecognizerWidget(QWidget):
                                 0, max_progress, self)
         progd.setWindowModality(Qt.WindowModal)
         progd.setMinimumDuration(0)
-        #Progress dialog does not appear instantaneously.
+        #Progress dialog only appears after a few calls to ``setValue``.
         for i in range(6): progd.setValue(i); time.sleep(0.01)
         #Train the recognizers
         self.recognizers.train_recognizers(self.data.products, 
                                            self.data.listings, progd)
         #Hide progress dialog
         progd.setValue(max_progress)
+        
+    def validate_recognizer(self):
+        """
+        Let recognizer recognize its own example data.
+        
+        Shows wrongly labeled samples, and recognition tasks that are 
+        impossible for the recognizer.
+        """
+        print("Validate Recognizer")
+    
+    def test_recognizer(self):
+        """
+        Run recognizer over the last 500 listings where the current product is 
+        expected.
+        """ 
+        print("Test Recognizer")
+        
+    def run_recognizers(self):
+        """Run the recognizers over all listings."""
+        logging.debug("Run Recognizers")
+        #Create progress dialog
+        max_progress = len(self.data.listings.index)
+        progd = QProgressDialog("Recognize products in all listings.", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(0)
+        #Run the recognizers
+        self.recognizers.recognize_products(self.data.listings.index, 
+                                            self.data.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+        #Record changes to listings and update GUI
+        self.data.listings_dirty = True
+        #TODO connect signal to suitable slot in listings model
+        self.signalListingsChanged.emit()
+        
+    #The listings in the data store changed
+    signalListingsChanged = pyqtSignal()
+
 
 
 class ProductEditWidget(QWidget):
@@ -321,6 +364,7 @@ class ProductWidget(QSplitter):
         self.list_widget.addAction(self.action_delete)
         
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
+        self.filter.setDynamicSortFilter(False)
         
 
     def setModel(self, product_model, recognizers, data):
@@ -384,7 +428,6 @@ class ProductModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super(ProductModel, self).__init__(parent)
         self.data_store = DataStore() #Dummy
-        self.dirty = False
     
     def setDataStore(self, data_store):
         """Put list of products into model"""
@@ -393,7 +436,6 @@ class ProductModel(QAbstractTableModel):
         self.endRemoveRows()
         #Change the data
         self.data_store = data_store
-        self.dirty = False
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
@@ -527,7 +569,7 @@ class ProductModel(QAbstractTableModel):
         else:
             setattr(prod, attr_name, value)
             
-        self.dirty = True
+        self.data_store.products_dirty = True
         self.dataChanged.emit(index, index)
         return True
     
@@ -580,7 +622,7 @@ class ProductModel(QAbstractTableModel):
             self.data_store.products.insert(row + i, new_prod)
         self.endInsertRows()
         
-        self.dirty = True
+        self.data_store.products_dirty = True
         return True
     
     
@@ -609,7 +651,7 @@ class ProductModel(QAbstractTableModel):
         del self.data_store.products[row:row + count]
         self.endRemoveRows()
         
-        self.dirty = True
+        self.data_store.products_dirty = True
         return True
 
 
@@ -647,7 +689,8 @@ class SearchTaskEditWidget(QWidget):
         #Transfers data between model and widgets
         self.mapper = QDataWidgetMapper()
         
-        self.v_id = QLineEdit()
+        #The task's contents
+        self.e_id = QLineEdit()
         self.e_due_time = QLineEdit()
         self.e_server = QLineEdit()
         self.e_recurrence_pattern = QLineEdit()
@@ -657,7 +700,6 @@ class SearchTaskEditWidget(QWidget):
         self.e_price_max = QLineEdit()
         self.e_currency = QLineEdit()
         self.e_expected_products = QTextEdit()
-        
         l_id = QLabel("ID")
         l_due_time = QLabel("Due Time")
         l_server = QLabel("Server")
@@ -666,17 +708,15 @@ class SearchTaskEditWidget(QWidget):
         l_n_listings = QLabel("Number Listings")
         l_price_min = QLabel("Price Min")
         l_price_max = QLabel("Price Max")
-#        l_currency = QLabel("Currency")
         l_currency2 = QLineEdit("---") #Use disabled QLineEdit as label 
         l_currency2.setEnabled(False)
         l_expected_products = QLabel("Expected Products")
-        
         #Let e_currency and l_currency2 contain the same text
         self.e_currency.textChanged.connect(l_currency2.setText)
         
         grid = QGridLayout()
         grid.addWidget(l_id, 0, 0)
-        grid.addWidget(self.v_id, 0, 1, 1, 2)
+        grid.addWidget(self.e_id, 0, 1, 1, 2)
         grid.addWidget(l_due_time, 1, 0)
         grid.addWidget(self.e_due_time, 1, 1, 1, 2)
         grid.addWidget(l_server, 2, 0)
@@ -701,7 +741,7 @@ class SearchTaskEditWidget(QWidget):
         self.setGeometry(200, 200, 400, 300)
   
         self.setToolTip('Change information about a search task.')
-        self.v_id.setToolTip(SearchTask.tool_tips["id"])
+        self.e_id.setToolTip(SearchTask.tool_tips["id"])
         self.e_due_time.setToolTip(SearchTask.tool_tips["due_time"])
         self.e_server.setToolTip(SearchTask.tool_tips["server"])
         self.e_recurrence_pattern.setToolTip(
@@ -719,7 +759,7 @@ class SearchTaskEditWidget(QWidget):
         #Put model into communication object
         self.mapper.setModel(model)
         #Tell: which widget should show which column
-        self.mapper.addMapping(self.v_id, 0)
+        self.mapper.addMapping(self.e_id, 0)
         self.mapper.addMapping(self.e_due_time, 1)
         self.mapper.addMapping(self.e_server, 2)
         self.mapper.addMapping(self.e_recurrence_pattern, 3)
@@ -759,6 +799,7 @@ class TaskWidget(QSplitter):
         self.edit_widget = SearchTaskEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
+        self.data_store = DataStore() #Dummy
         
         #Assemble the child widgets
         self.addWidget(self.list_widget)
@@ -779,26 +820,43 @@ class TaskWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
         
         #Create context menu for list view
+        #New Task
         self.action_new = QAction("&New Task", self)
         self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
-        self.action_new.setToolTip(
-                                "Create new task below selected task.")
+        self.action_new.setToolTip("Create new task below selected task.")
         self.action_new.triggered.connect(self.newProduct)
         self.list_widget.addAction(self.action_new)
+        #Delete task
         self.action_delete = QAction("&Delete Task", self)
         self.action_delete.setShortcuts(QKeySequence.Delete)
         self.action_delete.setToolTip("Delete selected task.")
         self.action_delete.triggered.connect(self.deleteProduct)
         self.list_widget.addAction(self.action_delete)
+        #Separator
+        separator = QAction(self)
+        separator.setSeparator(True)
+        self.list_widget.addAction(separator)
+        #Update expected Products
+        self.action_update_expected_products = \
+            QAction("&Update Expected Products", self)
+        self.action_update_expected_products.setToolTip(
+            "Update 'expected products' field of current task, and of all "
+            "listings that were fond by this task.")
+        self.action_update_expected_products.triggered.connect(
+            self.update_expected_products)
+        self.list_widget.addAction(self.action_update_expected_products)
+        #TODO: Update all expected products
         
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
-        
+        self.filter.setDynamicSortFilter(False)
 
-    def setModel(self, model):
+
+    def setModel(self, model, data_store):
         """Tell view which model it should display and edit."""
         self.filter.setSourceModel(model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
+        self.data_store = data_store
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
@@ -827,6 +885,17 @@ class TaskWidget(QSplitter):
         model = self.list_widget.model()
         model.removeRows(row, 1)
         
+    def update_expected_products(self):
+        """
+        Scan example listings that were found by the current task for 
+        contained products, and put them into the task's 'expected products' 
+        field. Then put the updated list of 'expected products' into the 
+        listings.
+        """
+        print "update_expected_products"
+        row = self.list_widget.currentIndex().row()
+        
+        
     def saveSettings(self, setting_store):
         """Save widget state, such as splitter position."""
         setting_store.setValue("TaskWidget/state", self.saveState())
@@ -850,7 +919,6 @@ class TaskModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super(TaskModel, self).__init__(parent)
         self.data_store = DataStore() #Dummy
-        self.dirty = False
     
     def setDataStore(self, data_store):
         """Put list of tasks into model"""
@@ -859,7 +927,6 @@ class TaskModel(QAbstractTableModel):
         self.endRemoveRows()
         #Change the data
         self.data_store = data_store
-        self.dirty = False
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
@@ -1000,7 +1067,7 @@ class TaskModel(QAbstractTableModel):
         else:
             setattr(task, attr_name, value)
         
-        self.dirty = True
+        self.data_store.tasks_dirty = True
         self.dataChanged.emit(index, index)
         return True
     
@@ -1054,7 +1121,7 @@ class TaskModel(QAbstractTableModel):
             self.data_store.tasks.insert(row + i, new_prod)
         self.endInsertRows()
         
-        self.dirty = True
+        self.data_store.tasks_dirty = True
         return True
     
     
@@ -1083,7 +1150,7 @@ class TaskModel(QAbstractTableModel):
         del self.data_store.tasks[row:row + count]
         self.endRemoveRows()
         
-        self.dirty = True
+        self.data_store.tasks_dirty = True
         return True
 
 
@@ -1825,6 +1892,7 @@ class ListingsWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
                 
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
+        self.filter.setDynamicSortFilter(False)
                 
 
     def setModel(self, model):
@@ -1880,7 +1948,6 @@ class ListingsModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super(ListingsModel, self).__init__(parent)
         self.data_store = DataStore() #Dummy
-        self.dirty = False
     
     def setDataStore(self, data_store):
         """Put list of products into model"""
@@ -1890,7 +1957,6 @@ class ListingsModel(QAbstractTableModel):
         self.endRemoveRows()
         #Change the data
         self.data_store = data_store
-        self.dirty = False
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
@@ -2031,7 +2097,7 @@ class ListingsModel(QAbstractTableModel):
         except (TypeError, ValueError):
             return False
         
-        self.dirty = True
+        self.data_store.listings_dirty = True
         self.dataChanged.emit(index, index)
         return True
     
@@ -2086,7 +2152,7 @@ class GuiMain(QMainWindow):
         self.product_editor.setModel(self.product_model, self.recognizers, 
                                      self.data)
         self.main_tabs.addTab(self.task_editor, "Tasks")
-        self.task_editor.setModel(self.task_model)
+        self.task_editor.setModel(self.task_model, self.data)
         
         #For QSettings and Phonon
         QCoreApplication.setOrganizationName("The Clair Project")
@@ -2139,8 +2205,8 @@ class GuiMain(QMainWindow):
             * "all-clean"   : There are no modified files, no dialog has been
                               shown.
         """
-        if any([self.listings_model.dirty, self.product_model.dirty,
-                self.task_model.dirty, self.recognizers.dirty]):
+        if any([self.data.listings_dirty, self.data.products_dirty,
+                self.data.tasks_dirty, self.recognizers.dirty]):
             button = QMessageBox.warning(
                 self, "Clair Gui",
                 "The data has been modified.\nDo you want to save your changes?",

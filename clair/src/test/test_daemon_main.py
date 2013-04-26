@@ -112,13 +112,13 @@ def test_MainObj_execute_tasks():
                          Product("nikon-d70", "Nikon D70", "DSLR Camera", 
                                  None, None)])
     m.data.add_tasks([SearchTask("s-nikon-d90", datetime(2000,1,1), "ebay-de", 
-                                 "Nikon D90", "daily", 5, 10, 500, "EUR", 
+                                 "Nikon D90", "daily", 5, 150, 500, "EUR", 
                                  ["nikon-d90"]),
                       SearchTask("s-nikon-d90-2", datetime(2000,1,1), "ebay-de", 
-                                 "Nikon D90", "daily", 5, 10, 500, "EUR", 
+                                 "Nikon D90", "daily", 5, 150, 500, "EUR", 
                                  ["nikon-d90"]),
                       SearchTask("s-nikon-d70", datetime(2000,1,1), "ebay-de", 
-                                 "Nikon D70", "daily", 5, 10, 500, "EUR", 
+                                 "Nikon D70", "daily", 5, 50, 500, "EUR", 
                                  ["nikon-d70"])])
     
     #Execute the search tasks
@@ -172,16 +172,16 @@ def test_MainObj_execute_tasks():
     #their title.
     print "tasks_lens", tasks_lens
     assert tasks_lens[0] == 0 #listings without a search task: impossible
-    assert tasks_lens[1] == 5 #listings with one search task: D70
-    assert tasks_lens[2] == 5 #listings with two search tasks:
-    #                          "s-nikon-d90", "s-nikon-d90-2"
-    assert tasks_lens[3] == 0 #listings with three search tasks: unlikely
+    assert 4 <= tasks_lens[1] <= 5 #listings with one search task: D70
+    assert 4 <= tasks_lens[2] <= 5 #listings with two search tasks:
+    #                               "s-nikon-d90", "s-nikon-d90-2"
+    assert 0 <= tasks_lens[3] <= 1 #listings with three search tasks: unlikely
     #listings that were found by search tasks: "s-nikon-d90" and "s-nikon-d90-2"
     assert n_2_d90 == 5
     print "prods_lens", prods_lens
     assert prods_lens[0] == 0 #listings without an expected product: impossible
-    assert prods_lens[1] == 10 #listings with one product: D70 or D90
-    assert prods_lens[2] == 0 #listings with two products: unlikely
+    assert 8 <= prods_lens[1] <= 10 #listings with one product: D70 or D90
+    assert 0 <= prods_lens[2] <= 1  #listings with two products: unlikely
     assert prods_lens[3] == 0 #listings with three products: impossible
     
     #Test if update has really happened: Only update tasks download descriptions
