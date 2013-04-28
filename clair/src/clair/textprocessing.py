@@ -237,22 +237,34 @@ class ProductRecognizer(object):
         
 
     def filter_trainig_samples(self, all_listings):
-        """Filter matching training samples from ``DataFrame`` of listings."""
-        product_name = self.product_id
-        
-        def is_training_sample(listing):
-            "Determine if listing is training sample for the correct product."
-#            print listing.name            
+        """
+        Filter matching training samples from ``DataFrame`` of listings.
+        """
+        product_id = self.product_id
+        sample_ids, pos_sample_ids, neg_sample_ids = [], [], []
+        for idx, listing in all_listings.iterrows():
+#            print listing.name
+            #Note: three valued logic: 0, 1, nan
+            if listing["training_sample"] != 1.0:
+                continue
             products = listing["products"]
             products_absent = listing["products_absent"]
+            #Discard incomplete or defective training samples
             if products is None or products_absent is None:
-                return False
-            return (listing["training_sample"] == 1.0 and 
-                    (product_name in products or 
-                     product_name in products_absent))
+                continue
+            if product_id in products:
+                sample_ids.append(idx)
+                pos_sample_ids.append(idx)
+            elif product_id in products_absent:
+                sample_ids.append(idx)
+                neg_sample_ids.append(idx)
             
-        where_sample = all_listings.apply(is_training_sample, axis=1)
-        return all_listings.ix[where_sample]
+        training_samples = all_listings.ix[sample_ids]
+#        positive_samples = all_listings.ix[pos_sample_ids]
+#        negative_samples = all_listings.ix[neg_sample_ids]
+        n_positive = len(pos_sample_ids)
+        n_negative = len(neg_sample_ids)
+        return training_samples, n_positive, n_negative
     
     
     def filter_candidate_listings(self, all_listings):
@@ -299,18 +311,28 @@ class ProductRecognizer(object):
         """
         logging.info("Start training of recognizer for product: {0}"
                      .format(self.product_id))
+        self.classifier = None
         
         #select example listings for the finder's product
-        listings = self.filter_trainig_samples(all_listings)
-        logging.info("Number listings: {0}; Number features: {1}"
-                     .format(len(listings), self.n_features))
+        listings, n_pos, n_neg = self.filter_trainig_samples(all_listings)
+        logging.info("Number listings: {l}, positive: {p}, negative: {n}; "
+                     "features: {f}"
+                     .format(l=len(listings), p=n_pos, n=n_neg,
+                             f=self.n_features))
         if len(listings) < 30:
-            #TODO: More statistics: too few positive or negative samples.
-            #      Statistics could be collected by ``filter_trainig_samples``.
             logging.warn("Product {0}. Can't compute classifier. "
                          "Too few listings."
                          .format(self.product_id))
-            self.classifier = None
+            return
+        elif n_pos < 5:
+            logging.warn("Product {0}. Can't compute classifier. "
+                         "Too few positive listings."
+                         .format(self.product_id))
+            return
+        elif n_neg < 5:
+            logging.warn("Product {0}. Can't compute classifier. "
+                         "Too few negative listings."
+                         .format(self.product_id))
             return
         
         #Create list of most common words, and put it into feature extractor
@@ -344,7 +366,7 @@ class ProductRecognizer(object):
                          .format(self.product_id))
             return nan
         
-        listings = self.filter_trainig_samples(listings)
+        listings, _, _ = self.filter_trainig_samples(listings)
         test_set = self.create_labeled_features(listings)
         accuracy = nltk.classify.accuracy(self.classifier, test_set)
         logging.info("Accuracy of recognizer for product {0}: {1}"
@@ -357,8 +379,14 @@ class ProductRecognizer(object):
     
     def contains_product(self, listing):
         """
-        Return ``True`` if listing contains the product for which this finder
-        was trained. Return ``False`` otherwise.
+        Recognize the product, for which the recognizer was trained in a 
+        listing.
+        
+        Return
+        ------ 
+        * ``True`` if listing contains the product. 
+        * ``False`` if listing does not contain the product.
+        * ``None`` if recognizer is not correctly trained.
         """
         assert isinstance(listing, pd.Series)
         if self.classifier is None:
@@ -389,6 +417,7 @@ class RecognizerController(object):
         """
         Load recognizers from disk. Each product gets a dedicated recognizer.
         """
+        logging.debug("Loading recognizers from disk...")
         assert isinstance(data_dir, basestring)
         try:        
             self.data_dir = data_dir
@@ -405,6 +434,7 @@ class RecognizerController(object):
     
     def write_recognizers(self, data_dir=None):
         """Store recognizers on disk"""
+        logging.debug("Writing recognizers to disk...")
         if data_dir is not None:
             self.data_dir = data_dir
         if self.data_dir is None:
@@ -455,11 +485,6 @@ class RecognizerController(object):
         """
         n_train, n_regular = 0, 0
         for i, prod_id in enumerate(candidate_ids):
-            #Drive event loop, and advance progress dialog if it exists
-            if progress_dialog is not None:
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
                 
             listing = all_listings.ix[prod_id]
             logging.debug(u"{}, '{}'".format(prod_id, listing["title"]))
@@ -486,10 +511,13 @@ class RecognizerController(object):
                         products_absent.append(product_id)
                 except KeyError:
                     pass
+                #Drive event loop, and advance progress dialog if it exists
+                if progress_dialog is not None:
+                    progress_dialog.setValue(i)
+                    if progress_dialog.wasCanceled():
+                        break
             
             #store recognition results in original data frame
-            if products == [] and products_absent == []:
-                continue #Don't store if nothing was detected.
             all_listings["training_sample"][prod_id] = 0.0
             all_listings["products"][prod_id] = products
             all_listings["products_absent"][prod_id] = products_absent
