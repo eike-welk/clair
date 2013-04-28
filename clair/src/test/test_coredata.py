@@ -28,12 +28,15 @@ from __future__ import division
 from __future__ import absolute_import  
             
 import pytest #contains `skip`, `fail`, `raises`, `config`
+
 import os
 import glob
 import time
 import os.path as path
-from numpy import isnan, nan
 from datetime import datetime
+
+from numpy import isnan, nan
+#from pandas.util.testing import assert_frame_equal
 
 import logging
 from logging import info
@@ -104,6 +107,8 @@ def assert_frames_equal(fr1, fr2):
     Asserts that two data frame objects are equal. 
     Handles ``nan`` and ``None`` right.
     """
+    assert all(fr1.columns == fr2.columns)
+    
     #Compare the two DataFrame objects. Complications:
     #* (nan == nan) == False
     #* (None == None) == False; Special treatment of None inside DataFrame.
@@ -392,7 +397,114 @@ def test_DataStore():
     
     print "finished"
     
+
+def test_DataStore_update_expected_products():
+    """
+    Test updating the "expected_product" fields of listings and tasks. 
+    """
+    from clair.coredata import DataStore
     
+    #Read example data from disk
+    data = DataStore()
+    data.read_data(relative("../../example-data"))
+    
+    #remember existing data frame for later tests
+    old_listings = data.listings.copy()
+
+    #Find a test task and test listing
+    test_listing = data.listings.ix[0]
+    test_task_id = test_listing["search_tasks"][0]
+    test_task = None
+    for test_task in data.tasks:
+        if test_task.id == test_task_id:
+            break
+    #Put additional expected product into test listing
+    data.listings["expected_products"][0] += ["foo"]
+    
+#    print test_listing[["title", "search_tasks", "expected_products"]]
+#    print test_task_id
+#    print test_task
+#    print
+
+    #The test:
+    #The new expected product "foo" must be put into ``test task``, and into all
+    #listings that are associated with ``test task``.
+    data.update_expected_products(test_task_id)
+    
+    #The expected products field in the task must contain the new product "foo"
+    print test_task
+    assert "foo" in test_task.expected_products
+    
+    #All listings that are associated with test task must contain new listing foo
+    new_exp_prods = test_task.expected_products
+    n_prods = 0
+    for _, listing in data.listings.iterrows():
+        if test_task_id in listing["search_tasks"]:
+#            print listing["id"], listing["expected_products"], listing["title"]
+            assert "foo" in listing["expected_products"]
+            assert listing["expected_products"] == new_exp_prods
+            n_prods += 1
+    assert n_prods > 10
+    
+    #Other data must be unchanged; test two columns
+    del data.listings["expected_products"]
+    del old_listings["expected_products"]
+    data.listings = data.listings.sort_index()
+    old_listings = old_listings.sort_index()
+    assert_frames_equal(old_listings, data.listings)
+    
+    print "finished"
+    
+
+def test_DataStore_write_expected_products_to_listings():
+    """
+    Test writing the "expected_product" fields of listings. 
+    """
+    print "Start"
+    from clair.coredata import DataStore
+    
+    #Read example data from disk
+    data = DataStore()
+    data.read_data(relative("../../example-data"))
+    #remember existing data frame for later tests
+    old_listings = data.listings.copy()
+
+    #Find a test task
+    test_task = data.tasks[1]
+    test_task_id = test_task.id
+    
+    #Put new contents into task's "expected_products" field
+    test_task.expected_products = ["foo", "bar", "baz"]
+    
+    print test_task_id
+    print test_task
+    print
+
+    #The test:
+    #The new expected product "foo" must be put into ``test task``, and into all
+    #listings that are associated with ``test task``.
+    data.write_expected_products_to_listings(test_task_id)
+    
+    #All listings that are associated with ``test_task`` must contain new 
+    #listings ``["foo", "bar", "baz"]``
+    n_prods = 0
+    for _, listing in data.listings.iterrows():
+        if test_task_id in listing["search_tasks"]:
+#            print listing["id"], listing["expected_products"], listing["title"]
+            assert listing["expected_products"] == test_task.expected_products
+            n_prods += 1
+    assert n_prods > 10
+    
+    #Other data must be unchanged; test two columns
+    del data.listings["expected_products"]
+    del old_listings["expected_products"]
+    data.listings = data.listings.sort_index()
+    old_listings = old_listings.sort_index()
+    assert_frames_equal(old_listings, data.listings)
+    
+    print "Finished"
+    
+
     
 if __name__ == "__main__":
 #    test_ListingsXMLConverter()
@@ -403,5 +515,7 @@ if __name__ == "__main__":
 #    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
 #    test_DataStore()
+    test_DataStore_update_expected_products()
+#    test_DataStore_write_expected_products_to_listings()
     
     pass

@@ -42,14 +42,33 @@ from lxml import etree, objectify
 
 
 
-def make_listing_frame(nrows):
+def make_listing_frame(nrows=None, index=None):
     """
-    Create empty DataFrame with `nrows` listings/auctions.
+    Create empty DataFrame. 
     
     Each row represents a listing. The columns represent the listing's 
-    attributes. The object contains no data, nearly all values are None or nan.
+    attributes. The object contains no data, all values are ``None`` or ``nan``.
+    
+    Both arguments are optional, but one of the arguments must be given. 
+    If both arguments are given they must be consistent.
+    
+    Arguments
+    ---------
+    nrows : int 
+        Number of listings/auctions. 
+    index : iterable 
+        The index labels of the new data frame. 
+        If this argument is omitted or ``None``, a sequence of integers 
+        (``range(nrows)``) is used as index labels.
     """
-    listings = pd.DataFrame(index=range(nrows))
+    assert nrows is not None or index is not None, \
+           "Either ``nrows`` or ``index`` must be specified."
+    if index is None:
+        index=range(nrows)
+    if nrows is not None:
+        assert nrows == len(index), "Inconsistent arguments"
+        
+    listings = pd.DataFrame(index=index)
     listings["id"]                = None  #internal unique ID of each listing.
     listings["training_sample"]   = nan   #This is training sample if True
 #    listings["query_string"]      = None  #String with search keywords
@@ -94,6 +113,21 @@ def make_listing_frame(nrows):
 
     return  listings
     
+
+
+def sanitize_ids(insane_ids):
+    """
+    Sanitize string (ID) list.
+    Remove trailing and leading whitespace, remove and empty elements.
+    """
+    sane_ids = []
+    for idx in insane_ids:
+        idx = idx.strip()
+        if idx == "":
+            continue
+        sane_ids.append(idx)
+    return sane_ids
+
 
 
 class Record(object):
@@ -1085,3 +1119,107 @@ class DataStore(object):
                                 "in listings['products_absent']['{lid}']."
                                 .format(pid="', '".join(unk_products), lid=lid))
 #        logging.debug("Testing data consistency finished.")
+
+
+    def update_expected_products(self, task_id):
+        """
+        Scan example listings that were found by the given task_id_or_number for 
+        contained products, and put them into the task_id_or_number's 'expected products' 
+        field. Then put the updated list of 'expected products' into the 
+        listings.
+        
+        TODO: explicitly respect that a listing can be found by multiple 
+              search tasks.
+              Don't overwrite the products that are expected by the other 
+              task. The algorithm currently only works as expected by chance.
+              When a search task can explicitly exclude products, it won't work
+              anymore.
+        """
+        assert isinstance(task_id, basestring)
+        #Search the right task
+        task = SearchTask("", "", "", "", "") #Dummy
+        for task in self.tasks:
+            if task.id == task_id:
+                break
+        else:
+            logging.error("Unknown task ID '{}'".format(task_id))
+            return
+        
+        logging.info("Update expected products of task: '{}'".format(task_id))
+        
+        task_expected_products = sanitize_ids(task.expected_products)
+        all_expected_products = set(task_expected_products)
+        my_listings = []
+        for idx, listing in self.listings.iterrows():
+            search_tasks = listing["search_tasks"]
+            if search_tasks is None:
+                continue
+            if task_id not in search_tasks:
+                continue
+            my_listings.append(idx)
+            if listing["training_sample"] != 1:
+                continue
+            expected_products = listing["expected_products"]
+            if expected_products is None:
+                continue
+            all_expected_products.update(expected_products)
+        
+        #Create list of all products, but order of products already in 
+        #list is preserved
+        for prod_id in task_expected_products:
+            try:
+                all_expected_products.remove(prod_id)
+            except KeyError:
+                pass
+        new_prods = list(all_expected_products)
+        new_prods.sort()
+        new_prods = task.expected_products + new_prods
+        
+        #Put list of new products into task and listings
+        task.expected_products = new_prods
+        new_listings = make_listing_frame(index=my_listings)
+        new_listings["expected_products"].fill(new_prods)
+        self.merge_listings(new_listings)
+        
+        self.tasks_dirty = True
+        self.listings_dirty = True
+
+
+    def write_expected_products_to_listings(self, task_id):
+        """
+        Copy value of ``expected_products`` from the specified task to all
+        related listings. Related listings are listings that were fund by
+        this task.
+        
+        TODO: respect that a listing can be found by multiple search tasks.
+              Don't overwrite the products that are expected by the other 
+              task. 
+        """
+        assert isinstance(task_id, basestring)
+        #Search the right task
+        task = SearchTask("", "", "", "", "") #Dummy
+        for task in self.tasks:
+            if task.id == task_id:
+                break
+        else:
+            logging.error("Unknown task ID '{}'".format(task_id))
+            return
+        
+        logging.info("Set expected products of task: '{}'".format(task_id))
+        
+        #Get list of IDs of of listings that were found by this task
+        my_listings = []
+        for idx, listing in self.listings.iterrows():
+            search_tasks = listing["search_tasks"]
+            if search_tasks is None or task_id not in search_tasks:
+                continue
+            my_listings.append(idx)
+        
+        #Put list of expected products from task into listings
+        task_expected_products = sanitize_ids(task.expected_products)
+        new_listings = make_listing_frame(index=my_listings)
+        new_listings["expected_products"].fill(task_expected_products)
+        self.merge_listings(new_listings)
+        
+        self.listings_dirty = True
+        

@@ -439,6 +439,11 @@ class ProductModel(QAbstractTableModel):
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
+    def slotDataChanged(self):
+        "Signal the model that the underlying data has changed."
+        self.beginResetModel()
+        self.endResetModel()
+        
     def rowCount(self, parent=QModelIndex()):
         """Return number of products in list."""
         if parent.isValid(): #There are only top level items
@@ -735,7 +740,7 @@ class SearchTaskEditWidget(QWidget):
         grid.addWidget(l_currency2, 7, 2)
         grid.addWidget(l_expected_products, 8, 0, 1, 3)
         grid.addWidget(self.e_expected_products, 9, 0, 2, 3)
-        grid.setRowStretch (11, 1)
+        grid.setRowStretch (10, 1)
         
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
@@ -836,7 +841,7 @@ class TaskWidget(QSplitter):
         separator = QAction(self)
         separator.setSeparator(True)
         self.list_widget.addAction(separator)
-        #Update expected Products
+        #Update expected products
         self.action_update_expected_products = \
             QAction("&Update Expected Products", self)
         self.action_update_expected_products.setToolTip(
@@ -845,15 +850,24 @@ class TaskWidget(QSplitter):
         self.action_update_expected_products.triggered.connect(
             self.update_expected_products)
         self.list_widget.addAction(self.action_update_expected_products)
-        #TODO: Update all expected products
+        #Set expected products to listings
+        self.action_set_expected_products = \
+            QAction("&Set Expected Products", self)
+        self.action_set_expected_products.setToolTip(
+            "Copy value of 'expected_products' from current task to all "
+            "related listings.")
+        self.action_set_expected_products.triggered.connect(
+            self.set_expected_products)
+        self.list_widget.addAction(self.action_set_expected_products)
         
+        #Parameters for the sort filter
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter.setDynamicSortFilter(False)
 
 
-    def setModel(self, model, data_store):
+    def setModel(self, task_model, listings_model, data_store):
         """Tell view which model it should display and edit."""
-        self.filter.setSourceModel(model)
+        self.filter.setSourceModel(task_model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
         self.data_store = data_store
@@ -861,6 +875,9 @@ class TaskWidget(QSplitter):
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
                                                         self.slotRowChanged)
+        #Notify models when their underlying data has changed
+        self.signalTasksChanged.connect(task_model.slotDataChanged)
+        self.signalListingsChanged.connect(listings_model.slotDataChanged)
     
     def slotRowChanged(self, current, _previous):
         """
@@ -884,17 +901,38 @@ class TaskWidget(QSplitter):
         row = self.list_widget.currentIndex().row()
         model = self.list_widget.model()
         model.removeRows(row, 1)
+    
+    #The listings in the data store changed completely
+    signalListingsChanged = pyqtSignal()
+    #The tasks in the data store changed completely
+    signalTasksChanged = pyqtSignal()
         
     def update_expected_products(self):
         """
-        Scan example listings that were found by the current task for 
-        contained products, and put them into the task's 'expected products' 
-        field. Then put the updated list of 'expected products' into the 
-        listings.
+        Scan example listings that were found by the current task_id_or_number 
+        for contained products, and put them into the task_id_or_number's 
+        'expected products' field. Then put the updated list of 
+        'expected products' into the listings.
         """
-        print "update_expected_products"
-        row = self.list_widget.currentIndex().row()
+        curr_idx = self.list_widget.currentIndex()
+        task_id_idx = curr_idx.sibling(curr_idx.row(), 0)
+        task_id = task_id_idx.data()
+        self.data_store.update_expected_products(task_id)
+        self.signalListingsChanged.emit()
+        self.signalTasksChanged.emit()
         
+    def set_expected_products(self):
+        """
+        Copy value of ``expected_products`` from the current task to all
+        related listings. Related listings are listings that were fund by
+        this task.
+        """
+        curr_idx = self.list_widget.currentIndex()
+        task_id_idx = curr_idx.sibling(curr_idx.row(), 0)
+        task_id = task_id_idx.data()
+        self.data_store.write_expected_products_to_listings(task_id)
+        self.signalListingsChanged.emit()
+        self.signalTasksChanged.emit()        
         
     def saveSettings(self, setting_store):
         """Save widget state, such as splitter position."""
@@ -930,6 +968,11 @@ class TaskModel(QAbstractTableModel):
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
+    def slotDataChanged(self):
+        "Signal the model that the underlying data has changed."
+        self.beginResetModel()
+        self.endResetModel()
+        
     def rowCount(self, parent=QModelIndex()):
         """Return number of tasks in list."""
         if parent.isValid(): #There are only top level items
@@ -1960,6 +2003,11 @@ class ListingsModel(QAbstractTableModel):
         #Tell the view(s) that all data has changed.
         self.layoutChanged.emit()
 
+    def slotDataChanged(self):
+        "Signal the model that the underlying data has changed."
+        self.beginResetModel()
+        self.endResetModel()
+            
     def rowCount(self, parent=QModelIndex()):
         """Return number of products in list."""
         if parent.isValid(): #There are only top level items
@@ -2152,7 +2200,8 @@ class GuiMain(QMainWindow):
         self.product_editor.setModel(self.product_model, self.recognizers, 
                                      self.data)
         self.main_tabs.addTab(self.task_editor, "Tasks")
-        self.task_editor.setModel(self.task_model, self.data)
+        self.task_editor.setModel(self.task_model, self.listings_model, 
+                                  self.data)
         
         #For QSettings and Phonon
         QCoreApplication.setOrganizationName("The Clair Project")
@@ -2184,6 +2233,9 @@ class GuiMain(QMainWindow):
         taskmenu = menubar.addMenu("&Task")
         taskmenu.addAction(self.task_editor.action_new)
         taskmenu.addAction(self.task_editor.action_delete)
+        taskmenu.addSeparator()
+        taskmenu.addAction(self.task_editor.action_update_expected_products)
+        taskmenu.addAction(self.task_editor.action_set_expected_products)
 
 
     def askSaveModifiedFiles(self):
@@ -2259,16 +2311,9 @@ class GuiMain(QMainWindow):
         
     def saveConfiguration(self):
         """Save all data files of a Clair installation."""
-        #save listings
         self.data.write_listings()
-        self.listings_model.dirty = False
-        #save products
         self.data.write_products()
-        self.product_model.dirty = False
-        #save tasks
         self.data.write_tasks()
-        self.task_model.dirty = False
-        #save recognizers
         self.recognizers.write_recognizers()
         self.statusBar().showMessage("Configuration saved.", 5000)
     

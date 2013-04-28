@@ -324,12 +324,12 @@ class ProductRecognizer(object):
                          "Too few listings."
                          .format(self.product_id))
             return
-        elif n_pos < 5:
+        elif n_pos < 10:
             logging.warn("Product {0}. Can't compute classifier. "
                          "Too few positive listings."
                          .format(self.product_id))
             return
-        elif n_neg < 5:
+        elif n_neg < 10:
             logging.warn("Product {0}. Can't compute classifier. "
                          "Too few negative listings."
                          .format(self.product_id))
@@ -390,10 +390,10 @@ class ProductRecognizer(object):
         """
         assert isinstance(listing, pd.Series)
         if self.classifier is None:
-            logging.warn("Can't recognize product {0}. "
-                         "No classifier was trained. "
-                         "Probably too few training samples"
-                         .format(self.product_id))
+#            logging.warn("Can't recognize product {0}. "
+#                         "No classifier was trained. "
+#                         "Probably too few training samples"
+#                         .format(self.product_id))
             return None
 
         features = self.feature_extractor.extract_features(listing)
