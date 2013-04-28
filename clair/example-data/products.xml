@@ -92,15 +92,30 @@ Note! There are multiple versions of this lens
       </categories>
     </product>
     <product>
+      <id>nikon-24-85-f/2.8--1</id>
+      <name>Nikon 24-85mm f/2.8-4 AF-D Lens</name>
+      <description>
+* Old, from 2000
+* full frame
+* external focus motor</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-28-80-f/3.3-5.6--1</id>
       <name>Nikon 28-80mm f/3.3-5.6  AF G Lens</name>
-      <description>Cheap normal zoom lens
+      <description>Fast, old normal zoom lens.
 
-* slow
+* Old, from 2000
 * full frame
-* optically good
-* fast focus
-* external focus motor</description>
+* external focus motor
+* fast focus speed
+* fast
+* optically acceptable, but soft in corners, noticable geometric distortions
+
+There are several generations of this lens, and similar lenses.</description>
       <important_words/>
       <categories>
         <category>photo.system.nikon.lens</category>
@@ -498,9 +513,20 @@ A very similar lens is sold by Pentax (DA* 16-50mm f/2.8), but the Tokina versio
       </categories>
     </product>
     <product>
+      <id>xxx-unknown-flash</id>
+      <name>Unknown Dummy Flash</name>
+      <description>Placholder for unknown, but potentially interesting flashes.
+
+Can be considered in price computations.</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.xxx.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>xxx-unknown-lens</id>
       <name>Unkown Dummy Lens</name>
-      <description>Placholder for unknown, or uninteresting lenses.
+      <description>Placholder for unknown, but potentially interesting lenses.
 
 Can be considered in price computations.</description>
       <important_words>

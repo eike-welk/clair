@@ -27,6 +27,22 @@
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d70</product>
+        <product>nikon-18-105-f/3.5-5.6--1</product>
+        <product>nikon-18-55-f/3.5-5.6--1</product>
+        <product>nikon-18-70-f/3.5-4.5--1</product>
+        <product>nikon-24-120-f/3.5-5.6--2</product>
+        <product>nikon-28-80-f/3.3-5.6--1</product>
+        <product>nikon-50-f/1.8--1</product>
+        <product>nikon-50-f/1.8-D--2</product>
+        <product>nikon-70-300-f/4-5.6--1</product>
+        <product>sigma-18-50mm-f/3.5-5.6--1-nikon</product>
+        <product>sigma-28-200-f/3,5-5,6--1-Nikon</product>
+        <product>sigma-70-200-f/2.8--1-Nikon</product>
+        <product>tamron-18-200-f/3.5-6.3--1-Nikon</product>
+        <product>tamron-28-200-f/3.8-5.6--1-Nikon</product>
+        <product>tamron-70-300-f/4.0-5.6--1-Nikon</product>
+        <product>tamron-70-300-f/4.0-5.6--3-Nikon</product>
+        <product>xxx-unknown-lens</product>
       </expected_products>
     </search_task>
     <search_task>
@@ -41,6 +57,27 @@
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d90</product>
+        <product>nikon-18-105-f/3.5-5.6--1</product>
+        <product>nikon-16-85-f/3.5-5.6--1</product>
+        <product>nikon-18-200-f/3.5-5.6--1</product>
+        <product>nikon-18-55-f/3.5-5.6--1</product>
+        <product>nikon-18-70-f/3.5-4.5--1</product>
+        <product>nikon-24-85-f/2.8--1</product>
+        <product>nikon-28-85-f/3.5-4.5--1</product>
+        <product>nikon-50-f/1.4-D--1</product>
+        <product>nikon-50-f/1.4-G--2</product>
+        <product>nikon-50-f/1.8-D--2</product>
+        <product>nikon-50-f/1.8-G--3</product>
+        <product>nikon-70-210-f/4--1</product>
+        <product>nikon-70-300-f/4-5.6--1</product>
+        <product>nikon-80-200-f/2.8--2</product>
+        <product>nikon-85-f/1.8-D--1</product>
+        <product>sigma-10-20-f/4-5.6--1-nikon</product>
+        <product>sigma-28-200-f/3,5-5,6--1-Nikon</product>
+        <product>tamron-18-200-f/3.5-6.3--1-Nikon</product>
+        <product>tamron-28-200-f/3.8-5.6--1-Nikon</product>
+        <product>xxx-unknown-flash</product>
+        <product>xxx-unknown-lens</product>
       </expected_products>
     </search_task>
     <search_task>
@@ -101,11 +138,11 @@
       </expected_products>
     </search_task>
     <search_task>
-      <id>s-tokina-17-50-f/2.8--Nikon</id>
+      <id>s-tokina-16-50-f/2.8--Nikon</id>
       <due_time>2000-01-01 00:00:00</due_time>
       <server>ebay.de</server>
       <recurrence_pattern>daily</recurrence_pattern>
-      <query_string>Tokina 17-50 2.8 Nikon</query_string>
+      <query_string>Tokina 16-50 2.8 Nikon</query_string>
       <n_listings>100</n_listings>
       <price_min>50.0</price_min>
       <price_max>1000.0</price_max>
