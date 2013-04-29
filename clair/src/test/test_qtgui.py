@@ -41,12 +41,13 @@ sip.setapi("QVariant", 2)
 #Import PyQt after version change.
 
 import sys
-import os
+#import os
 import os.path as path
 import time
 import logging
 from datetime import datetime
 
+from numpy import nan
 import pandas as pd
 
 from PyQt4.QtGui import QApplication, QTreeView
@@ -65,15 +66,114 @@ def relative(*path_components):
     return path.abspath(path.join(path.dirname(__file__), *path_components))
 
 
+def create_models():
+    """
+    Create a Qt-model-view models for listings, products and tasks.
+    Additionally returns the related ``DataStore``.
+    
+    Returns
+    -------
+    listings_model, product_model, task_model, data_store
+    """
+    from clair.qtgui import TaskModel, ProductModel, ListingsModel
+    from clair.coredata import Product, SearchTask, DataStore, \
+                               make_listing_frame
+    
+    fr = make_listing_frame(3)
+    #All listings need unique ids
+    fr["id"] = ["eb-123", "eb-456", "eb-457"]
+    
+    fr["training_sample"] = [1.0, 0.0, nan]
+    fr["search_tasks"] = ["s-nikon-d90", "s-nikon-d70", "s-nikon-d90"]
+    
+    fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
+    fr["products"][0] = ["nikon-d90"]
+    fr["products_absent"][0] = ["nikon-sb-24"]
+    
+    fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
+    fr["image"][0] = "www.some.site/dir/to/img.pg"
+    fr["title"] = [u"Nikon D90 super duper!", u"Süper Camera", None]
+    fr["description"][0] = "Buy my old Nikon D90 camera <b>now</b>!"
+    fr["prod_spec"][0] = {"Marke":"Nikon", "Modell":"D90"}
+    fr["active"][0] = False
+    fr["sold"][0] = False
+    fr["currency"][0] = "EUR"
+    fr["price"][0]    = 400.
+    fr["shipping"][0] = 12.
+    fr["type"][0] = "auction"
+    fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
+    fr["location"][0] = u"Köln"
+    fr["postcode"][0] = u"50667"
+    fr["country"][0] = "DE"
+    fr["condition"][0] = 0.7
+    fr["server"][0] = "Ebay-Germany"
+    fr["server_id"][0] = "123" #ID of listing on server
+    fr["final_price"][0] = True
+#    fr["data_directory"] = ""
+    fr["url_webui"][0] = "www.some.site/dir/to/web-page.html"
+#     fr["server_repr"][0] = nan
+    #Put our IDs into index
+    fr.set_index("id", drop=False, inplace=True, verify_integrity=True)
+    
+    tasks = [SearchTask("s-nikon-d90", datetime(2000, 1, 1), "ebay-de", 
+                        "Nikon D90", "daily", "100", "150", "300", "EUR", 
+                        ["nikon-d90", "nikon-18-105-f/3.5-5.6--1"]),
+            SearchTask("s-nikon-d70", datetime(2000, 1, 1), "ebay-de", 
+                        "Nikon D70", "daily", "100", "75", "150", "EUR", 
+                        ["nikon-d70", "nikon-18-105-f/3.5-5.6--1"]),]
+    
+    products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
+                        ["Nikon", "D 90"], ["photo.system.nikon.camera",
+                                            "photo.camera.system.nikon"]),
+                Product("nikon-d70", "Nikon D70", "Nikon D70 DSLR camera.", 
+                        ["Nikon", "D 70"], ["photo.system.nikon.camera",
+                                            "photo.camera.system.nikon"])]
+    
+    data_store = DataStore()
+    data_store.merge_listings(fr)
+    data_store.set_products(products)
+    data_store.add_tasks(tasks)
+    
+    #The models are tested here, creating them may fail. 
+    #Don't break all test, because a single model is broken.
+    try:
+        listings_model = ListingsModel()
+        listings_model.setDataStore(data_store)
+    except: #IGNORE:W0702
+        print "Error! ``listings_model`` could not be initialized!"
+        listings_model = None
+    try:
+        task_model = TaskModel()
+        task_model.setDataStore(data_store)
+    except: #IGNORE:W0702
+        print "Error! ``task_model`` could not be initialized!"
+        task_model = None
+    try:
+        product_model = ProductModel()
+        product_model.setDataStore(data_store)
+    except: #IGNORE:W0702
+        print "Error! ``product_model`` could not be initialized!"
+        product_model = None
+    
+    return listings_model, product_model, task_model, data_store
+
+
 def test_RecognizerWidget():
     """Test the ``ProductEditWidget``"""
     from clair.qtgui import RecognizerWidget
+    from clair.textprocessing import RecognizerController
     
     print "Start"
     app = QApplication(sys.argv)
     
-    view = RecognizerWidget()
+    _, product_model, _, data_store = create_models()
+    recognizers = RecognizerController()
+    idx = product_model.index(1, 0)
     
+    view = RecognizerWidget()
+    view.setModel(product_model, recognizers, data_store)
+    view.setRow(idx)
+
     view.show()
     app.exec_()
     print "End"
@@ -87,12 +187,12 @@ def test_ProductEditWidget():
     app = QApplication(sys.argv)
     
     view = ProductEditWidget()
-    model, _ = create_product_model()
-    view.setModel(model)
+    _, product_model, _, _ = create_models()
+    view.setModel(product_model)
     
     view.show()
     app.exec_()
-    print model.data_store.products
+    print product_model.data_store.products
     print "End"
     
     
@@ -104,32 +204,14 @@ def test_ProductWidget():
     app = QApplication(sys.argv)
     
     view = ProductWidget()
-    model, data_store = create_product_model()
+    listings_model, product_model, _, data_store = create_models()
     recognizers = RecognizerController()
-    view.setModel(model, recognizers, data_store)
+    view.setModel(product_model, listings_model, recognizers, data_store)
     
     view.show()
     app.exec_()
-    print model.data_store.products
+    print product_model.data_store.products
     print "End"
-    
-
-def create_product_model():
-    """Create a Qt-model-view model that contains products, for testing."""
-    from clair.qtgui import ProductModel
-    from clair.coredata import Product, DataStore
-    
-    products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
-                        ["Nikon", "D 90"], ["photo.system.nikon.camera",
-                                            "photo.camera.system.nikon"]),
-                Product("nikon-d70", "Nikon D70", "Nikon D70 DSLR camera.", 
-                        ["Nikon", "D 70"], ["photo.system.nikon.camera",
-                                            "photo.camera.system.nikon"])]
-    data_store = DataStore()
-    data_store.set_products(products)
-    model = ProductModel()
-    model.setDataStore(data_store)
-    return model, data_store
     
 
 def test_ProductModel():
@@ -137,7 +219,8 @@ def test_ProductModel():
     Test ProductModel, an adapter for a list of ``Product`` objects
     to Qt's model-view architecture.
     """
-    model, _ = create_product_model()
+    #Create a product model (and some others that we ignore)
+    _, model, _, _ = create_models()
     
     #Get table dimensions
     assert model.rowCount() == 2
@@ -186,13 +269,13 @@ def test_SearchTaskEditWidget():
     app = QApplication(sys.argv)
     
     view = SearchTaskEditWidget()
-    model = create_task_model()
-    view.setModel(model)
-    view.setRow(model.index(1, 0))
+    _, _, task_model, _ = create_models()
+    view.setModel(task_model)
+    view.setRow(task_model.index(1, 0))
     
     view.show()
     app.exec_()
-    print model.data_store.tasks
+    print task_model.data_store.tasks
     print "End"
     
     
@@ -203,31 +286,13 @@ def test_TaskWidget():
     app = QApplication(sys.argv)
     
     view = TaskWidget()
-    model = create_task_model()
-    view.setModel(model)
+    listings_model, _, task_model, data_store = create_models()
+    view.setModel(task_model, listings_model, data_store)
     
     view.show()
     app.exec_()
-    print model.data_store.tasks
+    print task_model.data_store.tasks
     print "End"
-    
-
-def create_task_model():
-    """Create a Qt-model-view model that contains tasks, for testing."""
-    from clair.qtgui import TaskModel
-    from clair.coredata import SearchTask, DataStore
-    
-    tasks = [SearchTask("s-nikon-d90", datetime(2000, 1, 1), "ebay-de", 
-                           "Nikon D90", "daily", "100", "150", "300", "EUR", 
-                           ["nikon-d90", "nikon-18-105-f/3.5-5.6--1"]),
-                SearchTask("s-nikon-d70", datetime(2000, 1, 1), "ebay-de", 
-                           "Nikon D70", "daily", "100", "75", "150", "EUR", 
-                           ["nikon-d70", "nikon-18-105-f/3.5-5.6--1"]),]
-    data_store = DataStore()
-    data_store.add_tasks(tasks)
-    model = TaskModel()
-    model.setDataStore(data_store)
-    return model
     
 
 def test_TaskModel():
@@ -235,7 +300,7 @@ def test_TaskModel():
     Test ProductModel, an adapter for a list of ``Product`` objects
     to Qt's model-view architecture.
     """
-    model = create_task_model()
+    _, _, model, _ = create_models()
     
     #Get table dimensions
     assert model.rowCount() == 2
@@ -346,7 +411,7 @@ def test_LearnDataProxyModel():
     
     
     mo = LearnDataProxyModel()
-    mo.setSourceModel(lsmod, 3, 4, 5)
+    mo.setListingsModel(lsmod, 3, 4, 5)
     mo.setRow(lsmod.index(0, 0))
     
     print mo.values
@@ -403,7 +468,7 @@ def test_LearnDataProxyModel_GUI():
     lsmod.setDataStore(data_store)
     
     mo = LearnDataProxyModel()
-    mo.setSourceModel(lsmod, 3, 4, 5)
+    mo.setListingsModel(lsmod, 3, 4, 5)
     mo.setRow(lsmod.index(0, 0))
 
     view = QTreeView()
@@ -441,21 +506,16 @@ def test_DataWidgetHtmlView():
 
 def test_ListingsEditWidget():
     """Test ListingsEditWidget, which displays a single listing."""
-    from clair.qtgui import ListingsEditWidget, ListingsModel
-    from clair.coredata import make_listing_frame, DataStore
+    from clair.qtgui import ListingsEditWidget
     
     print "Start"
     app = QApplication(sys.argv)
     
-    listings = make_listing_frame(4)
-    data_store = DataStore()
-    data_store.merge_listings(listings)
+    listings_model, _, _, _ = create_models()
     
-    model = ListingsModel()
-    model.setDataStore(data_store)
     view = ListingsEditWidget()
-    view.setModel(model)
-    view.setRow(model.index(1, 0))
+    view.setModel(listings_model)
+    view.setRow(listings_model.index(1, 0))
     
     view.show()
     app.exec_()
@@ -464,20 +524,17 @@ def test_ListingsEditWidget():
 
 def test_ListingsWidget():
     """Test ListingsWidget, which displays a DataFrame of listings."""
-    from clair.qtgui import ListingsWidget, ListingsModel
-    from clair.coredata import make_listing_frame, DataStore
+    from clair.qtgui import ListingsWidget
+    from clair.textprocessing import RecognizerController
     
     print "Start"
     app = QApplication(sys.argv)
     
-    listings = make_listing_frame(4)
-    data_store = DataStore()
-    data_store.merge_listings(listings)
+    listings_model, product_model, _, data_store = create_models()
+    recognizers = RecognizerController()
     
-    model = ListingsModel()
-    model.setDataStore(data_store)
     view = ListingsWidget()
-    view.setModel(model) 
+    view.setModel(listings_model, product_model, data_store, recognizers) 
     
     view.show()
     app.exec_()

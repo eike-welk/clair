@@ -110,17 +110,17 @@ class RecognizerWidget(QWidget):
         self.v_id.setToolTip("ID of current product.")
         
   
-    def setModel(self, model, recognizers, data):
-        """Tell the widget which model it should use."""
-        #Put model into communication object
-        self.mapper.setModel(model)
+    def setModel(self, product_model, recognizers, data_store):
+        """Tell the widget which product_model it should use."""
+        #Put product_model into communication object
+        self.mapper.setModel(product_model)
         #Tell: which widget should show which column
         self.mapper.addMapping(self.v_id, 0, "text")
         #Go to first row
         self.mapper.toFirst()
         #set product recognizers and data storage.
         self.recognizers = recognizers
-        self.data = data
+        self.data = data_store
 
 
     def setRow(self, index):
@@ -1494,11 +1494,11 @@ class LearnDataProxyModel(RadioButtonModel):
     def __init__(self, parent=None):
         super(LearnDataProxyModel, self).__init__(2, 2, [2], parent)
         #The learning data is taken from this model
-        self.source_model = ListingsModel() #dummy
+        self.listings_model = ListingsModel() #dummy
         #Model from which the product names are taken.
         self.product_model = ProductModel() #dummy
         #Index that points to current row
-        self.row_index = self.source_model.index(0, 0)
+        self.row_index = self.listings_model.index(0, 0)
         #Columns from where source data is taken
         self.col_expected_products = None
         self.col_products = None
@@ -1510,14 +1510,14 @@ class LearnDataProxyModel(RadioButtonModel):
                           "Product ID",
                           "Product name"]
         
-    def setSourceModel(self, model, 
+    def setListingsModel(self, model, 
                        expected_products, products, products_absent):
         """Change model and columns from which the learning data is taken."""
         assert isinstance(model, QAbstractItemModel)
         assert isinstance(expected_products, int)
         assert isinstance(products, int)
         assert isinstance(products_absent, int)
-        self.source_model = model
+        self.listings_model = model
         self.col_expected_products = expected_products
         self.col_products = products
         self.col_products_absent = products_absent    
@@ -1537,7 +1537,7 @@ class LearnDataProxyModel(RadioButtonModel):
         """Compute the GUI data, and change it."""
         #Get the data from the source model
         irow = self.row_index.row()
-        sm = self.source_model
+        sm = self.listings_model
         expected_products = sm.data(sm.index(irow, self.col_expected_products), 
                                     Qt.EditRole)
         products          = sm.data(sm.index(irow, self.col_products), 
@@ -1594,7 +1594,7 @@ class LearnDataProxyModel(RadioButtonModel):
         
         #Put data into source model
         irow = self.row_index.row()
-        sm = self.source_model
+        sm = self.listings_model
         sm.setData(sm.index(irow, self.col_expected_products), 
                    expected_products, Qt.EditRole)
         sm.setData(sm.index(irow, self.col_products), products,Qt.EditRole)
@@ -1895,7 +1895,7 @@ class ListingsEditWidget(QWidget):
         self.mapper.addMapping(self.v_prod_specs, 10, "text")
         self.mapper.addMapping(self.v_description, 9, "html")
         
-        self.learn_model.setSourceModel(model, 3, 4, 5)
+        self.learn_model.setListingsModel(model, 3, 4, 5)
         
 
     def setProductModel(self, product_model):
