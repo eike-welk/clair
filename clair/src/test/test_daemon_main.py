@@ -254,8 +254,9 @@ def test_MainObj_main_download_listings():
     
 def experiment_MainObj_main_download_listings():
     """Experiment with MainObj.main_download_listings"""
-    
     from clair.daemon_main import MainObj
+    
+    print "start"
 
     conf_dir = relative("../../../../clair-data")
     data_dir = relative("../../../../clair-data")

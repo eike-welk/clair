@@ -96,37 +96,19 @@ class RecognizerWidget(QWidget):
         self.data = DataStore() #Dummy
         
         self.v_id = QLabel()
-        
         l_id = QLabel("ID")
-        
-        b_train_curr = QPushButton("&Train Recognizer")
-        b_train_all = QPushButton("Train &All Recognizers")
-        b_validate = QPushButton("Validate Recognizer")
-        b_test = QPushButton("&Test Recognizer")
-        b_run = QPushButton("&Run Recognizers")
         
         grid = QGridLayout()
         grid.addWidget(l_id,               0, 0)
         grid.addWidget(self.v_id,          0, 1, 1, 2)
-        grid.addWidget(b_train_curr,       1, 0)
-        grid.addWidget(b_train_all,        1, 1)
-        grid.addWidget(b_validate,         2, 0)
-        grid.addWidget(b_test,             2, 1)
-        grid.addWidget(b_run,              2, 2)
         grid.setRowStretch (3, 1)
 
         self.setLayout(grid)
         self.setGeometry(200, 200, 400, 300)
   
-        self.setToolTip("Train and run product recognition algorithms.")
+        self.setToolTip("Change parameters of product recognition algorithms.")
         self.v_id.setToolTip("ID of current product.")
         
-        b_train_curr.clicked.connect(self.train_current_recognizer)
-        b_train_all.clicked.connect(self.train_all_recognizers)
-        b_validate.clicked.connect(self.validate_recognizer)
-        b_test.clicked.connect(self.test_recognizer)
-        b_run.clicked.connect(self.run_recognizers)
-
   
     def setModel(self, model, recognizers, data):
         """Tell the widget which model it should use."""
@@ -153,84 +135,6 @@ class RecognizerWidget(QWidget):
         """
         self.mapper.setCurrentModelIndex(index)
 
-    def train_current_recognizer(self):
-        "Train recognizer for current product"
-        logging.debug("Train recognizer for current product")
-        #Create progress dialog
-        max_progress = 10
-        progd = QProgressDialog("Train recognizer for current product", "Abort", 
-                                0, max_progress, self)
-        progd.setWindowModality(Qt.WindowModal)
-        progd.setMinimumDuration(0)
-        #Progress dialog only appears after a few calls to ``setValue``.
-        for i in range(6): progd.setValue(i); time.sleep(0.01)
-        #Get the current product
-        curr_prod = self.v_id.text()
-        prod_list = []
-        for prod in self.data.products:
-            if prod.id == curr_prod:
-                prod_list.append(prod)
-                break
-        #Train the recognizer for this product
-        self.recognizers.train_recognizers(prod_list, self.data.listings, progd)
-        #Hide progress dialog
-        progd.setValue(max_progress)
-            
-        
-    def train_all_recognizers(self):
-        "Train recognizers for all products."
-        logging.debug("Train recognizers for all products.")
-        #Create progress dialog
-        max_progress = len(self.data.products) * 10
-        progd = QProgressDialog("Train recognizers for all products", "Abort", 
-                                0, max_progress, self)
-        progd.setWindowModality(Qt.WindowModal)
-        progd.setMinimumDuration(0)
-        #Progress dialog only appears after a few calls to ``setValue``.
-        for i in range(6): progd.setValue(i); time.sleep(0.01)
-        #Train the recognizers
-        self.recognizers.train_recognizers(self.data.products, 
-                                           self.data.listings, progd)
-        #Hide progress dialog
-        progd.setValue(max_progress)
-        
-    def validate_recognizer(self):
-        """
-        Let recognizer recognize its own example data.
-        
-        Shows wrongly labeled samples, and recognition tasks that are 
-        impossible for the recognizer.
-        """
-        print("Validate Recognizer")
-    
-    def test_recognizer(self):
-        """
-        Run recognizer over the last 500 listings where the current product is 
-        expected.
-        """ 
-        print("Test Recognizer")
-        
-    def run_recognizers(self):
-        """Run the recognizers over all listings."""
-        logging.debug("Run Recognizers")
-        #Create progress dialog
-        max_progress = len(self.data.listings.index)
-        progd = QProgressDialog("Recognize products in all listings.", "Abort", 
-                                0, max_progress, self)
-        progd.setWindowModality(Qt.WindowModal)
-        progd.setMinimumDuration(0)
-        #Run the recognizers
-        self.recognizers.recognize_products(self.data.listings.index, 
-                                            self.data.listings, progd)
-        #Hide progress dialog
-        progd.setValue(max_progress)
-        #Record changes to listings and update GUI
-        self.data.listings_dirty = True
-        #TODO connect signal to suitable slot in listings model
-        self.signalListingsChanged.emit()
-        
-    #The listings in the data store changed
-    signalListingsChanged = pyqtSignal()
 
 
 
@@ -323,16 +227,21 @@ class ProductWidget(QSplitter):
     """
     def __init__(self, parent=None):
         super(ProductWidget, self).__init__(parent)
+        #Storage of all application data
+        self.data_store = DataStore() #Dummy
+        #Storage for the product recognizers
+        self.recognizers = RecognizerController() #Dummy
+        #GUI elements
+        self.sub_splitter = QSplitter()
         self.edit_widget = ProductEditWidget()
         self.list_widget = QTreeView()
         self.reco_widget = RecognizerWidget()
         self.filter = QSortFilterProxyModel()
-        self.sub_splitter = QSplitter()
-        self.sub_splitter.setOrientation(Qt.Vertical)
         
         #Assemble the child widgets
         self.addWidget(self.list_widget)
         self.addWidget(self.sub_splitter)
+        self.sub_splitter.setOrientation(Qt.Vertical)
         self.sub_splitter.addWidget(self.edit_widget)
         self.sub_splitter.addWidget(self.reco_widget)
     
@@ -351,32 +260,61 @@ class ProductWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
         
         #Create context menu for list view
-        self.action_new = QAction("&New Product", self)
-        self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
-        self.action_new.setStatusTip(
+        #New product
+        self.action_recognize_selection = QAction("&New Product", self)
+        self.action_recognize_selection.setShortcuts(QKeySequence.InsertLineSeparator)
+        self.action_recognize_selection.setStatusTip(
                                 "Create new product below selected product.")
-        self.action_new.triggered.connect(self.newProduct)
-        self.list_widget.addAction(self.action_new)
+        self.action_recognize_selection.triggered.connect(self.newProduct)
+        self.list_widget.addAction(self.action_recognize_selection)
+        #Delete product
         self.action_delete = QAction("&Delete Product", self)
         self.action_delete.setShortcuts(QKeySequence.Delete)
         self.action_delete.setStatusTip("Delete selected product.")
         self.action_delete.triggered.connect(self.deleteProduct)
         self.list_widget.addAction(self.action_delete)
+        #Separator
+        separator = QAction(self)
+        separator.setSeparator(True)
+        self.list_widget.addAction(separator)
+        #Train current recognizer
+        self.action_train_recognizer = QAction("&Train Recognizer", self)
+        self.action_train_recognizer.setStatusTip(
+                                    "Train recognizer for current product.")
+        self.action_train_recognizer.triggered.connect(self.slot_train_recognizer)
+        self.list_widget.addAction(self.action_train_recognizer)
+        #Train all recognizers
+        self.action_train_all = QAction("Train &All Recognizers", self)
+        self.action_train_all.setStatusTip(
+                                    "Train recognizers for all products.")
+        self.action_train_all.triggered.connect(self.slot_train_all)
+        self.list_widget.addAction(self.action_train_all)
+        #Run all recognizers
+        self.action_run_all = QAction("&Run Recognizers", self) 
+        self.action_run_all.setStatusTip(
+                                    "Run all recognizers over all listings.")
+        self.action_run_all.triggered.connect(self.slot_run_recognizers) 
+        self.list_widget.addAction(self.action_run_all)      
         
+        #Parameterize sort filter for list model
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter.setDynamicSortFilter(False)
         
 
-    def setModel(self, product_model, recognizers, data):
+    def setModel(self, product_model, listings_model, recognizers, data_store):
         """Tell view which model it should display and edit."""
+        self.recognizers = recognizers
+        self.data_store = data_store
         self.filter.setSourceModel(product_model)
         self.edit_widget.setModel(self.filter)
-        self.reco_widget.setModel(self.filter, recognizers, data)
+        self.reco_widget.setModel(self.filter, recognizers, data_store)
         self.list_widget.setModel(self.filter)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
                                                         self.slotRowChanged)
+        #Notify models when their underlying data has changed
+        self.signalListingsChanged.connect(listings_model.slotDataChanged)
     
     def slotRowChanged(self, current, _previous):
         """
@@ -402,6 +340,87 @@ class ProductWidget(QSplitter):
         model = self.list_widget.model()
         model.removeRows(row, 1)
         
+    def slot_train_recognizer(self):
+        "Train recognizer for current product"
+        logging.debug("Train recognizer for current product")
+        #Create progress dialog
+        max_progress = 10
+        progd = QProgressDialog("Train recognizer for current product", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(0)
+        #Progress dialog only appears after a few calls to ``setValue``.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        #Get the current product
+        curr_idx = self.list_widget.currentIndex()
+        prod_id_idx = curr_idx.sibling(curr_idx.row(), 0)
+        curr_prod_id = prod_id_idx.data()
+        prod_list = []
+        for prod in self.data_store.products:
+            if prod.id == curr_prod_id:
+                prod_list = [prod]
+                break
+        #Train the recognizer for this product
+        self.recognizers.train_recognizers(prod_list, self.data_store.listings, 
+                                           progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+            
+        
+    def slot_train_all(self):
+        "Train recognizers for all products."
+        logging.debug("Train recognizers for all products.")
+        #Create progress dialog
+        max_progress = len(self.data_store.products) * 10
+        progd = QProgressDialog("Train recognizers for all products", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(0)
+        #Progress dialog only appears after a few calls to ``setValue``.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        #Train the recognizers
+        self.recognizers.train_recognizers(self.data_store.products, 
+                                           self.data_store.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+        
+    def slot_validate_recognizer(self):
+        """
+        Let recognizer recognize its own example data.
+        
+        Shows wrongly labeled samples, and recognition tasks that are 
+        impossible for the recognizer.
+        """
+        print("Validate Recognizer")
+    
+    def slot_test_recognizer(self):
+        """
+        Run recognizer over the last 500 listings where the current product is 
+        expected.
+        """ 
+        print("Test Recognizer")
+        
+    def slot_run_recognizers(self):
+        """Run the recognizers over all listings."""
+        logging.debug("Run Recognizers")
+        #Create progress dialog
+        max_progress = len(self.data_store.listings.index)
+        progd = QProgressDialog("Recognize products in all listings.", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(2000)
+        #Run the recognizers
+        self.recognizers.recognize_products(self.data_store.listings.index, 
+                                            self.data_store.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+        #Record changes to listings and update GUI
+        self.data_store.listings_dirty = True
+        self.signalListingsChanged.emit()
+        
+    #The listings in the data store changed
+    signalListingsChanged = pyqtSignal()
+
     def saveSettings(self, setting_store):
         """Save widget state, such as splitter position."""
         setting_store.setValue("ProductWidget/state", self.saveState())
@@ -826,15 +845,15 @@ class TaskWidget(QSplitter):
         
         #Create context menu for list view
         #New Task
-        self.action_new = QAction("&New Task", self)
-        self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
-        self.action_new.setToolTip("Create new task below selected task.")
-        self.action_new.triggered.connect(self.newProduct)
-        self.list_widget.addAction(self.action_new)
+        self.action_recognize_selection = QAction("&New Task", self)
+        self.action_recognize_selection.setShortcuts(QKeySequence.InsertLineSeparator)
+        self.action_recognize_selection.setStatusTip("Create new task below selected task.")
+        self.action_recognize_selection.triggered.connect(self.newProduct)
+        self.list_widget.addAction(self.action_recognize_selection)
         #Delete task
         self.action_delete = QAction("&Delete Task", self)
         self.action_delete.setShortcuts(QKeySequence.Delete)
-        self.action_delete.setToolTip("Delete selected task.")
+        self.action_delete.setStatusTip("Delete selected task.")
         self.action_delete.triggered.connect(self.deleteProduct)
         self.list_widget.addAction(self.action_delete)
         #Separator
@@ -844,7 +863,7 @@ class TaskWidget(QSplitter):
         #Update expected products
         self.action_update_expected_products = \
             QAction("&Update Expected Products", self)
-        self.action_update_expected_products.setToolTip(
+        self.action_update_expected_products.setStatusTip(
             "Update 'expected products' field of current task, and of all "
             "listings that were fond by this task.")
         self.action_update_expected_products.triggered.connect(
@@ -853,7 +872,7 @@ class TaskWidget(QSplitter):
         #Set expected products to listings
         self.action_set_expected_products = \
             QAction("&Set Expected Products", self)
-        self.action_set_expected_products.setToolTip(
+        self.action_set_expected_products.setStatusTip(
             "Copy value of 'expected_products' from current task to all "
             "related listings.")
         self.action_set_expected_products.triggered.connect(
@@ -1912,6 +1931,8 @@ class ListingsWidget(QSplitter):
     """
     def __init__(self, parent=None):
         super(ListingsWidget, self).__init__(parent)
+        self.data_store = DataStore() #Dummy
+        self.recognizers = RecognizerController() #Dummy
         self.edit_widget = ListingsEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
@@ -1920,7 +1941,7 @@ class ListingsWidget(QSplitter):
         self.addWidget(self.list_widget)
         self.addWidget(self.edit_widget)
     
-        #Set various options of the view. #TODO: Delete unnecessary
+        #Set various options of the list view. #TODO: Delete unnecessary
         self.list_widget.setItemsExpandable(False)
         self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.list_widget.setDragEnabled(False)
@@ -1933,35 +1954,103 @@ class ListingsWidget(QSplitter):
         self.list_widget.setRootIsDecorated(False)
         self.list_widget.setSortingEnabled(True)
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
-                
+        
+        #Create context menu for list view
+        #Train all recognizers
+        self.action_train_all = QAction("Train Recognizers", self)
+        self.action_train_all.setStatusTip("Train all product recognizers.")
+        self.action_train_all.triggered.connect(self.slot_train_all)
+        self.list_widget.addAction(self.action_train_all)
+        #Recognize products in current selection
+        self.action_recognize_selection = QAction("&Recognize Selection", self)
+        self.action_recognize_selection.setStatusTip(
+                    "Run all product recognizers on the current selection.")
+        self.action_recognize_selection.triggered.connect(
+                                                self.slot_recognize_selection)
+        self.list_widget.addAction(self.action_recognize_selection)
+
+        #Parameterize sort filter for list model
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter.setDynamicSortFilter(False)
-                
+        
 
-    def setModel(self, model):
-        """Set listings model (container). Displayed in large ``QTreeView``."""
-        self.filter.setSourceModel(model)
+    def setModel(self, listings_model, product_model, data_store, recognizers):
+        """
+        Set the various models used in this widget. 
+        Models are essentially containers that store the application's data.
+        """
+        self.data_store = data_store
+        self.recognizers = recognizers
+        self.filter.setSourceModel(listings_model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
+        self.edit_widget.setProductModel(product_model)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
                                                         self.slotRowChanged)
-    
-    def setProductModel(self, product_model):
-        """
-        Set product model (container). 
-        Displayed as additional information in ``self.edit_widget``.
-        """
-        self.edit_widget.setProductModel(product_model)
+        #Notify models when their underlying data has changed
+        self.signalListingsChanged.connect(listings_model.slotDataChanged)
         
     def slotRowChanged(self, current, _previous):
         """
         The selected row has changed. Tells edit widget to show this row.
         Connected to signal ``currentRowChanged`` of 
         ``list_widget.selectionModel()``
+        
+        Arguments
+        ---------
+        current, _previous : QModelIndex
+            Current and previous row
         """
         self.edit_widget.setRow(current)
+        
+    def slot_train_all(self):
+        "Train recognizers for all products."
+        logging.debug("Train recognizers for all products.")
+        #Create progress dialog
+        max_progress = len(self.data_store.products) * 10
+        progd = QProgressDialog("Train recognizers for all products", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+        progd.setMinimumDuration(0)
+        #Progress dialog only appears after a few calls to ``setValue``.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        #Train the recognizers
+        self.recognizers.train_recognizers(self.data_store.products, 
+                                           self.data_store.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+        
+    def slot_recognize_selection(self):
+        """Run the recognizers over the current selection."""
+        logging.debug("Run recognizers on selection")        
+        #Get listings in the current selection
+        selection_model = self.list_widget.selectionModel()
+        selected_ids = []
+        for model_id in selection_model.selectedRows(0):
+            idx = model_id.data()
+            selected_ids.append(idx)
+        
+        #Create progress dialog
+        max_progress = len(selected_ids)
+        progd = QProgressDialog("Recognize products in all listings.", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+#        progd.setMinimumDuration(4000)
+        
+        #Run the recognizers
+        self.recognizers.recognize_products(selected_ids, 
+                                            self.data_store.listings, progd)
+        #Hide progress dialog
+        progd.setValue(max_progress)
+        #Record changes to listings and update GUI
+        self.data_store.listings_dirty = True
+        self.signalListingsChanged.emit()
+        
+    #The listings in the data store changed
+    signalListingsChanged = pyqtSignal()
+        
         
     def saveSettings(self, setting_store):
         """Save widget state, such as splitter position."""
@@ -2194,11 +2283,11 @@ class GuiMain(QMainWindow):
         #Assemble the top level widgets
         self. setCentralWidget(self.main_tabs)
         self.main_tabs.addTab(self.listings_editor, "Listings")
-        self.listings_editor.setModel(self.listings_model)
-        self.listings_editor.setProductModel(self.product_model)
+        self.listings_editor.setModel(self.listings_model, self.product_model,
+                                      self.data, self.recognizers)
         self.main_tabs.addTab(self.product_editor, "Products")
-        self.product_editor.setModel(self.product_model, self.recognizers, 
-                                     self.data)
+        self.product_editor.setModel(self.product_model, self.listings_model,
+                                     self.recognizers, self.data)
         self.main_tabs.addTab(self.task_editor, "Tasks")
         self.task_editor.setModel(self.task_model, self.listings_model, 
                                   self.data)
@@ -2226,12 +2315,18 @@ class GuiMain(QMainWindow):
                            QKeySequence.Save)
         filemenu.addAction("&Quit", self.close, QKeySequence.Quit)
         filemenu.addAction("Clear Settings", self.clearSettings)
-        _listingmenu = menubar.addMenu("&Listing")
+        listingmenu = menubar.addMenu("&Listing")
+        listingmenu.addAction(self.listings_editor.action_train_all)
+        listingmenu.addAction(self.listings_editor.action_recognize_selection)
         productmenu = menubar.addMenu("&Product")
-        productmenu.addAction(self.product_editor.action_new)
+        productmenu.addAction(self.product_editor.action_recognize_selection)
         productmenu.addAction(self.product_editor.action_delete)
+        productmenu.addSeparator()
+        productmenu.addAction(self.product_editor.action_train_recognizer)
+        productmenu.addAction(self.product_editor.action_train_all)
+        productmenu.addAction(self.product_editor.action_run_all)
         taskmenu = menubar.addMenu("&Task")
-        taskmenu.addAction(self.task_editor.action_new)
+        taskmenu.addAction(self.task_editor.action_recognize_selection)
         taskmenu.addAction(self.task_editor.action_delete)
         taskmenu.addSeparator()
         taskmenu.addAction(self.task_editor.action_update_expected_products)

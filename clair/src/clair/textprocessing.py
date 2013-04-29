@@ -515,7 +515,7 @@ class RecognizerController(object):
                 if progress_dialog is not None:
                     progress_dialog.setValue(i)
                     if progress_dialog.wasCanceled():
-                        break
+                        return
             
             #store recognition results in original data frame
             all_listings["training_sample"][prod_id] = 0.0
