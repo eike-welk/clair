@@ -38,7 +38,7 @@ Clair needs fairly many libraries to function:
     http://docs.python-requests.org/en/latest/
 
 **python-ebay**
-    Library to communicate with Ebay over the Internet.
+    A library to communicate with Ebay over the Internet.
     https://github.com/roopeshvaddepally/python-ebay
     
 **Pandas**
@@ -54,14 +54,14 @@ Clair needs fairly many libraries to function:
     http://lxml.de/
 
 **NLTK**
-    Library for processing natural (written) language.
+    A library for processing natural (written) language.
     http://nltk.org/
- 
+
 There is currently no installation script, the applications must be run in the
 source directory (``src/``).
 
 There is example data in the directory ``example-data/``.
-To talk to *Ebay* over its API, you need an *Ebay developer key*, which 
+To communicate with Ebay over its API, you need an *Ebay developer key*, which 
 can be easily obtained through Ebay's developer website:
 
     https://go.developer.ebay.com/developers/ebay
