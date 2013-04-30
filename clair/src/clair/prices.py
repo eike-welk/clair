@@ -21,34 +21,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Price estimation algorithms.
 """
 
 from __future__ import division
 from __future__ import absolute_import              
 
-#For test modules: ----------------------------------------------------------
-import pytest #contains `skip`, `fail`, `raises`, `config`
-
-import time
-import os.path as path
-
-#Set up logging fore useful debug output, and time stamps in UTC.
-import logging
-logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
-                    level=logging.DEBUG)
-#Time stamps must be in UTC
-logging.Formatter.converter = time.gmtime
-
-
-
-def relative(*path_comps):
-    "Create file path_comps that are relative to the location of this file."
-    return path.abspath(path.join(path.dirname(__file__), *path_comps))
-
-
-
-if __name__ == "__main__":
-#    test_xxx()
-    
-    pass

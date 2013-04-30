@@ -21,13 +21,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Price estimation algorithms.
 """
 
 from __future__ import division
-from __future__ import absolute_import              
-
-#For test modules: ----------------------------------------------------------
+from __future__ import absolute_import  
+            
 import pytest #contains `skip`, `fail`, `raises`, `config`
 
 import time

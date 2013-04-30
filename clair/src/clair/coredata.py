@@ -21,7 +21,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Central data structures and basic operations on them.
+Disk IO of application data.
 """
 
 from __future__ import division

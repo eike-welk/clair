@@ -21,7 +21,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Test module ``coredata``, which contains central data structures 
+and basic operations on this data.
 """
 
 from __future__ import division
