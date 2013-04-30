@@ -233,6 +233,7 @@ def test_ProductRecognizer():
     """Test ``FeatureExtractor`` class."""
     from clair.textprocessing import ProductRecognizer, split_random
     from clair.coredata import DataStore
+    print "start"
     
     data_dir = relative("../../example-data")
     data = DataStore()
@@ -241,18 +242,21 @@ def test_ProductRecognizer():
     finder = ProductRecognizer("nikon-d70")
     
     print "Test: filter_trainig_samples"
-    samples = train_samples = finder.filter_trainig_samples(data.listings)
+    samples, _, _ = finder.filter_trainig_samples(data.listings)
+    train_samples = samples
     print "Number training samples:", len(samples)
 #    print samples
+    #Test if search for training samples worked
     assert len(samples) > 100
-    assert all(samples["training_sample"] == True)
+    assert all(samples["training_sample"] == 1.0)
     pe = samples["products"].map(lambda l: "nikon-d70" in l)
     pa = samples["products_absent"].map(lambda l: "nikon-d70" in l)
     assert all(pe | pa)
-        
+    
     print "\nTest: filter_candidate_listings"
     samples = cand_samples = finder.filter_candidate_listings(data.listings)
     print "Number candidate samples:", len(samples)
+    #Test if filter for candidate samples worked
     assert len(samples) > 10
     assert all(samples["training_sample"] != 1.0)
     pe = samples["expected_products"].map(lambda l: "nikon-d70" in l)
@@ -356,7 +360,7 @@ if __name__ == "__main__":
 #    test_HtmlTool_clean_html()
 #    test_FeatureExtractor()
 #    test_ProductRecognizer()
-    test_RecognizerController()
+#    test_RecognizerController()
 #    test_split_random()
 #    experiment_update_all_listings()
     

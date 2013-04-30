@@ -1760,7 +1760,7 @@ class DataWidgetHtmlView(QTabWidget):
     
     
     
-class ListingsEditWidget(QWidget):
+class ListingsEditWidget(QSplitter):
     """
     Display and edit contents of a single listing.
     
@@ -1771,21 +1771,59 @@ class ListingsEditWidget(QWidget):
     def __init__(self):
         super(ListingsEditWidget, self).__init__()
         
-        self.product_model = ProductModel()
-        
+        #The application's product data
+        self.product_model = ProductModel() #Dummy
         #Transfer data between model and widgets
         self.mapper = QDataWidgetMapper()
         self.learn_model = LearnDataProxyModel()
         
-        bigF = QFont()
-        bigF.setPointSize(12)
+        FontBig = QFont()
+        FontBig.setPointSize(12)
         
-        #Create the widgets that display one listing
+        #Set up different panes into which the listing information is divided
+        upper_pane = QWidget()
+        upper_pane.setToolTip("Information for/from product recognition.")
+        lower_pane = QWidget()
+        lower_pane.setToolTip('Listing details.')
+        self.setOrientation(Qt.Vertical)
+        self.addWidget(upper_pane)
+        self.addWidget(lower_pane)
+        
+        #Populate upper pane of product edit widget ------------------------
+        #TODO: individual tool tips
+        self.v_is_training = QCheckBox("Is training sample")
         self.v_id = QLabel("---")
         self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
                                           Qt.TextSelectableByKeyboard)
+        l_id = QLabel("ID:")
+        #Create widget for product recognition data, and related objects
+        #Use a combo box as special editor for the product IDs
+        #TODO: Change to using a custom delegate? Might be less code:
+        #      http://qt-project.org/doc/qt-4.8/model-view-programming.html#delegate-classes
+        self.v_learn_view = QTreeView()
+        combo_delegate = QStyledItemDelegate()
+        editor_factory = QItemEditorFactory()
+        self.combo_box_creator = EditorCreatorComboBox()
+        editor_factory.registerEditor(QVariant.String, self.combo_box_creator)
+        combo_delegate.setItemEditorFactory(editor_factory)
+        self.v_learn_view.setItemDelegateForColumn(2, combo_delegate)
+        self.v_learn_view.setModel(self.learn_model)
+        self.v_learn_view.setRootIsDecorated(False)
+        
+        #Layout for upper pane
+        upper_ly = QGridLayout()
+        upper_ly.addWidget(self.v_is_training,       0, 0)
+        upper_ly.addWidget(l_id,                     0, 2)
+        upper_ly.addWidget(self.v_id,                0, 3)
+        upper_ly.addWidget(self.v_learn_view,        1, 0, 1, 4)
+        upper_ly.setColumnStretch(1, 1)
+        upper_ly.setRowStretch(1, 1)
+        upper_pane.setLayout(upper_ly)
+        
+        #Populate lower pane of product edit widget --------------------------
+        #TODO: individual tool tips
         self.v_title = QLabel("---")
-        self.v_title.setFont(bigF)
+        self.v_title.setFont(FontBig)
         self.v_title.setWordWrap(True)
         self.v_title.setTextInteractionFlags(Qt.TextSelectableByMouse | 
                                              Qt.TextSelectableByKeyboard)
@@ -1804,22 +1842,9 @@ class ListingsEditWidget(QWidget):
         self.v_location.setWordWrap(True)
         self.v_country = QLabel("---")
         self.v_prod_specs = QLabel("---")
-        self.v_prod_specs.setWordWrap(True)
-        self.v_is_training = QCheckBox("Is training sample")        
+        self.v_prod_specs.setWordWrap(True)     
         self.v_description = DataWidgetHtmlView()
         
-        #Create widget for product recognition data, and related objects
-        self.v_learn_view = QTreeView()
-        combo_delegate = QStyledItemDelegate()
-        editor_factory = QItemEditorFactory()
-        self.combo_box_creator = EditorCreatorComboBox()
-        editor_factory.registerEditor(QVariant.String, self.combo_box_creator)
-        combo_delegate.setItemEditorFactory(editor_factory)
-        self.v_learn_view.setItemDelegateForColumn(2, combo_delegate)
-        self.v_learn_view.setModel(self.learn_model)
-        self.v_learn_view.setRootIsDecorated(False)
-        
-        l_id = QLabel("ID:")
         l_shipping = QLabel("(Shipping)")
         l_end_time = QLabel("Ends:")
         l_sold = QLabel("Sold:")
@@ -1827,55 +1852,48 @@ class ListingsEditWidget(QWidget):
         L_condition = QLabel("Condition:")
         l_location = QLabel("Location:")
         
-        #Main layout
-        lmain = QGridLayout()
-        lmain.addWidget(self.v_title,       0, 0, 1, 3)
-        lmain.addWidget(self.v_image,       1, 0, 4, 1)
+        #Main layout of lower pane
+        lower_ly = QGridLayout()
+        lower_ly.addWidget(self.v_title,           0, 0, 1, 3)
+        lower_ly.addWidget(self.v_image,           1, 0, 4, 1)
         
-        #Table of small values
-        table = QGridLayout()
+        #Layout for table of small widgets
+        table_ly = QGridLayout()
         #cols 1, 2 
-        table.addWidget(self.v_price,     1, 1)
-        table.addWidget(self.v_currency1, 1, 2)
-        table.addWidget(self.v_shipping,  2, 1)
-        table.addWidget(self.v_currency2, 2, 2)
-        table.addWidget(l_sold,           3, 1)
-        table.addWidget(self.v_sold,      3, 2)
-        table.addWidget(L_active,         4, 1)
-        table.addWidget(self.v_active,    4, 2)
+        table_ly.addWidget(self.v_price,     1, 1)
+        table_ly.addWidget(self.v_currency1, 1, 2)
+        table_ly.addWidget(self.v_shipping,  2, 1)
+        table_ly.addWidget(self.v_currency2, 2, 2)
+        table_ly.addWidget(l_sold,           3, 1)
+        table_ly.addWidget(self.v_sold,      3, 2)
+        table_ly.addWidget(L_active,         4, 1)
+        table_ly.addWidget(self.v_active,    4, 2)
         #cols 3, 4
-        table.addWidget(self.v_type,      1, 3)
-        table.addWidget(l_shipping,       2, 3, 1, 2)
-        table.addWidget(l_end_time,       3, 3)
-        table.addWidget(self.v_end_time,  3, 4)
-        table.addWidget(L_condition,      4, 3)
-        table.addWidget(self.v_condition, 4, 4)
-        table.addWidget(l_id,             6, 3)
-        table.addWidget(self.v_id,        6, 4)
+        table_ly.addWidget(self.v_type,      1, 3)
+        table_ly.addWidget(l_shipping,       2, 3, 1, 2)
+        table_ly.addWidget(l_end_time,       3, 3)
+        table_ly.addWidget(self.v_end_time,  3, 4)
+        table_ly.addWidget(L_condition,      4, 3)
+        table_ly.addWidget(self.v_condition, 4, 4)
         #cols 1, 2, 3, 4
-        table.addWidget(l_location,       5, 1)
-        table.addWidget(self.v_postcode,  5, 2)
-        table.addWidget(self.v_location,  5, 3)
-        table.addWidget(self.v_country,   5, 4)
-        #Add table to main layout
-        lmain.addLayout(table,              1, 1, 4, 2)
-
-        lmain.addWidget(self.v_is_training, 5, 0)
-        lmain.addWidget(self.v_learn_view,  6, 0, 1, 3)
-        lmain.addWidget(self.v_prod_specs,  7, 0, 1, 3)
-        lmain.addWidget(self.v_description, 8, 0, 2, 3)
+        table_ly.addWidget(l_location,       5, 1)
+        table_ly.addWidget(self.v_postcode,  5, 2)
+        table_ly.addWidget(self.v_location,  5, 3)
+        table_ly.addWidget(self.v_country,   5, 4)
         
-        self.setLayout(lmain)
-        self.setGeometry(200, 200, 400, 300)
-  
-        self.setToolTip('Change information about a listing.')
-        self.v_id.setToolTip(Product.tool_tips["id"])
+        lower_ly.addLayout(table_ly,               1, 1, 4, 2)
+        lower_ly.addWidget(self.v_prod_specs,      7, 0, 1, 3)
+        lower_ly.addWidget(self.v_description,     8, 0, 2, 3)
+        
+        lower_pane.setLayout(lower_ly)
+        
+        self.setGeometry(200, 200, 400, 800)
 
   
-    def setModel(self, model):
-        """Tell the widget which model it should use."""
-        #Put model into communication object
-        self.mapper.setModel(model)
+    def setModel(self, listings_model):
+        """Tell the widget which listings_model it should use."""
+        #Put listings_model into communication object
+        self.mapper.setModel(listings_model)
         #Tell: which widget should show which column
         self.mapper.addMapping(self.v_id,          0, "text")
         self.mapper.addMapping(self.v_title,       8, "text")
@@ -1895,7 +1913,7 @@ class ListingsEditWidget(QWidget):
         self.mapper.addMapping(self.v_prod_specs, 10, "text")
         self.mapper.addMapping(self.v_description, 9, "html")
         
-        self.learn_model.setListingsModel(model, 3, 4, 5)
+        self.learn_model.setListingsModel(listings_model, 3, 4, 5)
         
 
     def setProductModel(self, product_model):
@@ -2054,21 +2072,25 @@ class ListingsWidget(QSplitter):
         
     def saveSettings(self, setting_store):
         """Save widget state, such as splitter position."""
-        setting_store.setValue("ListingsWidget/state", self.saveState())
-        setting_store.setValue("ListingsWidget/list/header/state", 
+        setting_store.setValue("ListingsWidget/splitter", self.saveState())
+        setting_store.setValue("ListingsWidget/list/header", 
                                self.list_widget.header().saveState())
-        setting_store.setValue(
-                            "ListingsWidget/editor/learn_list/header/state", 
-                            self.edit_widget.v_learn_view.header().saveState())
+        setting_store.setValue("ListingsWidget/editor/splitter", 
+                               self.edit_widget.saveState())
+        setting_store.setValue("ListingsWidget/editor/learn_list/header", 
+                               self.edit_widget.v_learn_view.header()
+                               .saveState())
         
     def loadSettings(self, setting_store):
         """Load widget state, such as splitter position."""
-        self.restoreState(setting_store.value("ListingsWidget/state", ""))
+        self.restoreState(setting_store.value(
+                                "ListingsWidget/splitter", ""))
         self.list_widget.header().restoreState(
-            setting_store.value("ListingsWidget/list/header/state", ""))
+            setting_store.value("ListingsWidget/list/header", ""))
+        self.edit_widget.restoreState(
+            setting_store.value("ListingsWidget/editor/splitter", ""))
         self.edit_widget.v_learn_view.header().restoreState(
-            setting_store.value("ListingsWidget/editor/learn_list/header/state", 
-                                ""))
+            setting_store.value("ListingsWidget/editor/learn_list/header", ""))
 
 
 

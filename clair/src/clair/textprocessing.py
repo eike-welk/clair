@@ -239,6 +239,14 @@ class ProductRecognizer(object):
     def filter_trainig_samples(self, all_listings):
         """
         Filter matching training samples from ``DataFrame`` of listings.
+        
+        Returns
+        -------
+        training_samples, n_positive, n_negative : pd.DataFrame, int, int
+        
+        * The training samples for the recognizer's product
+        * the number of (positive) samples that contain the product,
+        * the number of negative samples.
         """
         product_id = self.product_id
         sample_ids, pos_sample_ids, neg_sample_ids = [], [], []
@@ -270,7 +278,9 @@ class ProductRecognizer(object):
     def filter_candidate_listings(self, all_listings):
         """
         Filter listings that may contain the desired product from 
-        ``DataFrame`` of listings.
+        ``DataFrame`` of listings. 
+        
+        The returned listings can then be fed into the product recognition.
         """
         product_name = self.product_id
         
