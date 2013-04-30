@@ -57,6 +57,18 @@ Clair needs fairly many libraries to function:
     A library for processing natural (written) language.
     http://nltk.org/
 
+**PyQt**
+    A Python wrapper for the Qt libraries.
+    http://www.riverbankcomputing.com/software/pyqt/intro
+
+    Only the GUI parts are dependent on *Qt* and *PyQt*.
+
+**Qt**
+    A set of libraries to write graphical applications. Clair uses Qt version *4.x*, it currently uses *Qt 4.7*.
+    http://qt-project.org/
+
+    Only the GUI parts are dependent on *Qt* and *PyQt*.
+
 There is currently no installation script, the applications must be run in the
 source directory (``src/``).
 
