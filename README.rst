@@ -41,6 +41,10 @@ Clair needs fairly many libraries to function:
     A library to communicate with Ebay over the Internet.
     https://github.com/roopeshvaddepally/python-ebay
     
+**LXML**
+    A XML parsing library.
+    http://lxml.de/
+
 **Pandas**
     A data analysis toolkit for time series.
     http://pandas.pydata.org/
@@ -49,9 +53,13 @@ Clair needs fairly many libraries to function:
     A library for the HDF5 data format.
     http://www.pytables.org
 
-**LXML**
-    A XML parsing library.
-    http://lxml.de/
+**Numpy**
+    A library for n-dimensional arrays, and numerical computations.
+    http://www.numpy.org/ 
+
+**Matplotlib**
+    A library to create (mainly 2-dimensional) diagrams.
+    http://matplotlib.org/
 
 **NLTK**
     A library for processing natural (written) language.
@@ -69,15 +77,15 @@ Clair needs fairly many libraries to function:
 
     Only the GUI parts are dependent on *Qt* and *PyQt*.
 
-There is currently no installation script, the applications must be run in the
-source directory (``src/``).
-
-There is example data in the directory ``example-data/``.
 To communicate with Ebay over its API, you need an *Ebay developer key*, which 
 can be easily obtained through Ebay's developer website:
 
     https://go.developer.ebay.com/developers/ebay
 
+There is currently no installation script, the applications must be run in the
+source directory (``src/``).
+
+There is example data in the directory ``example-data/``.
 Some information from your Ebay developer keys must be filled into the file
 ``example-data/python-ebay.apikey.example``, and the file must be renamed into 
 ``example-data/python-ebay.apikey``.
