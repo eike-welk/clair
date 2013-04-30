@@ -6,11 +6,67 @@ Clair is a project to collect prices on E-Commerce sites, and display them in gr
 It is aimed at used goods, that are not labeled with product IDs, but that are described with natural languages. 
 Product recognition is semi automatic and uses natural language processing. 
 
-The software is currently in an alpha stage, with no components usable for end users.
-
 Clair is named after Wesley Clair Mitchell, an important US economist, 
 who mainly worked empirically and collected a big database of prices.
 Mitchell also believed that markets need to be regulated, 
 and was influential in creating the New Deal.
 
-Clair is written in the Python programming language. 
+Software
+=======================================
+
+The software is currently in an alpha stage, with no components usable for end users.
+
+Clair is written in the Python, the GUI parts use the *QT* framework. 
+It can currently only communicate with Ebay.
+Clair consists of a set of libraries, that can be used in other software, and
+(fairly crude) applications:
+
+``clairdaemon``
+    A daemon that downloads listings from the internet, 
+    identifies products in them, and writes everything to disk. 
+
+``clairgui`` 
+    A graphical application for manipulation of the stored data. 
+
+Installation and Usage
+=======================================
+
+Clair needs fairly many libraries to function:
+
+**Requests**
+    A HTTP library, needed by *python-ebay*.
+    http://docs.python-requests.org/en/latest/
+
+**python-ebay**
+    Library to communicate with Ebay over the Internet.
+    https://github.com/roopeshvaddepally/python-ebay
+    
+**Pandas**
+    A data analysis toolkit for time series.
+    http://pandas.pydata.org/
+
+**PyTables**
+    A library for the HDF5 data format.
+    http://www.pytables.org
+
+**LXML**
+    A XML parsing library.
+    http://lxml.de/
+
+**NLTK**
+    Library for processing natural (written) language.
+    http://nltk.org/
+ 
+There is currently no installation script, the applications must be run in the
+source directory (``src/``).
+
+There is example data in the directory ``example-data/``.
+To talk to *Ebay* over its API, you need an *Ebay developer key*, which 
+can be easily obtained through Ebay's developer website:
+
+    https://go.developer.ebay.com/developers/ebay
+
+Some information from your Ebay developer keys must be filled into the file
+``example-data/python-ebay.apikey.example``, and the file must be renamed into 
+``example-data/python-ebay.apikey``.
+

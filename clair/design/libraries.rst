@@ -159,8 +159,8 @@ Choose the right algorithm in Scikit-Learn:
 http://peekaboo-vision.blogspot.de/2013/01/machine-learning-cheat-sheet-for-scikit.html
 
 
-NLTK - Natural Language Toolkit
--------------------------------
+NLTK - Natural Language Toolkit                    **Dependency**
+-----------------------------------------------------------------
 
 Specialized library for processing text in natural languages. Library for
 Python, implementation probably partially in compiled languages.
