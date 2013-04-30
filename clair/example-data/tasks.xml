@@ -23,7 +23,7 @@
       <query_string>Nikon D70</query_string>
       <n_listings>100</n_listings>
       <price_min>70.0</price_min>
-      <price_max>300.0</price_max>
+      <price_max>300</price_max>
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d70</product>
@@ -43,6 +43,7 @@
         <product>tamron-70-300-f/4.0-5.6--1-Nikon</product>
         <product>tamron-70-300-f/4.0-5.6--3-Nikon</product>
         <product>xxx-unknown-lens</product>
+        <product>xxx-unknown-flash</product>
       </expected_products>
     </search_task>
     <search_task>
@@ -53,12 +54,12 @@
       <query_string>Nikon D90</query_string>
       <n_listings>100</n_listings>
       <price_min>170.0</price_min>
-      <price_max>700.0</price_max>
+      <price_max>700</price_max>
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d90</product>
-        <product>nikon-18-105-f/3.5-5.6--1</product>
         <product>nikon-16-85-f/3.5-5.6--1</product>
+        <product>nikon-18-105-f/3.5-5.6--1</product>
         <product>nikon-18-200-f/3.5-5.6--1</product>
         <product>nikon-18-55-f/3.5-5.6--1</product>
         <product>nikon-18-70-f/3.5-4.5--1</product>
@@ -68,6 +69,8 @@
         <product>nikon-50-f/1.4-G--2</product>
         <product>nikon-50-f/1.8-D--2</product>
         <product>nikon-50-f/1.8-G--3</product>
+        <product>nikon-55-200-f/4-5.6--1</product>
+        <product>nikon-55-200-f/4-5.6--2</product>
         <product>nikon-70-210-f/4--1</product>
         <product>nikon-70-300-f/4-5.6--1</product>
         <product>nikon-80-200-f/2.8--2</product>
@@ -135,6 +138,7 @@
       <expected_products>
         <product>tamron-17-50-f/2.8--1-Nikon</product>
         <product>tamron-17-50-f/2.8--2-Nikon</product>
+        <product>tamron-17-50-f/2.8--3-Nikon</product>
       </expected_products>
     </search_task>
     <search_task>

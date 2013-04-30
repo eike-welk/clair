@@ -219,8 +219,44 @@ There are several different versions of this lens.</description>
       </categories>
     </product>
     <product>
+      <id>nikon-55-200-f/4-5.6--1</id>
+      <name>Nikon 55-200mm f/4-5.6 G ED AF-S DX Lens</name>
+      <description>Cheap slow long zoom lens
+
+* slow
+* internal focus motor
+* slow focus speed
+* optically decent
+* mechanically average, has plastic mount
+* light wight
+</description>
+      <important_words>
+        <word></word>
+      </important_words>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>nikon-55-200-f/4-5.6--2</id>
+      <name>Nikon 55-200mm f/4-5.6 G ED AF-S VR DX Lens</name>
+      <description>Cheap long zoom lens, reasonably good
+
+* slow
+* image stabilization
+* internal focus motor
+* acceptable focus speed
+* optically good, very sharp
+* mechanically average, has plastic mount
+* light wight</description>
+      <important_words/>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>nikon-70-210-f/4--1</id>
-      <name>Nikon 70-210mm f/4 AF</name>
+      <name>Nikon 70-210mm f/4 AF Lens</name>
       <description>Old slow long zoom lens
 
 * slow
@@ -399,8 +435,8 @@ There are four versions of this lens:
     </product>
     <product>
       <id>tamron-17-50-f/2.8--1-Nikon</id>
-      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] (Nikon) Lens</name>
-      <description>High quality, but cheap normal zoom.
+      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] Model A16N (Nikon) Lens</name>
+      <description>High quality, but cheap, normal zoom.
 
 * Fast: f/2.8
 * Fast focus speed
@@ -408,7 +444,9 @@ There are four versions of this lens:
 * Optically very good, only cromatic aberation is a slight problem.
 * Mechanically the lens is only moderately good.
 
-Note: There is a second version of this lens, with vibration reduction, which is optically inferior.</description>
+Note: There are three versions of this lens, which have different quality.
+
+http://www.tamron.co.jp/en/data/lenses/list_dis.html</description>
       <important_words>
         <word></word>
       </important_words>
@@ -418,15 +456,42 @@ Note: There is a second version of this lens, with vibration reduction, which is
     </product>
     <product>
       <id>tamron-17-50-f/2.8--2-Nikon</id>
-      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] VC (Nikon) Lens</name>
-      <description>High quality, but cheap, standard zoom.
+      <name>Tamron 17-50mm f/2.8 SP XR Di II LD [IF] VC Model B005 (Nikon) Lens</name>
+      <description>High quality, but cheap, normal zoom.
 
 * Fast: f/2.8
 * Fast focus speed, even though internal motor is used.
 * Vibration reduction, which works very well. (4 stops claimed by manufacturer)
 * Optical performance is good, with sharp centers, but blurry corners at the wide end.
+* Mechanical quality???
 
-Note: There is a second version of this lens, *without* vibration reduction, which is optically better.</description>
+Note: There are three versions of this lens, which have different quality.
+
+http://www.tamron.co.jp/en/data/lenses/list_hispeed_di2.html</description>
+      <important_words>
+        <word></word>
+      </important_words>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
+      <id>tamron-17-50-f/2.8--3-Nikon</id>
+      <name>Tamron 17-50mm f/2.8  SP XR Di II LD [IF] Model A16NII (Nikon) Lens</name>
+      <description>High quality, but cheap, normal zoom. 
+
+New untested version with internal focus motor.
+
+* Fast: f/2.8
+* internal focus motor
+* focus speed fast??? 
+* Works with all cameras, because it has internal forcus motor.
+* Optically quality good???
+* Mechanical quality moderately good???
+
+Note: There are three versions of this lens, which have different quality.
+
+http://www.tamron.co.jp/en/data/lenses/list_hispeed_di2.html</description>
       <important_words/>
       <categories>
         <category>photo.system.nikon.lens</category>
