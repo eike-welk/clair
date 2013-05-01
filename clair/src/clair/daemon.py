@@ -304,6 +304,9 @@ class DaemonMain(object):
     def main_download_listings(self, nloops=-1):
         """
         Simple main loop that downloads listings.
+        To run a daemon from the command line call::
+            
+            CommandLineHandler.daemon_main()
         
         Parameters
         ----------
@@ -340,7 +343,10 @@ class CommandLineHandler(object):
         self.data_dir = None
     
     def parse_command_line(self):
-        "Parse the options, and store them in internal data."
+        """
+        Parse the options, and store them in internal data.
+        http://docs.python.org/2/library/argparse.html#the-add-argument-method
+        """
         parser = argparse.ArgumentParser(
             description="Daemon that downloads listings from Ebay.")
         parser.add_argument("--confdir", "-c", dest="confdir",

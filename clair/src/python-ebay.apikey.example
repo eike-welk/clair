@@ -9,7 +9,8 @@ imgur_key = ENTER_HERE
 
 [call]
 #siteid: The numeric value for the eBay site with the items you want information 
-#about, e.g. US: siteid = 0, global_id = EBAY-US
+#about, e.g.      US: siteid = 0, global_id = EBAY-US
+#            Germany: siteid = 77, global_id = EBAY-DE
 #    http://developer.ebay.com/devzone/finding/Concepts/SiteIDToGlobalID.html
 #compatibility_level: The version used in header of the request
 siteid = ENTER_HERE
