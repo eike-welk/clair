@@ -31,7 +31,7 @@ import pytest #contains `skip`, `fail`, `raises`, `config`
 
 import os
 import os.path as path
-import glob
+import sys
 import time
 from datetime import datetime
 
@@ -52,10 +52,10 @@ def relative(*path_components):
 
 
 def test_MainObj_compute_next_due_time():
-    """Test MainObj.compute_next_due_time"""
-    from clair.daemon_main import MainObj
+    """Test DaemonMain.compute_next_due_time"""
+    from clair.daemon import DaemonMain
     
-    m = MainObj("..", "..")
+    m = DaemonMain("..", "..")
     
     #Without random the new times must be on the start of the interval
     t1 =  m.compute_next_due_time(datetime(2000, 1, 1, 0, 0), "monthly")
@@ -98,15 +98,15 @@ def test_MainObj_compute_next_due_time():
     
     
 def test_MainObj_execute_tasks():
-    """Test MainObj.execute_tasks"""
-    from clair.daemon_main import MainObj
+    """Test DaemonMain.execute_tasks"""
+    from clair.daemon import DaemonMain
     from clair.coredata import Product, SearchTask, UpdateTask
 
     conf_dir = relative("..")
     data_dir = None
     
     #Create product information and search tasks 
-    m = MainObj(conf_dir, data_dir)
+    m = DaemonMain(conf_dir, data_dir)
     m.data.set_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
                                  None, None),
                          Product("nikon-d70", "Nikon D70", "DSLR Camera", 
@@ -191,15 +191,15 @@ def test_MainObj_execute_tasks():
 
     
 def test_MainObj_create_final_update_tasks():
-    """Test MainObj.create_final_update_tasks"""
-    from clair.daemon_main import MainObj
+    """Test DaemonMain.create_final_update_tasks"""
+    from clair.daemon import DaemonMain
     from clair.coredata import Product, SearchTask
 
     conf_dir = relative("..")
     data_dir = None
     
     #Create product information and a search task
-    m = MainObj(conf_dir, data_dir)
+    m = DaemonMain(conf_dir, data_dir)
     m.data.set_products([Product("nikon-d90", "Nikon D90", "DSLR Camera", 
                             None, None)])
     m.data.add_tasks([SearchTask("nikon-d90", datetime(2000,1,1), "ebay-de", 
@@ -233,9 +233,9 @@ def test_MainObj_create_final_update_tasks():
 
 @pytest.mark.skipif #IGNORE:E1101
 def test_MainObj_main_download_listings():
-    """Test MainObj.main_download_listings"""
+    """Test DaemonMain.main_download_listings"""
     
-    from clair.daemon_main import MainObj
+    from clair.daemon import DaemonMain
 
     example_data = relative("../../example-data")
     conf_dir = relative("../../test-data/test-download-listings")
@@ -245,7 +245,7 @@ def test_MainObj_main_download_listings():
     os.system("rm -rf " + data_dir)
     os.system("cp -r " + example_data + " " + data_dir)
     
-    m = MainObj(conf_dir, data_dir)
+    m = DaemonMain(conf_dir, data_dir)
     
     m.main_download_listings(1)
     
@@ -253,8 +253,8 @@ def test_MainObj_main_download_listings():
     
     
 def experiment_MainObj_main_download_listings():
-    """Experiment with MainObj.main_download_listings"""
-    from clair.daemon_main import MainObj
+    """Experiment with DaemonMain.main_download_listings"""
+    from clair.daemon import DaemonMain
     
     print "start"
 
@@ -263,11 +263,36 @@ def experiment_MainObj_main_download_listings():
 #    conf_dir = relative("../../example-data-1")
 #    data_dir = relative("../../example-data-1")
     
-    m = MainObj(conf_dir, data_dir)
+    m = DaemonMain(conf_dir, data_dir)
     
     m.main_download_listings(-1)
     
     print "finished!"
+
+
+def test_CommandLineHandler_parse_command_line():
+    "Test parsing the daemon's command line."
+    from clair.daemon import CommandLineHandler
+    print "start"
+    
+    handler = CommandLineHandler()
+    
+    sys.argv = ["clairdaemon", "-d", "data-foo", "-c", "conf-foo"]
+    handler.parse_command_line()
+    assert handler.conf_dir == "conf-foo"
+    assert handler.data_dir == "data-foo"
+    
+    sys.argv = ["clairdaemon", "-c", "conf-foo"]
+    handler.parse_command_line()
+    assert handler.conf_dir == "conf-foo"
+    assert handler.data_dir == "conf-foo"
+    
+    sys.argv = ["clairdaemon"]
+    handler.parse_command_line()
+    assert handler.conf_dir == os.getcwd()
+    assert handler.data_dir == os.getcwd()
+    
+    print "end"
 
 
 
@@ -276,7 +301,8 @@ if __name__ == "__main__":
 #    test_MainObj_execute_tasks()
 #    test_MainObj_create_final_update_tasks()
 #    test_MainObj_main_download_listings()
-
-    experiment_MainObj_main_download_listings()
+    test_CommandLineHandler_parse_command_line()
+    
+#    experiment_MainObj_main_download_listings()
     
     pass

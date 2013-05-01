@@ -27,11 +27,13 @@ Main module for the server and command line script.
 from __future__ import division
 from __future__ import absolute_import              
 
+import os
 from os import path
 from datetime import datetime, timedelta
 import time
 from random import randint
 import logging
+import argparse
 
 import dateutil.rrule
 import pandas as pd
@@ -43,7 +45,15 @@ from clair.textprocessing import RecognizerController
 
 
 
-class MainObj(object):
+#Configure logging to print nice messages to stderr
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+                    level=logging.DEBUG)
+#Time stamps must be in UTC
+logging.Formatter.converter = time.gmtime
+
+
+
+class DaemonMain(object):
     """Main object of operation without GUI. daemon """
     def __init__(self, conf_dir, data_dir):
         self.data_dir = data_dir
@@ -320,3 +330,49 @@ class MainObj(object):
             self.data.write_tasks()
             
             nloops -= 1
+
+
+
+class CommandLineHandler(object):
+    """React on the command line options of the daemon script."""
+    def __init__(self):
+        self.conf_dir = None
+        self.data_dir = None
+    
+    def parse_command_line(self):
+        "Parse the options, and store them in internal data."
+        parser = argparse.ArgumentParser(
+            description="Daemon that downloads listings from Ebay.")
+        parser.add_argument("--confdir", "-c", dest="confdir",
+                            help='directory for configuration files')
+        parser.add_argument("--datadir", "-d", dest="datadir",
+                            help='directory for data files')
+        
+        args = parser.parse_args()
+        
+        #The configuration directory defaults to the current directory
+        self.conf_dir = os.getcwd()
+        if args.confdir:
+            self.conf_dir = args.confdir
+        #The data directory defaults to the value of `confdir`.
+        self.data_dir = self.conf_dir
+        if args.datadir:
+            self.data_dir = args.datadir
+            
+    
+    @staticmethod
+    def daemon_main():
+        """
+        Run the daemon: parse command line, enter main loop.
+        
+        Trivial runner function, that ties the deamon's components together. 
+        This way all components can be tested separately, while this function
+        needs no testing.
+        """
+        handler = CommandLineHandler()
+        handler.parse_command_line()
+        logging.info("Starting Clair daemon. "
+                     "Configuration directory: '{c}', data directory: '{d}'."
+                     .format(c=handler.conf_dir, d=handler.data_dir))
+        main_loop = DaemonMain(handler.conf_dir, handler.data_dir)
+        main_loop.main_download_listings()

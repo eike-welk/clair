@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #==============================================================================
-#                      Start the Clair GUI
+#                      Start the Clair daemon
 #==============================================================================
-from clair.qtgui import GuiMain
+import  clair.daemon
 
-GuiMain.application_main()
+clair.daemon.CommandLineHandler.daemon_main()
