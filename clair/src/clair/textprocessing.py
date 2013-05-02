@@ -493,6 +493,9 @@ class RecognizerController(object):
         Iterate over ``candidate_ids`` and identify expected products in 
         ``all_listings`` with these IDs.
         """
+        logging.info("Recognizing products in {0} listings."
+                     .format(len(candidate_ids)))
+        
         n_train, n_regular = 0, 0
         for i, prod_id in enumerate(candidate_ids):
                 
