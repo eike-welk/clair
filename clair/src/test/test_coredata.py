@@ -132,6 +132,34 @@ def assert_frames_equal(fr1, fr2):
                 raise
 
 
+def test_make_price_frame():
+    "Test creation of a empty data frame of prices."
+    from clair.coredata import PriceConstants, make_price_frame
+    print "start"
+    
+    prices = make_price_frame(5)
+    
+    assert len(prices) == 5
+    assert isnan(prices.ix[0, "price"])
+    assert prices.ix[1, "currency"] is None 
+    assert prices.ix[2, "time"] is None 
+    assert prices.ix[3, "product"] is None 
+    assert prices.ix[4, "listing"] is None 
+    assert prices.ix[0, "type"] is None 
+    assert prices.ix[1, "id"] is None 
+    
+    prices["price"] = 2.5
+    prices["product"][2] = "foo-bar"
+    prices.ix[3, "listing"] = "baz-boo"
+    assert all(prices["price"] == 2.5)
+    assert prices["product"][2] == "foo-bar"
+    assert prices.ix[3, "listing"] == "baz-boo"
+    
+    print prices
+    print PriceConstants.comments
+    print "Finished"
+    
+
 def test_ListingsXMLConverter():
     """Test conversion of listings to and from XML"""
     from clair.coredata import XMLConverterListings
@@ -405,6 +433,8 @@ def test_DataStore_update_expected_products():
     """
     from clair.coredata import DataStore
     
+    print "start"
+    
     #Read example data from disk
     data = DataStore()
     data.read_data(relative("../../example-data"))
@@ -508,6 +538,7 @@ def test_DataStore_write_expected_products_to_listings():
 
     
 if __name__ == "__main__":
+    test_make_price_frame()
 #    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
@@ -516,7 +547,7 @@ if __name__ == "__main__":
 #    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
 #    test_DataStore()
-    test_DataStore_update_expected_products()
+#    test_DataStore_update_expected_products()
 #    test_DataStore_write_expected_products_to_listings()
     
     pass

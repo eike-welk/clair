@@ -31,6 +31,7 @@ from __future__ import absolute_import
 import os
 import os.path as path
 import glob
+import string
 from datetime import datetime #, timedelta
 from types import NoneType
 import random
@@ -45,7 +46,7 @@ from lxml import etree, objectify
 
 def make_listing_frame(nrows=None, index=None):
     """
-    Create empty DataFrame. 
+    Create empty ``pd.DataFrame`` of listings. 
     
     Each row represents a listing. The columns represent the listing's 
     attributes. The object contains no data, all values are ``None`` or ``nan``.
@@ -113,21 +114,117 @@ def make_listing_frame(nrows=None, index=None):
 #    listings["server_repr"] = None  #representation of listing on server (XML)
 
     return  listings
+
+
+
+class PriceConstants(object):
+    """
+    Name space for constants related to prices. Dummy class.
+    Used by ``make_price_frame``:
+    """
+    #List of column names
+    columns = []
+    #List of default values for each column.
+    defaults = []
+    #Dictionary {"column column":"Comment"} can be used as tool tips.
+    comments = {}
     
+    column = "id"
+    default = None 
+    comment = "The price records's unique ID."
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "price"
+    default = nan 
+    comment = "The price's value."
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "currency"
+    default = None 
+    comment = "Currency the price is in."
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "condition"
+    default = nan 
+    comment = "Multiplier for condition. \n" \
+              "1.0: new/perfect, 0.7: used, 0.0: worthless. "
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "time"
+    default = None 
+    comment = "Time and date at which the price was payed."
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "product"
+    default = None 
+    comment = "ID of product for which the price is recorded."
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "listing"
+    default = None 
+    comment = "ID of listing from which the price is taken"
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    column = "type"
+    default = None 
+    comment = """
+        Type of the price record. The types are:
+        
+        'observed'
+            There was a listing containing only one product, and this was 
+            the price.
+        'estimated'
+            The price was determined from listings with multiple products,
+            with some mathematical algorithm.
+        'guessed'
+            A human has guessed the price.
+        """
+    comments[column] = comment; columns += [column]; defaults += [default]
+    
+    del column; del default; del comment
 
 
-def sanitize_ids(insane_ids):
+def make_price_frame(nrows=None, index=None):
     """
-    Sanitize string (ID) list.
-    Remove trailing and leading whitespace, remove and empty elements.
+    Create an empty ``pd.DataFrame`` of prices.
+    
+    Each row represents a listing. The columns represent the listing's 
+    attributes. The object contains no data, all values are ``None`` or ``nan``.
+    
+    Both arguments are optional, but one of the arguments must be given. 
+    If both arguments are given they must be consistent.
+    
+    Arguments
+    ---------
+    nrows : int 
+        Number of listings/auctions. 
+    index : iterable 
+        The index labels of the new data frame. 
+        If this argument is omitted or ``None``, a sequence of integers 
+        (``range(nrows)``) is used as index labels.
     """
-    sane_ids = []
-    for idx in insane_ids:
-        idx = idx.strip()
-        if idx == "":
-            continue
-        sane_ids.append(idx)
-    return sane_ids
+    assert nrows is not None or index is not None, \
+           "Either ``nrows`` or ``index`` must be specified."
+    if index is None:
+        index=range(nrows)
+    if nrows is not None:
+        assert nrows == len(index), "Inconsistent arguments"
+    
+    #Create data frame, each column is filled with its default value.
+    prices = pd.DataFrame(index=index)
+    for column_name, default_val in zip(PriceConstants.columns,
+                                        PriceConstants.defaults):
+        prices[column_name] = default_val
+        
+    return prices
+
+
+def create_price_id(time, product):
+    "Create ID string for a price."
+    chars = string.ascii_letters + string.digits
+    length = 4
+    rand_str = ''.join(random.choice(chars) for _ in range(length))
+    return str(time.date()) + "-" + product + "-" + rand_str
 
 
 
@@ -1122,6 +1219,21 @@ class DataStore(object):
 #        logging.debug("Testing data consistency finished.")
 
 
+    @staticmethod
+    def sanitize_ids(insane_ids):
+        """
+        Sanitize string (ID) list.
+        Remove trailing and leading whitespace, remove and empty elements.
+        """
+        sane_ids = []
+        for idx in insane_ids:
+            idx = idx.strip()
+            if idx == "":
+                continue
+            sane_ids.append(idx)
+        return sane_ids
+    
+    
     def update_expected_products(self, task_id):
         """
         Scan example listings that were found by the given task_id_or_number for 
@@ -1148,7 +1260,7 @@ class DataStore(object):
         
         logging.info("Update expected products of task: '{}'".format(task_id))
         
-        task_expected_products = sanitize_ids(task.expected_products)
+        task_expected_products = self.sanitize_ids(task.expected_products)
         all_expected_products = set(task_expected_products)
         my_listings = []
         for idx, listing in self.listings.iterrows():
@@ -1217,7 +1329,7 @@ class DataStore(object):
             my_listings.append(idx)
         
         #Put list of expected products from task into listings
-        task_expected_products = sanitize_ids(task.expected_products)
+        task_expected_products = self.sanitize_ids(task.expected_products)
         new_listings = make_listing_frame(index=my_listings)
         new_listings["expected_products"].fill(task_expected_products)
         self.merge_listings(new_listings)

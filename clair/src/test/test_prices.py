@@ -27,7 +27,7 @@ Price estimation algorithms.
 from __future__ import division
 from __future__ import absolute_import  
             
-import pytest #contains `skip`, `fail`, `raises`, `config`
+#import pytest #contains `skip`, `fail`, `raises`, `config` 
 
 import time
 import os.path as path
@@ -46,8 +46,27 @@ def relative(*path_comps):
     return path.abspath(path.join(path.dirname(__file__), *path_comps))
 
 
+def test_PriceEstimator_find_observed_prices():
+    "Test price computation for listings with only a single product."
+    from clair.coredata import DataStore
+    from clair.prices import PriceEstimator
+    print "start"
+    
+    data = DataStore()
+    data.read_data(relative("../../example-data"))
+    
+    test_listings = data.listings.ix[0:20]
+    print test_listings
+    
+    estimator = PriceEstimator()
+    prices = estimator.find_observed_prices(test_listings)
+    
+    print prices.to_string()
+    print "finshed"
+
+
 
 if __name__ == "__main__":
-#    test_xxx()
+    test_PriceEstimator_find_observed_prices()
     
-    pass
+    pass #IGNORE:W0107
