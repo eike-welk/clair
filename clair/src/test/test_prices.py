@@ -337,11 +337,11 @@ def test_PriceEstimator_create_prices_1():
     data.read_data(relative("../../example-data"))
     
     #Use all data as test data
-#    listings = data.listings
+    listings = data.listings
     product_ids = [p.id for p in data.products 
                    if not p.id.startswith("xxx-unknown")]
 #    #Take a small amount of test data.
-    listings = data.listings.ix[0:50]
+#    listings = data.listings.ix[0:50]
 #    product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
 #                   u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
 #                   u'nikon-28-85-f/3.5-4.5--1']
@@ -451,6 +451,6 @@ if __name__ == "__main__":
 #    test_PriceEstimator_compute_avg_product_prices_1()
 #    test_PriceEstimator_compute_avg_product_prices_2()
 #    test_PriceEstimator_find_problems_rank_deficient_matrix()
-#    test_PriceEstimator_create_prices_1()
-    test_PriceEstimator_create_prices_2()
+    test_PriceEstimator_create_prices_1()
+#    test_PriceEstimator_create_prices_2()
     pass #IGNORE:W0107

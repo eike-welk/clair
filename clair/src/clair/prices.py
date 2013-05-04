@@ -57,6 +57,8 @@ class PriceEstimator(object):
             curr_prods = listing["products"]
             if len(curr_prods) != 1:
                 continue
+            if listing["sold"] != 1.:
+                continue
             #Put the price data into lists
             prod = curr_prods[0]
             time = listing["time"]
@@ -140,6 +142,8 @@ class PriceEstimator(object):
                               .format(u=set(curr_prods) - products, i=idx))
                 continue
             if len(curr_prods) == 0:
+                continue
+            if listing["sold"] != 1.:
                 continue
             listing_prices[il] = listing["price"]
             listing_ids[il] = idx
