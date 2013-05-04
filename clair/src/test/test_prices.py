@@ -33,7 +33,8 @@ import time
 import os.path as path
 
 import numpy as np
-
+from numpy import array, dot, abs #sqrt, sum
+from numpy.linalg import norm
 
 #Set up logging fore useful debug output, and time stamps in UTC.
 import logging
@@ -70,7 +71,7 @@ def test_PriceEstimator_find_observed_prices():
 
 
 def test_PriceEstimator_compute_product_occurrence_matrix():
-    "Test price computation for listings with only a single product."
+    "Test construction of matrix for linear least square algorithm."
     from clair.coredata import DataStore
     from clair.prices import PriceEstimator
     print "start"
@@ -102,9 +103,235 @@ def test_PriceEstimator_compute_product_occurrence_matrix():
     print "finshed"
 
 
+def test_PriceEstimator_compute_avg_product_prices_1():
+    "Test linear least square algorithm with real data."
+    from clair.coredata import DataStore
+    from clair.prices import PriceEstimator
+    print "start"
+    
+    data = DataStore()
+    data.read_data(relative("../../example-data"))
+    
+    #Take a small amount of test data.
+    test_listings = data.listings.ix[0:50]
+#    test_listings = data.listings
+#    product_ids = [p.id for p in data.products]
+    product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
+                   u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
+                   u'nikon-28-85-f/3.5-4.5--1']
+    print test_listings
+    print test_listings.to_string(columns=["products", "price"])
+    
+    estimator = PriceEstimator()
+    
+    #Create matrix and vectors for linear least square
+    matrix, listing_prices, listing_ids, product_ids = \
+        estimator.compute_product_occurrence_matrix(test_listings, product_ids)
+    print
+    print "matrix:\n", matrix
+    print "matrix rank:", np.linalg.matrix_rank(matrix)
+    print "number products:", len(product_ids)
+    print "listing_prices:\n", listing_prices
+    print "listing_ids:\n", listing_ids
+    print "product_ids:\n", product_ids
+    
+    matrix, product_prices, listing_prices, listing_ids, product_ids = \
+        estimator.compute_avg_product_prices(
+            matrix, listing_prices, listing_ids, product_ids)
+    
+    print "product_prices:\n", product_prices * 0.7
+    #TODO: assertions
+    print "finshed"
+
+
+def test_PriceEstimator_compute_avg_product_prices_2():
+    "Test linear least square algorithm with artificial data."
+    from clair.prices import PriceEstimator
+    
+    def print_vals():
+        print "matrix:\n", matrix
+        print "matrix rank:", np.linalg.matrix_rank(matrix)
+        print "number products:", len(product_ids)
+        print "listing_prices:\n", listing_prices
+        print "listing_ids:\n", listing_ids
+        print "product_ids:\n", product_ids
+        print "product_prices:\n", product_prices
+        print "real_prices:\n", real_prices
+        
+    print "start"
+    
+    estimator = PriceEstimator()
+    
+    #Listing IDs, unimportant in this test.
+    listing_ids = array(["l1", "l2", "l3", "l4", "l5", 
+                        "l6", "l7", "l8", "l9", "l10"])
+    
+    #Product IDs, and "real" prices for checking errors
+    product_ids = array(["a", "b", "c", "d", "e"])
+    real_prices = array([500, 200, 100, 50.,  5.])
+    
+    print "Matrix has full rank, no noise ---------------------------------"
+    #Matrix that represents the listings, each row is a listing
+    matrix =     array([[ 1.,  0.,  0.,  0.,  0.,],
+                        [ 1.,  0.,  0.,  0.,  0.,],
+                        [ 0.,  1.,  0.,  0.,  0.,],
+                        [ 0.,  1.,  0.,  0.,  0.,],
+                        [ 1.,  1.,  0.,  0.,  0.,],
+                        [ 1.,  0.,  1.,  0.,  0.,],
+                        [ 0.,  0.,  1.,  1.,  0.,],
+                        [ 0.,  0.,  1.,  0.,  1.,],
+                        [ 0.,  0.,  0.,  1.,  1.,],
+                        [ 1.,  1.,  1.,  1.,  1.,], 
+                        ])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    matrix, product_prices, listing_prices, listing_ids, product_ids = \
+        estimator.compute_avg_product_prices(
+            matrix, listing_prices, listing_ids, product_ids)
+        
+    print_vals()
+    np.testing.assert_allclose(product_prices, real_prices)
+    
+    print "\nMatrix has full rank, with noise --------------------------------"
+    #compute listing prices with noise
+    listing_prices = dot(matrix, real_prices)
+    listing_prices += np.random.normal(0, 0.1, (10,)) * listing_prices
+    #Compute the product prices
+    matrix, product_prices, listing_prices, listing_ids, product_ids = \
+        estimator.compute_avg_product_prices(
+            matrix, listing_prices, listing_ids, product_ids)
+    print_vals()
+    
+    err_norm = norm(product_prices - real_prices)
+    print "Error norm:", err_norm
+    res_good = np.asarray(abs(product_prices - real_prices) 
+                          < real_prices * 0.2, dtype=int)
+    print "Number of results exact to 20%:", sum(res_good)
+    #This test might occasionally fail because current noise is too large.
+    assert sum(res_good) >= 3
+    
+    print "\nMatrix has insufficient rank, no noise ---------------------------------"
+    #Matrix that represents the listings, each row is a listing
+    matrix =     array([[ 1.,  0.,  0.,  0.,  0.,],
+                        [ 1.,  0.,  0.,  0.,  0.,],
+                        [ 0.,  1.,  0.,  0.,  0.,],
+                        [ 0.,  1.,  0.,  0.,  0.,],
+                        [ 1.,  1.,  0.,  0.,  0.,],
+                        [ 1.,  0.,  1.,  0.,  0.,],
+                        [ 0.,  0.,  0.,  1.,  1.,],
+                        [ 0.,  0.,  0.,  1.,  1.,],
+                        [ 0.,  0.,  0.,  1.,  1.,],
+                        [ 1.,  1.,  1.,  0.,  0.,], 
+                        ])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    matrix, product_prices, listing_prices, listing_ids, product_ids = \
+        estimator.compute_avg_product_prices(
+            matrix, listing_prices, listing_ids, product_ids)
+    print_vals()
+    np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
+    
+    print "\nMatrix has insufficient rank, no noise  ---------------------------------"
+    #Pathological case for the current algorithm
+    matrix = array([[ 1.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  1.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  1.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,], ])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    matrix, product_prices, listing_prices, listing_ids, product_ids = \
+        estimator.compute_avg_product_prices(
+            matrix, listing_prices, listing_ids, product_ids)
+    print_vals()
+    np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
+    
+    #TODO: assertions
+    print "finshed"
+
+
+def test_PriceEstimator_find_problems_rank_deficient_matrix():
+    "Test linear least square algorithm with artificial data."
+    from clair.prices import PriceEstimator
+    
+    def print_all():
+#        print "matrix_new:\n", matrix_new
+        print "good_rows:", good_rows
+        print "good_cols:", good_cols
+        print "problem_products:", problem_products
+    
+    estimator = PriceEstimator()
+    
+    print "Matrix has full rank ---------------------------------"
+    #Matrix that represents the listings, each row is a listing
+    matrix = array([[ 1.,  0.,  0.,  0.,  0.,],
+                    [ 1.,  0.,  0.,  0.,  0.,],
+                    [ 0.,  1.,  0.,  0.,  0.,],
+                    [ 0.,  1.,  0.,  0.,  0.,],
+                    [ 1.,  1.,  0.,  0.,  0.,],
+                    [ 1.,  0.,  1.,  0.,  0.,],
+                    [ 0.,  0.,  1.,  1.,  0.,],
+                    [ 0.,  0.,  1.,  0.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 1.,  1.,  1.,  1.,  1.,], 
+                    ])
+    good_rows, good_cols, problem_products = \
+                        estimator.find_problems_rank_deficient_matrix(matrix)
+    print_all()
+    assert all(good_cols == [True, True, True, True, True])
+    assert problem_products == []
+    
+    print "\nMatrix has insufficient rank ---------------------------------"
+    matrix = array([[ 1.,  0.,  0.,  0.,  0.,],
+                    [ 1.,  0.,  0.,  0.,  0.,],
+                    [ 0.,  1.,  0.,  0.,  0.,],
+                    [ 0.,  1.,  0.,  0.,  0.,],
+                    [ 1.,  1.,  0.,  0.,  0.,],
+                    [ 1.,  0.,  1.,  0.,  0.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 1.,  1.,  1.,  0.,  0.,], 
+                    ])
+    good_rows, good_cols, problem_products = \
+                        estimator.find_problems_rank_deficient_matrix(matrix)
+    print_all()
+    assert all(good_cols == [True, True, True, False, False])
+    assert problem_products == ["3", "4"]
+    
+    print "\nMatrix has insufficient rank, pathological case ----------------"
+    #Pathological case for the current algorithm
+    matrix = array([[ 1.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  1.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  1.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,],
+                    [ 0.,  0.,  0.,  1.,  1.,], 
+                    ])
+    good_rows, good_cols, problem_products = \
+                        estimator.find_problems_rank_deficient_matrix(matrix)
+    print_all()
+    assert all(good_cols == [True, True, True, False, False])
+    assert problem_products == ["3", "4"]
+
+
 
 if __name__ == "__main__":
 #    test_PriceEstimator_find_observed_prices()
-    test_PriceEstimator_compute_product_occurrence_matrix()
-    
+#    test_PriceEstimator_compute_product_occurrence_matrix()
+    test_PriceEstimator_compute_avg_product_prices_1()
+#    test_PriceEstimator_compute_avg_product_prices_2()
+#    test_PriceEstimator_find_problems_rank_deficient_matrix()
     pass #IGNORE:W0107
