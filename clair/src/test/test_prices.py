@@ -113,20 +113,20 @@ def test_PriceEstimator_compute_avg_product_prices_1():
     data.read_data(relative("../../example-data"))
     
     #Take a small amount of test data.
-    test_listings = data.listings.ix[0:50]
-#    test_listings = data.listings
+    listings = data.listings.ix[0:50]
+#    listings = data.listings
 #    product_ids = [p.id for p in data.products]
     product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
                    u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
                    u'nikon-28-85-f/3.5-4.5--1']
-    print test_listings
-    print test_listings.to_string(columns=["products", "price"])
+    print listings
+    print listings.to_string(columns=["products", "price"])
     
     estimator = PriceEstimator()
     
     #Create matrix and vectors for linear least square
     matrix, listing_prices, listing_ids, product_ids = \
-        estimator.compute_product_occurrence_matrix(test_listings, product_ids)
+        estimator.compute_product_occurrence_matrix(listings, product_ids)
     print
     print "matrix:\n", matrix
     print "matrix rank:", np.linalg.matrix_rank(matrix)
@@ -135,9 +135,9 @@ def test_PriceEstimator_compute_avg_product_prices_1():
     print "listing_ids:\n", listing_ids
     print "product_ids:\n", product_ids
     
-    matrix, product_prices, listing_prices, listing_ids, product_ids = \
-        estimator.compute_avg_product_prices(
-            matrix, listing_prices, listing_ids, product_ids)
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
     
     print "product_prices:\n", product_prices * 0.7
     #TODO: assertions
@@ -181,15 +181,15 @@ def test_PriceEstimator_compute_avg_product_prices_2():
                         [ 0.,  0.,  1.,  1.,  0.,],
                         [ 0.,  0.,  1.,  0.,  1.,],
                         [ 0.,  0.,  0.,  1.,  1.,],
-                        [ 1.,  1.,  1.,  1.,  1.,], 
+                        [ 1.,  1.,  1.,  1.,  1.,],
                         ])
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    matrix, product_prices, listing_prices, listing_ids, product_ids = \
-        estimator.compute_avg_product_prices(
-            matrix, listing_prices, listing_ids, product_ids)
-        
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
+    
     print_vals()
     np.testing.assert_allclose(product_prices, real_prices)
     
@@ -198,9 +198,9 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     listing_prices = dot(matrix, real_prices)
     listing_prices += np.random.normal(0, 0.1, (10,)) * listing_prices
     #Compute the product prices
-    matrix, product_prices, listing_prices, listing_ids, product_ids = \
-        estimator.compute_avg_product_prices(
-            matrix, listing_prices, listing_ids, product_ids)
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
     print_vals()
     
     err_norm = norm(product_prices - real_prices)
@@ -227,9 +227,9 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    matrix, product_prices, listing_prices, listing_ids, product_ids = \
-        estimator.compute_avg_product_prices(
-            matrix, listing_prices, listing_ids, product_ids)
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
     print_vals()
     np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
     
@@ -248,9 +248,9 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    matrix, product_prices, listing_prices, listing_ids, product_ids = \
-        estimator.compute_avg_product_prices(
-            matrix, listing_prices, listing_ids, product_ids)
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
     print_vals()
     np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
     
@@ -283,7 +283,7 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
                     [ 0.,  0.,  0.,  1.,  1.,],
                     [ 1.,  1.,  1.,  1.,  1.,], 
                     ])
-    good_rows, good_cols, problem_products = \
+    good_cols, good_rows, problem_products = \
                         estimator.find_problems_rank_deficient_matrix(matrix)
     print_all()
     assert all(good_cols == [True, True, True, True, True])
@@ -301,7 +301,7 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
                     [ 0.,  0.,  0.,  1.,  1.,],
                     [ 1.,  1.,  1.,  0.,  0.,], 
                     ])
-    good_rows, good_cols, problem_products = \
+    good_cols, good_rows, problem_products = \
                         estimator.find_problems_rank_deficient_matrix(matrix)
     print_all()
     assert all(good_cols == [True, True, True, False, False])
@@ -320,18 +320,137 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
                     [ 0.,  0.,  0.,  1.,  1.,],
                     [ 0.,  0.,  0.,  1.,  1.,], 
                     ])
-    good_rows, good_cols, problem_products = \
+    good_cols, good_rows, problem_products = \
                         estimator.find_problems_rank_deficient_matrix(matrix)
     print_all()
     assert all(good_cols == [True, True, True, False, False])
     assert problem_products == ["3", "4"]
 
 
+def test_PriceEstimator_create_prices_1():
+    "Test creation of price records with real data."
+    from clair.coredata import DataStore
+    from clair.prices import PriceEstimator
+    print "start"
+    
+    data = DataStore()
+    data.read_data(relative("../../example-data"))
+    
+    #Use all data as test data
+#    listings = data.listings
+    product_ids = [p.id for p in data.products 
+                   if not p.id.startswith("xxx-unknown")]
+#    #Take a small amount of test data.
+    listings = data.listings.ix[0:50]
+#    product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
+#                   u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
+#                   u'nikon-28-85-f/3.5-4.5--1']
+    print listings
+    print listings.to_string(columns=["products", "price"])
+    
+    estimator = PriceEstimator()
+    
+    #Create matrix and vectors for linear least square
+    matrix, listing_prices, listing_ids, product_ids = \
+        estimator.compute_product_occurrence_matrix(listings, product_ids)
+#    print
+#    print "matrix:\n", matrix
+#    print "matrix rank:", np.linalg.matrix_rank(matrix)
+#    print "number products:", len(product_ids)
+#    print "listing_prices:\n", listing_prices
+#    print "listing_ids:\n", listing_ids
+#    print "product_ids:\n", product_ids
+    
+    #Compute average product prices
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
+    
+    #Create price records
+    prices = estimator.create_prices(matrix, 
+                                     listing_prices, listing_ids, 
+                                     product_prices, product_ids,
+                                     good_cols, good_rows, listings)
+    print prices.to_string()
+    
+    #TODO: assertions
+    print "finshed"
+
+
+def test_PriceEstimator_create_prices_2():
+    "Test creation of price records  with artificial data."
+    from clair.prices import PriceEstimator
+    
+    def print_vals():
+        print "matrix:\n", matrix
+        print "matrix rank:", np.linalg.matrix_rank(matrix)
+        print "number products:", len(product_ids)
+        print "listing_prices:\n", listing_prices
+        print "listing_ids:\n", listing_ids
+        print "product_ids:\n", product_ids
+        print "product_prices:\n", product_prices
+        print "real_prices:\n", real_prices
+        
+    print "start"
+    
+    estimator = PriceEstimator()
+    
+    #Listing IDs, unimportant in this test.
+    listing_ids = array(["l1", "l2", "l3", "l4", "l5", 
+                        "l6", "l7", "l8", "l9", "l10"])
+    
+    #Product IDs, and "real" prices for checking errors
+    product_ids = array(["a", "b", "c", "d", "e"])
+    real_prices = array([500, 200, 100, 50.,  5.])
+    
+    print "Matrix has full rank, no noise ---------------------------------"
+    #Matrix that represents the listings, each row is a listing
+    matrix =     array([[ 1.,  0.,  0.,  0.,  0.,],
+                        [ 1.,  0.,  0.,  0.,  0.,],
+                        [ 0.,  1.,  0.,  0.,  0.,],
+                        [ 0.,  1.,  0.,  0.,  0.,],
+                        [ 1.,  1.,  0.,  0.,  0.,],
+                        [ 1.,  0.,  1.,  0.,  0.,],
+                        [ 0.,  0.,  1.,  1.,  0.,],
+                        [ 0.,  0.,  1.,  0.,  1.,],
+                        [ 0.,  0.,  0.,  1.,  1.,],
+                        [ 1.,  1.,  1.,  1.,  1.,],
+                        ])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
+    print_vals()
+    
+    prices = estimator.create_prices(matrix, 
+                                     listing_prices, listing_ids,
+                                     product_prices, product_ids,
+                                     good_cols, good_rows)
+    print "prices:\n", prices.to_string()
+    
+    true_prices = prices["price"] / prices["condition"]
+    prices_a = true_prices[prices["product"] == "a"]
+    prices_b = true_prices[prices["product"] == "b"]
+    prices_c = true_prices[prices["product"] == "c"]
+    prices_d = true_prices[prices["product"] == "d"]
+    prices_e = true_prices[prices["product"] == "e"]
+    
+    np.testing.assert_allclose(prices_a, 500)
+    np.testing.assert_allclose(prices_b, 200)
+    np.testing.assert_allclose(prices_c, 100)
+    np.testing.assert_allclose(prices_d, 50)
+    np.testing.assert_allclose(prices_e, 5)
+    
+    
 
 if __name__ == "__main__":
 #    test_PriceEstimator_find_observed_prices()
 #    test_PriceEstimator_compute_product_occurrence_matrix()
-    test_PriceEstimator_compute_avg_product_prices_1()
+#    test_PriceEstimator_compute_avg_product_prices_1()
 #    test_PriceEstimator_compute_avg_product_prices_2()
 #    test_PriceEstimator_find_problems_rank_deficient_matrix()
+#    test_PriceEstimator_create_prices_1()
+    test_PriceEstimator_create_prices_2()
     pass #IGNORE:W0107

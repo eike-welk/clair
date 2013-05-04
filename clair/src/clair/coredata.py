@@ -176,11 +176,18 @@ class PriceConstants(object):
         'estimated'
             The price was determined from listings with multiple products,
             with some mathematical algorithm.
+        'average'
+            This is an average price.
         'guessed'
             A human has guessed the price.
         """
     comments[column] = comment; columns += [column]; defaults += [default]
-    
+        
+    column = "avg_period"
+    default = None 
+    comment = "Time span for taking average. Can be 'day', 'week', 'month'."
+    comments[column] = comment; columns += [column]; defaults += [default]
+
     del column; del default; del comment
 
 
@@ -219,8 +226,17 @@ def make_price_frame(nrows=None, index=None):
     return prices
 
 
-def create_price_id(time, product):
-    "Create ID string for a price."
+def make_price_id(time, product):
+    """
+    Create ID string for a price.
+    
+    Uniqueness of random string with 4 digits:
+    
+    The random part can reliably ensure uniqueness of the ID, for 1000 IDs 
+    with identical parameters. However if the function is called 1e4 times 
+    with identical parameters, there are about 4 overlaps. (Even though there
+    are about 62**4 = 14e6 possibilities.)
+    """
     chars = string.ascii_letters + string.digits
     length = 4
     rand_str = ''.join(random.choice(chars) for _ in range(length))

@@ -28,15 +28,22 @@ from __future__ import division
 from __future__ import absolute_import              
 
 import logging
+from datetime import datetime
 
+import pandas as pd
 import numpy as np
 from numpy import NaN, newaxis
 
-from clair.coredata import make_price_frame, create_price_id
+from clair.coredata import make_price_frame, make_price_id
 
 
 class PriceEstimator(object):
     """Estimate product prices from listings."""
+    def __init__(self):
+        self.default_currency = "Eur"
+        self.default_condition = 0.7 #used, very good condition
+        self.average_mid_time = datetime(2000, 1, 15)
+        self.avg_period = "week"
     
     def find_observed_prices(self, listings_frame):
         """
@@ -53,7 +60,7 @@ class PriceEstimator(object):
             #Put the price data into lists
             prod = curr_prods[0]
             time = listing["time"]
-            ids.append(create_price_id(time, prod))
+            ids.append(make_price_id(time, prod))
             prices.append(listing["price"])
             currencies.append(listing["currency"])
             conditions.append(listing["condition"])
@@ -197,7 +204,7 @@ class PriceEstimator(object):
                               "for price estimation."
                               .format(p=product_ids[i_col], c=i_col))
                 
-        return good_rows, good_cols, problem_products
+        return good_cols, good_rows, problem_products
     
     
     def compute_avg_product_prices(self, matrix, listing_prices, 
@@ -246,9 +253,13 @@ class PriceEstimator(object):
         if rank < min(matrix.shape):
             logging.info("Rank deficient matrix. Rank: {}. Should have: {}."
                          .format(rank, min(matrix.shape)))
-            good_rows, good_cols, problem_products = \
+            good_cols, good_rows, problem_products = \
                 self.find_problems_rank_deficient_matrix(matrix, product_ids)
-            product_prices[~good_cols] = NaN
+#            product_prices[~good_cols] = NaN
+        else:
+            good_cols = np.ones(matrix.shape[0], dtype=bool)
+            good_rows = np.ones(matrix.shape[1], dtype=bool)
+            problem_products = []
         
         #TODO: loop for removal of outliers by weighting them low 
         #      http://en.wikipedia.org/wiki/Outlier
@@ -257,5 +268,96 @@ class PriceEstimator(object):
         #      * If the estimated values change much after the row is removed,
         #        then this row is an outlier. 
         #      http://en.wikipedia.org/wiki/Cook%27s_distance
-        return matrix, product_prices, listing_prices, listing_ids, product_ids
+        return product_prices, good_cols, good_rows, problem_products
         
+        
+    def create_prices(self, matrix, listing_prices, listing_ids,
+                                    product_prices, product_ids,
+                                    good_cols, good_rows, listings=None):
+        """
+        Create product prices from the results of the least linear least 
+        square algorithm.
+        """
+        assert matrix.shape[0] == len(listing_prices) == len(listing_ids)
+        assert matrix.shape[1] == len(product_prices) == len(product_ids)
+        
+        good_prod_idxs = np.argwhere(good_cols)[:, 0]
+        
+        #Create the average prices
+        avg_prices = make_price_frame(len(product_prices))
+        for iprod in range(len(product_prices)):
+            if iprod not in good_prod_idxs:
+                continue
+            avg_prices["price"][iprod] = \
+                            product_prices[iprod] * self.default_condition
+            avg_prices["currency"][iprod] = self.default_currency
+            avg_prices["condition"][iprod] = self.default_condition
+            avg_prices["time"][iprod] = self.average_mid_time
+            avg_prices["product"][iprod] = product_ids[iprod]
+            avg_prices["listing"][iprod] = None
+            avg_prices["type"][iprod] = "average"
+            avg_prices["avg_period"][iprod] = self.avg_period
+            avg_prices["id"][iprod] = make_price_id(avg_prices["time"][iprod], 
+                                                    avg_prices["product"][iprod])
+        avg_prices = avg_prices[~np.isnan(avg_prices["price"])]
+        
+        #Create prices for each item of each listing 
+        #Product prices could be NaN
+        good_prod_prices = np.where(np.isnan(product_prices), 
+                                    0, product_prices)
+        #Collect intermediate data in list of dict. Each dict is a price.
+        price_data = []
+        for ilist in range(len(listing_prices)):
+            #Each row of `matrix` represents a listing
+            row = matrix[ilist, :]
+            
+            #compute percentage of each product on total listing price 
+            #from average prices.
+            virt_prod_prices = row * good_prod_prices
+            list_prod_percent = virt_prod_prices / virt_prod_prices.sum()
+            #compute price of each item in listing based on these percentages
+            listing_price = listing_prices[ilist]
+            list_prod_prices = list_prod_percent * listing_price
+            
+            #`listings` data frame can be `None` for more easy testing.
+            if listings is not None:
+                list_id = listing_ids[ilist]
+                list_currency = listings.ix[list_id, "currency"]
+                list_time = listings.ix[list_id, "time"]
+            else:
+                list_id = listing_ids[ilist]
+                list_currency = "Eur"
+                list_time = datetime(2000, 1, 1)
+            prod_idxs = np.argwhere(row > 0)[:, 0]
+            if len(prod_idxs) == 1:
+                price_type = "observed"
+                avg_period = "none"
+            else:
+                price_type = "estimated"
+                avg_period = self.avg_period
+            
+            #Create a price record for each of the estimated product prices
+            for iprod in prod_idxs:
+                if iprod not in good_prod_idxs:
+                    continue
+                single_price_data = {}
+                single_price_data["price"] = list_prod_prices[iprod]
+                single_price_data["currency"] = list_currency
+                single_price_data["condition"] = row[iprod]
+                single_price_data["time"] = list_time
+                single_price_data["product"] = product_ids[iprod]
+                single_price_data["listing"] = list_id
+                single_price_data["type"] = price_type
+                single_price_data["avg_period"] = avg_period
+                single_price_data["id"] = make_price_id(list_time, 
+                                                        product_ids[iprod])
+                price_data.append(single_price_data)
+        
+        #Create a data frame from the price data
+        list_prices = pd.DataFrame(price_data)
+        #Create combined data frame
+        prices = avg_prices.append(
+                        list_prices, ignore_index=True, verify_integrity=False)
+        prices.set_index("id", drop=False, inplace=True, verify_integrity=True)
+        return prices
+    

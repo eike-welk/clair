@@ -160,6 +160,26 @@ def test_make_price_frame():
     print "Finished"
     
 
+def test_make_price_id():
+    "Test creation of ID strings for prices. These IDs must be unique"
+    from clair.coredata import make_price_id
+    print "start"
+    
+    n_ids = 1000
+    
+    ids = set()
+    time_ = datetime(2000, 1, 1)
+    product = "a"
+    for _ in range(n_ids):
+        price_id = make_price_id(time_, product)
+#        print price_id
+        ids.add(price_id)
+        
+    #Assert that IDs are unique
+    print "Number of unique IDs:", len(ids), "should be:", n_ids
+    assert len(ids) == n_ids
+    
+    
 def test_ListingsXMLConverter():
     """Test conversion of listings to and from XML"""
     from clair.coredata import XMLConverterListings
