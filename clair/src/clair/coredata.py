@@ -187,6 +187,11 @@ class PriceConstants(object):
     default = None 
     comment = "Time span for taking average. Can be 'day', 'week', 'month'."
     comments[column] = comment; columns += [column]; defaults += [default]
+  
+    column = "avg_num_listings"
+    default = None 
+    comment = "Number of listings used in computation of average."
+    comments[column] = comment; columns += [column]; defaults += [default]
 
     del column; del default; del comment
 

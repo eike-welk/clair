@@ -38,7 +38,14 @@ from clair.coredata import make_price_frame, make_price_id
 
 
 class PriceEstimator(object):
-    """Estimate product prices from listings."""
+    """
+    Estimate product prices from listings.
+    
+    TODO: Convert some of the frequently used function arguments into 
+          object attributes.
+        
+    TODO: Special price objects for listings that were not sold.
+    """
     def __init__(self):
         self.default_currency = "Eur"
         self.default_condition = 0.7 #used, very good condition
@@ -211,8 +218,8 @@ class PriceEstimator(object):
         return good_cols, good_rows, problem_products
     
     
-    def compute_avg_product_prices(self, matrix, listing_prices, 
-                                   listing_ids, product_ids):
+    def solve_prices_lstsq(self, matrix, listing_prices, 
+                           listing_ids, product_ids):
         """
         Compute average product prices. 
         Uses linear least square algorithm.
@@ -275,12 +282,50 @@ class PriceEstimator(object):
         return product_prices, good_cols, good_rows, problem_products
         
         
-    def create_prices(self, matrix, listing_prices, listing_ids,
-                                    product_prices, product_ids,
-                                    good_cols, good_rows, listings=None):
+    def create_prices_lstsq_soln(self, matrix, 
+                                 listing_prices, listing_ids,
+                                 product_prices, product_ids,
+                                 good_cols, good_rows, listings=None):
         """
-        Create product prices from the results of the least linear least 
+        Create product prices from the results of the linear least 
         square algorithm.
+
+        Parameters
+        ----------
+        matrix : np.array[float]
+            System matrix of linear least square problem. Each row represents 
+            one listing. each column represents one product. Each entry
+            represents the condition of a product in a listing. Conditions
+            range from 1...0.; 1: new, 0.7: used, 0: unusable.
+            
+        listing_prices : np.array[float]
+            Prices of listings, constant (known) term of equation system
+            
+        listing_ids : np.array[basestring]
+            Listing ID of each matrix's row.
+        
+        product_prices : np.array[float]
+            Average price of each product. The solution of the equation system.
+        
+        product_ids : np.array[basestring]
+            IDs of the products, represented by elements of `product_prices`
+            and columns of `matrix`.
+        
+        good_cols : np.array[bool]
+            Where `True` prices could be computed by least square algorithm.
+        
+        good_rows : np.array[bool]
+            Where `True` listings contain only products whose prices could be
+            computed by the solution algorithm. 
+        
+        listings : pd.DataFrame
+            The listings from which the the system of equations was generated.
+            Will usually contain additional listings.
+            
+        Returns
+        -------
+        prices : pd.DataFrame
+            The computed prices as a `pd.DataFrame`.
         """
         assert matrix.shape[0] == len(listing_prices) == len(listing_ids)
         assert matrix.shape[1] == len(product_prices) == len(product_ids)
@@ -301,6 +346,7 @@ class PriceEstimator(object):
             avg_prices["listing"][iprod] = None
             avg_prices["type"][iprod] = "average"
             avg_prices["avg_period"][iprod] = self.avg_period
+            avg_prices["avg_num_listings"][iprod] = len(listing_prices)
             avg_prices["id"][iprod] = make_price_id(avg_prices["time"][iprod], 
                                                     avg_prices["product"][iprod])
         avg_prices = avg_prices[~np.isnan(avg_prices["price"])]
@@ -353,6 +399,7 @@ class PriceEstimator(object):
                 single_price_data["listing"] = list_id
                 single_price_data["type"] = price_type
                 single_price_data["avg_period"] = avg_period
+                single_price_data["avg_num_listings"] = len(listing_prices)
                 single_price_data["id"] = make_price_id(list_time, 
                                                         product_ids[iprod])
                 price_data.append(single_price_data)
@@ -363,5 +410,60 @@ class PriceEstimator(object):
         prices = avg_prices.append(
                         list_prices, ignore_index=True, verify_integrity=False)
         prices.set_index("id", drop=False, inplace=True, verify_integrity=True)
+        return prices
+    
+    
+    def compute_prices(self, listings, products,
+                       time_start=None, time_end=None, 
+                       avg_period="week"):
+        """
+        Compute prices from listings. 
+        
+        Uses linear least square method to compute prices of items that are
+        sold together with other items. This is equivalent to averaging, to
+        prices over the listings that were used to compute the prices. 
+        """
+        logging.info("Starting to compute prices...")
+        if time_start is None:
+            time_start = listings["time"].min()
+        if time_end is None:
+            time_end = listings["time"].max()
+        
+        #Create start, end, and midpoint of desired intervals.
+        if avg_period == "week":
+            intv_start = pd.DateRange(time_start, time_end, time_rule="W@MON")
+            intv_midpt = pd.DateRange(time_start, time_end, time_rule="W@THU")
+            self.avg_period = "week"
+        else:
+            raise NotImplementedError()
+        
+        #Create list of product IDs. Exclude the place holders the have 
+        #names"xxx-unknown" starting with
+        product_ids = [p.id for p in products 
+                       if not p.id.startswith("xxx-unknown")]
+        
+        #Chop listings into intervals and loop over them.
+        prices = make_price_frame(0)
+        listings = listings.sort("time")
+        for i in range(len(intv_start) - 1):
+            self.average_mid_time = intv_midpt[i]
+            intv_listings = listings.ix[(listings["time"] >= intv_start[i]) &
+                                        (listings["time"] < intv_start[i + 1])]
+            logging.debug("Interval first: {f}, last: {l}, n listings: {n}."
+                          .format(f=intv_listings["time"].min(), 
+                                  l=intv_listings["time"].max(),
+                                  n=len(intv_listings)))
+            matrix, listing_prices, listing_ids, product_ids = \
+                self.compute_product_occurrence_matrix(
+                                                    intv_listings, product_ids)
+            product_prices, good_cols, good_rows, problem_products = \
+                self.solve_prices_lstsq(
+                            matrix, listing_prices, listing_ids, product_ids)
+            intv_prices = self.create_prices_lstsq_soln(
+                                        matrix, listing_prices, listing_ids, 
+                                        product_prices, product_ids, 
+                                        good_cols, good_rows, listings)
+            prices = prices.append(intv_prices)
+            
         return prices
     

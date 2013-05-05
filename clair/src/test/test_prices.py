@@ -35,6 +35,7 @@ import os.path as path
 import numpy as np
 from numpy import array, dot, abs #sqrt, sum
 from numpy.linalg import norm
+import matplotlib.pylab as pl
 
 #Set up logging fore useful debug output, and time stamps in UTC.
 import logging
@@ -136,7 +137,7 @@ def test_PriceEstimator_compute_avg_product_prices_1():
     print "product_ids:\n", product_ids
     
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
     print "product_prices:\n", product_prices * 0.7
@@ -187,7 +188,7 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
     print_vals()
@@ -199,7 +200,7 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     listing_prices += np.random.normal(0, 0.1, (10,)) * listing_prices
     #Compute the product prices
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
     
@@ -228,7 +229,7 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
     np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
@@ -249,7 +250,7 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
     np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
@@ -327,7 +328,7 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
     assert problem_products == ["3", "4"]
 
 
-def test_PriceEstimator_create_prices_1():
+def test_PriceEstimator_create_prices_lstsq_soln_1():
     "Test creation of price records with real data."
     from clair.coredata import DataStore
     from clair.prices import PriceEstimator
@@ -363,11 +364,11 @@ def test_PriceEstimator_create_prices_1():
     
     #Compute average product prices
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
     #Create price records
-    prices = estimator.create_prices(matrix, 
+    prices = estimator.create_prices_lstsq_soln(matrix, 
                                      listing_prices, listing_ids, 
                                      product_prices, product_ids,
                                      good_cols, good_rows, listings)
@@ -377,7 +378,7 @@ def test_PriceEstimator_create_prices_1():
     print "finshed"
 
 
-def test_PriceEstimator_create_prices_2():
+def test_PriceEstimator_create_prices_lstsq_soln_2():
     "Test creation of price records  with artificial data."
     from clair.prices import PriceEstimator
     
@@ -420,11 +421,11 @@ def test_PriceEstimator_create_prices_2():
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
     product_prices, good_cols, good_rows, problem_products = \
-                estimator.compute_avg_product_prices(matrix, listing_prices, 
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
     
-    prices = estimator.create_prices(matrix, 
+    prices = estimator.create_prices_lstsq_soln(matrix, 
                                      listing_prices, listing_ids,
                                      product_prices, product_ids,
                                      good_cols, good_rows)
@@ -445,12 +446,57 @@ def test_PriceEstimator_create_prices_2():
     
     
 
+def test_PriceEstimator_compute_prices_1():
+    "Test main method for creation of price records with real data."
+    from clair.coredata import DataStore
+    from clair.prices import PriceEstimator
+    print "start"
+    
+    data = DataStore()
+    data.read_data(relative("../../example-data"))
+    
+    #Use all data as test data
+    listings = data.listings
+#    product_ids = [p.id for p in data.products 
+#                   if not p.id.startswith("xxx-unknown")]
+#    #Take a small amount of test data.
+#    listings = data.listings.ix[0:50]
+#    product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
+#                   u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
+#                   u'nikon-28-85-f/3.5-4.5--1']
+    print listings
+    print listings.to_string(columns=["products", "price"])
+    
+    estimator = PriceEstimator()
+    prices = estimator.compute_prices(listings, data.products, 
+                                      time_start=None, time_end=None, 
+                                      avg_period="week")
+    print prices.to_string()
+    
+    prices = prices.sort("time")
+    prices_d90 = prices.ix[prices["product"] == "nikon-d90"]
+    pl.plot(prices_d90["time"].tolist(), prices_d90["price"].tolist())
+    prices_sb26 = prices.ix[prices["product"] == "nikon-sb-26"]
+    prices_sb26.set_index("time", inplace=True, verify_integrity=False)
+    prices_sb26["price"].plot()
+    prices_sb24 = prices.ix[prices["product"] == "nikon-sb-24"]
+    prices_sb24.set_index("time", inplace=True, verify_integrity=False)
+    prices_sb24["price"].plot()
+    
+#    pl.plot(prices_sb24["time"], prices_d90["price"])
+#    pl.show()
+    #TODO: assertions
+    print "finshed"
+
+
+
 if __name__ == "__main__":
 #    test_PriceEstimator_find_observed_prices()
 #    test_PriceEstimator_compute_product_occurrence_matrix()
 #    test_PriceEstimator_compute_avg_product_prices_1()
 #    test_PriceEstimator_compute_avg_product_prices_2()
 #    test_PriceEstimator_find_problems_rank_deficient_matrix()
-    test_PriceEstimator_create_prices_1()
-#    test_PriceEstimator_create_prices_2()
+#    test_PriceEstimator_create_prices_lstsq_soln_1()
+#    test_PriceEstimator_create_prices_lstsq_soln_2()
+    test_PriceEstimator_compute_prices_1()
     pass #IGNORE:W0107
