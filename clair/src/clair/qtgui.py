@@ -61,7 +61,8 @@ from PyQt4.QtGui import (QWidget, QLabel, QPushButton, QLineEdit, QTextEdit,
                          QStyledItemDelegate, QItemEditorFactory,)
 from PyQt4.QtWebKit import QWebView
 
-from clair.coredata import make_listing_frame, Product, SearchTask, DataStore
+from clair.coredata import (make_listing_frame, Product, SearchTask, DataStore,
+                            PriceConstants)                 
 from clair.textprocessing import HtmlTool, RecognizerController
 
 
@@ -2281,6 +2282,277 @@ class ListingsModel(QAbstractTableModel):
         if Qt.EditRole not in roles:
             return False
         return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+
+
+
+class DummyConst(object):
+    """Place holder for constants of a data frame"""
+    #List of column names
+    columns = []
+    #List of default values for each column.
+    defaults = []
+    #Dictionary {"column column":"Comment"} can be used as tool tips.
+    comments = {}
+    cols_string_list = []
+    #Names of columns that are three valued bools (0., 1., nan).
+    cols_tristate_bool = []
+    
+    
+    
+class PriceModel(QAbstractTableModel):
+    """
+    Represent a ``pd.DataFrame`` with listings to QT's model view architecture.
+    An adapter in design pattern language.
+    """
+    def __init__(self, parent=None):
+        super(PriceModel, self).__init__(parent)
+        #Storage for all application data.
+        self.data_store = DataStore() #Dummy
+        #The ``DataFrame`` (container of records) that is accessed through this 
+        #class. Attribute of ``data_store``.
+        self._data_frame = pd.DataFrame() #Dummy
+        #Constants for the data frame
+        self._data_frame_consts = DummyConst
+        
+    def getDataFrame(self):
+        """
+        Get data frame that is manipulated with this model from ``data_store``.
+        Must be reimplemented in child classes.
+        """
+        return self.data_store.prices
+#        raise NotImplementedError()
+
+    def getDataFrameConsts(self):
+        """
+        Get constants for the data frame. 
+        Must be reimplemented in child classes.
+        """
+        return PriceConstants
+#        raise NotImplementedError()
+
+    def setDataFrameDirty(self):
+        """
+        Tell ``DataStore`` that the stored information has changed. 
+        Must be reimplemented in child classes.
+        """
+        self.data_store.prices_dirty = True
+    
+    def setDataStore(self, data_store):
+        """Put list of products into model"""
+        #Tell the view(s) that old data is gone.
+        self.beginResetModel()
+        #Change the data
+        self.data_store = data_store
+        self._data_frame = self.getDataFrame()
+        self._data_frame_consts = self.getDataFrameConsts()
+        #Tell the view(s) that all data has changed.
+        self.endResetModel()
+
+    def slotDataChanged(self):
+        "Signal the model that the underlying data has changed."
+        self.beginResetModel()
+        self.endResetModel()
+            
+    def rowCount(self, parent=QModelIndex()):
+        """Return number of products in list."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        rows, _ = self._data_frame.shape
+        return rows
+    
+    def columnCount(self, parent=QModelIndex()):
+        """Return number of accessible product attributes."""
+        if parent.isValid(): #There are only top level items
+            return 0
+        _, cols = self._data_frame.shape
+        return cols
+    
+    def supportedDropActions(self):
+        """Say which actions are supported for drag-drop."""
+        return Qt.CopyAction
+ 
+    def flags(self, index):
+        """
+        Determines the possible actions for the item at this index.
+        
+        Parameters
+        ----------
+        index: QModelIndex
+        """
+        default_flags = super(PriceModel, self).flags(index)
+        
+        if index.isValid():
+            return Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | \
+                   Qt.ItemIsEditable | default_flags
+        else:
+            return default_flags
+    
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """
+        Return the text for the column headers.
+        
+        Parameters
+        -----------
+        section: int
+            Column number
+        orientation: 
+            Qt.Vertical or Qt.Horizontal
+        role: int
+        """
+        if orientation != Qt.Horizontal:
+            return None
+        
+        if role == Qt.DisplayRole:
+            return self._data_frame.columns[section]
+        elif role == Qt.ToolTipRole:
+            col_name = self._data_frame.columns[section]
+            return self._data_frame_consts.comments[col_name]
+        else:
+            return None
+
+
+    def data(self, index, role=Qt.DisplayRole):
+        """
+        Return the contents of the product list in the right way.
+        
+        Parameters
+        -----------
+        index: QModelIndex
+        role: int 
+        """
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        column = index.column()
+        aname = self._data_frame_consts.columns[column]
+        rawval = self._data_frame[aname].iget(row)
+        
+        if role == Qt.DisplayRole:
+            #return only first line of multi line string
+            rawstr = unicode(rawval)
+            lines = rawstr.split("\n", 1)
+            return lines[0]
+        elif role == Qt.EditRole:
+            #String lists are returned in their original form
+            if aname in self._data_frame_consts.cols_string_list:
+                return rawval
+            #Special treatments for bool, because bool(nan) == True
+            elif aname in self._data_frame_consts.cols_tristate_bool:
+                cooked = False if isinstance(rawval, float) and isnan(rawval) \
+                         else bool(rawval)
+                return cooked
+            else:
+                return unicode(rawval)
+        elif role == Qt.ToolTipRole:
+            #Return string lists as multi line string in tool tip
+            if aname in self._data_frame_consts.cols_string_list:
+                return "\n".join(rawval)
+                        
+        return None
+    
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        """
+        Change the data in the model.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        value: object
+        role : int
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
+        
+        TODO: Warning when ID is changed
+        TODO: Special treatment of column "time": Convert string to ``datetime``
+              dateutil.parser.parse(value)
+        """
+        if role != Qt.EditRole:
+            return False
+        if not index.isValid():
+            return False
+        
+        row = index.row()
+        column = index.column()
+        aname = self._data_frame_consts.columns[column]
+        
+        if value in ["nan", "None"]:
+            value = None   #None is converted automatically to nan if necessary
+        try:
+            self._data_frame[aname][row] = value
+        except (TypeError, ValueError):
+            return False
+        
+        self.setDataFrameDirty()
+        self.dataChanged.emit(index, index)
+        return True
+    
+    
+    def setItemData(self, index, roles):
+        """
+        Change data in model. Intention is to change data more efficiently,
+        because data with with several roles is changed at once.
+        
+        Parameters
+        ----------
+        index : QModelIndex
+        roles : dict[int, object]
+        
+        Retuns
+        ------
+        bool
+            Returns ``True`` if data was changed successfully, 
+            returns ``False`` otherwise.
+        """
+        #Only data with Qt.EditRole can be changed
+        if Qt.EditRole not in roles:
+            return False
+        return self.setData(index, roles[Qt.EditRole], Qt.EditRole)
+
+        
+    def insertRows(self, row, count, parent=QModelIndex()):
+        """
+        Insert "empty" tasks into the list of tasks.
+        
+        Parameters
+        ----------
+        row : int
+            The new rows are inserted before the row with this index
+        count : int
+            Number of rows that are inserted.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were inserted successfully, False otherwise.
+        """
+        raise NotImplementedError()
+    
+    def removeRows(self, row, count, parent=QModelIndex()):
+        """
+        Remove tasks from the list.
+        
+        Parameters
+        ----------
+        row : int
+            Index of first row that is removed.
+        count : int
+            Number of rows that are removed.
+        parent : QModelIndex
+        
+        Returns
+        -------
+        bool
+            Returns True if rows were removed successfully, False otherwise.
+
+        """
+        raise NotImplementedError()
 
 
 

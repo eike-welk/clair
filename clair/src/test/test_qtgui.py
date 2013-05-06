@@ -73,11 +73,11 @@ def create_models():
     
     Returns
     -------
-    listings_model, product_model, task_model, data_store
+    listings_model, product_model, task_model, price_model, data_store
     """
-    from clair.qtgui import TaskModel, ProductModel, ListingsModel
+    from clair.qtgui import TaskModel, ProductModel, ListingsModel, PriceModel
     from clair.coredata import Product, SearchTask, DataStore, \
-                               make_listing_frame
+                               make_listing_frame, make_price_frame
     
     fr = make_listing_frame(3)
     #All listings need unique ids
@@ -129,10 +129,23 @@ def create_models():
                         ["Nikon", "D 70"], ["photo.system.nikon.camera",
                                             "photo.camera.system.nikon"])]
     
+    pri = make_price_frame(3)
+    pri["id"] = ["pri-123", "pri-456", "pri-457"]
+    pri["price"] = [310., 150., 300.]
+    pri["currency"] = ["EUR", "EUR", "EUR"]
+    pri["condition"] = [0.7, 0.7, 0.7]
+    pri["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
+    pri["product"] = ["nikon-d90", "nikon-d70", "nikon-d90"]
+    pri["listing"] = ["eb-123", "eb-456", "eb-457"]
+    pri["type"] = ["observed", "observed", "observed"]
+    pri["avg_period"] = None
+    pri["avg_num_listings"] = None
+    
     data_store = DataStore()
     data_store.merge_listings(fr)
     data_store.set_products(products)
     data_store.add_tasks(tasks)
+    data_store.merge_prices(pri)
     
     #The models are tested here, creating them may fail. 
     #Don't break all test, because a single model is broken.
@@ -154,8 +167,14 @@ def create_models():
     except: #IGNORE:W0702
         print "Error! ``product_model`` could not be initialized!"
         product_model = None
+    try:
+        price_model = PriceModel()
+        price_model.setDataStore(data_store)
+    except: #IGNORE:W0702
+        print "Error! ``price_model`` could not be initialized!"
+        price_model = None
     
-    return listings_model, product_model, task_model, data_store
+    return listings_model, product_model, task_model, price_model, data_store
 
 
 def test_RecognizerWidget():
@@ -166,7 +185,7 @@ def test_RecognizerWidget():
     print "Start"
     app = QApplication(sys.argv)
     
-    _, product_model, _, data_store = create_models()
+    _, product_model, _, _, data_store = create_models()
     recognizers = RecognizerController()
     idx = product_model.index(1, 0)
     
@@ -187,7 +206,7 @@ def test_ProductEditWidget():
     app = QApplication(sys.argv)
     
     view = ProductEditWidget()
-    _, product_model, _, _ = create_models()
+    _, product_model, _, _, _ = create_models()
     view.setModel(product_model)
     
     view.show()
@@ -204,7 +223,7 @@ def test_ProductWidget():
     app = QApplication(sys.argv)
     
     view = ProductWidget()
-    listings_model, product_model, _, data_store = create_models()
+    listings_model, product_model, _, _, data_store = create_models()
     recognizers = RecognizerController()
     view.setModel(product_model, listings_model, recognizers, data_store)
     
@@ -220,7 +239,7 @@ def test_ProductModel():
     to Qt's model-view architecture.
     """
     #Create a product model (and some others that we ignore)
-    _, model, _, _ = create_models()
+    _, model, _, _, _ = create_models()
     
     #Get table dimensions
     assert model.rowCount() == 2
@@ -269,7 +288,7 @@ def test_SearchTaskEditWidget():
     app = QApplication(sys.argv)
     
     view = SearchTaskEditWidget()
-    _, _, task_model, _ = create_models()
+    _, _, task_model, _, _ = create_models()
     view.setModel(task_model)
     view.setRow(task_model.index(1, 0))
     
@@ -286,7 +305,7 @@ def test_TaskWidget():
     app = QApplication(sys.argv)
     
     view = TaskWidget()
-    listings_model, _, task_model, data_store = create_models()
+    listings_model, _, task_model, _, data_store = create_models()
     view.setModel(task_model, listings_model, data_store)
     
     view.show()
@@ -300,7 +319,7 @@ def test_TaskModel():
     Test ProductModel, an adapter for a list of ``Product`` objects
     to Qt's model-view architecture.
     """
-    _, _, model, _ = create_models()
+    _, _, model, _, _ = create_models()
     
     #Get table dimensions
     assert model.rowCount() == 2
@@ -511,7 +530,7 @@ def test_ListingsEditWidget():
     print "Start"
     app = QApplication(sys.argv)
     
-    listings_model, _, _, _ = create_models()
+    listings_model, _, _, _, _ = create_models()
     
     view = ListingsEditWidget()
     view.setModel(listings_model)
@@ -530,7 +549,7 @@ def test_ListingsWidget():
     print "Start"
     app = QApplication(sys.argv)
     
-    listings_model, product_model, _, data_store = create_models()
+    listings_model, product_model, _, _, data_store = create_models()
     recognizers = RecognizerController()
     
     view = ListingsWidget()
@@ -574,6 +593,48 @@ def test_ListingsModel():
     print listings.icol(7)
     
     
+def test_PriceModel():
+    """Test ``PriceModel`` class."""
+    print "Start"
+
+    from clair.coredata import PriceConstants
+    from clair.qtgui import PriceModel
+    
+    _, _, _, _, data_store = create_models()
+    
+    model = PriceModel()
+    model.setDataStore(data_store)
+    
+    #Get table dimensions
+    assert model.rowCount() == 3
+    assert model.columnCount() == len(data_store.prices.columns)
+    
+    #Get data from model
+    index01 = model.createIndex(0, 1)
+    price = model.data(index01, Qt.DisplayRole)
+    assert float(price) == 310
+    price = model.data(index01, Qt.EditRole)
+    assert float(price) == 310
+    #test tool tip, which returns ``None`` for all fields of ``PriceModel``.
+    tooltip =  model.data(index01, Qt.ToolTipRole)
+    assert tooltip is None
+    
+    #Change data in model
+    model.setData(index01, 200, Qt.EditRole)
+    #Test if data was really changed
+    price = model.data(index01, Qt.EditRole)
+    assert float(price) == 200
+    
+    #Test column headers.
+    col_name =  model.headerData(0, Qt.Horizontal, Qt.DisplayRole)
+    assert col_name == "id"
+    tooltip =  model.headerData(0, Qt.Horizontal, Qt.ToolTipRole)
+    assert tooltip == PriceConstants.comments["id"]
+    
+    print data_store.prices
+    print "End"
+    
+    
 def test_GuiMain():
     """Test the regular run of the GUI application"""
     from clair.qtgui import GuiMain
@@ -608,7 +669,8 @@ if __name__ == '__main__':
 #    test_ListingsEditWidget()
 #    test_ListingsWidget()
 #    test_ListingsModel()
-    test_GuiMain()
+    test_PriceModel()
+#    test_GuiMain()
     
 #    experiment_qt()
     

@@ -66,7 +66,7 @@ class ListingConstants(object):
     comments[column] = comment; columns += [column]; defaults += [default]   
     
     #Training  and product recognition -----------------------------------
-    column = "training_sample"; defaultdefault = nan 
+    column = "training_sample"; default = nan 
     comment = "This is training sample if `True`."
     comments[column] = comment; columns += [column]; defaults += [default]   
     
@@ -218,6 +218,7 @@ def make_listing_frame(nrows=None, index=None):
         
     return listings
 
+#TODO: Create function ``make_listing_id``.
 
 
 class PriceConstants(object):
@@ -234,6 +235,10 @@ class PriceConstants(object):
     defaults = []
     #Dictionary {"column column":"Comment"} can be used as tool tips.
     comments = {}
+    #Names of columns that are string lists.
+    cols_string_list = []
+    #Names of columns that are three valued bools (0., 1., nan).
+    cols_tristate_bool = []
     
     column = "id"; default = None 
     comment = "The price records's unique ID."
@@ -285,7 +290,7 @@ class PriceConstants(object):
     comment = "Time span for taking average. Can be 'day', 'week', 'month'."
     comments[column] = comment; columns += [column]; defaults += [default]
   
-    column = "avg_num_listings"; default = None 
+    column = "avg_num_listings"; default = nan 
     comment = "Number of listings used in computation of average."
     comments[column] = comment; columns += [column]; defaults += [default]
 
@@ -305,7 +310,7 @@ def make_price_frame(nrows=None, index=None):
     Arguments
     ---------
     nrows : int 
-        Number of listings/auctions. 
+        Number of price records. 
     index : iterable 
         The index labels of the new data frame. 
         If this argument is omitted or ``None``, a sequence of integers 
@@ -1201,14 +1206,18 @@ class DataStore(object):
     """
     def __init__(self):
         self.data_dir = ""
+        
+        #Containers for application data.
         self.tasks = []
         self.products = []
         self.listings = make_listing_frame(0)
-#        self.prices = pd.DataFrame()
+        self.prices = make_price_frame(0)
+
         #Flags for saving to disk. If True, data must be saved to disk.
         self.products_dirty = False
         self.tasks_dirty = False
         self.listings_dirty = False
+        self.prices_dirty = False
         
     def set_products(self, products):
         """
@@ -1233,6 +1242,11 @@ class DataStore(object):
         logging.info("Merging {} listings".format(len(listings)))
         self.listings = listings.combine_first(self.listings)
         self.listings_dirty = True
+    
+    def merge_prices(self, prices):
+        logging.info("Merging {} prices".format(len(prices)))
+        self.prices = prices.combine_first(self.prices)
+        self.prices_dirty = True
     
     
     def read_data(self, data_dir, 
@@ -1298,6 +1312,7 @@ class DataStore(object):
     def check_consistency(self):
         """
         Test if the references between the various objects are consistent.
+        #TODO: consistency checks for prices
         #TODO: test for unknown server IDs in SearchTask or listings.
         #TODO: return inconsistencies in some format for the GUI
         #TODO: search for tasks with duplicate IDs
