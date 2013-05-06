@@ -416,9 +416,11 @@ Note: There are various 18-50mm lenses from Sigma, with big differences in quali
 
 * fast
 * full frame
-* mechanically very good
 * heavy
+* mechanically very good
 * optically good
+* internal focus motor
+* very fast focus speed
 
 There are four versions of this lens:
 
@@ -527,6 +529,27 @@ http://www.tamron.co.jp/en/data/lenses/list_hispeed_di2.html</description>
       </categories>
     </product>
     <product>
+      <id>tamron-70-200-f/2.8--1-nikon</id>
+      <name>Tamron 70-200mm F2.8 SP AF Di LD (IF) Macro</name>
+      <description>Fast, relatively cheap, long zoom lens
+
+* fast 
+* full frame
+* optically very good
+* very good macro performance
+* built in focus motor
+* slow focus speed, noisy focus motor
+* mechanically decent, and relatively light weight 
+
+</description>
+      <important_words>
+        <word></word>
+      </important_words>
+      <categories>
+        <category>photo.system.nikon.lens</category>
+      </categories>
+    </product>
+    <product>
       <id>tamron-70-300-f/4.0-5.6--1-Nikon</id>
       <name>Tamron 70-300mm f/4.0-5.6 AF LD (Nikon) Lens</name>
       <description>Old and cheap long zoom lens
@@ -583,9 +606,11 @@ A very similar lens is sold by Pentax (DA* 16-50mm f/2.8), but the Tokina versio
       <description>Placholder for unknown, but potentially interesting flashes.
 
 Can be considered in price computations.</description>
-      <important_words/>
+      <important_words>
+        <word></word>
+      </important_words>
       <categories>
-        <category>photo.system.xxx.lens</category>
+        <category>photo.system.xxx.flash</category>
       </categories>
     </product>
     <product>
