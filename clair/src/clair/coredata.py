@@ -44,6 +44,146 @@ from lxml import etree, objectify
 
 
 
+class ListingConstants(object):
+    """
+    Name space for constants related to listing ``DataFrame``. 
+    Dummy class, used by ``make_listing_frame``.
+    
+    For an explanation of a listing's fields, the collumns of the ``DataFrame``,
+    see the comments below.
+    
+    TODO: include bid_count?
+    """
+    #List of column names
+    columns = []
+    #List of default values for each column.
+    defaults = []
+    #Dictionary {"column column":"Comment"} can be used as tool tips.
+    comments = {}
+    
+    column = "id"; default = None 
+    comment = "Internal unique ID of each listing."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    #Training  and product recognition -----------------------------------
+    column = "training_sample"; defaultdefault = nan 
+    comment = "This is training sample if `True`."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "search_tasks"; default = None 
+    comment = "List of task IDs (strings) of search tasks, " \
+              "that returned this listing."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "expected_products"; default = None 
+    comment = "List of product IDs (strings)."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "products"; default = None 
+    comment = "Products in this listing."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "products_absent"; default = None 
+    comment = "Products not in this listing. List of product IDs (strings)."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    #Images --------------------------------------------------------------
+    column = "thumbnail"; default = None 
+    comment = "URL of small image."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "image"; default = None 
+    comment = "URL of large image."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    #Product description --------------------------------------------------
+    column = "title"; default = None 
+    comment = "Short description of listing."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "description"; default = None 
+    comment = "Long description of listing."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "prod_spec"; default = None 
+    comment = "product specific name value pairs (dict), for example: " \
+              "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    # Status values ------------------------------------------------------
+    column = "active"; default = nan 
+    comment = "you can still buy it if True"
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "sold"; default = nan 
+    comment = "Successful sale if ``True``."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "currency"; default = None 
+    comment = "Currency for price EUR, USD, ..."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "price"; default = nan 
+    comment = "Price of listing (all items together)."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "shipping"; default = nan 
+    comment = "Shipping cost"
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "type"; default = None 
+    comment = "auction, fixed-price, unknown"
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "time"; default = None 
+    comment = "Time when price is/was valid. End time in case of auctions."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "location"; default = None 
+    comment = "Location of item (pre sale)"
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "postcode"; default = None 
+    comment = "Postal code of location"
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "country"; default = None 
+    comment = "Country of item location."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "condition"; default = nan 
+    comment = "1.: new, 0.: completely unusable"
+    comments[column] = comment; columns += [column]; defaults += [default]   
+       
+    column = "seller"; default = None 
+    comment = "User name of seller."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "buyer"; default = None 
+    comment = "User name of buyer."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    #Additional ----------------------------------------------------------
+    column = "server"; default = None 
+    comment = "String to identify the server."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "server_id"; default = None 
+    comment = "ID of listing on the server."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    #TODO: Remove? This is essentially ``not active``.
+    column = "final_price"; default = nan 
+    comment = "If True: This is the final price of the auction."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+    
+    column = "url_webui"; default = None 
+    comment = "Link to web representation of listing."
+    comments[column] = comment; columns += [column]; defaults += [default]   
+
+    del column; del default; del comment
+
+
 def make_listing_frame(nrows=None, index=None):
     """
     Create empty ``pd.DataFrame`` of listings. 
@@ -69,58 +209,24 @@ def make_listing_frame(nrows=None, index=None):
         index=range(nrows)
     if nrows is not None:
         assert nrows == len(index), "Inconsistent arguments"
-        
+    
+    #Create data frame, each column is filled with its default value.
     listings = pd.DataFrame(index=index)
-    listings["id"]                = None  #internal unique ID of each listing.
-    listings["training_sample"]   = nan   #This is training sample if True
-#    listings["query_string"]      = None  #String with search keywords
-    listings["search_tasks"]      = None  #List of task IDs (strings) of search 
-    #                                     #    tasks, that returned this listing
-    listings["expected_products"] = None  #list of product IDs (strings)
-    
-    listings["products"]          = None  #Products in this listing. 
-    listings["products_absent"]   = None  #Products not in this listing. 
-    #                                     #    List of product IDs (strings)
-
-    listings["thumbnail"]   = None  #URL of small image
-    listings["image"]       = None  #URL of large image
-    
-    listings["title"]       = None  #Short description of listing.
-    listings["description"] = None  #Long description of listing.
-    listings["prod_spec"]   = None  #product specific name value pairs (dict)
-                                    #    for example {"megapixel": "12"};
-                                    #    the ``ItemSpecifics`` on Ebay
-    #TODO: include bid_count?
-    listings["active"]      = nan   #you can still buy it if True
-    listings["sold"]        = nan   #successful sale if True
-    listings["currency"]    = None  #currency for price EUR, USD, ...
-    listings["price"]       = nan   #price of listing (all items together)
-    listings["shipping"]    = nan   #shipping cost
-    listings["type"]        = None  #auction, fixed-price, unknown
-    listings["time"]        = None  #Time when price is/was valid. End time in case of auctions
-    listings["location"]    = None  #Location of item (pre sale)
-    listings["postcode"]    = None  #Postal code of location
-    listings["country"]     = None  #Country of item location
-    listings["condition"]   = nan   #1.: new, 0.: completely unusable
-    listings["seller"]      = None  #User name of seller
-    listings["buyer"]       = None  #User name of buyer
-    
-    listings["server"]      = None  #string to identify the server
-    listings["server_id"]   = None  #ID of listing on the server
-    #TODO: rename to "is_final_price"
-    listings["final_price"] = nan   #If True: This is the final price of the auction.
-#    listings["data_dir"]    = None  #Images, html, ... might be stored here
-    listings["url_webui"]   = None  #Link to web representation of listing.
-#    listings["server_repr"] = None  #representation of listing on server (XML)
-
-    return  listings
+    for column_name, default_val in zip(ListingConstants.columns,
+                                        ListingConstants.defaults):
+        listings[column_name] = default_val
+        
+    return listings
 
 
 
 class PriceConstants(object):
     """
-    Name space for constants related to prices. Dummy class.
-    Used by ``make_price_frame``:
+    Name space for constants related to price data frames. 
+    Dummy class, used by ``make_price_frame``.
+    
+    For an explanation of the price `DataFrame`'s columns, see the comments
+    below.
     """
     #List of column names
     columns = []
@@ -129,44 +235,36 @@ class PriceConstants(object):
     #Dictionary {"column column":"Comment"} can be used as tool tips.
     comments = {}
     
-    column = "id"
-    default = None 
+    column = "id"; default = None 
     comment = "The price records's unique ID."
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "price"
-    default = nan 
+    column = "price"; default = nan 
     comment = "The price's value."
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "currency"
-    default = None 
+    column = "currency"; default = None 
     comment = "Currency the price is in."
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "condition"
-    default = nan 
+    column = "condition"; default = nan 
     comment = "Multiplier for condition. \n" \
               "1.0: new/perfect, 0.7: used, 0.0: worthless. "
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "time"
-    default = None 
+    column = "time"; default = None 
     comment = "Time and date at which the price was payed."
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "product"
-    default = None 
+    column = "product"; default = None 
     comment = "ID of product for which the price is recorded."
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "listing"
-    default = None 
+    column = "listing"; default = None 
     comment = "ID of listing from which the price is taken"
     comments[column] = comment; columns += [column]; defaults += [default]
     
-    column = "type"
-    default = None 
+    column = "type"; default = None 
     comment = """
         Type of the price record. The types are:
         
@@ -183,13 +281,11 @@ class PriceConstants(object):
         """
     comments[column] = comment; columns += [column]; defaults += [default]
         
-    column = "avg_period"
-    default = None 
+    column = "avg_period"; default = None 
     comment = "Time span for taking average. Can be 'day', 'week', 'month'."
     comments[column] = comment; columns += [column]; defaults += [default]
   
-    column = "avg_num_listings"
-    default = None 
+    column = "avg_num_listings"; default = None 
     comment = "Number of listings used in computation of average."
     comments[column] = comment; columns += [column]; defaults += [default]
 
@@ -235,12 +331,29 @@ def make_price_id(time, product):
     """
     Create ID string for a price.
     
-    Uniqueness of random string with 4 digits:
+    Uniqueness of random string
+    ---------------------------
     
-    The random part can reliably ensure uniqueness of the ID, for 1000 IDs 
+    The random part can ensure uniqueness of the ID, for up to 1000 IDs 
     with identical parameters. However if the function is called 1e4 times 
-    with identical parameters, there are about 4 overlaps. (Even though there
-    are about 62**4 = 14e6 possibilities.)
+    with identical parameters, there are about 4 overlaps.
+    
+    Chances for one collision of a random string with length 4 and 62 different 
+    characters:
+    
+    Number of different random strings: n_str = 62**4 = 14e6
+    Probability of collision if `nt` strings are generated::
+    
+        p_coll(nt) = (nt * .5) * (nt - 1) / n_str = (ntr**2 - nt) / (2 * n_str)
+        
+    For 100 tries:   p_coll(100)   = 0.00034
+    For 1000 tries:  p_coll(1000)  = 0.034
+    for 10000 tries: p_coll(10000) = 3.4
+    
+    TODO: Maybe use pattern `listing_id-product_name` instead. This would 
+          help eliminate duplicate listings.
+    TODO: Use price (``Series``) object itself as the function's argument.
+          this would bring much more flexibility. 
     """
     chars = string.ascii_letters + string.digits
     length = 4

@@ -558,7 +558,8 @@ def test_DataStore_write_expected_products_to_listings():
 
     
 if __name__ == "__main__":
-    test_make_price_frame()
+#    test_make_price_frame()
+#    test_make_price_id()
 #    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()

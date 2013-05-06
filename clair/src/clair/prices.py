@@ -421,7 +421,9 @@ class PriceEstimator(object):
         
         Uses linear least square method to compute prices of items that are
         sold together with other items. This is equivalent to averaging, to
-        prices over the listings that were used to compute the prices. 
+        prices over the listings that were used to compute the prices.
+        
+        TODO: Delete old prices.
         """
         logging.info("Starting to compute prices...")
         if time_start is None:
