@@ -152,6 +152,10 @@ http://scikit-learn.org/stable/
 
 How to work with text data in Scikit-Learn:
 
+http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
+
+Very similar, maybe older version:
+
 http://scikit-learn.github.com/scikit-learn-tutorial/working_with_text_data.html
 
 Choose the right algorithm in Scikit-Learn:

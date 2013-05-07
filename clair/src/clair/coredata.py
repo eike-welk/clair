@@ -236,9 +236,9 @@ class PriceConstants(object):
     #Dictionary {"column column":"Comment"} can be used as tool tips.
     comments = {}
     #Names of columns that are string lists.
-    cols_string_list = []
+    cols_string_list = set([])
     #Names of columns that are three valued bools (0., 1., nan).
-    cols_tristate_bool = []
+    cols_tristate_bool = set([])
     
     column = "id"; default = None 
     comment = "The price records's unique ID."

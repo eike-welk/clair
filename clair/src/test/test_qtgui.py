@@ -530,10 +530,10 @@ def test_ListingsEditWidget():
     print "Start"
     app = QApplication(sys.argv)
     
-    listings_model, _, _, _, _ = create_models()
+    listings_model, _, _, product_model, _ = create_models()
     
     view = ListingsEditWidget()
-    view.setModel(listings_model)
+    view.setModel(listings_model, product_model)
     view.setRow(listings_model.index(1, 0))
     
     view.show()
@@ -593,6 +593,41 @@ def test_ListingsModel():
     print listings.icol(7)
     
     
+def test_PriceWidget():
+    """Test ListingsWidget, which displays a DataFrame of listings."""
+    from clair.qtgui import PriceWidget
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    _, _, _, price_model, data_store = create_models()
+    
+    view = PriceWidget()
+    view.setModel(price_model, data_store) 
+    
+    view.show()
+    app.exec_()
+    print "End"
+
+    
+def test_PriceEditWidget():
+    """Test ListingsEditWidget, which displays a single listing."""
+    from clair.qtgui import PriceEditWidget
+    
+    print "Start"
+    app = QApplication(sys.argv)
+    
+    _, _, _, price_model, _ = create_models()
+    
+    view = PriceEditWidget()
+    view.setModel(price_model)
+    view.setRow(price_model.index(1, 0))
+    
+    view.show()
+    app.exec_()
+    print "End"
+
+
 def test_PriceModel():
     """Test ``PriceModel`` class."""
     print "Start"
@@ -669,7 +704,9 @@ if __name__ == '__main__':
 #    test_ListingsEditWidget()
 #    test_ListingsWidget()
 #    test_ListingsModel()
-    test_PriceModel()
+    test_PriceEditWidget()
+#    test_PriceWidget()
+#    test_PriceModel()
 #    test_GuiMain()
     
 #    experiment_qt()

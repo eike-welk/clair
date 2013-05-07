@@ -1553,12 +1553,11 @@ class LearnDataProxyModel(RadioButtonModel):
         
         #create list of all used product IDs
         #preserve sequence of expected_products, additional ID are appended
-        #TODO: remove duplicates from _expected_products
         mentioned_prods = set(products + products_absent)
         expected_missing = mentioned_prods - set(expected_products)
         product_id_list = expected_products + list(expected_missing)
         
-        gui_vals = []
+        gui_vals = [] #Nested list 2D, shape: (n, 4)
         for prod_id in product_id_list:
             product = self.product_model.getProductByID(prod_id)
             prod_name = product.name if product is not None else ""
@@ -1823,10 +1822,10 @@ class ListingsEditWidget(QSplitter):
         
         #Populate lower pane of product edit widget --------------------------
         #TODO: individual tool tips
-        self.v_title = QLabel("---")
-        self.v_title.setFont(FontBig)
-        self.v_title.setWordWrap(True)
-        self.v_title.setTextInteractionFlags(Qt.TextSelectableByMouse | 
+        self.v_prod_name = QLabel("---")
+        self.v_prod_name.setFont(FontBig)
+        self.v_prod_name.setWordWrap(True)
+        self.v_prod_name.setTextInteractionFlags(Qt.TextSelectableByMouse | 
                                              Qt.TextSelectableByKeyboard)
         self.v_image = QLabel("Image\nHere!")
         self.v_price = QLabel("---")
@@ -1855,7 +1854,7 @@ class ListingsEditWidget(QSplitter):
         
         #Main layout of lower pane
         lower_ly = QGridLayout()
-        lower_ly.addWidget(self.v_title,           0, 0, 1, 3)
+        lower_ly.addWidget(self.v_prod_name,           0, 0, 1, 3)
         lower_ly.addWidget(self.v_image,           1, 0, 4, 1)
         
         #Layout for table of small widgets
@@ -1888,16 +1887,19 @@ class ListingsEditWidget(QSplitter):
         
         lower_pane.setLayout(lower_ly)
         
-        self.setGeometry(200, 200, 400, 800)
+        #Geometry for testing
+        self.setGeometry(200, 200, 600, 400)
 
   
-    def setModel(self, listings_model):
-        """Tell the widget which listings_model it should use."""
+    def setModel(self, listings_model, product_model):
+        """Tell the widget which models it should use."""
+        self.product_model = product_model
+        
         #Put listings_model into communication object
         self.mapper.setModel(listings_model)
         #Tell: which widget should show which column
         self.mapper.addMapping(self.v_id,          0, "text")
-        self.mapper.addMapping(self.v_title,       8, "text")
+        self.mapper.addMapping(self.v_prod_name,       8, "text")
         self.mapper.addMapping(self.v_price,      14, "text")
         self.mapper.addMapping(self.v_currency1,  13, "text")
         self.mapper.addMapping(self.v_shipping,   15, "text")
@@ -1914,13 +1916,10 @@ class ListingsEditWidget(QSplitter):
         self.mapper.addMapping(self.v_prod_specs, 10, "text")
         self.mapper.addMapping(self.v_description, 9, "html")
         
+        #Set up adaptor for the learning information
         self.learn_model.setListingsModel(listings_model, 3, 4, 5)
-        
-
-    def setProductModel(self, product_model):
-        """Set product model (container)."""
-        self.product_model = product_model
         self.learn_model.setProductModel(product_model)
+        #Set up special combo box to select a product.
         #Put list of products into combo box 
         self.combo_box_creator.setItemCallback(
                                         self.product_model.getProductIDList)
@@ -2001,9 +2000,8 @@ class ListingsWidget(QSplitter):
         self.data_store = data_store
         self.recognizers = recognizers
         self.filter.setSourceModel(listings_model)
-        self.edit_widget.setModel(self.filter)
+        self.edit_widget.setModel(self.filter, product_model)
         self.list_widget.setModel(self.filter)
-        self.edit_widget.setProductModel(product_model)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
@@ -2285,6 +2283,187 @@ class ListingsModel(QAbstractTableModel):
 
 
 
+class PriceEditWidget(QSplitter):
+    """
+    Display and edit contents of a single listing.
+    
+    The data is taken from a row of a ``ListingsModel``. 
+    The communication between the model and the individual edit widgets, 
+    is done by a ``QDataWidgetMapper``.
+    """
+    def __init__(self):
+        super(PriceEditWidget, self).__init__()
+        
+        #The application's product data
+        self.product_model = ProductModel() #Dummy
+        #Transfer data between model and widgets
+        self.mapper = QDataWidgetMapper()
+        
+        FontBig = QFont()
+        FontBig.setPointSize(12)
+        
+        #Set up different panes into which the listing information is divided
+        upper_pane = QWidget()
+        upper_pane.setToolTip("Information about a single price.")
+        lower_pane = QWidget()
+        lower_pane.setToolTip('Price graphs.')
+        self.setOrientation(Qt.Vertical)
+        self.addWidget(upper_pane)
+        self.addWidget(lower_pane)
+        
+        #Populate upper pane of price edit widget ------------------------
+        #TODO: individual tool tips
+        self.v_prod_name = QLabel("---")
+        self.v_prod_name.setFont(FontBig)
+        self.v_prod_name.setWordWrap(True)
+        self.v_prod_name.setTextInteractionFlags(Qt.TextSelectableByMouse | 
+                                             Qt.TextSelectableByKeyboard)
+        l_id = QLabel("ID:")
+        self.v_id = QLabel("---")
+        self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
+                                          Qt.TextSelectableByKeyboard)
+        l_price = QLabel("Price:")
+        self.v_price = QLabel("---")
+        
+        #Layout for upper pane
+        upper_ly = QGridLayout()
+        upper_ly.addWidget(self.v_prod_name,         0, 0, 1, 5)
+        upper_ly.addWidget(l_id,                     1, 0)
+        upper_ly.addWidget(self.v_id,                1, 1)
+        upper_ly.addWidget(l_price,                  2, 0)
+        upper_ly.addWidget(self.v_price,             2, 1)
+        upper_pane.setLayout(upper_ly)
+        
+        #Populate lower pane of product edit widget --------------------------
+        #TODO: individual tool tips        
+        l_dummy = QLabel("Graphs\nhere!")
+        
+        #Main layout of lower pane
+        lower_ly = QGridLayout()
+        lower_ly.addWidget(l_dummy,        0, 0)
+        lower_ly.setRowStretch(1, 1)
+        lower_pane.setLayout(lower_ly)
+        
+        #Geometry for testing
+        self.setGeometry(200, 200, 600, 400)
+
+  
+    def setModel(self, listings_model):
+        """Tell the widget which listings_model it should use."""
+        #Put listings_model into communication object
+        self.mapper.setModel(listings_model)
+        #Tell: which widget should show which column
+        self.mapper.addMapping(self.v_id,          0, "text")
+        self.mapper.addMapping(self.v_price,       1, "text")
+        
+
+    def setRow(self, index):
+        """
+        Set the row of the model that is accessed by the widget.
+        
+        Usually connected to signal ``activated`` of a ``QTreeView``.
+        
+        Parameter
+        ---------
+        index : QModelIndex
+        """
+        self.mapper.setCurrentModelIndex(index)
+
+
+
+class PriceWidget(QSplitter):
+    """
+    Display and edit a list of ``Product`` objects. There is a pane that shows
+    the whole list, and an other pane that shows a single product.
+    
+    The data is taken from a ``ProductModel``.
+    """
+    def __init__(self, parent=None):
+        super(PriceWidget, self).__init__(parent)
+        self.data_store = DataStore() #Dummy
+        self.edit_widget = PriceEditWidget() #PriceEditWidget()
+        self.list_widget = QTreeView()
+        self.filter = QSortFilterProxyModel()
+        
+        #Assemble the child widgets
+        self.addWidget(self.list_widget)
+        self.addWidget(self.edit_widget)
+    
+        #Set various options of the list view. #TODO: Delete unnecessary
+        self.list_widget.setItemsExpandable(False)
+        self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.list_widget.setDragEnabled(False)
+        self.list_widget.setAcceptDrops(False)
+        self.list_widget.setDropIndicatorShown(True)
+        self.list_widget.setDefaultDropAction(Qt.MoveAction)
+#        self.list_widget.setEditTriggers(QAbstractItemView.EditKeyPressed |
+#                                         #QAbstractItemView.AnyKeyPressed |
+#                                         QAbstractItemView.SelectedClicked)
+        self.list_widget.setRootIsDecorated(False)
+        self.list_widget.setSortingEnabled(True)
+        self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
+        
+        #Create context menu for list view
+#        #Train all recognizers
+#        self.action_train_all = QAction("Train Recognizers", self)
+#        self.action_train_all.setStatusTip("Train all product recognizers.")
+#        self.action_train_all.triggered.connect(self.slot_train_all)
+#        self.list_widget.addAction(self.action_train_all)
+
+        #Parameterize sort filter for list model
+        self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
+        self.filter.setDynamicSortFilter(False)
+        
+        #Geometry for testing
+        self.setGeometry(200, 200, 600, 400)
+        
+
+    def setModel(self, price_model, data_store):
+        """
+        Set the various models used in this widget. 
+        Models are essentially containers that store the application's data.
+        """
+        self.data_store = data_store
+        self.filter.setSourceModel(price_model)
+#        self.edit_widget.setModel(self.filter)
+        self.list_widget.setModel(self.filter)
+        #When user selects a line in ``list_widget`` this item is shown 
+        #in ``edit_widget``
+        self.list_widget.selectionModel().currentRowChanged.connect(
+                                                        self.slotRowChanged)
+        
+    def slotRowChanged(self, current, _previous):
+        """
+        The selected row has changed. Tells edit widget to show this row.
+        Connected to signal ``currentRowChanged`` of 
+        ``list_widget.selectionModel()``
+        
+        Arguments
+        ---------
+        current, _previous : QModelIndex
+            Current and previous row
+        """
+        self.edit_widget.setRow(current)        
+    
+    def saveSettings(self, setting_store):
+        """Save widget state, such as splitter position."""
+        setting_store.setValue("PriceWidget/splitter", self.saveState())
+        setting_store.setValue("PriceWidget/list/header", 
+                               self.list_widget.header().saveState())
+        setting_store.setValue("PriceWidget/editor/splitter", 
+                               self.edit_widget.saveState())
+        
+    def loadSettings(self, setting_store):
+        """Load widget state, such as splitter position."""
+        self.restoreState(setting_store.value(
+                                "PriceWidget/splitter", ""))
+        self.list_widget.header().restoreState(
+            setting_store.value("PriceWidget/list/header", ""))
+        self.edit_widget.restoreState(
+            setting_store.value("PriceWidget/editor/splitter", ""))
+
+
+
 class DummyConst(object):
     """Place holder for constants of a data frame"""
     #List of column names
@@ -2293,11 +2472,10 @@ class DummyConst(object):
     defaults = []
     #Dictionary {"column column":"Comment"} can be used as tool tips.
     comments = {}
-    cols_string_list = []
+    #Names of columns that are string lists.
+    cols_string_list = set([])
     #Names of columns that are three valued bools (0., 1., nan).
-    cols_tristate_bool = []
-    
-    
+    cols_tristate_bool = set([])
     
 class PriceModel(QAbstractTableModel):
     """
@@ -2312,7 +2490,7 @@ class PriceModel(QAbstractTableModel):
         #class. Attribute of ``data_store``.
         self._data_frame = pd.DataFrame() #Dummy
         #Constants for the data frame
-        self._data_frame_consts = DummyConst
+        self._data_frame_consts = DummyConst #No instance creation
         
     def getDataFrame(self):
         """
@@ -2573,6 +2751,8 @@ class GuiMain(QMainWindow):
         self.product_model = ProductModel()
         self.task_editor = TaskWidget()
         self.task_model = TaskModel()
+        self.price_editor = PriceWidget()
+        self.price_model = PriceModel()
         
         #Assemble the top level widgets
         self. setCentralWidget(self.main_tabs)
@@ -2585,6 +2765,8 @@ class GuiMain(QMainWindow):
         self.main_tabs.addTab(self.task_editor, "Tasks")
         self.task_editor.setModel(self.task_model, self.listings_model, 
                                   self.data)
+        self.main_tabs.addTab(self.price_editor, "Prices")
+        self.price_editor.setModel(self.price_model, self.data)
         
         #For QSettings and Phonon
         QCoreApplication.setOrganizationName("The Clair Project")
@@ -2725,6 +2907,7 @@ class GuiMain(QMainWindow):
         self.listings_editor.saveSettings(settings)
         self.product_editor.saveSettings(settings)
         self.task_editor.saveSettings(settings)
+        self.product_editor.saveSettings(settings)
         #Save directory of current data
         settings.setValue("conf_dir", self.data.data_dir)
  
@@ -2737,6 +2920,7 @@ class GuiMain(QMainWindow):
         self.listings_editor.loadSettings(setting_store)
         self.product_editor.loadSettings(setting_store)
         self.task_editor.loadSettings(setting_store)
+        self.price_editor.loadSettings(setting_store)
         #Load last used data
         conf_dir = setting_store.value("conf_dir", None)
         if conf_dir is not None and os.path.isdir(conf_dir):
