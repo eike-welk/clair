@@ -2521,7 +2521,6 @@ class PriceWidget(QSplitter):
             setting_store.value("PriceWidget/editor/splitter", ""))
 
     def slotComputePrices(self):
-        print "computePrices"
         estimator = PriceEstimator()
         #TODO: parameterize price estimator.
         time_start = None
@@ -2531,8 +2530,8 @@ class PriceWidget(QSplitter):
                     self.data_store.listings, self.data_store.products, 
                     time_start, time_end, avg_period)
         self.data_store.merge_prices(prices)
-        print self.data_store.prices
         self.price_model.slotDataChanged()
+        print "prices:\n", self.data_store.prices.to_string()
 
 
 
@@ -2601,6 +2600,7 @@ class PriceModel(QAbstractTableModel):
     def slotDataChanged(self):
         "Signal the model that the underlying data has changed."
         self.beginResetModel()
+        self._data_frame = self.getDataFrame()
         self.endResetModel()
             
     def rowCount(self, parent=QModelIndex()):
@@ -2950,6 +2950,7 @@ class GuiMain(QMainWindow):
         self.listings_model.setDataStore(self.data)
         self.product_model.setDataStore(self.data)
         self.task_model.setDataStore(self.data)
+        self.price_model.setDataStore(self.data)
         
         
     def saveConfiguration(self):
@@ -2957,6 +2958,7 @@ class GuiMain(QMainWindow):
         self.data.write_listings()
         self.data.write_products()
         self.data.write_tasks()
+        self.data.write_prices()
         self.recognizers.write_recognizers()
         self.statusBar().showMessage("Configuration saved.", 5000)
     

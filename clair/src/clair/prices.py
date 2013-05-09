@@ -47,7 +47,7 @@ class PriceEstimator(object):
     TODO: Special price objects for listings that were not sold.
     """
     def __init__(self):
-        self.default_currency = "Eur"
+        self.default_currency = "EUR"
         self.default_condition = 0.7 #used, very good condition
         self.average_mid_time = datetime(2000, 1, 15)
         self.avg_period = "week"
@@ -380,7 +380,7 @@ class PriceEstimator(object):
                 list_time = listings.ix[list_id, "time"]
             else:
                 list_id = listing_ids[ilist]
-                list_currency = "Eur"
+                list_currency = "Unknown Currency"
                 list_time = datetime(2000, 1, 1)
             prod_idxs = np.argwhere(row > 0)[:, 0]
             if len(prod_idxs) == 1:

@@ -51,7 +51,7 @@ from numpy import nan
 import pandas as pd
 
 from PyQt4.QtGui import QApplication, QTreeView
-from PyQt4.QtCore import Qt, QModelIndex
+from PyQt4.QtCore import Qt
 
 #Setup logging
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 

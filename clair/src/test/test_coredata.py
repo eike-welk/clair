@@ -569,6 +569,6 @@ if __name__ == "__main__":
 #    test_XmlSmallObjectIO()
 #    test_DataStore()
 #    test_DataStore_update_expected_products()
-#    test_DataStore_write_expected_products_to_listings()
+    test_DataStore_write_expected_products_to_listings()
     
     pass

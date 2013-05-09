@@ -1307,7 +1307,10 @@ class DataStore(object):
                                     XMLConverterTasks())
         io_tasks.write_data(self.tasks)
         self.tasks_dirty = False
-        
+                
+    def write_prices(self):
+        """Write prices to disk."""
+        logging.error("Writing prices is not implemented!")
         
     def check_consistency(self):
         """

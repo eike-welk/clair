@@ -83,16 +83,16 @@ def test_MainObj_compute_next_due_time():
     print t1
     assert t1 == datetime(2000, 1, 1, 21, 0)
     
-    t = datetime(2000, 1, 1, 20, 15)
-    times = [t]
-    for _ in range(20):
-        t = m.compute_next_due_time(t, "day", True)
-        times.append(t)
+#    t = datetime(2000, 1, 1, 20, 15)
+#    times = [t]
+#    for _ in range(20):
+#        t = m.compute_next_due_time(t, "day", True)
+#        times.append(t)
+##    print times
+#    times = pd.Series(times)
 #    print times
-    times = pd.Series(times)
-    print times
-    diff = times.diff()
-    print diff
+#    diff = times.diff()
+#    print diff
     
     print "finished!"
     
@@ -297,11 +297,11 @@ def test_CommandLineHandler_parse_command_line():
 
 
 if __name__ == "__main__":
-#    test_MainObj_compute_next_due_time()
+    test_MainObj_compute_next_due_time()
 #    test_MainObj_execute_tasks()
 #    test_MainObj_create_final_update_tasks()
 #    test_MainObj_main_download_listings()
-    test_CommandLineHandler_parse_command_line()
+#    test_CommandLineHandler_parse_command_line()
     
 #    experiment_MainObj_main_download_listings()
     

@@ -104,7 +104,7 @@ def test_PriceEstimator_compute_product_occurrence_matrix():
     print "finshed"
 
 
-def test_PriceEstimator_compute_avg_product_prices_1():
+def test_PriceEstimator_solve_prices_lstsq_1():
     "Test linear least square algorithm with real data."
     from clair.coredata import DataStore
     from clair.prices import PriceEstimator
@@ -145,7 +145,7 @@ def test_PriceEstimator_compute_avg_product_prices_1():
     print "finshed"
 
 
-def test_PriceEstimator_compute_avg_product_prices_2():
+def test_PriceEstimator_solve_prices_lstsq_2():
     "Test linear least square algorithm with artificial data."
     from clair.prices import PriceEstimator
     
@@ -255,7 +255,26 @@ def test_PriceEstimator_compute_avg_product_prices_2():
     print_vals()
     np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
     
-    #TODO: assertions
+    print "Matrix is 1*1 (but has full rank, no noise) ------------------------"
+    #Listing IDs, unimportant in this test.
+    listing_ids = array(["l1"])
+    
+    #Product IDs, and "real" prices for checking errors
+    product_ids = array(["a"])
+    real_prices = array([500])
+    
+    #Matrix that represents the listings, each row is a listing
+    matrix =     array([[0.7]])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
+    
+    print_vals()
+    np.testing.assert_allclose(product_prices, real_prices)
+
     print "finshed"
 
 
@@ -379,7 +398,10 @@ def test_PriceEstimator_create_prices_lstsq_soln_1():
 
 
 def test_PriceEstimator_create_prices_lstsq_soln_2():
-    "Test creation of price records  with artificial data."
+    """
+    Test creation of price records from solution of linear 
+    least square problem, with artificial data.
+    """
     from clair.prices import PriceEstimator
     
     def print_vals():
@@ -422,13 +444,13 @@ def test_PriceEstimator_create_prices_lstsq_soln_2():
     #Compute the product prices
     product_prices, good_cols, good_rows, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
-                                                     listing_ids, product_ids)
+                                             listing_ids, product_ids)
     print_vals()
     
     prices = estimator.create_prices_lstsq_soln(matrix, 
-                                     listing_prices, listing_ids,
-                                     product_prices, product_ids,
-                                     good_cols, good_rows)
+                                                listing_prices, listing_ids,
+                                                product_prices, product_ids,
+                                                good_cols, good_rows)
     print "prices:\n", prices.to_string()
     
     true_prices = prices["price"] / prices["condition"]
@@ -443,9 +465,37 @@ def test_PriceEstimator_create_prices_lstsq_soln_2():
     np.testing.assert_allclose(prices_c, 100)
     np.testing.assert_allclose(prices_d, 50)
     np.testing.assert_allclose(prices_e, 5)
+        
+    print "Matrix is 1*1 (but has full rank, no noise) ------------------------"
+    #Listing IDs, unimportant in this test.
+    listing_ids = array(["l1"])
     
+    #Product IDs, and "real" prices for checking errors
+    product_ids = array(["a"])
+    real_prices = array([500])
     
+    #Matrix that represents the listings, each row is a listing
+    matrix =     array([[0.7]])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    product_prices, good_cols, good_rows, problem_products = \
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
+                                             listing_ids, product_ids)
+    print_vals()
+    
+    prices = estimator.create_prices_lstsq_soln(matrix, 
+                                                listing_prices, listing_ids,
+                                                product_prices, product_ids,
+                                                good_cols, good_rows)
+    print "prices:\n", prices.to_string()
+    
+    true_prices = prices["price"] / prices["condition"]
+    prices_a = true_prices[prices["product"] == "a"]
+    
+    np.testing.assert_allclose(prices_a, 500)
 
+    
 def test_PriceEstimator_compute_prices_1():
     "Test main method for creation of price records with real data."
     from clair.coredata import DataStore
@@ -493,10 +543,10 @@ def test_PriceEstimator_compute_prices_1():
 if __name__ == "__main__":
 #    test_PriceEstimator_find_observed_prices()
 #    test_PriceEstimator_compute_product_occurrence_matrix()
-#    test_PriceEstimator_compute_avg_product_prices_1()
-#    test_PriceEstimator_compute_avg_product_prices_2()
+#    test_PriceEstimator_solve_prices_lstsq_1()
+#    test_PriceEstimator_solve_prices_lstsq_2()
 #    test_PriceEstimator_find_problems_rank_deficient_matrix()
 #    test_PriceEstimator_create_prices_lstsq_soln_1()
-#    test_PriceEstimator_create_prices_lstsq_soln_2()
-    test_PriceEstimator_compute_prices_1()
+    test_PriceEstimator_create_prices_lstsq_soln_2()
+#    test_PriceEstimator_compute_prices_1()
     pass #IGNORE:W0107
