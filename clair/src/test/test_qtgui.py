@@ -87,7 +87,7 @@ def create_models():
     fr["search_tasks"] = ["s-nikon-d90", "s-nikon-d70", "s-nikon-d90"]
     
     fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
-    fr["products"][0] = ["nikon-d90"]
+    fr["products"] = [["nikon-d90"], ["nikon-d70"], ["nikon-d90"]]
     fr["products_absent"][0] = ["nikon-sb-24"]
     
     fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
@@ -96,9 +96,9 @@ def create_models():
     fr["description"][0] = "Buy my old Nikon D90 camera <b>now</b>!"
     fr["prod_spec"][0] = {"Marke":"Nikon", "Modell":"D90"}
     fr["active"][0] = False
-    fr["sold"][0] = False
+    fr["sold"] = [1., 1., 0.]
     fr["currency"][0] = "EUR"
-    fr["price"][0]    = 400.
+    fr["price"] = [400., 150, 300]
     fr["shipping"][0] = 12.
     fr["type"][0] = "auction"
     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
@@ -604,6 +604,7 @@ def test_PriceWidget():
     
     view = PriceWidget()
     view.setModel(price_model, data_store) 
+    view.slotComputePrices()
     
     view.show()
     app.exec_()
@@ -617,11 +618,11 @@ def test_PriceEditWidget():
     print "Start"
     app = QApplication(sys.argv)
     
-    _, _, _, price_model, _ = create_models()
+    _, _, _, price_model, data_store = create_models()
     
     view = PriceEditWidget()
-    view.setModel(price_model)
-    view.setRow(price_model.index(1, 0))
+#    view.setModel(price_model, data_store)
+#    view.setRow(price_model.index(1, 0))
     
     view.show()
     app.exec_()
@@ -704,8 +705,8 @@ if __name__ == '__main__':
 #    test_ListingsEditWidget()
 #    test_ListingsWidget()
 #    test_ListingsModel()
-    test_PriceEditWidget()
-#    test_PriceWidget()
+#    test_PriceEditWidget()
+    test_PriceWidget()
 #    test_PriceModel()
 #    test_GuiMain()
     

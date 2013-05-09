@@ -28,7 +28,7 @@ from __future__ import division
 from __future__ import absolute_import              
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 import numpy as np
@@ -126,6 +126,8 @@ class PriceEstimator(object):
             Product IDs, corresponds to columns of `matrix` (and the unknown
             product vector).
         """
+        assert len(listings) > 0, "listings must not be empty"
+        
         products = set(product_ids)
         prod_list = list(products)
         prod_list.sort()
@@ -145,7 +147,7 @@ class PriceEstimator(object):
                               .format(idx))
                 continue
             if not products.issuperset(curr_prods):
-                logging.error("Unknown product(s) {u}. Listing ID: {i}."
+                logging.debug("Unknown product(s) {u}. Listing ID: {i}."
                               .format(u=set(curr_prods) - products, i=idx))
                 continue
             if len(curr_prods) == 0:
@@ -158,7 +160,7 @@ class PriceEstimator(object):
             for prod in curr_prods:
                 ip = prod_inds[prod]
                 matrix[il, ip] = curr_condition
-                
+        
         valid = ~ np.isnan(listing_prices)
         matrix = matrix[valid, :]
         listing_prices = listing_prices[valid]
@@ -226,6 +228,8 @@ class PriceEstimator(object):
         """
         #Assert correct shapes of all matrices and vectors.
         assert len(matrix.shape) == 2, "matrix must be 2D array"
+        assert matrix.shape[0] > 0, "matrix must not be empty"
+        assert matrix.shape[1] > 0, "matrix must not be empty"
         assert len(listing_prices.shape) == 1, "listing_prices must be 1D array"
         assert len(product_ids.shape) == 1, "product_ids must be 1D array"
         assert matrix.shape[0] == listing_prices.shape[0], \
@@ -426,38 +430,57 @@ class PriceEstimator(object):
         TODO: Delete old prices.
         """
         logging.info("Starting to compute prices...")
-        if time_start is None:
-            time_start = listings["time"].min()
-        if time_end is None:
-            time_end = listings["time"].max()
         
-        #Create start, end, and midpoint of desired intervals.
         if avg_period == "week":
-            intv_start = pd.DateRange(time_start, time_end, time_rule="W@MON")
-            intv_midpt = pd.DateRange(time_start, time_end, time_rule="W@THU")
+            offset = pd.datetools.Week(weekday=0)
             self.avg_period = "week"
         else:
             raise NotImplementedError()
         
+        #If no start- or end-points are given start or end of listing sequence
+        #Include listings in incomplete periods at start and end of sequence.
+        if time_start is None:
+            time_start = listings["time"].min()
+            time_start = offset.rollback(time_start)
+        if time_end is None:
+            time_end = listings["time"].max()
+            time_end = offset.rollforward(time_end)
+        
+        #Create start and end of desired intervals.
+        intervals = pd.date_range(time_start, time_end, freq=offset)
+        prices = make_price_frame(0)
+
         #Create list of product IDs. Exclude the place holders the have 
         #names"xxx-unknown" starting with
         product_ids = [p.id for p in products 
                        if not p.id.startswith("xxx-unknown")]
+        if len(product_ids) == 0:
+            logging.error("Empty product list.")
+            return prices
         
         #Chop listings into intervals and loop over them.
-        prices = make_price_frame(0)
         listings = listings.sort("time")
-        for i in range(len(intv_start) - 1):
-            self.average_mid_time = intv_midpt[i]
-            intv_listings = listings.ix[(listings["time"] >= intv_start[i]) &
-                                        (listings["time"] < intv_start[i + 1])]
-            logging.debug("Interval first: {f}, last: {l}, n listings: {n}."
-                          .format(f=intv_listings["time"].min(), 
-                                  l=intv_listings["time"].max(),
+        for i in range(len(intervals) - 1):
+            intv_start = intervals[i]
+            intv_end = intervals[i + 1]
+            
+            offset_mid = timedelta(seconds=(intv_end - intv_start).seconds / 2)
+            self.average_mid_time = intervals[i] + offset_mid
+            
+            intv_listings = listings.ix[(listings["time"] >= intervals[i]) &
+                                        (listings["time"] < intervals[i + 1])]
+            logging.debug("Interval start: {s}, end: {e}, n listings: {n}."
+                          .format(s=intervals[i], e=intervals[i + 1],
                                   n=len(intv_listings)))
+            if len(intv_listings) == 0:
+                continue
+            
             matrix, listing_prices, listing_ids, product_ids = \
                 self.compute_product_occurrence_matrix(
                                                     intv_listings, product_ids)
+            if matrix.shape[0] == 0:
+                logging.debug("No valid listing prices.")
+                continue
             product_prices, good_cols, good_rows, problem_products = \
                 self.solve_prices_lstsq(
                             matrix, listing_prices, listing_ids, product_ids)

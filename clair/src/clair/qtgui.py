@@ -52,7 +52,7 @@ from PyQt4.QtCore import (Qt, pyqtSignal, pyqtProperty, QModelIndex,
                           QSettings, QCoreApplication, QVariant,)
 from PyQt4.QtGui import (QWidget, QLabel, QPushButton, QLineEdit, QTextEdit, 
                          QSplitter, QMainWindow, QTabWidget, QCheckBox, 
-                         QComboBox, QGroupBox, 
+                         QComboBox, QGroupBox, QPushButton,
                          QFileDialog, QMessageBox, QProgressDialog,
                          QApplication, 
                          QGridLayout, QTreeView, QAbstractItemView, QAction,
@@ -64,6 +64,7 @@ from PyQt4.QtWebKit import QWebView
 from clair.coredata import (make_listing_frame, Product, SearchTask, DataStore,
                             PriceConstants)                 
 from clair.textprocessing import HtmlTool, RecognizerController
+from clair.prices import PriceEstimator
 
 
 
@@ -217,6 +218,10 @@ class ProductEditWidget(QWidget):
         """
         self.mapper.setCurrentModelIndex(index)
 
+#    #Go to the listing with this ID
+#    signalGoListing = pyqtSignal(str)
+#    #Go to the product with this ID
+#    signalGoListing = pyqtSignal(str)
 
 
 class ProductWidget(QSplitter):
@@ -2294,8 +2299,8 @@ class PriceEditWidget(QSplitter):
     def __init__(self):
         super(PriceEditWidget, self).__init__()
         
-        #The application's product data
-        self.product_model = ProductModel() #Dummy
+        #The central storage of all application data.
+        self.data_store = DataStore() #Dummy
         #Transfer data between model and widgets
         self.mapper = QDataWidgetMapper()
         
@@ -2304,14 +2309,13 @@ class PriceEditWidget(QSplitter):
         
         #Set up different panes into which the listing information is divided
         upper_pane = QWidget()
-        upper_pane.setToolTip("Information about a single price.")
         lower_pane = QWidget()
-        lower_pane.setToolTip('Price graphs.')
         self.setOrientation(Qt.Vertical)
         self.addWidget(upper_pane)
         self.addWidget(lower_pane)
         
         #Populate upper pane of price edit widget ------------------------
+        upper_pane.setToolTip("Information about a single price.")
         #TODO: individual tool tips
         self.v_prod_name = QLabel("---")
         self.v_prod_name.setFont(FontBig)
@@ -2319,22 +2323,55 @@ class PriceEditWidget(QSplitter):
         self.v_prod_name.setTextInteractionFlags(Qt.TextSelectableByMouse | 
                                              Qt.TextSelectableByKeyboard)
         l_id = QLabel("ID:")
-        self.v_id = QLabel("---")
-        self.v_id.setTextInteractionFlags(Qt.TextSelectableByMouse | 
-                                          Qt.TextSelectableByKeyboard)
-        l_price = QLabel("Price:")
-        self.v_price = QLabel("---")
+        self.e_id = QLineEdit("0000-00-00-xx-000000000000000-"
+                              "xxxxxxx-xxxx-xx-xx-xx-xx-xx-xx")
+#        l_price = QLabel("Price:")
+        self.e_price = QLineEdit("000.00")
+        self.e_currency = QLineEdit("XXX")
+        l_condition = QLabel("Condition:")
+        self.e_condition = QLineEdit("0.0")
+        self.e_time = QLineEdit("0000-00-00 00:00:00")
+        l_product = QLabel("Product:")
+        self.e_product = QLineEdit("xxxxxxx-xxxx-xx-xx-xx-xx-xx-xx")
+        l_listing = QLabel("Listing:")
+        self.e_listing = QLineEdit("0000-00-00-xx-000000000000000")
+        self.e_type = QLineEdit("xxxxxxxx")
+#        self.e_avg_period = QLineEdit("xxxxx")
+#        self.e_avg_num_listings = QLineEdit("000")
+        b_go_listing = QPushButton("Go")
+        b_go_product = QPushButton("Go")
         
         #Layout for upper pane
         upper_ly = QGridLayout()
-        upper_ly.addWidget(self.v_prod_name,         0, 0, 1, 5)
-        upper_ly.addWidget(l_id,                     1, 0)
-        upper_ly.addWidget(self.v_id,                1, 1)
-        upper_ly.addWidget(l_price,                  2, 0)
-        upper_ly.addWidget(self.v_price,             2, 1)
+        #Heading
+        upper_ly.addWidget(self.v_prod_name,        0, 0, 1, 10)
+        #Line: Main price data
+        upper_ly.addWidget(self.e_time,             2, 0, 1, 2)
+        upper_ly.addWidget(self.e_price,            2, 2)
+        upper_ly.addWidget(self.e_currency,         2, 3)
+        upper_ly.addWidget(l_condition,             2, 4)
+        upper_ly.addWidget(self.e_condition,        2, 5)
+        upper_ly.addWidget(self.e_type,             2, 6)
+        #Line: Price ID
+        upper_ly.addWidget(l_id,                    4, 0)
+        upper_ly.addWidget(self.e_id,               4, 1, 1, 3)
+        #Line: further IDs
+        upper_ly.addWidget(l_listing,               5, 0)
+        upper_ly.addWidget(self.e_listing,          5, 1, 1, 2)
+        upper_ly.addWidget(b_go_listing,            5, 3)
+        upper_ly.addWidget(l_product,               5, 4)
+        upper_ly.addWidget(self.e_product,          5, 5, 1, 2)
+        upper_ly.addWidget(b_go_product,            5, 7)
+        #Position columns
+        upper_ly.setColumnMinimumWidth(1, 100)
+        upper_ly.setColumnStretch(1, 2)
+        upper_ly.setColumnStretch(2, 1)
+        upper_ly.setColumnStretch(6, 2)
+        upper_ly.setRowStretch(10, 1)
         upper_pane.setLayout(upper_ly)
         
         #Populate lower pane of product edit widget --------------------------
+        lower_pane.setToolTip('Price graphs.')
         #TODO: individual tool tips        
         l_dummy = QLabel("Graphs\nhere!")
         
@@ -2348,13 +2385,22 @@ class PriceEditWidget(QSplitter):
         self.setGeometry(200, 200, 600, 400)
 
   
-    def setModel(self, listings_model):
-        """Tell the widget which listings_model it should use."""
-        #Put listings_model into communication object
-        self.mapper.setModel(listings_model)
+    def setModel(self, price_model, data_store):
+        """Tell the widget which price_model it should use."""
+        self.data_store = data_store
+        #Put price_model into communication object
+        self.mapper.setModel(price_model)
         #Tell: which widget should show which column
-        self.mapper.addMapping(self.v_id,          0, "text")
-        self.mapper.addMapping(self.v_price,       1, "text")
+        self.mapper.addMapping(self.e_id,               0, "text")
+        self.mapper.addMapping(self.e_price,            1, "text")
+        self.mapper.addMapping(self.e_currency,         2, "text")
+        self.mapper.addMapping(self.e_condition,        3, "text")
+        self.mapper.addMapping(self.e_time,             4, "text")
+        self.mapper.addMapping(self.e_product,          5, "text")
+        self.mapper.addMapping(self.e_listing,          6, "text")
+        self.mapper.addMapping(self.e_type,             7, "text")
+#        self.mapper.addMapping(self.e_avg_period,       8, "text")
+#        self.mapper.addMapping(self.e_avg_num_listings, 9, "text")
         
 
     def setRow(self, index):
@@ -2368,6 +2414,14 @@ class PriceEditWidget(QSplitter):
         index : QModelIndex
         """
         self.mapper.setCurrentModelIndex(index)
+        
+        #Get product name from data store and display it in GUI.
+        prod_id = self.e_product.text()
+        prod_name = "Unknown Product"
+        for prod in self.data_store.products:
+            if prod.id == prod_id:
+                prod_name = prod.name
+        self.v_prod_name.setText(prod_name)
 
 
 
@@ -2380,8 +2434,11 @@ class PriceWidget(QSplitter):
     """
     def __init__(self, parent=None):
         super(PriceWidget, self).__init__(parent)
+        #Main application data
         self.data_store = DataStore() #Dummy
-        self.edit_widget = PriceEditWidget() #PriceEditWidget()
+        #Adapts prices in ``self.data_store`` to Qt model view framework
+        self.price_model = PriceModel() #Dummy
+        self.edit_widget = PriceEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
         
@@ -2404,18 +2461,18 @@ class PriceWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
         
         #Create context menu for list view
-#        #Train all recognizers
-#        self.action_train_all = QAction("Train Recognizers", self)
-#        self.action_train_all.setStatusTip("Train all product recognizers.")
-#        self.action_train_all.triggered.connect(self.slot_train_all)
-#        self.list_widget.addAction(self.action_train_all)
+        #Train all recognizers
+        self.action_compute_prices = QAction("Compute Prices", self)
+        self.action_compute_prices.setStatusTip("Compute all prices")
+        self.action_compute_prices.triggered.connect(self.slotComputePrices)
+        self.list_widget.addAction(self.action_compute_prices)
 
         #Parameterize sort filter for list model
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter.setDynamicSortFilter(False)
         
         #Geometry for testing
-        self.setGeometry(200, 200, 600, 400)
+        self.setGeometry(200, 200, 800, 400)
         
 
     def setModel(self, price_model, data_store):
@@ -2423,9 +2480,10 @@ class PriceWidget(QSplitter):
         Set the various models used in this widget. 
         Models are essentially containers that store the application's data.
         """
+        self.price_model = price_model
         self.data_store = data_store
         self.filter.setSourceModel(price_model)
-#        self.edit_widget.setModel(self.filter)
+        self.edit_widget.setModel(self.filter, data_store)
         self.list_widget.setModel(self.filter)
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
@@ -2461,6 +2519,20 @@ class PriceWidget(QSplitter):
             setting_store.value("PriceWidget/list/header", ""))
         self.edit_widget.restoreState(
             setting_store.value("PriceWidget/editor/splitter", ""))
+
+    def slotComputePrices(self):
+        print "computePrices"
+        estimator = PriceEstimator()
+        #TODO: parameterize price estimator.
+        time_start = None
+        time_end = None
+        avg_period = "week"
+        prices = estimator.compute_prices(
+                    self.data_store.listings, self.data_store.products, 
+                    time_start, time_end, avg_period)
+        self.data_store.merge_prices(prices)
+        print self.data_store.prices
+        self.price_model.slotDataChanged()
 
 
 
