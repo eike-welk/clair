@@ -240,6 +240,9 @@ class PriceEstimator(object):
         assert listing_prices.shape == listing_ids.shape, \
                "Each listing needs a (unique) ID."
         
+        logging.debug("Solving linear least problem. Matrix shape: ({r}, {c})"
+                      .format(r=matrix.shape[0], c=matrix.shape[1]))
+        
         #TODO: maybe also scale prices so that they are nearly 1. would require
         #      two iterations. Idea::
         #          A * x = b

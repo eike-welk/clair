@@ -357,16 +357,16 @@ def test_PriceEstimator_create_prices_lstsq_soln_1():
     data.read_data(relative("../../example-data"))
     
     #Use all data as test data
-    listings = data.listings
+#    listings = data.listings
     product_ids = [p.id for p in data.products 
                    if not p.id.startswith("xxx-unknown")]
 #    #Take a small amount of test data.
-#    listings = data.listings.ix[0:50]
+    listings = data.listings.ix[0:200]
 #    product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
 #                   u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
 #                   u'nikon-28-85-f/3.5-4.5--1']
     print listings
-    print listings.to_string(columns=["products", "price"])
+#    print listings.to_string(columns=["products", "price"])
     
     estimator = PriceEstimator()
     
@@ -391,7 +391,7 @@ def test_PriceEstimator_create_prices_lstsq_soln_1():
                                      listing_prices, listing_ids, 
                                      product_prices, product_ids,
                                      good_cols, good_rows, listings)
-    print prices.to_string()
+#    print prices.to_string()
     
     #TODO: assertions
     print "finshed"
@@ -514,14 +514,14 @@ def test_PriceEstimator_compute_prices_1():
 #    product_ids = [u'nikon-d70', u'nikon-d90', u'nikon-sb-24', u'nikon-sb-26', 
 #                   u'nikon-18-70-f/3.5-4.5--1', u'nikon-18-105-f/3.5-5.6--1',
 #                   u'nikon-28-85-f/3.5-4.5--1']
-    print listings
+#    print listings
     print listings.to_string(columns=["products", "price"])
     
     estimator = PriceEstimator()
     prices = estimator.compute_prices(listings, data.products, 
                                       time_start=None, time_end=None, 
                                       avg_period="week")
-    print prices.to_string()
+#    print prices.to_string()
     
     prices = prices.sort("time")
     prices_d90 = prices.ix[prices["product"] == "nikon-d90"]
@@ -546,7 +546,7 @@ if __name__ == "__main__":
 #    test_PriceEstimator_solve_prices_lstsq_1()
 #    test_PriceEstimator_solve_prices_lstsq_2()
 #    test_PriceEstimator_find_problems_rank_deficient_matrix()
-#    test_PriceEstimator_create_prices_lstsq_soln_1()
-    test_PriceEstimator_create_prices_lstsq_soln_2()
+    test_PriceEstimator_create_prices_lstsq_soln_1()
+#    test_PriceEstimator_create_prices_lstsq_soln_2()
 #    test_PriceEstimator_compute_prices_1()
     pass #IGNORE:W0107
