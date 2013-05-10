@@ -38,6 +38,7 @@ import cPickle
 import lxml.html.clean
 import pandas as pd
 from numpy import nan, isnan
+import numpy as np
 import nltk
 from nltk import RegexpTokenizer, FreqDist
 
@@ -210,7 +211,7 @@ class FeatureExtractor(object):
         listing_words = set(self.extract_words(listing))
         features = {}
         for word in self.feature_words:
-            features["contains-" + word] = word in listing_words
+            features[u"contains-" + word] = word in listing_words
         return features
     
 
@@ -579,7 +580,7 @@ def split_random(data_frame, fraction):
         element_idxs.add(idx)
         
     #Create series with `True` for each row in 1st fraction.
-    fancy_idx = pd.Series(False, index=range(len_data))
+    fancy_idx = np.zeros((len_data,), dtype=bool)
     for idx in element_idxs:
         fancy_idx[idx] = True
     
