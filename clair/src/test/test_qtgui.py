@@ -530,7 +530,7 @@ def test_ListingsEditWidget():
     print "Start"
     app = QApplication(sys.argv)
     
-    listings_model, _, _, product_model, _ = create_models()
+    listings_model, product_model, _, _, _ = create_models()
     
     view = ListingsEditWidget()
     view.setModel(listings_model, product_model)
