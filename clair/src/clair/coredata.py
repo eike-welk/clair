@@ -369,7 +369,7 @@ def make_price_id(price):
     """
     Create ID string for a price.
     """    
-    return price["listing"] + u"-" + price["product"]
+    return unicode(price["listing"]) + "-" + unicode(price["product"])
 
 
 

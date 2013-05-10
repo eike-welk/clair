@@ -162,22 +162,24 @@ def test_make_price_frame():
 
 def test_make_price_id():
     "Test creation of ID strings for prices. These IDs must be unique"
-    from clair.coredata import make_price_id
-    print "start"
+    from clair.coredata import make_price_id, make_price_frame
     
-    n_ids = 1000
+    prices = make_price_frame(1)
     
-    ids = set()
-    time_ = datetime(2000, 1, 1)
-    product = "a"
-    for _ in range(n_ids):
-        price_id = make_price_id(time_, product)
-#        print price_id
-        ids.add(price_id)
-        
-    #Assert that IDs are unique
-    print "Number of unique IDs:", len(ids), "should be:", n_ids
-    assert len(ids) == n_ids
+    #Test with incomplete price row
+    p_id = make_price_id(prices.ix[0])
+    print p_id
+    assert isinstance(p_id, basestring)
+    assert len(p_id) > 8
+    
+    #Test with used value filled in
+    prices.ix[0, "listing"] = "2000-01-01-eb-1234567890" 
+    prices.ix[0, "product"] = "foo--1" 
+    
+    p_id = make_price_id(prices.ix[0])
+    print p_id
+    assert isinstance(p_id, basestring)
+    assert len(p_id) > 30
     
     
 def test_ListingsXMLConverter():
@@ -571,7 +573,7 @@ def test_DataStore_write_expected_products_to_listings():
     
 if __name__ == "__main__":
 #    test_make_price_frame()
-#    test_make_price_id()
+    test_make_price_id()
 #    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
@@ -581,6 +583,6 @@ if __name__ == "__main__":
 #    test_XmlSmallObjectIO()
 #    test_DataStore()
 #    test_DataStore_update_expected_products()
-    test_DataStore_write_expected_products_to_listings()
+#    test_DataStore_write_expected_products_to_listings()
     
     pass
