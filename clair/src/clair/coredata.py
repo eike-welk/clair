@@ -332,38 +332,44 @@ def make_price_frame(nrows=None, index=None):
     return prices
 
 
-def make_price_id(time, product):
+#def make_price_id(time, product):
+#    """
+#    Create ID string for a price.
+#    
+#    Uniqueness of random string
+#    ---------------------------
+#    
+#    The random part can ensure uniqueness of the ID, for up to 1000 IDs 
+#    with identical parameters. However if the function is called 1e4 times 
+#    with identical parameters, there are about 4 overlaps.
+#    
+#    Chances for one collision of a random string with length 4 and 62 different 
+#    characters:
+#    
+#    Number of different random strings: n_str = 62**4 = 14e6
+#    Probability of collision if `nt` strings are generated::
+#    
+#        p_coll(nt) = (nt * .5) * (nt - 1) / n_str = (ntr**2 - nt) / (2 * n_str)
+#        
+#    For 100 tries:   p_coll(100)   = 0.00034
+#    For 1000 tries:  p_coll(1000)  = 0.034
+#    for 10000 tries: p_coll(10000) = 3.4
+#    
+#    TODO: Maybe use pattern `listing_id-product_name` instead. This would 
+#          help eliminate duplicate listings.
+#    TODO: Use price (``Series``) object itself as the function's argument.
+#          this would bring much more flexibility. 
+#    """
+#    chars = string.ascii_letters + string.digits
+#    length = 4
+#    rand_str = ''.join(random.choice(chars) for _ in range(length))
+#    return str(time.date()) + "-" + product + "-" + rand_str
+
+def make_price_id(price):
     """
     Create ID string for a price.
-    
-    Uniqueness of random string
-    ---------------------------
-    
-    The random part can ensure uniqueness of the ID, for up to 1000 IDs 
-    with identical parameters. However if the function is called 1e4 times 
-    with identical parameters, there are about 4 overlaps.
-    
-    Chances for one collision of a random string with length 4 and 62 different 
-    characters:
-    
-    Number of different random strings: n_str = 62**4 = 14e6
-    Probability of collision if `nt` strings are generated::
-    
-        p_coll(nt) = (nt * .5) * (nt - 1) / n_str = (ntr**2 - nt) / (2 * n_str)
-        
-    For 100 tries:   p_coll(100)   = 0.00034
-    For 1000 tries:  p_coll(1000)  = 0.034
-    for 10000 tries: p_coll(10000) = 3.4
-    
-    TODO: Maybe use pattern `listing_id-product_name` instead. This would 
-          help eliminate duplicate listings.
-    TODO: Use price (``Series``) object itself as the function's argument.
-          this would bring much more flexibility. 
-    """
-    chars = string.ascii_letters + string.digits
-    length = 4
-    rand_str = ''.join(random.choice(chars) for _ in range(length))
-    return str(time.date()) + "-" + product + "-" + rand_str
+    """    
+    return price["listing"] + u"-" + price["product"]
 
 
 

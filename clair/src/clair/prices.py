@@ -57,38 +57,33 @@ class PriceEstimator(object):
         Search listings_frame with only one product, and create prices from them.
         These prices are called 'observed' prices here.
         """
-        ids, prices, currencies, conditions = [], [], [], []
-        times, products, listings = [], [], []
+        #Price data is first collected in list of dicts, that is later 
+        #converted to a ``DataFrame``. Each dict is a row of the ``DataFrame``.
+        price_data = []
         for _, listing in listings_frame.iterrows():
-            #Select listings with only one product
+            #Select sold listings with only one product
             curr_prods = listing["products"]
             if len(curr_prods) != 1:
                 continue
             if listing["sold"] != 1.:
                 continue
-            #Put the price data into lists
-            prod = curr_prods[0]
-            time = listing["time"]
-            ids.append(make_price_id(time, prod))
-            prices.append(listing["price"])
-            currencies.append(listing["currency"])
-            conditions.append(listing["condition"])
-            times.append(time)
-            products.append(prod)
-            listings.append(listing["id"])
-                
-        price_frame = make_price_frame(len(prices))
-        price_frame["id"] = ids
-        price_frame["price"] = prices
-        price_frame["currency"] = currencies
-        price_frame["condition"] = conditions
-        price_frame["time"] = times
-        price_frame["product"] = products
-        price_frame["listing"] = listings
-        price_frame["type"] = "observed"
+            #Put the price data into dict
+            single_price_data = {}
+            single_price_data["price"] = listing["price"]
+            single_price_data["currency"] = listing["currency"]
+            single_price_data["condition"] = listing["condition"]
+            single_price_data["time"] = listing["time"]
+            single_price_data["product"] = curr_prods[0]
+            single_price_data["listing"] = listing["id"]
+            single_price_data["type"] = "observed"
+            single_price_data["avg_period"] = "none"
+            single_price_data["avg_num_listings"] = 1
+            single_price_data["id"] = make_price_id(single_price_data)
+            price_data.append(single_price_data)
+
+        price_frame = pd.DataFrame(price_data)
         price_frame.set_index("id", drop=False, inplace=True, 
                               verify_integrity=True)
-        
         return price_frame
 
 
@@ -342,29 +337,40 @@ class PriceEstimator(object):
         good_prod_idxs = np.argwhere(good_cols)[:, 0]
         
         #Create the average prices
-        avg_prices = make_price_frame(len(product_prices))
+        #Price data is first collected in list of dicts, that is later 
+        #converted to a ``DataFrame``. Each dict is a row of the ``DataFrame``.
+        price_data = []
         for iprod in range(len(product_prices)):
             if iprod not in good_prod_idxs:
                 continue
-            avg_prices["price"][iprod] = \
+            single_price_data = {}
+            #Multiply with condition, solver returns prices for condition "new".
+            single_price_data["price"] = \
                             product_prices[iprod] * self.default_condition
-            avg_prices["currency"][iprod] = self.default_currency
-            avg_prices["condition"][iprod] = self.default_condition
-            avg_prices["time"][iprod] = self.average_mid_time
-            avg_prices["product"][iprod] = product_ids[iprod]
-            avg_prices["listing"][iprod] = None
-            avg_prices["type"][iprod] = "average"
-            avg_prices["avg_period"][iprod] = self.avg_period
-            avg_prices["avg_num_listings"][iprod] = len(listing_prices)
-            avg_prices["id"][iprod] = make_price_id(avg_prices["time"][iprod], 
-                                                    avg_prices["product"][iprod])
-        avg_prices = avg_prices[~np.isnan(avg_prices["price"])]
+            single_price_data["currency"] = self.default_currency
+            single_price_data["condition"] = self.default_condition
+            single_price_data["time"] = self.average_mid_time
+            single_price_data["product"] = product_ids[iprod]
+            single_price_data["listing"] = u"{}-average".format(
+                                                        self.average_mid_time)
+            single_price_data["type"] = "average"
+            single_price_data["avg_period"] = self.avg_period
+            #Get number of listings that were used for this average price, from 
+            #the system matrix. Count non-zero entries in the price's column. 
+            prod_col = matrix[:, iprod]
+            prod_col = np.where(prod_col > 0, 1, 0) #Don't count NaNs
+            n_listings = np.sum(prod_col)
+            single_price_data["avg_num_listings"] = n_listings
+            single_price_data["id"] = make_price_id(single_price_data)
+            price_data.append(single_price_data)
+        
+        avg_prices = pd.DataFrame(price_data)
         
         #Create prices for each item of each listing 
-        #Product prices could be NaN
+        #Protect against prices that are NaN
         good_prod_prices = np.where(np.isnan(product_prices), 
                                     0, product_prices)
-        #Collect intermediate data in list of dict. Each dict is a price.
+        #Price data is first collected in list of dicts. Each dict is a price.
         price_data = []
         for ilist in range(len(listing_prices)):
             #Each row of `matrix` represents a listing
@@ -408,14 +414,12 @@ class PriceEstimator(object):
                 single_price_data["listing"] = list_id
                 single_price_data["type"] = price_type
                 single_price_data["avg_period"] = avg_period
+                #TODO: Better algorithm, analogous to algorithm above for average prices.
                 single_price_data["avg_num_listings"] = len(listing_prices)
-                single_price_data["id"] = make_price_id(list_time, 
-                                                        product_ids[iprod])
+                single_price_data["id"] = make_price_id(single_price_data)
                 price_data.append(single_price_data)
         
-        #Create a data frame from the price data
         list_prices = pd.DataFrame(price_data)
-        #Create combined data frame
         prices = avg_prices.append(
                         list_prices, ignore_index=True, verify_integrity=False)
         prices.set_index("id", drop=False, inplace=True, verify_integrity=True)
