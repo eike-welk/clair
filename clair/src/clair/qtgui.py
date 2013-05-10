@@ -2653,9 +2653,9 @@ class PriceModel(QAbstractTableModel):
             return None
         
         if role == Qt.DisplayRole:
-            return self._data_frame.columns[section]
+            return self._data_frame_consts.columns[section]
         elif role == Qt.ToolTipRole:
-            col_name = self._data_frame.columns[section]
+            col_name = self._data_frame_consts.columns[section]
             return self._data_frame_consts.comments[col_name]
         else:
             return None

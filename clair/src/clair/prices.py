@@ -339,6 +339,7 @@ class PriceEstimator(object):
         #Create the average prices
         #Price data is first collected in list of dicts, that is later 
         #converted to a ``DataFrame``. Each dict is a row of the ``DataFrame``.
+        prices = make_price_frame(0)
         price_data = []
         for iprod in range(len(product_prices)):
             if iprod not in good_prod_idxs:
@@ -365,6 +366,8 @@ class PriceEstimator(object):
             price_data.append(single_price_data)
         
         avg_prices = pd.DataFrame(price_data)
+        prices = prices.append(
+                        avg_prices, ignore_index=True, verify_integrity=False)
         
         #Create prices for each item of each listing 
         #Protect against prices that are NaN
@@ -420,7 +423,7 @@ class PriceEstimator(object):
                 price_data.append(single_price_data)
         
         list_prices = pd.DataFrame(price_data)
-        prices = avg_prices.append(
+        prices = prices.append(
                         list_prices, ignore_index=True, verify_integrity=False)
         prices.set_index("id", drop=False, inplace=True, verify_integrity=True)
         return prices
