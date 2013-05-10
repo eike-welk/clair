@@ -136,7 +136,7 @@ def test_PriceEstimator_solve_prices_lstsq_1():
     print "listing_ids:\n", listing_ids
     print "product_ids:\n", product_ids
     
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
@@ -158,6 +158,9 @@ def test_PriceEstimator_solve_prices_lstsq_2():
         print "product_ids:\n", product_ids
         print "product_prices:\n", product_prices
         print "real_prices:\n", real_prices
+        print "good_rows:\n", good_rows
+        print "good_cols:\n", good_cols
+        print "problem_products:\n", problem_products
         
     print "start"
     
@@ -187,7 +190,7 @@ def test_PriceEstimator_solve_prices_lstsq_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
@@ -199,7 +202,7 @@ def test_PriceEstimator_solve_prices_lstsq_2():
     listing_prices = dot(matrix, real_prices)
     listing_prices += np.random.normal(0, 0.1, (10,)) * listing_prices
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
@@ -228,7 +231,7 @@ def test_PriceEstimator_solve_prices_lstsq_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
@@ -249,12 +252,33 @@ def test_PriceEstimator_solve_prices_lstsq_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     print_vals()
     np.testing.assert_allclose(product_prices[0:3], real_prices[0:3])
     
+    print "Matrix is 1*2 ------------------------"
+    #Listing IDs, unimportant in this test.
+    listing_ids = array(["l1"])
+    
+    #Product IDs, and "real" prices for checking errors
+    product_ids = array(["a", "b"])
+    real_prices = array([500, 200.])
+    
+    #Matrix that represents the listings, each row is a listing
+    matrix =     array([[0.7, 0]])
+    #compute listing prices from the real prices
+    listing_prices = dot(matrix, real_prices)
+    #Compute the product prices
+    product_prices, good_rows, good_cols, problem_products = \
+                estimator.solve_prices_lstsq(matrix, listing_prices, 
+                                                     listing_ids, product_ids)
+    
+    print_vals()
+    np.testing.assert_allclose(product_prices[good_cols], 
+                               real_prices[good_cols])
+
     print "Matrix is 1*1 (but has full rank, no noise) ------------------------"
     #Listing IDs, unimportant in this test.
     listing_ids = array(["l1"])
@@ -268,12 +292,13 @@ def test_PriceEstimator_solve_prices_lstsq_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
     print_vals()
-    np.testing.assert_allclose(product_prices, real_prices)
+    np.testing.assert_allclose(product_prices[good_cols], 
+                               real_prices[good_cols])
 
     print "finshed"
 
@@ -303,7 +328,7 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
                     [ 0.,  0.,  0.,  1.,  1.,],
                     [ 1.,  1.,  1.,  1.,  1.,], 
                     ])
-    good_cols, good_rows, problem_products = \
+    good_rows, good_cols, problem_products = \
                         estimator.find_problems_rank_deficient_matrix(matrix)
     print_all()
     assert all(good_cols == [True, True, True, True, True])
@@ -321,7 +346,7 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
                     [ 0.,  0.,  0.,  1.,  1.,],
                     [ 1.,  1.,  1.,  0.,  0.,], 
                     ])
-    good_cols, good_rows, problem_products = \
+    good_rows, good_cols, problem_products = \
                         estimator.find_problems_rank_deficient_matrix(matrix)
     print_all()
     assert all(good_cols == [True, True, True, False, False])
@@ -340,11 +365,21 @@ def test_PriceEstimator_find_problems_rank_deficient_matrix():
                     [ 0.,  0.,  0.,  1.,  1.,],
                     [ 0.,  0.,  0.,  1.,  1.,], 
                     ])
-    good_cols, good_rows, problem_products = \
+    good_rows, good_cols, problem_products = \
                         estimator.find_problems_rank_deficient_matrix(matrix)
     print_all()
     assert all(good_cols == [True, True, True, False, False])
     assert problem_products == ["3", "4"]
+
+
+    print "\nPathological case shape = (1, 2) ----------------"
+    #Pathological case for the current algorithm
+    matrix = array([[ 0.7,  0.]])
+    good_rows, good_cols, problem_products = \
+                        estimator.find_problems_rank_deficient_matrix(matrix)
+    print_all()
+    assert all(good_cols == [True, False])
+    assert problem_products == ["1"]
 
 
 def test_PriceEstimator_create_prices_lstsq_soln_1():
@@ -382,7 +417,7 @@ def test_PriceEstimator_create_prices_lstsq_soln_1():
 #    print "product_ids:\n", product_ids
     
     #Compute average product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                                      listing_ids, product_ids)
     
@@ -390,7 +425,7 @@ def test_PriceEstimator_create_prices_lstsq_soln_1():
     prices = estimator.create_prices_lstsq_soln(matrix, 
                                      listing_prices, listing_ids, 
                                      product_prices, product_ids,
-                                     good_cols, good_rows, listings)
+                                     good_rows, good_cols, listings)
 #    print prices.to_string()
     
     #TODO: assertions
@@ -442,7 +477,7 @@ def test_PriceEstimator_create_prices_lstsq_soln_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                              listing_ids, product_ids)
     print_vals()
@@ -479,7 +514,7 @@ def test_PriceEstimator_create_prices_lstsq_soln_2():
     #compute listing prices from the real prices
     listing_prices = dot(matrix, real_prices)
     #Compute the product prices
-    product_prices, good_cols, good_rows, problem_products = \
+    product_prices, good_rows, good_cols, problem_products = \
                 estimator.solve_prices_lstsq(matrix, listing_prices, 
                                              listing_ids, product_ids)
     print_vals()
@@ -544,9 +579,9 @@ if __name__ == "__main__":
 #    test_PriceEstimator_find_observed_prices()
 #    test_PriceEstimator_compute_product_occurrence_matrix()
 #    test_PriceEstimator_solve_prices_lstsq_1()
-#    test_PriceEstimator_solve_prices_lstsq_2()
+    test_PriceEstimator_solve_prices_lstsq_2()
 #    test_PriceEstimator_find_problems_rank_deficient_matrix()
-    test_PriceEstimator_create_prices_lstsq_soln_1()
+#    test_PriceEstimator_create_prices_lstsq_soln_1()
 #    test_PriceEstimator_create_prices_lstsq_soln_2()
 #    test_PriceEstimator_compute_prices_1()
     pass #IGNORE:W0107

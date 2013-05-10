@@ -186,6 +186,7 @@ class PriceEstimator(object):
             least square algorithm.
         """
         n_listings, n_products = matrix.shape
+        #Produce dummy product names for testing
         if product_ids is None:
             product_ids = [str(i) for i in range(n_products)]
         
@@ -217,7 +218,7 @@ class PriceEstimator(object):
                               "for price estimation."
                               .format(p=product_ids[i_col], c=i_col))
                 
-        return good_cols, good_rows, problem_products
+        return good_rows, good_cols, problem_products
     
     
     def solve_prices_lstsq(self, matrix, listing_prices, 
@@ -266,17 +267,18 @@ class PriceEstimator(object):
         #Compute least square solution to equation system
         product_prices, _resid, rank, _sing_vals = np.linalg.lstsq(
                                                     matrix_s, listing_prices_s)
-        #If matrix is rank deficient, find the problematic columns 
-        # (zero, collinear) and exclude the associated prices from the result.
-        if rank < min(matrix.shape):
+        #If matrix rank is too low to compute all prices, find problematic 
+        #columns. These column are zero or collinear. 
+        #The associated prices are later excluded from the result.
+        if rank < matrix.shape[1]:
             logging.info("Rank deficient matrix. Rank: {}. Should have: {}."
-                         .format(rank, min(matrix.shape)))
-            good_cols, good_rows, problem_products = \
+                         .format(rank, matrix.shape[1]))
+            good_rows, good_cols, problem_products = \
                 self.find_problems_rank_deficient_matrix(matrix, product_ids)
 #            product_prices[~good_cols] = NaN
         else:
-            good_cols = np.ones(matrix.shape[0], dtype=bool)
-            good_rows = np.ones(matrix.shape[1], dtype=bool)
+            good_rows = np.ones(matrix.shape[0], dtype=bool)
+            good_cols = np.ones(matrix.shape[1], dtype=bool)
             problem_products = []
         
         #TODO: loop for removal of outliers by weighting them low 
@@ -286,13 +288,13 @@ class PriceEstimator(object):
         #      * If the estimated values change much after the row is removed,
         #        then this row is an outlier. 
         #      http://en.wikipedia.org/wiki/Cook%27s_distance
-        return product_prices, good_cols, good_rows, problem_products
+        return product_prices, good_rows, good_cols, problem_products
         
         
     def create_prices_lstsq_soln(self, matrix, 
                                  listing_prices, listing_ids,
                                  product_prices, product_ids,
-                                 good_cols, good_rows, listings=None):
+                                 good_rows, good_cols, listings=None):
         """
         Create product prices from the results of the linear least 
         square algorithm.
@@ -467,8 +469,9 @@ class PriceEstimator(object):
             intv_start = intervals[i]
             intv_end = intervals[i + 1]
             
-            offset_mid = timedelta(seconds=(intv_end - intv_start).seconds / 2)
-            self.average_mid_time = intervals[i] + offset_mid
+            offset_mid = timedelta(
+                            seconds=(intv_end - intv_start).total_seconds() / 2)
+            self.average_mid_time = intv_start + offset_mid
             
             intv_listings = listings.ix[(listings["time"] >= intervals[i]) &
                                         (listings["time"] < intervals[i + 1])]
@@ -484,13 +487,13 @@ class PriceEstimator(object):
             if matrix.shape[0] == 0:
                 logging.debug("No valid listing prices.")
                 continue
-            product_prices, good_cols, good_rows, problem_products = \
+            product_prices, good_rows, good_cols, problem_products = \
                 self.solve_prices_lstsq(
                             matrix, listing_prices, listing_ids, product_ids)
             intv_prices = self.create_prices_lstsq_soln(
                                         matrix, listing_prices, listing_ids, 
                                         product_prices, product_ids, 
-                                        good_cols, good_rows, listings)
+                                        good_rows, good_cols, listings)
             prices = prices.append(intv_prices)
             
         return prices
