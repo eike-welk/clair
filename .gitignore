@@ -39,6 +39,8 @@ clair/.settings/
 
 # Vim swap files
 *.swp
+#Kate trash files
+*~
 
 # Secret API keys
 *.apikey

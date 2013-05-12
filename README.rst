@@ -14,7 +14,9 @@ and was influential in creating the New Deal.
 Software
 =======================================
 
-The software is currently in an alpha stage, with no components usable for end users.
+The software is currently in an early beta stage. 
+There are no components usable for end users, but there are crude programs, 
+that can be tested without much effort.
 
 Clair is written in the Python, the GUI parts use the *QT* framework. 
 It can currently only communicate with Ebay.
