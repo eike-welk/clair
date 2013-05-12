@@ -294,7 +294,7 @@ class ProductWidget(QSplitter):
         self.action_train_all = QAction("Train &All Recognizers", self)
         self.action_train_all.setStatusTip(
                                     "Train recognizers for all products.")
-        self.action_train_all.triggered.connect(self.slot_train_all)
+        self.action_train_all.triggered.connect(self.slotTrainAll)
         self.list_widget.addAction(self.action_train_all)
         #Run all recognizers
         self.action_run_all = QAction("&Run Recognizers", self) 
@@ -374,7 +374,7 @@ class ProductWidget(QSplitter):
         progd.setValue(max_progress)
             
         
-    def slot_train_all(self):
+    def slotTrainAll(self):
         "Train recognizers for all products."
         logging.debug("Train recognizers for all products.")
         #Create progress dialog
@@ -2043,14 +2043,14 @@ class ListingsWidget(QSplitter):
         #Train all recognizers
         self.action_train_all = QAction("Train Recognizers", self)
         self.action_train_all.setStatusTip("Train all product recognizers.")
-        self.action_train_all.triggered.connect(self.slot_train_all)
+        self.action_train_all.triggered.connect(self.slotTrainAll)
         self.list_widget.addAction(self.action_train_all)
         #Recognize products in current selection
         self.action_recognize_selection = QAction("&Recognize Selection", self)
         self.action_recognize_selection.setStatusTip(
                     "Run all product recognizers on the current selection.")
         self.action_recognize_selection.triggered.connect(
-                                                self.slot_recognize_selection)
+                                                self.slotRecognizeSelection)
         self.list_widget.addAction(self.action_recognize_selection)
 
         #Parameterize sort filter for list model
@@ -2087,8 +2087,30 @@ class ListingsWidget(QSplitter):
             Current and previous row
         """
         self.edit_widget.setRow(current)
+            
+    def saveSettings(self, setting_store):
+        """Save widget state, such as splitter position."""
+        setting_store.setValue("ListingsWidget/splitter", self.saveState())
+        setting_store.setValue("ListingsWidget/list/header", 
+                               self.list_widget.header().saveState())
+        setting_store.setValue("ListingsWidget/editor/splitter", 
+                               self.edit_widget.saveState())
+        setting_store.setValue("ListingsWidget/editor/learn_list/header", 
+                               self.edit_widget.v_learn_view.header()
+                               .saveState())
         
-    def slot_train_all(self):
+    def loadSettings(self, setting_store):
+        """Load widget state, such as splitter position."""
+        self.restoreState(setting_store.value(
+                                "ListingsWidget/splitter", ""))
+        self.list_widget.header().restoreState(
+            setting_store.value("ListingsWidget/list/header", ""))
+        self.edit_widget.restoreState(
+            setting_store.value("ListingsWidget/editor/splitter", ""))
+        self.edit_widget.v_learn_view.header().restoreState(
+            setting_store.value("ListingsWidget/editor/learn_list/header", ""))
+
+    def slotTrainAll(self):
         "Train recognizers for all products."
         logging.debug("Train recognizers for all products.")
         #Create progress dialog
@@ -2105,7 +2127,7 @@ class ListingsWidget(QSplitter):
         #Hide progress dialog
         progd.setValue(max_progress)
         
-    def slot_recognize_selection(self):
+    def slotRecognizeSelection(self):
         """Run the recognizers over the current selection."""
         logging.debug("Run recognizers on selection")        
         #Get listings in the current selection
@@ -2134,30 +2156,7 @@ class ListingsWidget(QSplitter):
     #The listings in the data store changed
     signalListingsChanged = pyqtSignal()
         
-        
-    def saveSettings(self, setting_store):
-        """Save widget state, such as splitter position."""
-        setting_store.setValue("ListingsWidget/splitter", self.saveState())
-        setting_store.setValue("ListingsWidget/list/header", 
-                               self.list_widget.header().saveState())
-        setting_store.setValue("ListingsWidget/editor/splitter", 
-                               self.edit_widget.saveState())
-        setting_store.setValue("ListingsWidget/editor/learn_list/header", 
-                               self.edit_widget.v_learn_view.header()
-                               .saveState())
-        
-    def loadSettings(self, setting_store):
-        """Load widget state, such as splitter position."""
-        self.restoreState(setting_store.value(
-                                "ListingsWidget/splitter", ""))
-        self.list_widget.header().restoreState(
-            setting_store.value("ListingsWidget/list/header", ""))
-        self.edit_widget.restoreState(
-            setting_store.value("ListingsWidget/editor/splitter", ""))
-        self.edit_widget.v_learn_view.header().restoreState(
-            setting_store.value("ListingsWidget/editor/learn_list/header", ""))
-
-
+    
 
 class ListingsModel(QAbstractTableModel):
     """

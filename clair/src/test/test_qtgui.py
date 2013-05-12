@@ -87,6 +87,8 @@ def create_models():
     fr["search_tasks"] = ["s-nikon-d90", "s-nikon-d70", "s-nikon-d90"]
     
     fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
+    fr["expected_products"][1] = ["nikon-d70"]
+    fr["expected_products"][2] = ["nikon-d90", "nikon-sb-24"]
     fr["products"] = [["nikon-d90"], ["nikon-d70"], ["nikon-d90"]]
     fr["products_absent"][0] = ["nikon-sb-24"]
     
@@ -704,12 +706,12 @@ if __name__ == '__main__':
 #    test_LearnDataProxyModel_GUI()
 #    test_DataWidgetHtmlView()
 #    test_ListingsEditWidget()
-#    test_ListingsWidget()
+    test_ListingsWidget()
 #    test_ListingsModel()
 #    test_PriceEditWidget()
 #    test_PriceWidget()
 #    test_PriceModel()
-    test_GuiMain()
+#    test_GuiMain()
     
 #    experiment_qt()
     
