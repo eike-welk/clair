@@ -830,7 +830,10 @@ class TaskWidget(QSplitter):
         self.edit_widget = SearchTaskEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
+        self.task_model = TaskModel() #Dummy
+        self.listings_model = ListingsModel() #Dummy
         self.data_store = DataStore() #Dummy
+        
         
         #Assemble the child widgets
         self.addWidget(self.list_widget)
@@ -902,17 +905,17 @@ class TaskWidget(QSplitter):
 
     def setModel(self, task_model, listings_model, data_store):
         """Tell view which model it should display and edit."""
+        self.task_model = task_model
+        self.listings_model = listings_model
+        self.data_store = data_store
+        #Set up the filter chain for the list view
         self.filter.setSourceModel(task_model)
         self.edit_widget.setModel(self.filter)
         self.list_widget.setModel(self.filter)
-        self.data_store = data_store
         #When user selects a line in ``list_widget`` this item is shown 
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
                                                         self.slotRowChanged)
-        #Notify models when their underlying data has changed
-        self.signalTasksChanged.connect(task_model.slotDataChanged)
-        self.signalListingsChanged.connect(listings_model.slotDataChanged)
     
     def slotRowChanged(self, current, _previous):
         """
@@ -949,10 +952,10 @@ class TaskWidget(QSplitter):
         model = self.list_widget.model()
         model.removeRows(row, 1)
     
-    #The listings in the data store changed completely
-    signalListingsChanged = pyqtSignal()
-    #The tasks in the data store changed completely
-    signalTasksChanged = pyqtSignal()
+#    #The listings in the data store changed completely
+#    signalListingsChanged = pyqtSignal()
+#    #The tasks in the data store changed completely
+#    signalTasksChanged = pyqtSignal()
         
     def update_expected_products(self):
         """
@@ -965,8 +968,8 @@ class TaskWidget(QSplitter):
         task_id_idx = curr_idx.sibling(curr_idx.row(), 0)
         task_id = task_id_idx.data()
         self.data_store.update_expected_products(task_id)
-        self.signalListingsChanged.emit()
-        self.signalTasksChanged.emit()
+        self.listings_model.slotDataChanged()
+        self.task_model.slotDataChanged()
         
     def set_expected_products(self):
         """
@@ -978,8 +981,8 @@ class TaskWidget(QSplitter):
         task_id_idx = curr_idx.sibling(curr_idx.row(), 0)
         task_id = task_id_idx.data()
         self.data_store.write_expected_products_to_listings(task_id)
-        self.signalListingsChanged.emit()
-        self.signalTasksChanged.emit()
+        self.listings_model.slotDataChanged()
+        self.task_model.slotDataChanged()
         
     def slotExecuteTasks(self):
         """
@@ -1027,7 +1030,7 @@ class TaskWidget(QSplitter):
             progd.setValue(i * 10)
             
         progd.setValue(max_progress)
-        self.signalListingsChanged.emit()
+        self.listings_model.slotDataChanged()
         
 
 
