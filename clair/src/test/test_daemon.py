@@ -233,7 +233,7 @@ def test_MainObj_create_final_update_tasks():
 
 @pytest.mark.skipif #IGNORE:E1101
 def test_MainObj_main_download_listings():
-    """Test DaemonMain.main_download_listings"""
+    """Test DaemonMain.run_daemon"""
     
     from clair.daemon import DaemonMain
 
@@ -247,13 +247,13 @@ def test_MainObj_main_download_listings():
     
     m = DaemonMain(conf_dir, data_dir)
     
-    m.main_download_listings(1)
+    m.run_daemon(1)
     
     print "finished!"
     
     
 def experiment_MainObj_main_download_listings():
-    """Experiment with DaemonMain.main_download_listings"""
+    """Experiment with DaemonMain.run_daemon"""
     from clair.daemon import DaemonMain
     
     print "start"
@@ -265,7 +265,7 @@ def experiment_MainObj_main_download_listings():
     
     m = DaemonMain(conf_dir, data_dir)
     
-    m.main_download_listings(-1)
+    m.run_daemon(-1)
     
     print "finished!"
 

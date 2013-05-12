@@ -61,10 +61,11 @@ from PyQt4.QtGui import (QWidget, QLabel, QPushButton, QLineEdit, QTextEdit,
                          QStyledItemDelegate, QItemEditorFactory,)
 from PyQt4.QtWebKit import QWebView
 
-from clair.coredata import (make_listing_frame, Product, SearchTask, DataStore,
-                            PriceConstants)                 
+from clair.coredata import (make_listing_frame, Product, SearchTask, UpdateTask,
+                            DataStore, PriceConstants)                 
 from clair.textprocessing import HtmlTool, RecognizerController
 from clair.prices import PriceEstimator
+from clair.daemon import DaemonMain
 
 
 
@@ -267,12 +268,12 @@ class ProductWidget(QSplitter):
         
         #Create context menu for list view
         #New product
-        self.action_recognize_selection = QAction("&New Product", self)
-        self.action_recognize_selection.setShortcuts(QKeySequence.InsertLineSeparator)
-        self.action_recognize_selection.setStatusTip(
+        self.action_new = QAction("&New Product", self)
+        self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
+        self.action_new.setStatusTip(
                                 "Create new product below selected product.")
-        self.action_recognize_selection.triggered.connect(self.newProduct)
-        self.list_widget.addAction(self.action_recognize_selection)
+        self.action_new.triggered.connect(self.newProduct)
+        self.list_widget.addAction(self.action_new)
         #Delete product
         self.action_delete = QAction("&Delete Product", self)
         self.action_delete.setShortcuts(QKeySequence.Delete)
@@ -851,11 +852,11 @@ class TaskWidget(QSplitter):
         
         #Create context menu for list view
         #New Task
-        self.action_recognize_selection = QAction("&New Task", self)
-        self.action_recognize_selection.setShortcuts(QKeySequence.InsertLineSeparator)
-        self.action_recognize_selection.setStatusTip("Create new task below selected task.")
-        self.action_recognize_selection.triggered.connect(self.newProduct)
-        self.list_widget.addAction(self.action_recognize_selection)
+        self.action_new = QAction("&New Task", self)
+        self.action_new.setShortcuts(QKeySequence.InsertLineSeparator)
+        self.action_new.setStatusTip("Create new task below selected task.")
+        self.action_new.triggered.connect(self.newProduct)
+        self.list_widget.addAction(self.action_new)
         #Delete task
         self.action_delete = QAction("&Delete Task", self)
         self.action_delete.setShortcuts(QKeySequence.Delete)
@@ -884,6 +885,15 @@ class TaskWidget(QSplitter):
         self.action_set_expected_products.triggered.connect(
             self.set_expected_products)
         self.list_widget.addAction(self.action_set_expected_products)
+        #Separator
+        separator = QAction(self)
+        separator.setSeparator(True)
+        self.list_widget.addAction(separator)
+        #Execute tasks.
+        self.action_execute = QAction("&Execute Tasks", self)
+        self.action_execute.setStatusTip("Execute the selected tasks.")
+        self.action_execute.triggered.connect(self.slotExecuteTasks)
+        self.list_widget.addAction(self.action_execute)        
         
         #Parameters for the sort filter
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
@@ -912,6 +922,18 @@ class TaskWidget(QSplitter):
         """
         self.edit_widget.setRow(current)
         
+    def saveSettings(self, setting_store):
+        """Save widget state, such as splitter position."""
+        setting_store.setValue("TaskWidget/state", self.saveState())
+        setting_store.setValue("TaskWidget/list/header/state", 
+                               self.list_widget.header().saveState())
+        
+    def loadSettings(self, setting_store):
+        """Load widget state, such as splitter position."""
+        self.restoreState(setting_store.value("TaskWidget/state", ""))
+        self.list_widget.header().restoreState(
+                setting_store.value("TaskWidget/list/header/state", ""))
+
     def newProduct(self):
         """Create a new product below the current product."""
         row = self.list_widget.currentIndex().row()
@@ -957,20 +979,56 @@ class TaskWidget(QSplitter):
         task_id = task_id_idx.data()
         self.data_store.write_expected_products_to_listings(task_id)
         self.signalListingsChanged.emit()
-        self.signalTasksChanged.emit()        
+        self.signalTasksChanged.emit()
         
-    def saveSettings(self, setting_store):
-        """Save widget state, such as splitter position."""
-        setting_store.setValue("TaskWidget/state", self.saveState())
-        setting_store.setValue("TaskWidget/list/header/state", 
-                               self.list_widget.header().saveState())
+    def slotExecuteTasks(self):
+        """
+        Execute the selected tasks. 
+        Currently all tasks are search tasks. The algorithm will search 
+        for new listings and immediately download all details (update the 
+        listings).
+        """
+        logging.debug("Execute the selected tasks.")        
+        #Get listings in the current selection
+        selection_model = self.list_widget.selectionModel()
+        selected_ids = []
+        for model_id in selection_model.selectedRows(0):
+            idx = model_id.data()
+            selected_ids.append(idx)
         
-    def loadSettings(self, setting_store):
-        """Load widget state, such as splitter position."""
-        self.restoreState(setting_store.value("TaskWidget/state", ""))
-        self.list_widget.header().restoreState(
-                setting_store.value("TaskWidget/list/header/state", ""))
-
+        #Create progress dialog
+        max_progress = len(selected_ids * 10)
+        progd = QProgressDialog("Execute the selected tasks...", "Abort", 
+                                0, max_progress)
+        progd.setWindowModality(Qt.WindowModal)
+#        progd.setMinimumDuration(4000)
+        #Progress dialog only appears after a few calls to ``setValue``.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        
+        downloader = DaemonMain(self.data_store.conf_dir, 
+                                self.data_store.data_dir, self.data_store)
+        i = 0
+        for task in self.data_store.tasks:
+            if task.id not in selected_ids:
+                continue
+            i += 1
+            #Execute the selected search task
+            ids_found = downloader.execute_search_task(task)
+            progd.setValue(i * 10 - 5)
+            #Update any new listing (without long description)
+            lst_update = self.data_store.listings.ix[ids_found]
+            lst_update = lst_update.ix[pd.isnull(lst_update["description"])]
+            ids_update = list(lst_update["id"])
+            downloader.execute_update_task(
+                UpdateTask(id="update-{}".format(task.id), 
+                           due_time=None, server=task.server, 
+                           recurrence_pattern=None, 
+                           listings=ids_update))
+            progd.setValue(i * 10)
+            
+        progd.setValue(max_progress)
+        self.signalListingsChanged.emit()
+        
 
 
 class TaskModel(QAbstractTableModel):
@@ -2461,7 +2519,7 @@ class PriceWidget(QSplitter):
         self.list_widget.setContextMenuPolicy(Qt.ActionsContextMenu)
         
         #Create context menu for list view
-        #Train all recognizers
+        #Compute all prices
         self.action_compute_prices = QAction("Compute Prices", self)
         self.action_compute_prices.setStatusTip("Compute all prices")
         self.action_compute_prices.triggered.connect(self.slotComputePrices)
@@ -2867,19 +2925,23 @@ class GuiMain(QMainWindow):
         listingmenu.addAction(self.listings_editor.action_train_all)
         listingmenu.addAction(self.listings_editor.action_recognize_selection)
         productmenu = menubar.addMenu("&Product")
-        productmenu.addAction(self.product_editor.action_recognize_selection)
+        productmenu.addAction(self.product_editor.action_new)
         productmenu.addAction(self.product_editor.action_delete)
         productmenu.addSeparator()
         productmenu.addAction(self.product_editor.action_train_recognizer)
         productmenu.addAction(self.product_editor.action_train_all)
         productmenu.addAction(self.product_editor.action_run_all)
         taskmenu = menubar.addMenu("&Task")
-        taskmenu.addAction(self.task_editor.action_recognize_selection)
+        taskmenu.addAction(self.task_editor.action_new)
         taskmenu.addAction(self.task_editor.action_delete)
         taskmenu.addSeparator()
         taskmenu.addAction(self.task_editor.action_update_expected_products)
         taskmenu.addAction(self.task_editor.action_set_expected_products)
-
+        taskmenu.addSeparator()
+        taskmenu.addAction(self.task_editor.action_execute)
+        pricemenu = menubar.addMenu("&Price")
+        pricemenu.addAction(self.price_editor.action_compute_prices)
+        
 
     def askSaveModifiedFiles(self):
         """
@@ -2942,8 +3004,9 @@ class GuiMain(QMainWindow):
             if not filename:
                 return
             dirname = os.path.dirname(filename)
-            
+        
         #Load the data
+        self.data.conf_dir = dirname
         self.data.read_data(dirname)
         self.recognizers.read_recognizers(dirname)
         #Put data into GUI

@@ -55,10 +55,10 @@ logging.Formatter.converter = time.gmtime
 
 class DaemonMain(object):
     """Main object of operation without GUI. daemon """
-    def __init__(self, conf_dir, data_dir):
+    def __init__(self, conf_dir, data_dir, data_store=None):
         self.data_dir = data_dir
         self.server = EbayConnector(path.join(conf_dir, "python-ebay.apikey"))
-        self.data = DataStore()
+        self.data = DataStore() if data_store is None else data_store
         self.recognizers = RecognizerController()
         
     
@@ -158,6 +158,7 @@ class DaemonMain(object):
     def execute_search_task(self, task):
         """Search for new listings. Executes a search task."""
         assert isinstance(task, SearchTask)
+        logging.debug("Executing search task: '{id}'".format(id=task.id))
         
         #Get new listings from server
         lst_found = self.server.find_listings(
@@ -190,6 +191,7 @@ class DaemonMain(object):
             lst_found["expected_products"][idx] = prods
         
         self.data.merge_listings(lst_found)
+        return list(lst_found["id"])
         
         
     def execute_update_task(self, task):
@@ -198,6 +200,9 @@ class DaemonMain(object):
         Executes an update task.
         Tries to recognize products in updated tasks.
         """
+        assert isinstance(task, UpdateTask)
+        logging.debug("Executing update task: '{id}'".format(id=task.id))
+        
         #Download the tasks
         lst_update = self.data.listings.ix[task.listings]
         lst_update = self.server.update_listings(lst_update)
@@ -208,6 +213,7 @@ class DaemonMain(object):
         #Recognize products
         self.recognizers.recognize_products(lst_update.index, 
                                             self.data.listings)
+        return list(lst_update["id"])
         
         
     def execute_tasks(self):
@@ -301,7 +307,7 @@ class DaemonMain(object):
         self.data.listings["final_update_pending"][where_no_final] = True
 
 
-    def main_download_listings(self, nloops=-1):
+    def run_daemon(self, nloops=-1):
         """
         Simple main loop that downloads listings.
         To run a daemon from the command line call::
@@ -375,10 +381,10 @@ class CommandLineHandler(object):
         This way all components can be tested separately, while this function
         needs no testing.
         """
+        logging.info("Starting Clair daemon...")
         handler = CommandLineHandler()
         handler.parse_command_line()
-        logging.info("Starting Clair daemon. "
-                     "Configuration directory: '{c}', data directory: '{d}'."
+        logging.info("Configuration directory: '{c}', data directory: '{d}'."
                      .format(c=handler.conf_dir, d=handler.data_dir))
         main_loop = DaemonMain(handler.conf_dir, handler.data_dir)
-        main_loop.main_download_listings()
+        main_loop.run_daemon()

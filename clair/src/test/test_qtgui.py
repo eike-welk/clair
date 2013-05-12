@@ -116,10 +116,10 @@ def create_models():
     fr.set_index("id", drop=False, inplace=True, verify_integrity=True)
     
     tasks = [SearchTask("s-nikon-d90", datetime(2000, 1, 1), "ebay-de", 
-                        "Nikon D90", "daily", "100", "150", "300", "EUR", 
+                        "Nikon D90", "daily", 100, 150, 300, "EUR", 
                         ["nikon-d90", "nikon-18-105-f/3.5-5.6--1"]),
             SearchTask("s-nikon-d70", datetime(2000, 1, 1), "ebay-de", 
-                        "Nikon D70", "daily", "100", "75", "150", "EUR", 
+                        "Nikon D70", "daily", 100, 75, 150, "EUR", 
                         ["nikon-d70", "nikon-18-105-f/3.5-5.6--1"]),]
     
     products = [Product("nikon-d90", "Nikon D90", "Nikon D90 DSLR camera.", 
@@ -141,7 +141,8 @@ def create_models():
     pri["avg_period"] = None
     pri["avg_num_listings"] = None
     
-    data_store = DataStore()
+    conf_dir = relative("../../example-data")
+    data_store = DataStore(conf_dir, None)
     data_store.merge_listings(fr)
     data_store.set_products(products)
     data_store.add_tasks(tasks)
@@ -706,9 +707,9 @@ if __name__ == '__main__':
 #    test_ListingsWidget()
 #    test_ListingsModel()
 #    test_PriceEditWidget()
-    test_PriceWidget()
+#    test_PriceWidget()
 #    test_PriceModel()
-#    test_GuiMain()
+    test_GuiMain()
     
 #    experiment_qt()
     

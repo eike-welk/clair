@@ -1210,8 +1210,9 @@ class DataStore(object):
     
     Does disk IO, and adding objects at runtime.
     """
-    def __init__(self):
-        self.data_dir = ""
+    def __init__(self, conf_dir=None, data_dir=None):
+        self.conf_dir = conf_dir
+        self.data_dir = data_dir
         
         #Containers for application data.
         self.tasks = []
@@ -1255,10 +1256,11 @@ class DataStore(object):
         self.prices_dirty = True
     
     
-    def read_data(self, data_dir, 
+    def read_data(self, data_dir=None, 
                   date_start=EARLIEST_DATE, date_end=LATEST_DATE):
         """Read the data from disk."""
-        self.data_dir = data_dir
+        if data_dir is not None:
+            self.data_dir = data_dir
         
         #Load products
         try:
