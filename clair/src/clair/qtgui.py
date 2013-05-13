@@ -992,7 +992,7 @@ class TaskWidget(QSplitter):
         listings).
         """
         logging.debug("Execute the selected tasks.")        
-        #Get listings in the current selection
+        #Get Ds of tasks in the current selection
         selection_model = self.list_widget.selectionModel()
         selected_ids = []
         for model_id in selection_model.selectedRows(0):
@@ -1002,7 +1002,7 @@ class TaskWidget(QSplitter):
         #Create progress dialog
         max_progress = len(selected_ids * 10)
         progd = QProgressDialog("Execute the selected tasks...", "Abort", 
-                                0, max_progress)
+                                0, max_progress, self)
         progd.setWindowModality(Qt.WindowModal)
 #        progd.setMinimumDuration(4000)
         #Progress dialog only appears after a few calls to ``setValue``.
@@ -2017,6 +2017,7 @@ class ListingsWidget(QSplitter):
         super(ListingsWidget, self).__init__(parent)
         self.data_store = DataStore() #Dummy
         self.recognizers = RecognizerController() #Dummy
+        self.listings_model = ListingsModel() #Dummy
         self.edit_widget = ListingsEditWidget()
         self.list_widget = QTreeView()
         self.filter = QSortFilterProxyModel()
@@ -2046,23 +2047,32 @@ class ListingsWidget(QSplitter):
         self.action_train_all.triggered.connect(self.slotTrainAll)
         self.list_widget.addAction(self.action_train_all)
         #Recognize products in current selection
-        self.action_recognize_selection = QAction("&Recognize Selection", self)
-        self.action_recognize_selection.setStatusTip(
+        self.action_recognize = QAction("&Recognize Selection", self)
+        self.action_recognize.setStatusTip(
                     "Run all product recognizers on the current selection.")
-        self.action_recognize_selection.triggered.connect(
-                                                self.slotRecognizeSelection)
-        self.list_widget.addAction(self.action_recognize_selection)
-
+        self.action_recognize.triggered.connect(self.slotRecognizeSelection)
+        self.list_widget.addAction(self.action_recognize)
+        #Separator
+        separator = QAction(self)
+        separator.setSeparator(True)
+        self.list_widget.addAction(separator)
+        #Update selection - download listings details
+        self.action_update = QAction("&Update listings", self)
+        self.action_update.setStatusTip("Update selected listings.")
+        self.action_update.triggered.connect(self.slotUpdateSelection)
+        self.list_widget.addAction(self.action_update)
+        
         #Parameterize sort filter for list model
         self.filter.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter.setDynamicSortFilter(False)
         
-
+    
     def setModel(self, listings_model, product_model, data_store, recognizers):
         """
         Set the various models used in this widget. 
         Models are essentially containers that store the application's data.
         """
+        self.listings_model = listings_model
         self.data_store = data_store
         self.recognizers = recognizers
         self.filter.setSourceModel(listings_model)
@@ -2072,8 +2082,6 @@ class ListingsWidget(QSplitter):
         #in ``edit_widget``
         self.list_widget.selectionModel().currentRowChanged.connect(
                                                         self.slotRowChanged)
-        #Notify models when their underlying data has changed
-        self.signalListingsChanged.connect(listings_model.slotDataChanged)
         
     def slotRowChanged(self, current, _previous):
         """
@@ -2151,12 +2159,39 @@ class ListingsWidget(QSplitter):
         progd.setValue(max_progress)
         #Record changes to listings and update GUI
         self.data_store.listings_dirty = True
-        self.signalListingsChanged.emit()
-        
-    #The listings in the data store changed
-    signalListingsChanged = pyqtSignal()
-        
+        self.listings_model.slotDataChanged()
     
+    
+    def slotUpdateSelection(self):
+        """Update the selected listings. Download details from the server."""
+        logging.debug("Update the selected listings.")        
+        #Get IDs of listings in the current selection
+        selection_model = self.list_widget.selectionModel()
+        selected_ids = []
+        for model_id in selection_model.selectedRows(0):
+            idx = model_id.data()
+            selected_ids.append(idx)
+        
+        #Create progress dialog
+        max_progress = 10
+        progd = QProgressDialog("Update the selected listings...", "Abort", 
+                                0, max_progress, self)
+        progd.setWindowModality(Qt.WindowModal)
+#        progd.setMinimumDuration(4000)
+        #Progress dialog only appears after a few calls to ``setValue``.
+        for i in range(6): progd.setValue(i); time.sleep(0.01)
+        
+        #Update the selected listings
+        downloader = DaemonMain(self.data_store.conf_dir, 
+                                self.data_store.data_dir, self.data_store)
+        downloader.execute_update_task(UpdateTask(id="update-selection", 
+                                                  due_time=None, server=None, 
+                                                  recurrence_pattern=None, 
+                                                  listings=selected_ids))
+        progd.setValue(max_progress)
+        self.listings_model.slotDataChanged()
+
+        
 
 class ListingsModel(QAbstractTableModel):
     """
@@ -2925,7 +2960,9 @@ class GuiMain(QMainWindow):
         filemenu.addAction("Clear Settings", self.clearSettings)
         listingmenu = menubar.addMenu("&Listing")
         listingmenu.addAction(self.listings_editor.action_train_all)
-        listingmenu.addAction(self.listings_editor.action_recognize_selection)
+        listingmenu.addAction(self.listings_editor.action_recognize)
+        listingmenu.addSeparator()
+        listingmenu.addAction(self.listings_editor.action_update)
         productmenu = menubar.addMenu("&Product")
         productmenu.addAction(self.product_editor.action_new)
         productmenu.addAction(self.product_editor.action_delete)

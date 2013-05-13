@@ -81,7 +81,7 @@ def create_models():
     
     fr = make_listing_frame(3)
     #All listings need unique ids
-    fr["id"] = ["eb-123", "eb-456", "eb-457"]
+    fr["id"] = ["eb-110685959294", "eb-111014122908", "eb-457"]
     
     fr["training_sample"] = [1.0, 0.0, nan]
     fr["search_tasks"] = ["s-nikon-d90", "s-nikon-d70", "s-nikon-d90"]
@@ -109,7 +109,7 @@ def create_models():
     fr["country"][0] = "DE"
     fr["condition"][0] = 0.7
     fr["server"][0] = "Ebay-Germany"
-    fr["server_id"][0] = "123" #ID of listing on server
+    fr["server_id"] = ["110685959294", "111014122908", "457"] #ID of listing on server
     fr["final_price"][0] = True
 #    fr["data_directory"] = ""
     fr["url_webui"][0] = "www.some.site/dir/to/web-page.html"
