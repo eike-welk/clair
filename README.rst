@@ -18,7 +18,7 @@ The software is currently in an early beta stage.
 There are no components usable for end users, but there are crude programs, 
 that can be tested without much effort.
 
-Clair is written in Python, the GUI parts use the *QT* framework. 
+Clair is written in Python, the GUI parts use the *Qt* framework. 
 It can currently only communicate with Ebay.
 Clair consists of a set of libraries, that can be used in other software, and
 (fairly crude) applications:
