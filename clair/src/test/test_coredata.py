@@ -503,9 +503,6 @@ def test_DataStore_update_expected_products():
     #All data must be the same, except column "expected_products"
     del data.listings["expected_products"]
     del old_listings["expected_products"]
-    #Unfortunately Pandas modifies the "time" column in the copy operation
-    del data.listings["time"]
-    del old_listings["time"]
     #Indexes must be sorted for the comparison
     data.listings = data.listings.sort_index()
     old_listings = old_listings.sort_index()
@@ -558,9 +555,6 @@ def test_DataStore_write_expected_products_to_listings():
     #All data must be the same, except column "expected_products"
     del data.listings["expected_products"]
     del old_listings["expected_products"]
-    #Unfortunately Pandas modifies the "time" column in the copy operation
-    del data.listings["time"]
-    del old_listings["time"]
     #Indexes must be sorted for the comparison
     data.listings = data.listings.sort_index()
     old_listings = old_listings.sort_index()
@@ -573,7 +567,7 @@ def test_DataStore_write_expected_products_to_listings():
     
 if __name__ == "__main__":
 #    test_make_price_frame()
-    test_make_price_id()
+#    test_make_price_id()
 #    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()

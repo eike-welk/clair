@@ -332,39 +332,6 @@ def make_price_frame(nrows=None, index=None):
     return prices
 
 
-#def make_price_id(time, product):
-#    """
-#    Create ID string for a price.
-#    
-#    Uniqueness of random string
-#    ---------------------------
-#    
-#    The random part can ensure uniqueness of the ID, for up to 1000 IDs 
-#    with identical parameters. However if the function is called 1e4 times 
-#    with identical parameters, there are about 4 overlaps.
-#    
-#    Chances for one collision of a random string with length 4 and 62 different 
-#    characters:
-#    
-#    Number of different random strings: n_str = 62**4 = 14e6
-#    Probability of collision if `nt` strings are generated::
-#    
-#        p_coll(nt) = (nt * .5) * (nt - 1) / n_str = (ntr**2 - nt) / (2 * n_str)
-#        
-#    For 100 tries:   p_coll(100)   = 0.00034
-#    For 1000 tries:  p_coll(1000)  = 0.034
-#    for 10000 tries: p_coll(10000) = 3.4
-#    
-#    TODO: Maybe use pattern `listing_id-product_name` instead. This would 
-#          help eliminate duplicate listings.
-#    TODO: Use price (``Series``) object itself as the function's argument.
-#          this would bring much more flexibility. 
-#    """
-#    chars = string.ascii_letters + string.digits
-#    length = 4
-#    rand_str = ''.join(random.choice(chars) for _ in range(length))
-#    return str(time.date()) + "-" + product + "-" + rand_str
-
 def make_price_id(price):
     """
     Create ID string for a price.
@@ -1248,11 +1215,15 @@ class DataStore(object):
     def merge_listings(self, listings):
         logging.info("Merging {} listings".format(len(listings)))
         self.listings = listings.combine_first(self.listings)
+        #Workaround for issue https://github.com/pydata/pandas/issues/3593
+        self.listings["time"] = pd.to_datetime(self.listings["time"])
         self.listings_dirty = True
     
     def merge_prices(self, prices):
         logging.info("Merging {} prices".format(len(prices)))
         self.prices = prices.combine_first(self.prices)
+        #Workaround for issue https://github.com/pydata/pandas/issues/3593
+        self.prices["time"] = pd.to_datetime(self.prices["time"])
         self.prices_dirty = True
     
     
@@ -1421,15 +1392,18 @@ class DataStore(object):
         logging.info("Update expected products of task: '{}'".format(task_id))
         
         task_expected_products = self.sanitize_ids(task.expected_products)
+        #Collect list of listings (IDs) that the search task has found.
+        #Create superset of all expected products of the training samples
+        #in this list.
+        task_listings = []
         all_expected_products = set(task_expected_products)
-        my_listings = []
         for idx, listing in self.listings.iterrows():
             search_tasks = listing["search_tasks"]
             if search_tasks is None:
                 continue
             if task_id not in search_tasks:
                 continue
-            my_listings.append(idx)
+            task_listings.append(idx)
             if listing["training_sample"] != 1:
                 continue
             expected_products = listing["expected_products"]
@@ -1450,10 +1424,10 @@ class DataStore(object):
         
         #Put list of new products into task and listings
         task.expected_products = new_prods
-        new_listings = make_listing_frame(index=my_listings)
+        new_listings = make_listing_frame(index=task_listings)
         new_listings["expected_products"].fill(new_prods)
         self.merge_listings(new_listings)
-        
+
         self.tasks_dirty = True
         self.listings_dirty = True
 
