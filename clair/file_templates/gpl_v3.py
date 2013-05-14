@@ -43,7 +43,7 @@ logging.Formatter.converter = time.gmtime
 
 
 def relative(*path_comps):
-    "Create file path_comps that are relative to the location of this file."
+    "Create file paths that are relative to the location of this file."
     return path.abspath(path.join(path.dirname(__file__), *path_comps))
 
 
