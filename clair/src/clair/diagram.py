@@ -29,6 +29,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import pandas as pd
+from matplotlib.colors import colorConverter, rgb_to_hsv, hsv_to_rgb
 
 
 
@@ -133,3 +134,115 @@ class FilterContains(Filter):
         res_rows = in_frame.ix[where]
         return res_rows
 
+
+
+def rgb_to_hsv_tuple(rgb_tuple):
+    """
+    Convert 3 tuple that represents a RGB color (values between 0..1) 
+    to a 3 tuple in HSV color space.
+    If you have an array of color values use: ``matplotlib.colors.rgb_to_hsv``.
+    """ 
+    colarr = rgb_to_hsv(np.array([[rgb_tuple]]))
+    return tuple(colarr[0, 0, :])
+    
+def hsv_to_rgb_tuple(hsv_tuple):
+    """
+    Convert 3 tuple that represents a HSV color 
+    to a 3 tuple in RGB color space (values between 0..1).
+    If you have an array of color values use: ``matplotlib.colors.hsv_to_rgb``.
+    """ 
+    colarr = hsv_to_rgb(np.array([[hsv_tuple]]))
+    return tuple(colarr[0, 0, :])
+
+
+    
+class GraphTimePrice(object):
+    """
+    Graph time vs. price. Single aspect of a compound diagram.
+    """
+    def __init__(self, times, prices, limits=None, label=None,
+                 linewidth=2, linestyle='solid', 
+                 marker="o", markersize=10,
+                 color="blue", saturation=1, opaqcity=1, zorder=0,
+                 fill_limits=True, lim_opaqcity=0.2, lim_zorder=-100):
+        self.times = times
+        self.prices = prices
+        self.limits = limits
+        self.label = label
+        
+        self.linewidth = linewidth
+        self.linestyle = linestyle
+        self.marker = marker
+        self.markersize = markersize
+        
+        self.color_rgb = colorConverter.to_rgb(color)
+        self.saturation = saturation
+        self.opaqcity = opaqcity
+        self.zorder = zorder
+        
+        self.fill_limits = fill_limits
+        self.lim_opaqcity = lim_opaqcity
+        self.lim_zorder = lim_zorder
+    
+    def plot(self, axes):
+        """Plot the graph into a ``matplotlib.axes.Axes`` instance."""
+        h, _s, v = rgb_to_hsv_tuple(self.color_rgb)
+        color_rgb = hsv_to_rgb_tuple((h, self.saturation, v))
+        color_rgba = color_rgb + (self.opaqcity,)
+        
+        if self.linewidth > 0:
+            axes.plot(self.times, self.prices, label=self.label,
+                      color=color_rgba, linestyle=self.linestyle, 
+                      linewidth=self.linewidth,
+                      marker=self.marker, markerfacecolor=color_rgba, 
+                      markersize=self.markersize, zorder=self.zorder)
+        else:
+            axes.scatter(self.times, self.prices, s=self.markersize**2, 
+                         c=color_rgba, marker=self.marker, label=self.label,
+                         zorder=self.zorder)
+        
+        if self.limits is not None and self.fill_limits:
+            limu = self.prices + self.limits
+            liml = self.prices - self.limits
+            axes.fill_between(self.times, limu, liml, 
+                              color=color_rgb, alpha=self.lim_opaqcity,
+                              zorder=self.lim_zorder)
+        elif self.limits is not None:
+            axes.plot(self.times, self.prices + self.limits, 
+                      self.times, self.prices - self.limits, 
+                      color=color_rgba, linestyle="solid", 
+                      linewidth=1, 
+                      marker=None, zorder=self.lim_zorder)
+
+
+
+class DiagramTimePrice(object):
+    """
+    Complex diagram that shows prices of products versus time.
+    
+    The features (all optional) are:
+    
+    * The average or median price is shown by a thick line. Different 
+      algorithms can be configured for choice of averaging interval, and 
+      data source for averaging.
+      
+    * Thin lines and semi-transparent areas show the standard deviation.
+      Same options as for computation of average.
+      
+    * Scatter plots for single prices. Different symbols or colors for 
+      different types of prices. The types are:
+      * Observed prices (sales of a single item): large symbol, saturated color
+      * Average or median prices: small symbol, saturated color, line(s).
+      * Estimated prices (sales of multiple items): small symbol, saturated 
+        color, scatter plot.
+      * Listings that were not sold: small symbol, pale color
+      * Guessed price by human: large symbol, pale color, special symbol.
+      
+    * Small, 90° turned histograms of prices. Options for choice of interval
+      and data source (which prices to include). (Maybe use candle diagram
+      instead.) Pale or semi-transparent color.
+      
+    * Separate graph for number of items traded, or total amount of money 
+      payed. Same interval as.
+    """
+    
