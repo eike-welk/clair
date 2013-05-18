@@ -283,6 +283,8 @@ class PriceConstants(object):
             This is an average price.
         'guessed'
             A human has guessed the price.
+        'notsold'
+            Item was not sold at this price.
         """
     comments[column] = comment; columns += [column]; defaults += [default]
         

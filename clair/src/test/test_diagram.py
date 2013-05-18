@@ -73,9 +73,14 @@ def create_test_prices():
     #Random prices that don't follow the normal distribution
     prices = 3 * rand + 20 + np.sin(rand * 3) * 5
     #Types, a small amount are observed prices
-    types = np.where(np.random.uniform(size=n_prices) < 0.2, 
-                     "observed", "estimated")
-    
+    randu = np.random.uniform(size=n_prices)
+    types = np.array(["notsold"] * n_prices, dtype=object)
+    types[randu < 0.6] = "estimated"
+    types[randu < 0.2] = "observed"
+    #Realistic pattern for guessed prices
+    types[[0, 50]] = "guessed"
+    prices[[0, 50]] = 20.
+        
     price_frame = make_price_frame(index=index)
     price_frame["id"] = index
     price_frame["time"] = times
@@ -83,13 +88,17 @@ def create_test_prices():
     price_frame["type"] = types
     price_frame["product"] = "foo"
     
-    #Create mean prices
+    #Create mean prices of actually sold items
+    include = (price_frame["type"] != "notsold") & \
+              (price_frame["type"] != "guessed")
+    prices_t = price_frame[include]
+    prices_t = prices_t.set_index("time")
     monthly = pd.TimeGrouper(freq="M")
-    prices_t = price_frame.set_index("time")
     stats = prices_t.groupby(monthly).aggregate(np.mean)
     stats["time"] = stats.index - timedelta(15)
     stats["id"] = [str(t)+"-mean-foo" for t in stats["time"]]
     stats["product"] = "foo"
+    stats["type"] = "average"
     stats.set_index("id", drop=False, inplace=True)
 #    print stat
     price_frame = price_frame.append(stats)
@@ -162,14 +171,14 @@ def test_filters():
     assert all(data_3dates["id"] == ["foo-2", "foo-3", "foo-4"])
     
     
-def test_GraphTimePrice():
+def test_PlotterXY():
     """
-    Test class GraphTimePrice.
+    Test class PlotterXY.
     
     TODO: assertions. Look at Matplotlib tests.
           http://matplotlib.org/devel/testing.html
     """
-    from clair.diagram import GraphTimePrice
+    from clair.diagram import PlotterXY
     
     print("Start")
     
@@ -182,46 +191,66 @@ def test_GraphTimePrice():
     
     #Test line plot
     ax = fig.add_subplot(2, 2, 1)
-    graph = GraphTimePrice(prices["time"], prices["price"])
-    graph.plot(ax)
+    graph = PlotterXY()
+    graph.plot(ax, prices["time"], prices["price"])
     
     #Test scatter plot
     ax = fig.add_subplot(2, 2, 2)
-    graph = GraphTimePrice(prices["time"], prices["price"], 
-                           linewidth=0, saturation=0.5)
-    graph.plot(ax)
+    graph = PlotterXY(linewidth=0, saturation=0.5)
+    graph.plot(ax, prices["time"], prices["price"])
     
     #Compute average and standard deviation
     monthly = pd.TimeGrouper(freq="M")
     prices_t = prices.set_index("time")
-    month_stats = prices_t.groupby(monthly).aggregate([np.mean, np.std])
-#    print month_stats
+    prices_s = prices_t.groupby(monthly).aggregate([np.mean, np.std])
+#    print prices_s
     
     #Test limit display: filled
     ax = fig.add_subplot(2, 2, 3)
-    graph_mean = GraphTimePrice(month_stats.index, 
-                                month_stats["price"]["mean"], 
-                                month_stats["price"]["std"], markersize=7)
-    graph_mean.plot(ax)
-    graph.plot(ax) #Scatter plot on top, to see how they look together
+    graph_mean = PlotterXY(markersize=7, fill_limits=True)
+    graph_mean.plot(ax, prices_s.index, 
+                    prices_s["price"]["mean"], prices_s["price"]["std"],)
+    #Plot scatter plot on top, to see how they look together
+    graph.plot(ax, prices["time"], prices["price"]) 
     
     #Test limit display: lines
     ax = fig.add_subplot(2, 2, 4)
-    graph_mean = GraphTimePrice(month_stats.index, 
-                                month_stats["price"]["mean"], 
-                                month_stats["price"]["std"], markersize=7,
-                                fill_limits=False)
-    graph_mean.plot(ax)
-    graph.plot(ax) #Scatter plot on top, to see how they look together
+    graph_mean = PlotterXY(markersize=7, fill_limits=False)
+    graph_mean.plot(ax, prices_s.index, 
+                    prices_s["price"]["mean"], prices_s["price"]["std"],)
+    #Plot scatter plot on top, to see how they look together
+    graph.plot(ax, prices["time"], prices["price"])
     
     fig.autofmt_xdate()
     plt.show()
     print("End")
     
     
+def test_DiagramProductTimePrice():
+    """Test class DiagramProductTimePrice."""
+    from clair.diagram import DiagramProductTimePrice
     
+    print "Start"
+    #Create test data
+    prices = create_test_prices()
+    #Create the objects for Matplotlib
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    
+    #Test line plot
+    diag = DiagramProductTimePrice()
+    diag.plot(ax, prices)
+    
+    fig.autofmt_xdate()
+    plt.show()
+
+    print "Stop"
+
+
+
 if __name__ == "__main__":
 #    test_filters()
-    test_GraphTimePrice()
+#    test_PlotterXY()
+    test_DiagramProductTimePrice()
     
     pass #IGNORE:W0107
