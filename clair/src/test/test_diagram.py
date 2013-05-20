@@ -62,54 +62,65 @@ def create_test_prices():
     n_prices = 100
     #Generate the same random numbers every time
     np.random.seed(1234)
-    rand = np.random.normal(size=(n_prices,))
-    #Random times, frequency approximately daily.
-    delta = np.array([timedelta(r * 5) for r in rand])
-    times = pd.date_range(start="2000-1-1", periods=n_prices, freq="d")
-    #TODO: Report Pandas bug "Very odd behavior" ``times + times == times``
-    times = np.array([pd.Timestamp(t) for t in times]) + delta
-    #ID string, based on time.
-    index = [str(t)+"-foo" for t in times]
-    #Random prices that don't follow the normal distribution
-    prices = 3 * rand + 20 + np.sin(rand * 3) * 5
-    #Types, a small amount are observed prices
-    randu = np.random.uniform(size=n_prices)
-    types = np.array(["notsold"] * n_prices, dtype=object)
-    types[randu < 0.6] = "estimated"
-    types[randu < 0.2] = "observed"
-    #Realistic pattern for guessed prices
-    types[[0, 50]] = "guessed"
-    prices[[0, 50]] = 20.
+    
+    def prices_single_prod(prod_id, base_val):
+        rand = np.random.normal(size=(n_prices,))
+        #Random times, frequency approximately daily.
+        delta = np.array([timedelta(r * 5) for r in rand])
+        times = pd.date_range(start="2000-1-1", periods=n_prices, freq="d")
+        #TODO: Report Pandas bug "Very odd behavior" ``times + times == times``
+        times = np.array([pd.Timestamp(t) for t in times]) + delta
+        #ID string, based on time.
+        index = [str(t) + "-" + prod_id for t in times]
+        #Random prices that don't follow the normal distribution
+        prices = 7 * rand + base_val + np.sin(rand * 3) * 3
+        #Types, a small amount are observed prices
+        randu = np.random.uniform(size=n_prices)
+        types = np.array(["notsold"] * n_prices, dtype=object)
+        types[randu < 0.6] = "estimated"
+        types[randu < 0.2] = "observed"
+        #Realistic pattern for guessed prices
+        types[[0, 50]] = "guessed"
+        prices[[0, 50]] = base_val
         
-    price_frame = make_price_frame(index=index)
-    price_frame["id"] = index
-    price_frame["time"] = times
-    price_frame["price"] = prices
-    price_frame["type"] = types
-    price_frame["product"] = "foo"
+        price_frame = make_price_frame(index=index)
+        price_frame["id"] = index
+        price_frame["time"] = times
+        price_frame["price"] = prices
+        price_frame["type"] = types
+        price_frame["product"] = prod_id
+        
+        #Create mean prices of actually sold items
+        include = (price_frame["type"] != "notsold") & \
+                  (price_frame["type"] != "guessed")
+        prices_t = price_frame[include]
+        prices_t = prices_t.set_index("time")
+        monthly = pd.TimeGrouper(freq="M")
+        stats = prices_t.groupby(monthly).aggregate(np.mean)
+        stats["time"] = stats.index - timedelta(15)
+        stats["id"] = [str(t) + "-mean-" + prod_id for t in stats["time"]]
+        stats["product"] = prod_id
+        stats["type"] = "average"
+    #    print stat
     
-    #Create mean prices of actually sold items
-    include = (price_frame["type"] != "notsold") & \
-              (price_frame["type"] != "guessed")
-    prices_t = price_frame[include]
-    prices_t = prices_t.set_index("time")
-    monthly = pd.TimeGrouper(freq="M")
-    stats = prices_t.groupby(monthly).aggregate(np.mean)
-    stats["time"] = stats.index - timedelta(15)
-    stats["id"] = [str(t)+"-mean-foo" for t in stats["time"]]
-    stats["product"] = "foo"
-    stats["type"] = "average"
-    stats.set_index("id", drop=False, inplace=True)
-#    print stat
-    price_frame = price_frame.append(stats)
+        price_frame = price_frame.append(stats, ignore_index=True)
+        price_frame.set_index("id", drop=False, inplace=True)
+        return price_frame
     
+    prod_ids = ["foo", "bar"]
+    base_vals = [20., 30.]
+    price_frame = make_price_frame(0)
+    for prod, base in zip(prod_ids, base_vals):
+        price_frame = price_frame.append(prices_single_prod(prod, base))
+    
+#    price_frame.sort(inplace=True)
 #    print price_frame
     return price_frame
     
     
     
 def test_filters():
-    """Test the Filter* classes."""
+    """Test the ``Filter*`` classes."""
     from clair.diagram import FilterInterval, FilterContains
     print "Start"
     
@@ -170,20 +181,26 @@ def test_filters():
     print data_3dates
     assert all(data_3dates["id"] == ["foo-2", "foo-3", "foo-4"])
     
+    print "\nTest converting filters to strings."
+    print contains_foo
+    print exclude_3_9
+    print contains_3dates
+    
     
 def test_PlotterXY():
     """
-    Test class PlotterXY.
+    Test class ``PlotterXY``.
     
     TODO: assertions. Look at Matplotlib tests.
           http://matplotlib.org/devel/testing.html
     """
-    from clair.diagram import PlotterXY
+    from clair.diagram import PlotterXY, FilterContains
     
     print("Start")
     
     #Create a data frame with random prices and times
     prices = create_test_prices()
+    prices = FilterContains("product", "foo", True).filter(prices)
     prices = prices.sort("time")
     
     #Create the objects for Matplotlib
@@ -226,22 +243,57 @@ def test_PlotterXY():
     print("End")
     
     
-def test_DiagramProductTimePrice():
-    """Test class DiagramProductTimePrice."""
-    from clair.diagram import DiagramProductTimePrice
+def test_PlotterPriceSingle():
+    """
+    Test class ``PlotterPriceSingle``.
+    
+    TODO: assertions. Look at Matplotlib tests.
+          http://matplotlib.org/devel/testing.html
+    """
+    from clair.diagram import PlotterPriceSingle, FilterContains
     
     print "Start"
     #Create test data
     prices = create_test_prices()
+    prices = FilterContains("product", "foo", True).filter(prices)
     #Create the objects for Matplotlib
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     
     #Test line plot
-    diag = DiagramProductTimePrice()
+    diag = PlotterPriceSingle()
     diag.plot(ax, prices)
     
+    leg = ax.legend(loc="best")
+    leg.get_frame().set_alpha(0.5)
     fig.autofmt_xdate()
+    plt.show()
+
+    print "Stop"
+
+
+def test_DiagramProduct():
+    """
+    Test class ``DiagramProduct``.
+    
+    TODO: assertions. Look at Matplotlib tests.
+          http://matplotlib.org/devel/testing.html
+    """
+    from clair.diagram import DiagramProduct, FilterContains
+    
+    print "Start"
+    #Create test data
+    prices = create_test_prices()
+#    prices = FilterContains("product", "foo", True).filter(prices)
+    #Create the objects for Matplotlib
+    fig = plt.figure()
+    
+    #Test line plot
+    diag = DiagramProduct(product_ids=["foo", "bar"], 
+                          product_names=["Foo Shine", "Bar Thing"],
+                          title="The Foo Bar Baz")
+    diag.plot(fig, prices)
+    
     plt.show()
 
     print "Stop"
@@ -251,6 +303,7 @@ def test_DiagramProductTimePrice():
 if __name__ == "__main__":
 #    test_filters()
 #    test_PlotterXY()
-    test_DiagramProductTimePrice()
+#    test_PlotterPriceSingle()
+    test_DiagramProduct()
     
     pass #IGNORE:W0107

@@ -27,17 +27,26 @@ Library for creating diagrams.
 from __future__ import division
 from __future__ import absolute_import              
 
+from itertools import cycle
+
 import numpy as np
 import pandas as pd
+import matplotlib
 from matplotlib.colors import colorConverter, rgb_to_hsv, hsv_to_rgb
 
+from clair.coredata import Record
 
 
-class Filter(object):
+
+class Filter(Record):
     """
     Base class of filters to select interesting rows (listings or prices) 
     from a (moderately sized) ``DataFrame``. They are useful for creating
     diagrams.
+    
+    Inherits from record, to get its ``__repr__``. To be consistent, all
+    data attributes of ``Filter`` subclasses should be arguments of 
+    ``__init__``.
     """
     def filter(self, in_frame):
         """
@@ -51,7 +60,24 @@ class Filter(object):
 
 class FilterInterval(Filter):
     """
-    Select rows in a ``DataFrame`` based on a half open interval.
+    Select rows in a ``DataFrame`` if they are inside of outside of a
+    half open interval.
+    
+    Parameters
+    ----------
+    column : basestring
+        The column at which the filter will look. This columns must contain
+        *number like* objects, that can be compared against ``intv_start``
+        and ``intv_stop``.
+    intv_start : number like, for example: ``float``, ``datetime.datetime``.
+        Start of interval.
+    intv_stop : number like
+        End of interval.
+    inside : bool
+        If ``True`` select rows where the value of ``column`` lies inside the 
+        interval. (``intv_start <= column < intv_stop``)
+        
+        If ``False`` select rows that are outside of the interval.
     """
     def __init__(self, column, intv_start, intv_stop, inside=True):
         super(FilterInterval, self).__init__()
@@ -111,20 +137,16 @@ class FilterContains(Filter):
         Returns ``DataFrame`` that only contains the interesting rows.
         """
         assert isinstance(in_frame, pd.DataFrame)
+        
         col = in_frame[self.column]
-        where = np.zeros((len(col),), dtype=bool)
         if self.is_string:
-            #Convert all elements of ``col`` to strings and 
-            #do a string search for the search word
-            #TODO: vectorized string operations
-            col = col.apply(unicode)
-            for i, s in enumerate(col):
-                if s.find(self.search_word) >= 0:
-                    where[i] = True
+            #Do a string search for the search word.
+            where = col.str.contains(self.search_word, na=False)
         else:
-            #Consider all elements of col to be containers (eg. list, set)
+            #Consider  elements of col to be containers (eg. list, set) or None.
             #Test if search word is in container.
             isnull = col.isnull()
+            where = np.zeros((len(col),), dtype=bool)
             for i in range(len(col)):
                 if isnull[i]:
                     continue
@@ -159,7 +181,7 @@ def hsv_to_rgb_tuple(hsv_tuple):
 class PlotterXY(object):
     """
     Graph time vs. price. 
-    Plot a single relation of X vs. Y. Can create line- and scatter-plots.
+    Plot a single relation of X vs. Y. Can create line- and scatter-plotters.
     Can plot confidence band, for example for standard deviation.
     Relative trivial class, basically a structured way to store options.
     
@@ -192,23 +214,28 @@ class PlotterXY(object):
         self.lim_opaqcity = lim_opaqcity
         self.lim_zorder = lim_zorder
     
+    
     def plot(self, axes, xvals, yvals, limits=None):
         """Plot the graph into a ``matplotlib.axes.Axes`` instance."""
         h, _s, v = rgb_to_hsv_tuple(self.color_rgb)
         color_rgb = hsv_to_rgb_tuple((h, self.saturation, v))
         color_rgba = color_rgb + (self.opaqcity,)
         
+        #Plotting length 0 lines has sometimes undesirable effects on scaling 
+        if len(xvals) == 0:
+            return
+        
         #Create line plot or scatter plot?
         if self.linewidth > 0:
-            axes.plot(xvals, yvals, label=self.label,
-                      color=color_rgba, linestyle=self.linestyle, 
-                      linewidth=self.linewidth,
-                      marker=self.marker, markerfacecolor=color_rgba, 
-                      markersize=self.markersize, zorder=self.zorder)
+            line = axes.plot(xvals, yvals, label=self.label,
+                             color=color_rgba, linestyle=self.linestyle, 
+                             linewidth=self.linewidth,
+                             marker=self.marker, markerfacecolor=color_rgba, 
+                             markersize=self.markersize, zorder=self.zorder)
         else:
-            axes.scatter(xvals, yvals, s=self.markersize**2, 
-                         c=color_rgba, marker=self.marker, label=self.label,
-                         zorder=self.zorder)
+            line = axes.scatter(xvals, yvals, s=self.markersize**2, 
+                                c=color_rgba, marker=self.marker, 
+                                label=self.label, zorder=self.zorder)
         
         #Plot limits? Fill the space between limit lines?
         if limits is not None and self.fill_limits:
@@ -220,12 +247,14 @@ class PlotterXY(object):
                       xvals, yvals - limits, 
                       color=color_rgba, linestyle="solid", linewidth=1, 
                       marker=None, zorder=self.lim_zorder)
+        
+        return line
 
 
 
-class DiagramProductTimePrice(object):
+class PlotterPriceSingle(object):
     """
-    Complex diagram that shows prices of one product versus time.
+    Complex plot that shows prices of one product versus time.
     
     The features (all optional) are:
     
@@ -233,10 +262,10 @@ class DiagramProductTimePrice(object):
       algorithms can be configured for choice of averaging interval, and 
       data source for averaging.
       
-    * Thin lines and semi-transparent areas show the standard deviation.
+    * Thin lines or semi-transparent areas show the standard deviation.
       Same options as for computation of average.
       
-    * Scatter plots for single prices. Different symbols or colors for 
+    * Scatter plotters for single prices. Different symbols or colors for 
       different types of prices. The types are:
       * Average or median prices: small symbol, saturated color, line(s).
       * Observed prices (sales of a single item): large symbol, saturated
@@ -254,31 +283,43 @@ class DiagramProductTimePrice(object):
       payed. Same interval as.
       
     TODO: Compute standard deviation.
+    TODO: Optionally compute average from "observed", or all sold prices.
     TODO: Legend: single product / multiple products
-    TODO: Axis labels
-    TODO: Title
     TODO: Show details about price in pop up window.
     TODO: Clicking on price brings user to listing (or price record).
+    TODO: Generalize: 
+          * Use a ``Filter`` instance to select the prices for each 
+            component of the plot.
+          * Use an attribute ``column_name`` to select the column from which 
+            the prices are taken. 
     """
-    def __init__(self, color="blue", 
+    def __init__(self, color="blue", marker = "o",
                  show_average=True, show_observed=True, show_estimated=True, 
                  show_notsold=True, show_guessed=True):
+        self.color = color
+        self.marker = marker
         self.show_average = show_average
         self.show_observed = show_observed
         self.show_estimated = show_estimated
         self.show_notsold = show_notsold
         self.show_guessed = show_guessed
         
+        #Store the plotters for the components of the graph. 
         self.graph_average = PlotterXY(
-                        linewidth=2, markersize=7,  opaqcity=1.0, color=color)
+                    linewidth=2, markersize=7,  opaqcity=1.0, label="average", 
+                    color=color, marker=marker)
         self.graph_observed = PlotterXY(
-                        linewidth=0, markersize=12, opaqcity=1.0, color=color)
+                    linewidth=0, markersize=12, opaqcity=1.0, label="observed", 
+                    color=color, marker=marker)
         self.graph_estimated = PlotterXY(
-                        linewidth=0, markersize=7,  opaqcity=1.0, color=color)
+                    linewidth=0, markersize=7,  opaqcity=1.0, label="estimated", 
+                    color=color, marker=marker)
         self.graph_notsold = PlotterXY(
-                        linewidth=0, markersize=7,  opaqcity=0.4, color=color)
+                    linewidth=0, markersize=7,  opaqcity=0.4, label="not sold", 
+                    color=color, marker=marker)
         self.graph_guessed = PlotterXY(
-                        linewidth=0, markersize=12, opaqcity=0.4, color=color)
+                    linewidth=0, markersize=12, opaqcity=0.4, label="guessed", 
+                    color=color, marker=marker)
     
     
     def plot(self, axes, prices):
@@ -286,33 +327,105 @@ class DiagramProductTimePrice(object):
         Plot the diagram into a ``matplotlib.axes.Axes`` instance,
         for example into a subplot.
         """
+        assert isinstance(axes, matplotlib.axes.Axes)
+        
+        avg_line, obs_line, est_line, not_line, guess_line = [None] * 5
+        
         if self.show_average:
             avg_prices = prices[prices["type"] == "average"]
-            if len(avg_prices) > 0:
-                self.graph_average.plot(axes, avg_prices["time"], 
-                                        avg_prices["price"])
+            avg_line = self.graph_average.plot(axes, avg_prices["time"], 
+                                               avg_prices["price"])
         
         if self.show_observed:
             obs_prices = prices[prices["type"] == "observed"]
-            if len(obs_prices) > 0:
-                self.graph_observed.plot(axes, obs_prices["time"], 
-                                         obs_prices["price"])
+            obs_line = self.graph_observed.plot(axes, obs_prices["time"], 
+                                                obs_prices["price"])
         
         if self.show_estimated:
             est_prices = prices[prices["type"] == "estimated"]
-            if len(est_prices) > 0:
-                self.graph_estimated.plot(axes, est_prices["time"], 
-                                          est_prices["price"])
+            est_line = self.graph_estimated.plot(axes, est_prices["time"], 
+                                                 est_prices["price"])
         
         if self.show_notsold:
             not_prices = prices[prices["type"] == "notsold"]
-            if len(not_prices) > 0:
-                self.graph_notsold.plot(axes, not_prices["time"], 
-                                        not_prices["price"])
+            not_line = self.graph_notsold.plot(axes, not_prices["time"], 
+                                               not_prices["price"])
         
         if self.show_guessed:
             guess_prices = prices[prices["type"] == "guessed"]
-            if len(guess_prices) > 0:
-                self.graph_guessed.plot(axes, guess_prices["time"], 
-                                        guess_prices["price"])
+            guess_line = self.graph_guessed.plot(axes, guess_prices["time"], 
+                                                 guess_prices["price"])
+            
+        return avg_line, obs_line, est_line, not_line, guess_line
+
+
+class DiagramProduct(object):
+    """
+    Compound diagram that can show the time evolution of several prices.
+    
+    For possible colors see:
+    * http://matplotlib.org/api/colors_api.html#module-matplotlib.colors
+    * http://www.w3schools.com/tags/ref_colornames.asp
+    
+    For possible markers see:
+    * http://matplotlib.org/api/artist_api.html#matplotlib.lines.Line2D.set_marker
+    
+    TODO: Axis labels
+    TODO: Title
+    TODO: Legend: single product / multiple products
+    TODO: Show details about price in pop up window.
+    TODO: Clicking on price brings user to listing (or price record).
+    """
+    def __init__(self, product_ids=None, #filters=None, #IGNORE:W0102
+                 product_names = None, currency="EUR", title=None,
+                 colors=["blue", "red", "green", "orange", "magenta", "cyan"], 
+                 markers=["o", "^", "s", "*", "d", "p", "D"]):
+        self.filters = []
+        self.plotters = []
+        self.product_names = product_names if product_names is not None \
+                             else product_ids
+        self.currency = currency
+        self.title = title
         
+        for prod_id in product_ids:
+            self.filters.append(FilterContains("product", prod_id, 
+                                               is_string=True))
+        for color, marker, _prod_id in zip(cycle(colors), cycle(markers), 
+                                            product_ids):
+            self.plotters.append(PlotterPriceSingle(color, marker))
+            
+        
+    def plot(self, figure, price_frame):
+        """Plot the diagram."""
+        assert isinstance(figure, matplotlib.figure.Figure)
+        
+        #Create the plot
+        axes = figure.add_subplot(1, 1, 1)
+        for filter_, plotter in zip(self.filters, self.plotters):
+            prices = filter_.filter(price_frame)
+            plotter.plot(axes, prices)
+        
+        #Create the legend
+        if len(self.plotters) == 1:
+            legend = axes.legend(loc="best")
+            legend.get_frame().set_alpha(0.5)
+        else:
+            dummies = []
+            names = []
+            for plotter, name in zip(self.plotters, self.product_names):
+                dummy = matplotlib.lines.Line2D(
+                            [1,2], [1,2], linewidth=2, markersize=10, 
+                            color=plotter.color, marker=plotter.marker)
+                dummies.append(dummy)
+                names.append(name)
+                
+            legend = axes.legend(dummies, names, loc="best")
+            legend.get_frame().set_alpha(0.5)
+        
+        if self.title is not None:
+            axes.set_title(self.title)
+#            figure.suptitle(self.title)
+            
+        axes.set_ylabel("Price [{}]".format(self.currency))
+        figure.autofmt_xdate()
+    
