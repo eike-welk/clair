@@ -290,7 +290,7 @@ def test_DiagramProduct():
     
     #Test line plot
     diag = DiagramProduct(product_ids=["foo", "bar"], 
-                          product_names=["Foo Shine", "Bar Thing"],
+                          product_names=["Foo Shine", "Bar Fly"],
                           title="The Foo Bar Baz")
     diag.plot(fig, prices)
     

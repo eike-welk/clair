@@ -28,6 +28,8 @@ from __future__ import division
 from __future__ import absolute_import              
 
 from itertools import cycle
+from collections import namedtuple
+import random
 
 import numpy as np
 import pandas as pd
@@ -177,7 +179,11 @@ def hsv_to_rgb_tuple(hsv_tuple):
     return tuple(colarr[0, 0, :])
 
 
-    
+
+#Meta data about each plot. used for identifying data in pick events
+PlotResult = namedtuple("PlotResult", "gid, data_ids, artist")
+
+
 class PlotterXY(object):
     """
     Graph time vs. price. 
@@ -215,7 +221,7 @@ class PlotterXY(object):
         self.lim_zorder = lim_zorder
     
     
-    def plot(self, axes, xvals, yvals, limits=None):
+    def plot(self, axes, xvals, yvals, limits=None, data_ids=None):
         """Plot the graph into a ``matplotlib.axes.Axes`` instance."""
         h, _s, v = rgb_to_hsv_tuple(self.color_rgb)
         color_rgb = hsv_to_rgb_tuple((h, self.saturation, v))
@@ -229,12 +235,12 @@ class PlotterXY(object):
         if self.linewidth > 0:
             line = axes.plot(xvals, yvals, label=self.label,
                              color=color_rgba, linestyle=self.linestyle, 
-                             linewidth=self.linewidth,
+                             linewidth=self.linewidth, picker=True,
                              marker=self.marker, markerfacecolor=color_rgba, 
                              markersize=self.markersize, zorder=self.zorder)
         else:
             line = axes.scatter(xvals, yvals, s=self.markersize**2, 
-                                c=color_rgba, marker=self.marker, 
+                                c=color_rgba, marker=self.marker, picker=True,
                                 label=self.label, zorder=self.zorder)
         
         #Plot limits? Fill the space between limit lines?
@@ -248,7 +254,9 @@ class PlotterXY(object):
                       color=color_rgba, linestyle="solid", linewidth=1, 
                       marker=None, zorder=self.lim_zorder)
         
-        return line
+        gid = "{c}-{m}-{l}-{r}".format(c=self.color_rgb, m=self.marker, 
+                                       l=self.label, r=random.randint(0, 9999))
+        return PlotResult(gid=gid, data_ids=data_ids, artist=line)
 
 
 
@@ -265,7 +273,7 @@ class PlotterPriceSingle(object):
     * Thin lines or semi-transparent areas show the standard deviation.
       Same options as for computation of average.
       
-    * Scatter plotters for single prices. Different symbols or colors for 
+    * Scatter plots for single prices. Different symbols or colors for 
       different types of prices. The types are:
       * Average or median prices: small symbol, saturated color, line(s).
       * Observed prices (sales of a single item): large symbol, saturated
@@ -329,34 +337,39 @@ class PlotterPriceSingle(object):
         """
         assert isinstance(axes, matplotlib.axes.Axes)
         
-        avg_line, obs_line, est_line, not_line, guess_line = [None] * 5
+        avg_line, obs_line, est_line, not_line, guess_line = [None] * 5 #IGNORE:W0612
         
         if self.show_average:
             avg_prices = prices[prices["type"] == "average"]
-            avg_line = self.graph_average.plot(axes, avg_prices["time"], 
-                                               avg_prices["price"])
+            avg_res = self.graph_average.plot(axes, avg_prices["time"], 
+                                              avg_prices["price"],
+                                              data_ids=list(avg_prices["id"]))
         
         if self.show_observed:
             obs_prices = prices[prices["type"] == "observed"]
-            obs_line = self.graph_observed.plot(axes, obs_prices["time"], 
-                                                obs_prices["price"])
+            obs_res = self.graph_observed.plot(axes, obs_prices["time"], 
+                                               obs_prices["price"],
+                                               data_ids=list(obs_prices["id"]))
         
         if self.show_estimated:
             est_prices = prices[prices["type"] == "estimated"]
-            est_line = self.graph_estimated.plot(axes, est_prices["time"], 
-                                                 est_prices["price"])
+            est_res = self.graph_estimated.plot(axes, est_prices["time"], 
+                                                est_prices["price"],
+                                                data_ids=list(est_prices["id"]))
         
         if self.show_notsold:
             not_prices = prices[prices["type"] == "notsold"]
-            not_line = self.graph_notsold.plot(axes, not_prices["time"], 
-                                               not_prices["price"])
+            not_res = self.graph_notsold.plot(axes, not_prices["time"], 
+                                              not_prices["price"],
+                                              data_ids=list(not_prices["id"]))
         
         if self.show_guessed:
             guess_prices = prices[prices["type"] == "guessed"]
-            guess_line = self.graph_guessed.plot(axes, guess_prices["time"], 
-                                                 guess_prices["price"])
+            guess_res = self.graph_guessed.plot(axes, guess_prices["time"], 
+                                                guess_prices["price"],
+                                                data_ids=list(guess_prices["id"]))
             
-        return avg_line, obs_line, est_line, not_line, guess_line
+        return avg_res, obs_res, est_res, not_res, guess_res
 
 
 class DiagramProduct(object):
@@ -400,10 +413,14 @@ class DiagramProduct(object):
         assert isinstance(figure, matplotlib.figure.Figure)
         
         #Create the plot
+        pick_data = {}
         axes = figure.add_subplot(1, 1, 1)
         for filter_, plotter in zip(self.filters, self.plotters):
             prices = filter_.filter(price_frame)
-            plotter.plot(axes, prices)
+            pick_infos = plotter.plot(axes, prices)
+            for info in pick_infos:
+                pick_data[info.gid] = info
+#        print pick_data
         
         #Create the legend
         if len(self.plotters) == 1:
@@ -422,10 +439,24 @@ class DiagramProduct(object):
             legend = axes.legend(dummies, names, loc="best")
             legend.get_frame().set_alpha(0.5)
         
+        #Create title
         if self.title is not None:
             axes.set_title(self.title)
 #            figure.suptitle(self.title)
             
         axes.set_ylabel("Price [{}]".format(self.currency))
+        #Let the dates at the last axis be plot slanted, 
+        #remove any dates from other plots.
         figure.autofmt_xdate()
+#        figure.tight_layout()
+        figure.canvas.mpl_connect('pick_event', 
+                                  DiagramProduct.handle_pick_event)
+        
     
+    @staticmethod
+    def handle_pick_event(event):
+        "Called by matplotlib when user clicks on a line or dot"
+        print event.artist.get_label()
+        print event.artist.get_gid()
+        print event.ind
+        print dir(event)
