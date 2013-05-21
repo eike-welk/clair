@@ -285,6 +285,12 @@ def test_DiagramProduct():
     #Create test data
     prices = create_test_prices()
 #    prices = FilterContains("product", "foo", True).filter(prices)
+
+    def pick_func(data_id, pixel_x, pixel_y): 
+        print "Data ID: {i}, at: ({x}, {y}).".format(i=data_id, 
+                                                     x=pixel_x, y=pixel_y)
+        print prices.ix[data_id].to_string()
+
     #Create the objects for Matplotlib
     fig = plt.figure()
     
@@ -292,7 +298,7 @@ def test_DiagramProduct():
     diag = DiagramProduct(product_ids=["foo", "bar"], 
                           product_names=["Foo Shine", "Bar Fly"],
                           title="The Foo Bar Baz")
-    diag.plot(fig, prices)
+    helper = diag.plot(fig, prices, pick_func=pick_func)
     
     plt.show()
 

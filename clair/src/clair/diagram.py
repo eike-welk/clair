@@ -222,26 +222,32 @@ class PlotterXY(object):
     
     
     def plot(self, axes, xvals, yvals, limits=None, data_ids=None):
-        """Plot the graph into a ``matplotlib.axes.Axes`` instance."""
+        """Plot the graph into a ``matplotlib.axes.Axes`` instance."""#Plotting length 0 lines has sometimes undesirable effects on scaling 
+        if len(xvals) == 0:
+            return
+        
+        #Compute correct RGBA color.
         h, _s, v = rgb_to_hsv_tuple(self.color_rgb)
         color_rgb = hsv_to_rgb_tuple((h, self.saturation, v))
         color_rgba = color_rgb + (self.opaqcity,)
         
-        #Plotting length 0 lines has sometimes undesirable effects on scaling 
-        if len(xvals) == 0:
-            return
+        #ID for graphical element, to recognize it in picking events
+        gid = "{c}-{m}-{l}-{r}".format(c=self.color_rgb, m=self.marker, 
+                                       l=self.label, r=random.randint(0, 9999))
         
         #Create line plot or scatter plot?
         if self.linewidth > 0:
             line = axes.plot(xvals, yvals, label=self.label,
                              color=color_rgba, linestyle=self.linestyle, 
-                             linewidth=self.linewidth, picker=True,
+                             linewidth=self.linewidth,
                              marker=self.marker, markerfacecolor=color_rgba, 
-                             markersize=self.markersize, zorder=self.zorder)
+                             markersize=self.markersize, zorder=self.zorder,
+                             picker=True, gid=gid)
         else:
             line = axes.scatter(xvals, yvals, s=self.markersize**2, 
-                                c=color_rgba, marker=self.marker, picker=True,
-                                label=self.label, zorder=self.zorder)
+                                c=color_rgba, marker=self.marker,
+                                label=self.label, zorder=self.zorder,
+                                picker=True, gid=gid)
         
         #Plot limits? Fill the space between limit lines?
         if limits is not None and self.fill_limits:
@@ -254,9 +260,9 @@ class PlotterXY(object):
                       color=color_rgba, linestyle="solid", linewidth=1, 
                       marker=None, zorder=self.lim_zorder)
         
-        gid = "{c}-{m}-{l}-{r}".format(c=self.color_rgb, m=self.marker, 
-                                       l=self.label, r=random.randint(0, 9999))
-        return PlotResult(gid=gid, data_ids=data_ids, artist=line)
+        
+        return PlotResult(gid=gid, data_ids=np.array(data_ids, dtype=unicode), 
+                          artist=line)
 
 
 
@@ -349,25 +355,25 @@ class PlotterPriceSingle(object):
             obs_prices = prices[prices["type"] == "observed"]
             obs_res = self.graph_observed.plot(axes, obs_prices["time"], 
                                                obs_prices["price"],
-                                               data_ids=list(obs_prices["id"]))
+                                               data_ids=obs_prices["id"])
         
         if self.show_estimated:
             est_prices = prices[prices["type"] == "estimated"]
             est_res = self.graph_estimated.plot(axes, est_prices["time"], 
                                                 est_prices["price"],
-                                                data_ids=list(est_prices["id"]))
+                                                data_ids=est_prices["id"])
         
         if self.show_notsold:
             not_prices = prices[prices["type"] == "notsold"]
             not_res = self.graph_notsold.plot(axes, not_prices["time"], 
                                               not_prices["price"],
-                                              data_ids=list(not_prices["id"]))
+                                              data_ids=not_prices["id"])
         
         if self.show_guessed:
             guess_prices = prices[prices["type"] == "guessed"]
             guess_res = self.graph_guessed.plot(axes, guess_prices["time"], 
                                                 guess_prices["price"],
-                                                data_ids=list(guess_prices["id"]))
+                                                data_ids=guess_prices["id"])
             
         return avg_res, obs_res, est_res, not_res, guess_res
 
@@ -408,7 +414,7 @@ class DiagramProduct(object):
             self.plotters.append(PlotterPriceSingle(color, marker))
             
         
-    def plot(self, figure, price_frame):
+    def plot(self, figure, price_frame, pick_func=None):
         """Plot the diagram."""
         assert isinstance(figure, matplotlib.figure.Figure)
         
@@ -449,14 +455,31 @@ class DiagramProduct(object):
         #remove any dates from other plots.
         figure.autofmt_xdate()
 #        figure.tight_layout()
-        figure.canvas.mpl_connect('pick_event', 
-                                  DiagramProduct.handle_pick_event)
+
+        pick_helper = PickHelper(pick_data, pick_func)
+        figure.canvas.mpl_connect('pick_event', pick_helper)
+        return pick_helper
         
-    
-    @staticmethod
-    def handle_pick_event(event):
-        "Called by matplotlib when user clicks on a line or dot"
-        print event.artist.get_label()
-        print event.artist.get_gid()
-        print event.ind
-        print dir(event)
+
+        
+class PickHelper(object):
+    """Identifies price or listing IDs in picked objects."""
+    def __init__(self, pick_data, handler_func=None):
+        self.pick_data = pick_data
+        self.handler_func = handler_func
+        
+    def __call__(self, event):
+        """Called by matplotlib when a pick event occurs."""
+        pixel_x = event.mouseevent.x
+        pixel_y = event.mouseevent.y
+        
+        gid = event.artist.get_gid()
+#        print gid
+        ind = event.ind
+        plot_res = self.pick_data[gid]
+        data_id = plot_res.data_ids[ind]
+#        print data_id
+        
+        if self.handler_func is not None:
+            self.handler_func(data_id, pixel_x, pixel_y)
+
