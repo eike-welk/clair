@@ -184,20 +184,20 @@ def hsv_to_rgb_tuple(hsv_tuple):
 PlotResult = namedtuple("PlotResult", "gid, data_ids, artist")
 
 
-class PlotterXY(object):
+class PlotterLine(object):
     """
-    Graph time vs. price. 
-    Plot a single relation of X vs. Y. Can create line- and scatter-plotters.
-    Can plot confidence band, for example for standard deviation.
-    Relative trivial class, basically a structured way to store options.
+    Plot a line of Y,X values; and optionally a symmetrical 
+    confidence band.
     
-    #TODO: Convert into two classes:
-           PlotScatter
-               Scatter plot with explicit saturation and opacity.
-           PlotLine 
-               Can plot multiple parallel lines and fill the space
-               between the lines.
-               Off course with explicit saturation and opacity.
+    Various options can be set in the constructor. The X,Y values are 
+    given in the ``plot`` method. 
+    
+    The confidence band is intended to show the standard deviation. It can be
+    shown as a pale, semitransparent area, or as thin additional lines 
+    above and below the line.
+    
+    TODO: Multiple parallel confidence lines or areas; for sigma, 2*sigma;
+          or for fancy week/month histograms.
     """
     def __init__(self, label=None,
                  linewidth=2, linestyle='solid', 
@@ -222,9 +222,10 @@ class PlotterXY(object):
     
     
     def plot(self, axes, xvals, yvals, limits=None, data_ids=None):
-        """Plot the graph into a ``matplotlib.axes.Axes`` instance."""#Plotting length 0 lines has sometimes undesirable effects on scaling 
-        if len(xvals) == 0:
-            return
+        """Plot the graph into a ``matplotlib.axes.Axes`` instance."""
+#        #Plotting length 0 lines has sometimes undesirable effects on scaling 
+#        if len(xvals) == 0:
+#            return
         
         #Compute correct RGBA color.
         h, _s, v = rgb_to_hsv_tuple(self.color_rgb)
@@ -235,34 +236,73 @@ class PlotterXY(object):
         gid = "{c}-{m}-{l}-{r}".format(c=self.color_rgb, m=self.marker, 
                                        l=self.label, r=random.randint(0, 9999))
         
-        #Create line plot or scatter plot?
-        if self.linewidth > 0:
-            line = axes.plot(xvals, yvals, label=self.label,
-                             color=color_rgba, linestyle=self.linestyle, 
-                             linewidth=self.linewidth,
-                             marker=self.marker, markerfacecolor=color_rgba, 
-                             markersize=self.markersize, zorder=self.zorder,
-                             picker=True, gid=gid)
-        else:
-            line = axes.scatter(xvals, yvals, s=self.markersize**2, 
-                                c=color_rgba, marker=self.marker,
-                                label=self.label, zorder=self.zorder,
-                                picker=True, gid=gid)
+        #Plot line
+        line = axes.plot(xvals, yvals, label=self.label,
+                         color=color_rgba, linestyle=self.linestyle, 
+                         linewidth=self.linewidth,
+                         marker=self.marker, markerfacecolor=color_rgba, 
+                         markersize=self.markersize, zorder=self.zorder,
+                         picker=True, gid=gid)
         
-        #Plot limits? Fill the space between limit lines?
+        #Plot limits if desired.
         if limits is not None and self.fill_limits:
+            #Plot limits as filled area
             axes.fill_between(xvals, yvals + limits, yvals - limits, 
                               color=color_rgb, alpha=self.lim_opaqcity,
                               zorder=self.lim_zorder)
         elif limits is not None:
+            #Plot limits as thin lines.
             axes.plot(xvals, yvals + limits, 
                       xvals, yvals - limits, 
                       color=color_rgba, linestyle="solid", linewidth=1, 
                       marker=None, zorder=self.lim_zorder)
         
-        
         return PlotResult(gid=gid, data_ids=np.array(data_ids, dtype=unicode), 
                           artist=line)
+
+
+
+class PlotterScatter(object):
+    """
+    Create a scatter plot of Y,X values.
+    
+    Various options can be set in the constructor. The X,Y values are 
+    given in the ``plot`` method.
+    """
+    def __init__(self, label=None, marker="o", markersize=10,
+                 color="blue", saturation=1, opaqcity=1, zorder=0):
+        self.label = label
+        self.marker = marker
+        self.markersize = markersize
+        self.color_rgb = colorConverter.to_rgb(color)
+        self.saturation = saturation
+        self.opaqcity = opaqcity
+        self.zorder = zorder
+    
+    
+    def plot(self, axes, xvals, yvals, data_ids=None):
+        """Plot the graph into a ``matplotlib.axes.Axes`` instance."""
+#        #Plotting length 0 lines has sometimes undesirable effects on scaling 
+#        if len(xvals) == 0:
+#            return
+        
+        #Compute correct RGBA color.
+        h, _s, v = rgb_to_hsv_tuple(self.color_rgb)
+        color_rgb = hsv_to_rgb_tuple((h, self.saturation, v))
+        color_rgba = color_rgb + (self.opaqcity,)
+        
+        #ID for graphical element, to recognize it in picking events
+        gid = "{c}-{m}-{l}-{r}".format(c=self.color_rgb, m=self.marker, 
+                                       l=self.label, r=random.randint(0, 9999))
+        
+        #Create scatter plot
+        graph = axes.scatter(xvals, yvals, s=self.markersize**2, 
+                             c=color_rgba, marker=self.marker,
+                             label=self.label, zorder=self.zorder,
+                             picker=True, gid=gid)
+        
+        return PlotResult(gid=gid, data_ids=np.array(data_ids, dtype=unicode), 
+                          artist=graph)
 
 
 
@@ -296,11 +336,9 @@ class PlotterPriceSingle(object):
     * Separate graph for number of items traded, or total amount of money 
       payed. Same interval as.
       
+    TODO: Compute average or median from data.  
     TODO: Compute standard deviation.
     TODO: Optionally compute average from "observed", or all sold prices.
-    TODO: Legend: single product / multiple products
-    TODO: Show details about price in pop up window.
-    TODO: Clicking on price brings user to listing (or price record).
     TODO: Generalize: 
           * Use a ``Filter`` instance to select the prices for each 
             component of the plot.
@@ -319,20 +357,20 @@ class PlotterPriceSingle(object):
         self.show_guessed = show_guessed
         
         #Store the plotters for the components of the graph. 
-        self.graph_average = PlotterXY(
-                    linewidth=2, markersize=7,  opaqcity=1.0, label="average", 
+        self.graph_average = PlotterLine(
+                    markersize=7,  opaqcity=1.0, label="average", 
+                    color=color, marker=marker, linewidth=2)
+        self.graph_observed = PlotterScatter(
+                    markersize=12, opaqcity=1.0, label="observed", 
                     color=color, marker=marker)
-        self.graph_observed = PlotterXY(
-                    linewidth=0, markersize=12, opaqcity=1.0, label="observed", 
+        self.graph_estimated = PlotterScatter(
+                    markersize=7,  opaqcity=1.0, label="estimated", 
                     color=color, marker=marker)
-        self.graph_estimated = PlotterXY(
-                    linewidth=0, markersize=7,  opaqcity=1.0, label="estimated", 
+        self.graph_notsold = PlotterScatter(
+                    markersize=7,  opaqcity=0.4, label="not sold", 
                     color=color, marker=marker)
-        self.graph_notsold = PlotterXY(
-                    linewidth=0, markersize=7,  opaqcity=0.4, label="not sold", 
-                    color=color, marker=marker)
-        self.graph_guessed = PlotterXY(
-                    linewidth=0, markersize=12, opaqcity=0.4, label="guessed", 
+        self.graph_guessed = PlotterScatter(
+                    markersize=12, opaqcity=0.4, label="guessed", 
                     color=color, marker=marker)
     
     
@@ -343,7 +381,7 @@ class PlotterPriceSingle(object):
         """
         assert isinstance(axes, matplotlib.axes.Axes)
         
-        avg_line, obs_line, est_line, not_line, guess_line = [None] * 5 #IGNORE:W0612
+        avg_res, obs_res, est_res, not_res, guess_res = [None] * 5
         
         if self.show_average:
             avg_prices = prices[prices["type"] == "average"]
@@ -389,11 +427,9 @@ class DiagramProduct(object):
     For possible markers see:
     * http://matplotlib.org/api/artist_api.html#matplotlib.lines.Line2D.set_marker
     
-    TODO: Axis labels
-    TODO: Title
-    TODO: Legend: single product / multiple products
-    TODO: Show details about price in pop up window.
-    TODO: Clicking on price brings user to listing (or price record).
+    TODO: Two legends: 
+            * One explains the different marker sizes and color shades.
+            * The other Shows which color and marker represents which product.
     """
     def __init__(self, product_ids=None, #filters=None, #IGNORE:W0102
                  product_names = None, currency="EUR", title=None,

@@ -187,14 +187,14 @@ def test_filters():
     print contains_3dates
     
     
-def test_PlotterXY():
+def test_PlotterLine():
     """
-    Test class ``PlotterXY``.
+    Test class ``PlotterLine``.
     
     TODO: assertions. Look at Matplotlib tests.
           http://matplotlib.org/devel/testing.html
     """
-    from clair.diagram import PlotterXY, FilterContains
+    from clair.diagram import PlotterLine, FilterContains, PlotterScatter
     
     print("Start")
     
@@ -207,13 +207,8 @@ def test_PlotterXY():
     fig = plt.figure()
     
     #Test line plot
-    ax = fig.add_subplot(2, 2, 1)
-    graph = PlotterXY()
-    graph.plot(ax, prices["time"], prices["price"])
-    
-    #Test scatter plot
-    ax = fig.add_subplot(2, 2, 2)
-    graph = PlotterXY(linewidth=0, saturation=0.5)
+    ax = fig.add_subplot(3, 1, 1)
+    graph = PlotterLine()
     graph.plot(ax, prices["time"], prices["price"])
     
     #Compute average and standard deviation
@@ -223,21 +218,58 @@ def test_PlotterXY():
 #    print prices_s
     
     #Test limit display: filled
-    ax = fig.add_subplot(2, 2, 3)
-    graph_mean = PlotterXY(markersize=7, fill_limits=True)
+    ax = fig.add_subplot(3, 1, 2)
+    graph_mean = PlotterLine(markersize=7, fill_limits=True)
     graph_mean.plot(ax, prices_s.index, 
                     prices_s["price"]["mean"], prices_s["price"]["std"],)
-    #Plot scatter plot on top, to see how they look together
-    graph.plot(ax, prices["time"], prices["price"]) 
+#    #Plot scatter plot on top, to see how they look together
+    scatter = PlotterScatter(saturation=0.5)
+    scatter.plot(ax, prices["time"], prices["price"]) 
     
     #Test limit display: lines
-    ax = fig.add_subplot(2, 2, 4)
-    graph_mean = PlotterXY(markersize=7, fill_limits=False)
+    ax = fig.add_subplot(3, 1, 3)
+    graph_mean = PlotterLine(markersize=7, fill_limits=False)
     graph_mean.plot(ax, prices_s.index, 
                     prices_s["price"]["mean"], prices_s["price"]["std"],)
-    #Plot scatter plot on top, to see how they look together
+#    #Plot scatter plot on top, to see how they look together
+    scatter = PlotterScatter(saturation=0.5)
+    scatter.plot(ax, prices["time"], prices["price"]) 
+    
+    fig.autofmt_xdate()
+    plt.show()
+    print("End")
+    
+    
+def test_PlotterScatter():
+    """
+    Test class ``PlotterLine``.
+    
+    TODO: assertions. Look at Matplotlib tests.
+          http://matplotlib.org/devel/testing.html
+    """
+    from clair.diagram import PlotterScatter, FilterContains
+    
+    print("Start")
+    
+    #Create a data frame with random prices and times
+    prices = create_test_prices()
+    prices = FilterContains("product", "foo", True).filter(prices)
+    prices = prices.sort("time")
+    
+    #Create the objects for Matplotlib
+    fig = plt.figure()
+    
+    #Test line plot
+    ax = fig.add_subplot(2, 1, 1)
+    graph = PlotterScatter()
     graph.plot(ax, prices["time"], prices["price"])
     
+    #Test scatter plot
+    ax = fig.add_subplot(2, 1, 2)
+    graph = PlotterScatter(saturation=0.5, marker="p", color="orange", 
+                           markersize=7)
+    graph.plot(ax, prices["time"], prices["price"])
+
     fig.autofmt_xdate()
     plt.show()
     print("End")
@@ -287,8 +319,8 @@ def test_DiagramProduct():
 #    prices = FilterContains("product", "foo", True).filter(prices)
 
     def pick_func(data_id, pixel_x, pixel_y): 
-        print "Data ID: {i}, at: ({x}, {y}).".format(i=data_id, 
-                                                     x=pixel_x, y=pixel_y)
+        print ("Data ID: {i}, at: ({x}, {y})."
+               .format(i=data_id, x=pixel_x, y=pixel_y))
         print prices.ix[data_id].to_string()
 
     #Create the objects for Matplotlib
@@ -308,7 +340,8 @@ def test_DiagramProduct():
 
 if __name__ == "__main__":
 #    test_filters()
-#    test_PlotterXY()
+#    test_PlotterLine()
+#    test_PlotterScatter()
 #    test_PlotterPriceSingle()
     test_DiagramProduct()
     
