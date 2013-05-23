@@ -2630,7 +2630,7 @@ class PriceWidget(QSplitter):
 
 
 
-class DummyConst(object):
+class DummyFrameConst(object):
     """Place holder for constants of a data frame"""
     #List of column names
     columns = []
@@ -2656,7 +2656,7 @@ class PriceModel(QAbstractTableModel):
         #class. Attribute of ``data_store``.
         self._data_frame = pd.DataFrame() #Dummy
         #Constants for the data frame
-        self._data_frame_consts = DummyConst #No instance creation
+        self._data_frame_consts = DummyFrameConst #No instance creation
         
     def getDataFrame(self):
         """

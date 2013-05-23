@@ -174,6 +174,7 @@ class FeatureExtractor(object):
     #['That', 'U.S.A.', 'poster-print', 'costs', '$12.40', '...']
     word_tokenizer_pattern = r"""
               \d+(\.\d+)?       # real numbers, e.g. 2.8, 42
+            | \d+(,\d+)?       # German real numbers, e.g. 2,8, 42
             | (\w\.)+           # abbreviations, e.g., z.B., U.S.A.
             | \w+               # words
            # | [][.,;"'?():-_`]  # these are separate tokens

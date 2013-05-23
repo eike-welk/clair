@@ -706,12 +706,12 @@ if __name__ == '__main__':
 #    test_LearnDataProxyModel_GUI()
 #    test_DataWidgetHtmlView()
 #    test_ListingsEditWidget()
-    test_ListingsWidget()
+#    test_ListingsWidget()
 #    test_ListingsModel()
 #    test_PriceEditWidget()
 #    test_PriceWidget()
 #    test_PriceModel()
-#    test_GuiMain()
+    test_GuiMain()
     
 #    experiment_qt()
     
