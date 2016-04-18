@@ -66,40 +66,40 @@ def make_test_listings():
     #All listings need unique ids
     fr["id"] = ["eb-123", "eb-456", "eb-457"]
     
-    fr["training_sample"][0] = True 
-    fr["search_tasks"][0] = ["s-nikon-d90"]
-#    fr["query_string"][0] = "Nikon D90"
+    fr.ix[0, "training_sample"] = True 
+    fr.ix[0, "search_tasks"] = ["s-nikon-d90"]
+#    fr.ix[0, "query_string"] = "Nikon D90"
+
+    fr.set_value(0, "expected_products", ["nikon-d90", "nikon-sb-24"])
+    fr.ix[0, "products"] = ["nikon-d90"]
+    fr.ix[0, "products_absent"] = ["nikon-sb-24"]
     
-    fr["expected_products"][0] = ["nikon-d90", "nikon-sb-24"]
-    fr["products"][0] = ["nikon-d90"]
-    fr["products_absent"][0] = ["nikon-sb-24"]
-    
-    fr["thumbnail"][0] = "www.some.site/dir/to/thumb.pg"
-    fr["image"][0] = "www.some.site/dir/to/img.pg"
+    fr.ix[0, "thumbnail"] = "www.some.site/dir/to/thumb.pg"
+    fr.ix[0, "image"] = "www.some.site/dir/to/img.pg"
     fr["title"] = [u"Nikon D90 super duper!", u"<>müäh", None]
-    fr["description"][0] = "Buy my old Nikon D90 camera <b>now</b>!"
-    fr["prod_spec"][0] = {"Marke":"Nikon", "Modell":"D90"}
-    fr["active"][0] = False
-    fr["sold"][0] = False
-    fr["currency"][0] = "EUR"
-    fr["price"][0]    = 400.
-    fr["shipping"][0] = 12.
-    fr["type"][0] = "auction"
-#    fr["time"][0] = dprs.parse(li.time.pyval) 
+    fr.ix[0, "description"] = "Buy my old Nikon D90 camera <b>now</b>!"
+    fr.set_value(0, "prod_spec", {"Marke":"Nikon", "Modell":"D90"})
+    fr.ix[0, "active"] = False
+    fr.ix[0, "sold"] = False
+    fr.ix[0, "currency"] = "EUR"
+    fr.ix[0, "price"]    = 400.
+    fr.ix[0, "shipping"] = 12.
+    fr.ix[0, "type"] = "auction"
     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
-    fr["location"][0] = u"Köln"
-    fr["postcode"][0] = u"50667"
-    fr["country"][0] = "DE"
-    fr["condition"][0] = 0.7
-    fr["server"][0] = "Ebay-Germany"
-    fr["server_id"][0] = "123" #ID of listing on server
-    fr["final_price"][0] = True
+    fr.ix[0, "location"] = u"Köln"
+    fr.ix[0, "postcode"] = u"50667"
+    fr.ix[0, "country"] = "DE"
+    fr.ix[0, "condition"] = 0.7
+    fr.ix[0, "server"] = "Ebay-Germany"
+    fr.ix[0, "server_id"] = "123" #ID of listing on server
+    fr.ix[0, "final_price"] = True
 #    fr["data_directory"] = ""
-    fr["url_webui"][0] = "www.some.site/dir/to/web-page.html"
-#     fr["server_repr"][0] = nan
+    fr.ix[0, "url_webui"] = "www.some.site/dir/to/web-page.html"
+#     fr.ix[0, "server_repr"] = nan
     #Put our IDs into index
     fr.set_index("id", drop=False, inplace=True, 
                  verify_integrity=True)
+#    print fr
     return fr
 
     
@@ -149,7 +149,7 @@ def test_make_price_frame():
     assert prices.ix[1, "id"] is None 
     
     prices["price"] = 2.5
-    prices["product"][2] = "foo-bar"
+    prices.ix[2,"product"] = "foo-bar"
     prices.ix[3, "listing"] = "baz-boo"
     assert all(prices["price"] == 2.5)
     assert prices["product"][2] == "foo-bar"
@@ -568,7 +568,7 @@ def test_DataStore_write_expected_products_to_listings():
 if __name__ == "__main__":
 #    test_make_price_frame()
 #    test_make_price_id()
-#    test_ListingsXMLConverter()
+    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()

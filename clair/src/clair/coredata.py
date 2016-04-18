@@ -31,7 +31,7 @@ from __future__ import absolute_import
 import os
 import os.path as path
 import glob
-import string
+#import string
 from datetime import datetime #, timedelta
 from types import NoneType
 import random

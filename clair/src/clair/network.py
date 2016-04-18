@@ -39,8 +39,8 @@ from lxml import etree, objectify
 import pandas as pd
 #from numpy import nan
 import ebay.utils as eb_utils
-import ebay.finding as eb_find 
-import ebay.shopping as eb_shop 
+import ebay.finding as eb_find
+import ebay.shopping as eb_shop
 
 from clair.coredata import make_listing_frame
 
@@ -55,8 +55,7 @@ def convert_ebay_condition(ebay_cond):
     Convert Ebay condition numbers to internal condition numbers.
     Converts string input to float.
     
-    The function does a linear transformation between Ebay and external
-    numbers.
+    The function does a linear transformation.
     
     Ebay condition numbers:
         http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
