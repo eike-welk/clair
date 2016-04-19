@@ -38,7 +38,7 @@ import random
 import logging
 
 import dateutil
-from numpy import nan, isnan
+from numpy import nan, isnan #IGNORE:E0611
 import pandas as pd
 from lxml import etree, objectify
 
@@ -661,45 +661,45 @@ class XMLConverterListings(XMLConverter):
         nrows = len(listing_xml)
         listings = make_listing_frame(nrows)
         for i, li in enumerate(listing_xml):    
-            listings["id"][i] = ustr(li.id.pyval) 
-            listings["training_sample"][i] = li.training_sample.pyval
-            try: listings["search_tasks"][i] = [ustr(li.search_task.pyval)] #TODO: remove after 2013-04-30
+            listings.ix[i, "id"] = ustr(li.id.pyval) 
+            listings.ix[i, "training_sample"] = li.training_sample.pyval
+            try: listings.ix[i, "search_tasks"] = [ustr(li.search_task.pyval)] #TODO: remove after 2013-04-30
             except AttributeError: pass
-            try: listings["search_tasks"][i] = self.from_xml_list(
-                                            "task", li.search_tasks)
+            try: listings.set_value(i, "search_tasks", 
+                                    self.from_xml_list("task", li.search_tasks))
             except AttributeError: pass
-            listings["expected_products"][i] = self.from_xml_list(
-                                            "product", li.expected_products)
-            listings["products"][i] = self.from_xml_list(
-                                            "product", li.products)
-            try: listings["products_absent"][i] = self.from_xml_list(
-                                            "product", li.products_absent)
+            listings.set_value(i, "expected_products", 
+                               self.from_xml_list("product", li.expected_products))
+            listings.set_value(i, "products", 
+                               self.from_xml_list("product", li.products))
+            try: listings.set_value(i, "products_absent", 
+                                    self.from_xml_list("product", li.products_absent))
             except AttributeError: pass
-            listings["thumbnail"][i] = ustr(li.thumbnail.pyval)
-            listings["image"][i] = ustr(li.image.pyval)
-            listings["title"][i] = ustr(li.title.pyval )
-            listings["description"][i] = ustr(li.description.pyval)
-            listings["prod_spec"][i] = self.from_xml_dict(li.prod_spec)
-            listings["active"][i] = li.active.pyval
-            listings["sold"][i] = li.sold.pyval
-            listings["currency"][i] = ustr(li.currency.pyval)
-            listings["price"][i]    = li.price.pyval
-            listings["shipping"][i] = li.shipping.pyval
-            listings["type"][i] = ustr(li.type.pyval)
-            listings["time"][i] = parse_date(li.time.pyval)
-            listings["location"][i] = ustr(li.location.pyval)
-            listings["postcode"][i] = ustr(li.postcode.pyval)
-            listings["country"][i] = ustr(li.country.pyval)
-            listings["condition"][i] = li.condition.pyval
-            try: listings["seller"][i] = ustr(li.seller.pyval)
+            listings.ix[i, "thumbnail"] = ustr(li.thumbnail.pyval)
+            listings.ix[i, "image"] = ustr(li.image.pyval)
+            listings.ix[i, "title"] = ustr(li.title.pyval )
+            listings.ix[i, "description"] = ustr(li.description.pyval)
+            listings.set_value(i, "prod_spec", self.from_xml_dict(li.prod_spec))
+            listings.ix[i, "active"] = li.active.pyval
+            listings.ix[i, "sold"] = li.sold.pyval
+            listings.ix[i, "currency"] = ustr(li.currency.pyval)
+            listings.ix[i, "price"]    = li.price.pyval
+            listings.ix[i, "shipping"] = li.shipping.pyval
+            listings.ix[i, "type"] = ustr(li.type.pyval)
+            listings.ix[i, "time"] = parse_date(li.time.pyval)
+            listings.ix[i, "location"] = ustr(li.location.pyval)
+            listings.ix[i, "postcode"] = ustr(li.postcode.pyval)
+            listings.ix[i, "country"] = ustr(li.country.pyval)
+            listings.ix[i, "condition"] = li.condition.pyval
+            try: listings.ix[i, "seller"] = ustr(li.seller.pyval)
             except AttributeError: pass
-            try: listings["buyer"][i] = ustr(li.buyer.pyval)
+            try: listings.ix[i, "buyer"] = ustr(li.buyer.pyval)
             except AttributeError: pass
-            listings["server"][i] = ustr(li.server.pyval)
-            listings["server_id"][i] = ustr(li.server_id.pyval) #ID of listing on server
-            listings["final_price"][i] = li.final_price.pyval
+            listings.ix[i, "server"] = ustr(li.server.pyval)
+            listings.ix[i, "server_id"] = ustr(li.server_id.pyval) #ID of listing on server
+            listings.ix[i, "final_price"] = li.final_price.pyval
 #            listings["data_directory"] = ""
-            listings["url_webui"][i] = ustr(li.url_webui.pyval)
+            listings.ix[i, "url_webui"] = ustr(li.url_webui.pyval)
 #            listings["server_repr"][i] = nan
 
         #Put our IDs into index
@@ -945,6 +945,8 @@ class XmlIOBigFrame(object):
         file_new_temp = file_new + "-new-" + rand_str
         
         #Write file with temporary name
+        if compress:
+            raise IOError("Compression is not implemented.")
         logging.debug("Writing: {}".format(file_new_temp))
         fw = open(file_new_temp, "w")
         fw.write(text.encode("ascii"))
@@ -971,7 +973,7 @@ class XmlIOBigFrame(object):
         """
         #Find unused filename.
         path_n, path_c = "", ""
-        for i in range(10000):
+        for i in range(100000):
             path_n = path.join(self.directory, 
                                self.make_filename(date, i, False))
             path_c = path.join(self.directory,  
@@ -1097,7 +1099,7 @@ class XmlIOBigFrame(object):
         
         if len(out_frame) == 0:
             return out_frame
-        out_frame = out_frame.drop_duplicates("id", take_last=True)
+        out_frame = out_frame.drop_duplicates("id", keep='last')
         out_frame.set_index("id", drop=False, inplace=True, 
                             verify_integrity=True)
         return out_frame
@@ -1216,9 +1218,11 @@ class DataStore(object):
     
     def merge_listings(self, listings):
         logging.info("Merging {} listings".format(len(listings)))
-        self.listings = listings.combine_first(self.listings)
-        #Workaround for issue https://github.com/pydata/pandas/issues/3593
+        listings["time"] = pd.to_datetime(listings["time"])
         self.listings["time"] = pd.to_datetime(self.listings["time"])
+        self.listings = listings.combine_first(self.listings)
+#        #Workaround for issue https://github.com/pydata/pandas/issues/3593
+#        self.listings["time"] = pd.to_datetime(self.listings["time"])
         self.listings_dirty = True
     
     def merge_prices(self, prices):
@@ -1427,7 +1431,8 @@ class DataStore(object):
         #Put list of new products into task and listings
         task.expected_products = new_prods
         new_listings = make_listing_frame(index=task_listings)
-        new_listings["expected_products"].fill(new_prods)
+        for idx in task_listings:
+            new_listings.set_value(idx, "expected_products", new_prods)
         self.merge_listings(new_listings)
 
         self.tasks_dirty = True

@@ -28,7 +28,7 @@ and basic operations on this data.
 from __future__ import division
 from __future__ import absolute_import  
             
-import pytest #contains `skip`, `fail`, `raises`, `config`
+import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
 import os
 import glob
@@ -36,7 +36,7 @@ import time
 import os.path as path
 from datetime import datetime
 
-from numpy import isnan, nan
+from numpy import isnan #, nan #IGNORE:E0611
 #from pandas.util.testing import assert_frame_equal
 
 import logging
@@ -568,7 +568,7 @@ def test_DataStore_write_expected_products_to_listings():
 if __name__ == "__main__":
 #    test_make_price_frame()
 #    test_make_price_id()
-    test_ListingsXMLConverter()
+#    test_ListingsXMLConverter()
 #    test_TaskXMLConverter()
 #    test_XmlBigFrameIO_read_write_text()
 #    test_XmlBigFrameIO_read_write_dataframe()
@@ -576,7 +576,7 @@ if __name__ == "__main__":
 #    test_ProductXMLConverter()
 #    test_XmlSmallObjectIO()
 #    test_DataStore()
-#    test_DataStore_update_expected_products()
+    test_DataStore_update_expected_products()
 #    test_DataStore_write_expected_products_to_listings()
     
     pass
