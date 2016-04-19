@@ -23,7 +23,7 @@
       <query_string>Nikon D70</query_string>
       <n_listings>100</n_listings>
       <price_min>70.0</price_min>
-      <price_max>300</price_max>
+      <price_max>300.0</price_max>
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d70</product>
@@ -54,7 +54,7 @@
       <query_string>Nikon D90</query_string>
       <n_listings>100</n_listings>
       <price_min>170.0</price_min>
-      <price_max>700</price_max>
+      <price_max>700.0</price_max>
       <currency>EUR</currency>
       <expected_products>
         <product>nikon-d90</product>

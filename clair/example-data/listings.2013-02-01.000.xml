@@ -711,8 +711,8 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
           <value>Schwarz</value>
         </kv_pair>
         <kv_pair>
-          <key>Megapixel</key>
-          <value>6.0 MP</value>
+          <key>Marke</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Produktpakete</key>
@@ -723,8 +723,8 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
           <value>Digital SLR</value>
         </kv_pair>
         <kv_pair>
-          <key>Marke</key>
-          <value>Nikon</value>
+          <key>Megapixel</key>
+          <value>6.0 MP</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -1045,16 +1045,16 @@ gleichzeitiger voller Kontrolle und Wahlm&#246;glichkeit &#252;ber die Haupt-Par
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -2024,16 +2024,16 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -2346,16 +2346,16 @@ maximal 0,42 Euro pro Minute aus den Mobilfunknetzen
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -3804,8 +3804,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Eingebauter Blitz</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -3820,8 +3820,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>AV out</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4074,20 +4074,20 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
-        </kv_pair>
-        <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4274,20 +4274,20 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
-        </kv_pair>
-        <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4395,8 +4395,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Bildstabilisierung</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -4407,8 +4407,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4790,8 +4790,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Originalverpackung</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -4802,8 +4802,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -4859,7 +4859,19 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
         <product>nikon-18-105-f/3.5-5.6--1</product>
         <product>nikon-18-55-f/3.5-5.6--1</product>
         <product>nikon-18-70-f/3.5-4.5--1</product>
+        <product>nikon-24-120-f/3.5-5.6--2</product>
         <product>nikon-28-80-f/3.3-5.6--1</product>
+        <product>nikon-50-f/1.8--1</product>
+        <product>nikon-50-f/1.8-D--2</product>
+        <product>nikon-70-300-f/4-5.6--1</product>
+        <product>sigma-18-50mm-f/3.5-5.6--1-nikon</product>
+        <product>sigma-28-200-f/3,5-5,6--1-Nikon</product>
+        <product>sigma-70-200-f/2.8--1-Nikon</product>
+        <product>tamron-18-200-f/3.5-6.3--1-Nikon</product>
+        <product>tamron-28-200-f/3.8-5.6--1-Nikon</product>
+        <product>tamron-70-300-f/4.0-5.6--1-Nikon</product>
+        <product>tamron-70-300-f/4.0-5.6--3-Nikon</product>
+        <product>xxx-unknown-flash</product>
         <product>nikon-sb-26</product>
       </products_absent>
       <thumbnail>http://thumbs2.ebaystatic.com/pict/1609813798498080_1.jpg</thumbnail>
@@ -4900,8 +4912,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Bildstabilisierung</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -4912,8 +4924,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5010,8 +5022,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>Originalverpackung</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -5022,8 +5034,8 @@ Fragen bitte vor Ablauf der Auktion stellen.&lt;/span&gt;&lt;/p&gt;
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5093,8 +5105,8 @@ Versicherter Versand 5&#8364;</description>
           <value>AF-Hilfslicht</value>
         </kv_pair>
         <kv_pair>
-          <key>Condition</key>
-          <value>Sehr guter Zustand</value>
+          <key>Produktart</key>
+          <value>Aufsteckblitz</value>
         </kv_pair>
         <kv_pair>
           <key>F&#252;r</key>
@@ -5105,8 +5117,8 @@ Versicherter Versand 5&#8364;</description>
           <value>Keine</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>Aufsteckblitz</value>
+          <key>Condition</key>
+          <value>Sehr guter Zustand</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5583,16 +5595,16 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5789,8 +5801,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Dioptrienausgleich</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -5805,8 +5817,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -5998,16 +6010,16 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Marke</key>
-          <value>Nikon</value>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Marke</key>
+          <value>Nikon</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -6232,8 +6244,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Bildstabilisierung</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -6244,8 +6256,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>HDMI</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -6365,8 +6377,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>null</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -6385,8 +6397,8 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Komponentenanschluss||USB</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -6573,20 +6585,20 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
-        </kv_pair>
-        <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -6774,20 +6786,20 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
-        </kv_pair>
-        <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/3,5</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Standardobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/3,5</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -6887,16 +6899,16 @@ nicht, wenn Sie mit diesen Regeln nicht einverstanden sind&lt;/font&gt;&lt;/span
           <value>JAA805DA</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>x5.8</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>x5.8</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -7274,16 +7286,16 @@ Auktionen. Da biete ich das passende Zoomobjektiv an. Wird in Originalverpackung
           <value>Bildstabilisierung</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -7857,16 +7869,16 @@ Verst&#228;ndnis.&lt;/span&gt;&lt;/p&gt;
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -8842,10 +8854,6 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Objektivtyp II</key>
-          <value>Tele</value>
-        </kv_pair>
-        <kv_pair>
           <key>Objektivtyp</key>
           <value>Feste Brennweite</value>
         </kv_pair>
@@ -8856,6 +8864,10 @@ fax: +49 (0) 89 5236783 &lt;/font&gt;&lt;/td&gt;
         <kv_pair>
           <key>MPN</key>
           <value>JAA638DA</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Objektivtyp II</key>
+          <value>Tele</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
@@ -10046,16 +10058,16 @@ content="text/html; charset=iso-8859-1"&gt;
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>11,1x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>11,1x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -10841,16 +10853,16 @@ content="text/html; charset=iso-8859-1"&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Modell</key>
-          <value>D90</value>
+          <key>Megapixel</key>
+          <value>12.3 MP</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
-          <key>Megapixel</key>
-          <value>12.3 MP</value>
+          <key>Modell</key>
+          <value>D90</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -11538,16 +11550,16 @@ ausgeschlossen.&lt;/span&gt;&lt;/p&gt;
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -12714,16 +12726,16 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>Mehr als 2,0x</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>Mehr als 2,0x</value>
+          <key>Anschlussart</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Objektivbrennweite</key>
@@ -12971,16 +12983,16 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>Mehr als 2,0x</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>Mehr als 2,0x</value>
+          <key>Anschlussart</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Objektivbrennweite</key>
@@ -13225,16 +13237,16 @@ document.write('&lt;img   alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0
           <value>Objektivfrontdeckel</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>Mehr als 2,0x</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>Mehr als 2,0x</value>
+          <key>Anschlussart</key>
+          <value>Nikon</value>
         </kv_pair>
         <kv_pair>
           <key>Objektivbrennweite</key>
@@ -14198,16 +14210,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>3,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>3,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -14401,16 +14413,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D90</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -15471,16 +15483,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>JAA726DC</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon AF</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>x4.3</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>x4.3</value>
+          <key>Anschlussart</key>
+          <value>Nikon AF</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -15827,16 +15839,16 @@ document.write('&lt;img alt="counter-gratis.com" border=0 hspace=0 '+'vspace=0 s
           <value>JAA726DC</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon AF</value>
+          <key>Brennweitenverl&#228;ngerung</key>
+          <value>x4.3</value>
         </kv_pair>
         <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
         </kv_pair>
         <kv_pair>
-          <key>Brennweitenverl&#228;ngerung</key>
-          <value>x4.3</value>
+          <key>Anschlussart</key>
+          <value>Nikon AF</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
@@ -17945,16 +17957,16 @@ extrem wenig. Nikon testet seine SLR-Kameras, also auch die D 90, mit 150.000 Au
           <value>6,1 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>2,9x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
           <value>D70</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>2,9x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -21027,8 +21039,8 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
           <value>12,3 MP</value>
         </kv_pair>
         <kv_pair>
-          <key>Optischer Zoom</key>
-          <value>5,8x</value>
+          <key>Produktart</key>
+          <value>DSLR-Kamera</value>
         </kv_pair>
         <kv_pair>
           <key>Modell</key>
@@ -21039,8 +21051,8 @@ Verpackung &#252;bernehme ich, den versicherten Versand &#252;bernimmt bitte der
           <value>Keine</value>
         </kv_pair>
         <kv_pair>
-          <key>Produktart</key>
-          <value>DSLR-Kamera</value>
+          <key>Optischer Zoom</key>
+          <value>5,8x</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -22129,20 +22141,20 @@ TTL-Multiblitzf&amp;auml;higkeit&lt;/font&gt;&lt;/p&gt;
           <value>Nikon</value>
         </kv_pair>
         <kv_pair>
-          <key>Anschlussart</key>
-          <value>Nikon F</value>
-        </kv_pair>
-        <kv_pair>
           <key>Fokussierung</key>
           <value>Autofokus &amp; Manueller Fokus</value>
+        </kv_pair>
+        <kv_pair>
+          <key>Maximale Lichtst&#228;rke</key>
+          <value>F/1,8</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
           <value>Teleobjektive</value>
         </kv_pair>
         <kv_pair>
-          <key>Maximale Lichtst&#228;rke</key>
-          <value>F/1,8</value>
+          <key>Anschlussart</key>
+          <value>Nikon F</value>
         </kv_pair>
       </prod_spec>
       <active>0.0</active>
@@ -29294,8 +29306,8 @@ wechsel1();
           <value>2070g.</value>
         </kv_pair>
         <kv_pair>
-          <key>Au&#223;enma&#223;</key>
-          <value>36cm x 25cm x 48cm (BxTxH)</value>
+          <key>Herstellergarantie</key>
+          <value>5 Jahre</value>
         </kv_pair>
         <kv_pair>
           <key>Besonderheiten</key>
@@ -29314,8 +29326,8 @@ wechsel1();
           <value>Kamera: DSLR/SLR/TLR</value>
         </kv_pair>
         <kv_pair>
-          <key>Herstellergarantie</key>
-          <value>5 Jahre</value>
+          <key>Au&#223;enma&#223;</key>
+          <value>36cm x 25cm x 48cm (BxTxH)</value>
         </kv_pair>
         <kv_pair>
           <key>Produktart</key>
