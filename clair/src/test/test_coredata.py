@@ -2,7 +2,7 @@
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
-#    Copyright (C) 2013 by Eike Welk                                          #
+#    Copyright (C) 2016 by Eike Welk                                          #
 #    eike.welk@gmx.net                                                        #
 #                                                                             #
 #    License: GPL Version 3                                                   #

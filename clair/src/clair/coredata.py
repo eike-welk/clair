@@ -2,7 +2,7 @@
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
-#    Copyright (C) 2013 by Eike Welk                                          #
+#    Copyright (C) 2016 by Eike Welk                                          #
 #    eike.welk@gmx.net                                                        #
 #                                                                             #
 #    License: GPL Version 3                                                   #
@@ -49,7 +49,7 @@ class ListingConstants(object):
     Name space for constants related to listing ``DataFrame``. 
     Dummy class, used by ``make_listing_frame``.
     
-    For an explanation of a listing's fields, the collumns of the ``DataFrame``,
+    For an explanation of a listing's fields, the columns of the ``DataFrame``,
     see the comments below.
     
     TODO: include bid_count?
@@ -902,7 +902,7 @@ class XmlIOBigFrame(object):
             Contents of file
             
         date : datetime
-            Used asa part of file name 
+            Used as part of file name 
             
         compress : bool
             Compress the file's contents.
