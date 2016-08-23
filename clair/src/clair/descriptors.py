@@ -27,6 +27,8 @@ Tools to define the structure of DataFrame objects, XML-Files, and databases.
 from __future__ import division
 from __future__ import absolute_import              
 
+from types import NoneType, TypeType
+
 
 
 class TypeTag(object):
@@ -34,32 +36,45 @@ class TypeTag(object):
     def check_type(self, object_):
         raise NotImplementedError
 
-class NoneT(TypeTag):
-    """Show that column/field contains a None."""
+class SimpleTypeMetaT(TypeTag):
+    """A tag that describes a simple type like `int` or `float`."""
+    def __init__(self, pythonType):
+        TypeTag.__init__(self)
+        assert isinstance(pythonType, TypeType), \
+            "`pythonType` must be a Python type. For example `int` or `str`."
+        self.pythonType = pythonType
+        
     def check_type(self, object_):
-        return object_ is None
-    
-class StrT(TypeTag):
-    """Show that column/field contains a string."""
-    def check_type(self, object_):
-        return isinstance(object_, str)
+        return isinstance(object_, self.pythonType)
 
-class IntT(TypeTag):
-    """Show that column/field contains an integer number."""
-    def check_type(self, object_):
-        return isinstance(object_, int)
+NoneT = SimpleTypeMetaT(NoneType)
+StrT = SimpleTypeMetaT(str)
+IntT = SimpleTypeMetaT(int)
+FloatT = SimpleTypeMetaT(float)
 
-class FloatT(TypeTag):
-    """Show that column/field contains a floating point number."""
-    def check_type(self, object_):
-        return isinstance(object_, float)
+class SumT(TypeTag):
+    """
+    Sum type or union. The object can be an instance of one of several types.
+    """
+    def __init__(self, *tags):
+        TypeTag.__init__(self)
+        for tag in tags:
+            assert isinstance(tag, TypeTag)
+        self.tags = tags
     
+    def check_type(self, object_):
+        for tag in self.tags:
+            if tag.check_type(object_):
+                return True
+        return False
+
 class ListT(TypeTag):
     """
     Show that column/field contains a list. 
     All values in the list must be of the same type.
     """
     def __init__(self, valueT):
+        TypeTag.__init__(self)
         assert isinstance(valueT, TypeTag), "`valueT` must be a `TypeTag`."
         self.valueT = valueT
     
@@ -73,10 +88,11 @@ class ListT(TypeTag):
             
 class DictT(TypeTag):
     """
-    Show that column/field contains a map. 
+    Show that column/field contains a `dict`. 
     All key -> value pairs in the list must be of the same types.
     """
     def __init__(self, keyT, valueT):
+        TypeTag.__init__(self)
         assert isinstance(keyT, TypeTag), "`keyT` must be a `TypeTag`."
         assert isinstance(valueT, TypeTag), "`valueT` must be a `TypeTag`."
         self.keyT = keyT
@@ -86,10 +102,15 @@ class DictT(TypeTag):
         if not isinstance(object_, dict):
             return False
         for k, v in object_.iteritems():
-            if not (self.valueT.check_type(v) and self.keyT.check_type(k)):
+            if not (self.keyT.check_type(k) and self.valueT.check_type(v)):
                 return False
         return True
 
+def check_type(object_, tag):
+    """Equivalent to `isinstance` but with TypeTag"""
+    assert isinstance(tag, TypeTag), "`tag` must be a `TypeTag`."
+    return tag.check_type(object_)
+         
 
 class FieldDescriptor(object):
     """Describe all important aspects of a field or column."""
@@ -97,7 +118,7 @@ class FieldDescriptor(object):
         assert isinstance(name, str), "`name` must be a `str`."
         assert isinstance(data_type, TypeTag), \
             "`data_type` must be a `TypeTag`."
-        assert check_type(default_val, (data_type, NoneT())), \
+        assert check_type(default_val, SumT(data_type, NoneT)), \
             "`default_val` must be of the type described by `data_type` or None"
         assert isinstance(comment, str), "`comment` must be a `str`."
         
@@ -119,24 +140,10 @@ class TableDescriptor(object):
             "`field_descriptors` must be a `list`."
         for descr in field_descriptors:
             assert isinstance(descr, FieldDescriptor), \
-                "Each element in `field_descriptors` must be a `TypeTag`."
+                "Each element in `field_descriptors` must be a `FieldDescriptor`."
         
         self.name = name
         self.version = version
         self.extension = extension
         self.comment = comment
         self.column_descriptors = field_descriptors
-        
-
-def check_type(object_, tags):
-    """Equivalent to `isinstance` but with TypeTag"""
-    if not isinstance(tags, (list, tuple)):
-        tags = (tags,)
-        
-    is_instance = False
-    for tag in tags:
-        assert isinstance(tag, TypeTag), \
-            "Each element of `tags` must be a `TypeTag`"
-        is_instance |= tag.check_type(object_)
-    
-    return is_instance

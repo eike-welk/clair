@@ -45,27 +45,38 @@ from __future__ import absolute_import
 
 def test_TypeTag_s():
     print "Start"
-    from clair.descriptors import NoneT, StrT, IntT, FloatT, ListT, DictT
+    from clair.descriptors import NoneT, StrT, IntT, FloatT, SumT, ListT, DictT
 
-    tn = NoneT()
+    tn = NoneT
     assert tn.check_type(None)
     
-    ts = StrT()
+    ts = StrT
     assert ts.check_type("foo")
     
-    ti = IntT()
+    ti = IntT
     assert ti.check_type(23)
     
-    tf = FloatT()
+    tf = FloatT
     assert tf.check_type(23.5)
     
-    tl = ListT(FloatT())
+    ts = SumT(IntT, FloatT)
+    assert ts.check_type(1)
+    assert ts.check_type(1.41)
+    assert not ts.check_type("a")
+    
+    tl = ListT(FloatT)
     assert tl.check_type([])
     assert tl.check_type([1.2, 3.4])
+    assert not tl.check_type([1, 3])
     
-    tm = DictT(StrT(), IntT())
+    tl2 = ListT(SumT(FloatT, IntT))
+    assert tl2.check_type([1.2, 3, 4])
+    assert not tl.check_type([1, "a"])
+    
+    tm = DictT(StrT, IntT)
     assert tm.check_type({})
     assert tm.check_type({"foo": 2, "bar": 3})
+    assert not tm.check_type({"foo": 2, "bar": 3.1415})
     
 
 
@@ -73,8 +84,8 @@ def test_FieldDescriptor():
     print "Start"
     from clair.descriptors import FieldDescriptor, IntT
     
-    _ = FieldDescriptor("foo", IntT(), 1, "A foo integer.")
-    _ = FieldDescriptor("foo", IntT(), None, "A foo integer or None.")
+    _ = FieldDescriptor("foo", IntT, 1, "A foo integer.")
+    _ = FieldDescriptor("foo", IntT, None, "A foo integer or None.")
 
 
 def test_TableDescriptor():
@@ -83,13 +94,13 @@ def test_TableDescriptor():
     
     F = FieldDescriptor
     _ = TableDescriptor("foo_table", "1.0", "fot", "A table of foo elements", 
-                        [F("foo1", IntT(), 0, "A foo integer."),
-                         F("foo2", IntT(), None, "A foo integer or None.")
+                        [F("foo1", IntT, 0, "A foo integer."),
+                         F("foo2", IntT, None, "A foo integer or None.")
                          ])
 
 
 if __name__ == "__main__":
-#    test_TypeTag_s()
+    test_TypeTag_s()
 #    test_FieldDescriptor()
 #    test_TableDescriptor()
     
