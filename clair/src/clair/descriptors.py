@@ -33,7 +33,7 @@ from types import NoneType, TypeType
 
 class TypeTag(object):
     """Parent for classes that describe the data type of a column or field."""
-    def check_type(self, object_):
+    def is_type(self, object_):
         raise NotImplementedError
 
 class SimpleTypeMetaT(TypeTag):
@@ -44,11 +44,12 @@ class SimpleTypeMetaT(TypeTag):
             "`pythonType` must be a Python type. For example `int` or `str`."
         self.pythonType = pythonType
         
-    def check_type(self, object_):
+    def is_type(self, object_):
         return isinstance(object_, self.pythonType)
 
 NoneT = SimpleTypeMetaT(NoneType)
 StrT = SimpleTypeMetaT(str)
+BoolT = SimpleTypeMetaT(bool)
 IntT = SimpleTypeMetaT(int)
 FloatT = SimpleTypeMetaT(float)
 
@@ -62,9 +63,9 @@ class SumT(TypeTag):
             assert isinstance(tag, TypeTag)
         self.tags = tags
     
-    def check_type(self, object_):
+    def is_type(self, object_):
         for tag in self.tags:
-            if tag.check_type(object_):
+            if tag.is_type(object_):
                 return True
         return False
 
@@ -78,11 +79,11 @@ class ListT(TypeTag):
         assert isinstance(valueT, TypeTag), "`valueT` must be a `TypeTag`."
         self.valueT = valueT
     
-    def check_type(self, object_):
+    def is_type(self, object_):
         if not isinstance(object_, list):
             return False
         for v in object_:
-            if not self.valueT.check_type(v):
+            if not self.valueT.is_type(v):
                 return False
         return True
             
@@ -98,18 +99,18 @@ class DictT(TypeTag):
         self.keyT = keyT
         self.valueT = valueT
         
-    def check_type(self, object_):
+    def is_type(self, object_):
         if not isinstance(object_, dict):
             return False
         for k, v in object_.iteritems():
-            if not (self.keyT.check_type(k) and self.valueT.check_type(v)):
+            if not (self.keyT.is_type(k) and self.valueT.is_type(v)):
                 return False
         return True
 
-def check_type(object_, tag):
+def is_type(object_, tag):
     """Equivalent to `isinstance` but with TypeTag"""
     assert isinstance(tag, TypeTag), "`tag` must be a `TypeTag`."
-    return tag.check_type(object_)
+    return tag.is_type(object_)
          
 
 class FieldDescriptor(object):
@@ -118,7 +119,7 @@ class FieldDescriptor(object):
         assert isinstance(name, str), "`name` must be a `str`."
         assert isinstance(data_type, TypeTag), \
             "`data_type` must be a `TypeTag`."
-        assert check_type(default_val, SumT(data_type, NoneT)), \
+        assert is_type(default_val, SumT(data_type, NoneT)), \
             "`default_val` must be of the type described by `data_type` or None"
         assert isinstance(comment, str), "`comment` must be a `str`."
         

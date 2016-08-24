@@ -48,35 +48,35 @@ def test_TypeTag_s():
     from clair.descriptors import NoneT, StrT, IntT, FloatT, SumT, ListT, DictT
 
     tn = NoneT
-    assert tn.check_type(None)
+    assert tn.is_type(None)
     
     ts = StrT
-    assert ts.check_type("foo")
+    assert ts.is_type("foo")
     
     ti = IntT
-    assert ti.check_type(23)
+    assert ti.is_type(23)
     
     tf = FloatT
-    assert tf.check_type(23.5)
+    assert tf.is_type(23.5)
     
     ts = SumT(IntT, FloatT)
-    assert ts.check_type(1)
-    assert ts.check_type(1.41)
-    assert not ts.check_type("a")
+    assert ts.is_type(1)
+    assert ts.is_type(1.41)
+    assert not ts.is_type("a")
     
     tl = ListT(FloatT)
-    assert tl.check_type([])
-    assert tl.check_type([1.2, 3.4])
-    assert not tl.check_type([1, 3])
+    assert tl.is_type([])
+    assert tl.is_type([1.2, 3.4])
+    assert not tl.is_type([1, 3])
     
     tl2 = ListT(SumT(FloatT, IntT))
-    assert tl2.check_type([1.2, 3, 4])
-    assert not tl.check_type([1, "a"])
+    assert tl2.is_type([1.2, 3, 4])
+    assert not tl.is_type([1, "a"])
     
     tm = DictT(StrT, IntT)
-    assert tm.check_type({})
-    assert tm.check_type({"foo": 2, "bar": 3})
-    assert not tm.check_type({"foo": 2, "bar": 3.1415})
+    assert tm.is_type({})
+    assert tm.is_type({"foo": 2, "bar": 3})
+    assert not tm.is_type({"foo": 2, "bar": 3.1415})
     
 
 
