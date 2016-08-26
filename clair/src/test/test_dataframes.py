@@ -21,8 +21,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Test module ``descriptors``, which contains tools to define the structure 
-of a table or database.
+Test module ``dataframes``, which contains definitions of the the 
+``pandas.DataFrame`` objects that store the application's important data in 2D
+tables.
 """
 
 from __future__ import division
@@ -31,7 +32,7 @@ from __future__ import absolute_import
 #import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
 
-#from numpy import isnan #, nan #IGNORE:E0611
+from numpy import isnan #, nan #IGNORE:E0611
 #from pandas.util.testing import assert_frame_equal
 
 #import time
@@ -43,67 +44,78 @@ from __future__ import absolute_import
 #logging.Formatter.converter = time.gmtime
 
 
-def test_TypeTag_s():
+def test_make_data_series():
     print "Start"
-    from numpy import nan #, isnan #IGNORE:E0611    
-    from clair.descriptors import NoneT, StrT, IntT, FloatT, SumT, ListT, DictT
+    from clair.descriptors import StrT, IntT, FloatT, BoolT, ListT, DictT, FieldDescriptor
+    from clair.dataframes import make_data_series
 
-    tn = NoneT
-    assert tn.is_type(None)
-    
-    ts = StrT
-    assert ts.is_type("foo")
-    
-    ti = IntT
-    assert ti.is_type(23)
-    
-    tf = FloatT
-    assert tf.is_type(23.5)
-    assert tf.is_type(nan)
-    
-    ts = SumT(IntT, FloatT)
-    assert ts.is_type(1)
-    assert ts.is_type(1.41)
-    assert not ts.is_type("a")
-    
-    tl = ListT(FloatT)
-    assert tl.is_type([])
-    assert tl.is_type([1.2, 3.4])
-    assert not tl.is_type([1, 3])
-    
-    tl2 = ListT(SumT(FloatT, IntT))
-    assert tl2.is_type([1.2, 3, 4])
-    assert not tl.is_type([1, "a"])
-    
-    tm = DictT(StrT, IntT)
-    assert tm.is_type({})
-    assert tm.is_type({"foo": 2, "bar": 3})
-    assert not tm.is_type({"foo": 2, "bar": 3.1415})
-    
+    fd = FieldDescriptor("foo", FloatT, None, "foo data")
+    s = make_data_series(fd, 3)
+    s[1] = 1.4
+    print s
+    assert len(s) == 3 
+    assert isnan(s[0])
+    assert s[1] == 1.4
 
+    fd = FieldDescriptor("foo", IntT, None, "foo data")
+    s = make_data_series(fd, 4)
+    s[1] = 23
+    print s
+    assert len(s) == 4
+    assert isnan(s[0])
+    assert s[1] == 23
+    
+    fd = FieldDescriptor("foo", BoolT, None, "foo data")
+    s = make_data_series(fd, 3)
+    s[1] = True
+    print s
+    assert len(s) == 3
+    assert isnan(s[0])
+    assert s[1] == True
 
-def test_FieldDescriptor():
+    fd = FieldDescriptor("foo", ListT(StrT), None, "foo data")
+    s = make_data_series(fd, 3)
+    s[1] = ["foo", "bar"]
+    print s
+    assert len(s) == 3
+    assert isnan(s[0])
+    assert s[1] == ["foo", "bar"]
+
+    fd = FieldDescriptor("foo", FloatT, 0., "foo data")
+    s = make_data_series(fd, 3)
+    s[1] = 4.2
+    print s
+    assert len(s) == 3
+    assert s[0] == 0
+    assert s[1] == 4.2
+    
+    
+def test_make_data_frame():
     print "Start"
-    from clair.descriptors import FieldDescriptor, IntT
-    
-    _ = FieldDescriptor("foo", IntT, 1, "A foo integer.")
-    _ = FieldDescriptor("foo", IntT, None, "A foo integer or None.")
+    from clair.descriptors import StrT, FloatT, FieldDescriptor, TableDescriptor
+    from clair.dataframes import make_data_frame
 
-
-def test_TableDescriptor():
-    print "Start"
-    from clair.descriptors import TableDescriptor, FieldDescriptor, IntT
+    FD = FieldDescriptor
+    td = TableDescriptor("foo-table", "1.0", "foot", 
+                         "A table for testing purposes.", 
+                         [FD("foo", FloatT, None, "foo data"),
+                          FD("bar", StrT, None, "bar data")])
+    df = make_data_frame(td, 3)
+    df.at[1, "foo"] = 23
+    df.at[2, "bar"] = "a"
+    print df
+    print df.dtypes
     
-    F = FieldDescriptor
-    _ = TableDescriptor("foo_table", "1.0", "fot", "A table of foo elements", 
-                        [F("foo1", IntT, 0, "A foo integer."),
-                         F("foo2", IntT, None, "A foo integer or None.")
-                         ])
+    assert len(df.index) == 3
+    assert len(df.columns) == 2
+    assert isnan(df.at[0, "bar"])
+    assert df.at[1, "foo"] == 23
+    assert df.at[2, "bar"] == "a"
+
 
 
 if __name__ == "__main__":
-    test_TypeTag_s()
-#    test_FieldDescriptor()
-#    test_TableDescriptor()
+#    test_make_data_series()
+    test_make_data_frame()
     
     pass #IGNORE:W0107

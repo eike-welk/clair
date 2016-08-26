@@ -21,13 +21,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Test module ``coredata``, which contains central data structures 
+Test module ``coredata``, which contains central data structures
 and basic operations on this data.
 """
 
 from __future__ import division
-from __future__ import absolute_import  
-            
+from __future__ import absolute_import
+
 import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
 import os
