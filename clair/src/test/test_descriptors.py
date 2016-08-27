@@ -49,36 +49,36 @@ def test_TypeTag_s():
     from clair.descriptors import NoneT, StrT, IntT, FloatT, SumT, ListT, DictT
 
     tn = NoneT
-    assert tn.is_type(None)
+    assert tn.is_instance_T(None)
     
     ts = StrT
-    assert ts.is_type("foo")
+    assert ts.is_instance_T("foo")
     
     ti = IntT
-    assert ti.is_type(23)
+    assert ti.is_instance_T(23)
     
     tf = FloatT
-    assert tf.is_type(23.5)
-    assert tf.is_type(nan)
+    assert tf.is_instance_T(23.5)
+    assert tf.is_instance_T(nan)
     
     ts = SumT(IntT, FloatT)
-    assert ts.is_type(1)
-    assert ts.is_type(1.41)
-    assert not ts.is_type("a")
+    assert ts.is_instance_T(1)
+    assert ts.is_instance_T(1.41)
+    assert not ts.is_instance_T("a")
     
     tl = ListT(FloatT)
-    assert tl.is_type([])
-    assert tl.is_type([1.2, 3.4])
-    assert not tl.is_type([1, 3])
+    assert tl.is_instance_T([])
+    assert tl.is_instance_T([1.2, 3.4])
+    assert not tl.is_instance_T([1, 3])
     
     tl2 = ListT(SumT(FloatT, IntT))
-    assert tl2.is_type([1.2, 3, 4])
-    assert not tl.is_type([1, "a"])
+    assert tl2.is_instance_T([1.2, 3, 4])
+    assert not tl.is_instance_T([1, "a"])
     
     tm = DictT(StrT, IntT)
-    assert tm.is_type({})
-    assert tm.is_type({"foo": 2, "bar": 3})
-    assert not tm.is_type({"foo": 2, "bar": 3.1415})
+    assert tm.is_instance_T({})
+    assert tm.is_instance_T({"foo": 2, "bar": 3})
+    assert not tm.is_instance_T({"foo": 2, "bar": 3.1415})
     
 
 
@@ -86,19 +86,19 @@ def test_FieldDescriptor():
     print "Start"
     from clair.descriptors import FieldDescriptor, IntT
     
-    _ = FieldDescriptor("foo", IntT, 1, "A foo integer.")
-    _ = FieldDescriptor("foo", IntT, None, "A foo integer or None.")
+    FieldDescriptor("foo", IntT, 1, "A foo integer.")
+    FieldDescriptor("foo", IntT, None, "A foo integer or None.")
 
 
 def test_TableDescriptor():
     print "Start"
     from clair.descriptors import TableDescriptor, FieldDescriptor, IntT
-    
+
     F = FieldDescriptor
-    _ = TableDescriptor("foo_table", "1.0", "fot", "A table of foo elements", 
-                        [F("foo1", IntT, 0, "A foo integer."),
-                         F("foo2", IntT, None, "A foo integer or None.")
-                         ])
+    TableDescriptor("foo_table", "1.0", "fot", "A table of foo elements",
+                    [F("foo1", IntT, 0, "A foo integer."),
+                     F("foo2", IntT, None, "A foo integer or None.")
+                    ])
 
 
 if __name__ == "__main__":

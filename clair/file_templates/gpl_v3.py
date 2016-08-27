@@ -33,7 +33,7 @@ import pytest #contains `skip`, `fail`, `raises`, `config`
 import time
 import os.path as path
 
-#Set up logging fore useful debug output, and time stamps in UTC.
+#Set up logging for useful debug output, and time stamps in UTC.
 import logging
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
                     level=logging.DEBUG)

@@ -32,10 +32,10 @@ from numpy import nan, isnan #IGNORE:E0611
 import numpy as np
 import pandas as pd
 
-from clair.descriptors import (
-                    NoneT, BoolT, StrT, IntT, FloatT, SumT, ListT, DictT,
-                    FieldDescriptor, TableDescriptor)
-FD = FieldDescriptor
+from clair.descriptors import BoolT, IntT, FloatT, \
+                              FieldDescriptor, TableDescriptor
+
+from clair.coredata import LISTING_DESCRIPTOR, PRICE_DESCRIPTOR
 
 
 
@@ -109,79 +109,55 @@ def make_data_frame(descriptor, nrows=None, index=None):
     return dframe
 
 
+def make_listing_frame(nrows=None, index=None):
+    """
+    Create empty ``pd.DataFrame`` of listings. 
+    
+    Each row represents a listing. The columns represent the listing's 
+    attributes. The object contains no data, all values are ``None`` or ``nan``.
 
-#
-#listingsDescriptor = TableDescriptor(
-#    "listings_frame", "1.0", "dframe", 
-#    "2D Table of dframe. "
-#    "Each row represents a listing on an e-commerce site.", 
-#    [FD("id", StrT, None, 
-#        "Internal unique ID of each listing."),
-#     #Training  and product recognition -----------------------------------
-#     FD("training_sample", BoolT, nan, 
-#        "This listing is a training sample if `True`."),
-#     FD("search_tasks", ListT(StrT), None, 
-#        "List of task IDs (strings) of search tasks, "
-#        "that returned this listing."),
-#     FD("expected_products", ListT(StrT), None, 
-#        "List of product IDs (strings)."),
-#     FD("products", ListT(StrT), None, 
-#        "Products in this listing."),
-#     FD("products_absent", ListT(StrT), None, 
-#        "Products not in this listing. List of product IDs (strings)."),
-#     #Images --------------------------------------------------------------
-#     FD("thumbnail", StrT, None, 
-#        "URL of small image."),
-#     FD("image", StrT, None, 
-#        "URL of large image."),
-#     #Product description --------------------------------------------------
-#     FD("title", StrT, None, 
-#        "Short description of listing."),
-#     FD("description", StrT, None, 
-#        "Long description of listing."),
-#     FD("prod_spec", DictT(StrT,StrT), None, 
-#        "product specific name value pairs (dict), for example: "
-#        "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."),    
-#    # Status values ------------------------------------------------------
-#     FD("active", BoolT, nan, 
-#        "You can still buy the item if True"),
-#     FD("sold", BoolT, nan, 
-#        "Successful sale if ``True``."),
-#     FD("currency", StrT, None, 
-#        "Currency for price EUR, USD, ..."),
-#     FD("price", FloatT, nan, 
-#        "Price of listing (all items together)."),
-#     FD("shipping", FloatT, nan, 
-#        "Shipping cost"),
-#     FD("type", StrT, None, 
-#        "auction, fixed-price, unknown"),
-#     FD("time", StrT, None, 
-#        "Time when price is/was valid. End time in case of auctions."),
-#     FD("location", StrT, None, 
-#        "Location of item (pre sale)"),
-#     FD("postcode", StrT, None, 
-#        "Postal code of location"),
-#     FD("country", StrT, None, 
-#        "Country of item location."),
-#     FD("condition", FloatT, nan, 
-#        "1.: new, 0.: completely unusable"),
-#     FD("seller", StrT, None, 
-#        "User name of seller."),
-#     FD("buyer", StrT, None, 
-#        "User name of buyer."),
-#     #Additional ----------------------------------------------------------
-#     FD("server", StrT, None, 
-#        "String to identify the server."),
-#     FD("server_id", StrT, None, 
-#        "ID of listing on the server."),
-#    #TODO: Remove? This is essentially ``not active``.
-#    FD("final_price", BoolT, nan, 
-#        "If True: This is the final price of the auction."),
-#     FD("url_webui", StrT, None, 
-#        "Link to web representation of listing."),
-#     #TODO: include bid_count?
-#     ])
+    Arguments
+    ---------
+    nrows : int 
+        Number of listings/auctions. 
+    index : iterable 
+        The index labels of the new data frame. 
+        If this argument is omitted or ``None``, a sequence of integers 
+        (``range(nrows)``) is used as index labels.
+    """
+    return make_data_frame(LISTING_DESCRIPTOR, nrows, index)
 
 
-#TODO: Create function ``make_listing_id``.
+def make_listing_id(listing):
+    """
+    Create unique ID string for a listing.
+    """
+    return unicode(listing["site"] + "-" + listing["date"] + "-" + 
+                   listing["site_id"])
 
+
+def make_price_frame(nrows=None, index=None):
+    """
+    Create empty ``pd.DataFrame`` of prices. 
+    
+    Each row represents a price. The columns represent the price's 
+    attributes. The object contains no data, all values are ``None`` or ``nan``.
+
+    Arguments
+    ---------
+    nrows : int 
+        Number of listings/auctions. 
+    index : iterable 
+        The index labels of the new data frame. 
+        If this argument is omitted or ``None``, a sequence of integers 
+        (``range(nrows)``) is used as index labels.
+    """
+    return make_data_frame(PRICE_DESCRIPTOR, nrows, index)
+
+
+def make_price_id(price):
+    """
+    Create unique ID string for a price.
+    """    
+    return unicode(price["time"] + "-" + price["product"] + "-"  + 
+                   price["type"] + "-" + price["listing"])
