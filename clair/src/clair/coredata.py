@@ -28,25 +28,27 @@ Disk IO of application data.
 from __future__ import division
 from __future__ import absolute_import
 
-import os
-import os.path as path
-import glob
-#import string
-from datetime import datetime  #, timedelta
-from types import NoneType
-import random
-import logging
-
-import dateutil
-from numpy import nan, isnan  #IGNORE:E0611
-import pandas as pd
-from lxml import etree, objectify
+#import os
+#import os.path as path
+#import glob
+##import string
+#from datetime import datetime  #, timedelta
+#from types import NoneType
+#import random
+#import logging
+#
+#import dateutil
+#from numpy import nan, isnan  #IGNORE:E0611
+#import pandas as pd
+#from lxml import etree, objectify
 
 from clair.descriptors import (
-                    NoneT, BoolT, StrT, IntT, FloatT, SumT, ListT, DictT,
+                    NoneT, BoolT, StrT, IntT, FloatT, DateTimeT, 
+                    SumT, ListT, DictT,
                     FieldDescriptor, TableDescriptor)
 FD = FieldDescriptor
 
+#TODO: Read up on date and time handling in Pandas
 
 
 LISTING_DESCRIPTOR = TableDescriptor(
@@ -93,7 +95,7 @@ LISTING_DESCRIPTOR = TableDescriptor(
         "Shipping cost"),
      FD("type", StrT, None,
         "auction, fixed-price, unknown"),
-     FD("time", StrT, None,
+     FD("time", DateTimeT, None,
         "Time when price is/was valid. End time in case of auctions."),
      FD("location", StrT, None,
         "Location of item (pre sale)"),
@@ -274,7 +276,7 @@ PRICE_DESCRIPTOR = TableDescriptor(
      FD("condition", FloatT, None,
         "Multiplier for condition. \n"
         "1.0: new/perfect, 0.7: used, 0.0: worthless. "),
-     FD("time", StrT, None,
+     FD("time", DateTimeT, None,
         "Time and date at which the price was payed."),
      FD("product", StrT, None,
         "ID of product for which the price is recorded."),
@@ -326,7 +328,7 @@ SEARCH_TASK_DESCRIPTOR = TableDescriptor(
     "Tasks to search for a certain product.",
     [FD("id", StrT, None,
         "Internal unique ID of each product."),
-     FD("due_time", StrT, None,
+     FD("due_time", DateTimeT, None,
         "Time when task should be executed for the next time."),
      FD("server", StrT, None,
         "The server where products should be searched."),
@@ -355,8 +357,8 @@ UPDATE_TASK_DESCRIPTOR = TableDescriptor(
     "Tasks to update the information for certain listings.",
     [FD("id", StrT, None,
         "Internal unique ID of each product."),
-     FD("due_time", StrT, None,
-        "Time when task should be executed."),
+     FD("due_time", DateTimeT, None,
+        "Time when task should be executed for the next time."),
      FD("server", StrT, None,
         "Server on which the listings are located."),
      FD("recurrence_pattern", StrT, None,

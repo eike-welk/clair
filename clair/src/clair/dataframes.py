@@ -127,13 +127,13 @@ def make_listing_frame(nrows=None, index=None):
     """
     return make_data_frame(LISTING_DESCRIPTOR, nrows, index)
 
-
-def make_listing_id(listing):
-    """
-    Create unique ID string for a listing.
-    """
-    return unicode(listing["site"] + "-" + listing["date"] + "-" + 
-                   listing["site_id"])
+##TODO: create make listing ID
+#def make_listing_id(listing):
+#    """
+#    Create unique ID string for a listing.
+#    """
+#    return unicode(listing["site"] + "-" + listing["date"] + "-" + 
+#                   listing["site_id"])
 
 
 def make_price_frame(nrows=None, index=None):
@@ -159,5 +159,5 @@ def make_price_id(price):
     """
     Create unique ID string for a price.
     """    
-    return unicode(price["time"] + "-" + price["product"] + "-"  + 
-                   price["type"] + "-" + price["listing"])
+    return (unicode(price["time"]) + "-" + price["product"] + "-"  + 
+            price["type"] + "-" + price["listing"])

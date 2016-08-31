@@ -45,22 +45,27 @@ from __future__ import absolute_import
 
 def test_TypeTag_s():
     print "Start"
-    from numpy import nan #, isnan #IGNORE:E0611    
-    from clair.descriptors import NoneT, StrT, IntT, FloatT, SumT, ListT, DictT
+    from numpy import nan           #IGNORE:E0611
+    from datetime import datetime
+    from clair.descriptors import \
+        NoneT, StrT, IntT, FloatT, DateTimeT, SumT, ListT, DictT
 
-    tn = NoneT
-    assert tn.is_instance_T(None)
+    assert NoneT.is_instance_T(None)
+    assert not NoneT.is_instance_T(3)
     
-    ts = StrT
-    assert ts.is_instance_T("foo")
+    assert StrT.is_instance_T("foo")
+    assert not StrT.is_instance_T(3)
     
-    ti = IntT
-    assert ti.is_instance_T(23)
+    assert IntT.is_instance_T(23)
+    assert not IntT.is_instance_T(23.5)
     
-    tf = FloatT
-    assert tf.is_instance_T(23.5)
-    assert tf.is_instance_T(nan)
+    assert FloatT.is_instance_T(4.2)
+    assert FloatT.is_instance_T(nan)
+    assert not FloatT.is_instance_T(3)
     
+    assert DateTimeT.is_instance_T(datetime(2000, 1, 1))
+    assert not DateTimeT.is_instance_T(3)
+
     ts = SumT(IntT, FloatT)
     assert ts.is_instance_T(1)
     assert ts.is_instance_T(1.41)
@@ -80,7 +85,6 @@ def test_TypeTag_s():
     assert tm.is_instance_T({"foo": 2, "bar": 3})
     assert not tm.is_instance_T({"foo": 2, "bar": 3.1415})
     
-
 
 def test_FieldDescriptor():
     print "Start"

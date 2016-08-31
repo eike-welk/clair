@@ -28,6 +28,7 @@ from __future__ import division
 from __future__ import absolute_import              
 
 from types import NoneType, TypeType
+from datetime import datetime
 
 
 
@@ -52,7 +53,7 @@ StrT = SimpleTypeMetaT(str)
 BoolT = SimpleTypeMetaT(bool)
 IntT = SimpleTypeMetaT(int)
 FloatT = SimpleTypeMetaT(float)
-#TODO add date type
+DateTimeT = SimpleTypeMetaT(datetime)
 
 class SumT(TypeTag):
     """

@@ -21,8 +21,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Central data structures and basic operations on them.
-Disk IO of application data.
+Input and Output of data in XML format.
 """
 
 from __future__ import division
@@ -42,8 +41,30 @@ from numpy import nan, isnan #IGNORE:E0611
 import pandas as pd
 from lxml import etree, objectify
 
+from clair.descriptors import TableDescriptor
 
 
+
+#class XMLWriter(object):
+#    """
+#    Class that converts a ``pandas.DataFrame`` to a XML string.
+#    
+#    It uses a ``TableDescriptor`` as to define the structure of the XML 
+#    string.
+#
+#    Unicode introduction
+#    http://docs.python.org/2/howto/unicode.html
+#    
+#    http://pyxml.sourceforge.net/topics/howto/node26.html
+#    """
+#    def __init__(self, descriptor):
+#        assert isinstance(descriptor, TableDescriptor)
+#        self.descriptor = descriptor
+#    
+#    def writeXML(self, table):
+#        assert isinstance(table, pd.DataFrame)
+
+    
 class XMLConverter(object):
     """
     Base class for objects that convert to and from XML
