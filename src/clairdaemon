@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#==============================================================================
+#                      Start the Clair daemon
+#==============================================================================
+import  clair.daemon
+
+clair.daemon.CommandLineHandler.daemon_main()
