@@ -22,7 +22,6 @@
 ###############################################################################
 """
 Central data structures and basic operations on them.
-Disk IO of application data.
 """
 
 #import os
@@ -40,12 +39,10 @@ Disk IO of application data.
 #from lxml import etree, objectify
 
 from clair.descriptors import (
-                    NoneD, BoolD, StrD, IntD, FloatD, DateTimeD, 
-                    SumTypeD, ListD, DictD,
+                    BoolD, StrD, IntD, FloatD, DateTimeD, 
+                    ListD, DictD,
                     FieldDescriptor, TableDescriptor)
 FD = FieldDescriptor
-
-#TODO: Read up on date and time handling in Pandas
 
 
 LISTING_DESCRIPTOR = TableDescriptor(

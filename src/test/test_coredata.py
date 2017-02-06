@@ -24,9 +24,6 @@
 Test module ``coredata``, which contains definitions of central data structures.
 """
 
-from __future__ import division
-from __future__ import absolute_import
-
 #import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 #
 #import os
@@ -44,7 +41,19 @@ from __future__ import absolute_import
 #                    level=logging.DEBUG)
 ##Time stamps must be in UTC
 #logging.Formatter.converter = time.gmtime
+
+
+def test_import():
+    print('Start...')
+    from clair.coredata import (LISTING_DESCRIPTOR, PRICE_DESCRIPTOR, 
+                                PRODUCT_DESCRIPTOR, SEARCH_TASK_DESCRIPTOR, 
+                                UPDATE_TASK_DESCRIPTOR)
     
+    assert LISTING_DESCRIPTOR
+    assert PRICE_DESCRIPTOR
+    assert PRODUCT_DESCRIPTOR
+    assert SEARCH_TASK_DESCRIPTOR
+    assert UPDATE_TASK_DESCRIPTOR
 
     
 if __name__ == "__main__":
