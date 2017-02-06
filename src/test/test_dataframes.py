@@ -25,9 +25,6 @@ Test module ``dataframes``, which contains definitions of the the
 ``pandas.DataFrame`` objects that store the application's important data in 2D
 tables.
 """
-
-from __future__ import division
-from __future__ import absolute_import  
             
 #import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
@@ -69,7 +66,7 @@ def make_test_listings():
     
     fr.ix[0, "thumbnail"] = "www.some.site/dir/to/thumb.pg"
     fr.ix[0, "image"] = "www.some.site/dir/to/img.pg"
-    fr["title"] = [u"Nikon D90 super duper!", u"<>müäh", None]
+    fr["title"] = ["Nikon D90 super duper!", "<>müäh", None]
     fr.ix[0, "description"] = "Buy my old Nikon D90 camera <b>now</b>!"
     fr.set_value(0, "prod_spec", {"Marke":"Nikon", "Modell":"D90"})
     fr.ix[0, "active"] = False
@@ -79,8 +76,8 @@ def make_test_listings():
     fr.ix[0, "shipping"] = 12.
     fr.ix[0, "type"] = "auction"
     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
-    fr.ix[0, "location"] = u"Köln"
-    fr.ix[0, "postcode"] = u"50667"
+    fr.ix[0, "location"] = "Köln"
+    fr.ix[0, "postcode"] = "50667"
     fr.ix[0, "country"] = "DE"
     fr.ix[0, "condition"] = 0.7
     fr.ix[0, "server"] = "Ebay-Germany"
@@ -116,11 +113,11 @@ def assert_frames_equal(fr1, fr2):
                    isnan(fr1[col][i]) and isnan(fr2[col][i]):
                     continue
                 
-                print "col =", repr(col), "; i =", i
-                print "fr1[col][i] =", fr1[col][i], \
-                      "; type(fr1[col][i]) =", type(fr1[col][i])  
-                print "fr2[col][i] =", fr2[col][i], \
-                       "; type(fr2[col][i]) =", type(fr2[col][i])
+                print("col =", repr(col), "; i =", i)
+                print("fr1[col][i] =", fr1[col][i], \
+                      "; type(fr1[col][i]) =", type(fr1[col][i]))  
+                print("fr2[col][i] =", fr2[col][i], \
+                       "; type(fr2[col][i]) =", type(fr2[col][i]))
                     
                 raise
 
@@ -154,66 +151,66 @@ def assert_frames_equal(fr1, fr2):
     
 
 def test_make_data_series():
-    print "Start"
-    from clair.descriptors import StrT, IntT, FloatT, BoolT, ListT, DictT, FieldDescriptor
+    print("Start")
+    from clair.descriptors import StrD, IntD, FloatD, BoolD, ListD, DictD, FieldDescriptor
     from clair.dataframes import make_data_series
 
-    fd = FieldDescriptor("foo", FloatT, None, "foo data")
+    fd = FieldDescriptor("foo", FloatD, None, "foo data")
     s = make_data_series(fd, 3)
     s[1] = 1.4
-    print s
+    print(s)
     assert len(s) == 3 
     assert isnan(s[0])
     assert s[1] == 1.4
 
-    fd = FieldDescriptor("foo", IntT, None, "foo data")
+    fd = FieldDescriptor("foo", IntD, None, "foo data")
     s = make_data_series(fd, 4)
     s[1] = 23
-    print s
+    print(s)
     assert len(s) == 4
     assert isnan(s[0])
     assert s[1] == 23
     
-    fd = FieldDescriptor("foo", BoolT, None, "foo data")
+    fd = FieldDescriptor("foo", BoolD, None, "foo data")
     s = make_data_series(fd, 3)
     s[1] = True
-    print s
+    print(s)
     assert len(s) == 3
     assert isnan(s[0])
     assert s[1] == True
 
-    fd = FieldDescriptor("foo", ListT(StrT), None, "foo data")
+    fd = FieldDescriptor("foo", ListD(StrD), None, "foo data")
     s = make_data_series(fd, 3)
     s[1] = ["foo", "bar"]
-    print s
+    print(s)
     assert len(s) == 3
     assert isnan(s[0])
     assert s[1] == ["foo", "bar"]
 
-    fd = FieldDescriptor("foo", FloatT, 0., "foo data")
+    fd = FieldDescriptor("foo", FloatD, 0., "foo data")
     s = make_data_series(fd, 3)
     s[1] = 4.2
-    print s
+    print(s)
     assert len(s) == 3
     assert s[0] == 0
     assert s[1] == 4.2
     
     
 def test_make_data_frame():
-    print "Start"
-    from clair.descriptors import StrT, FloatT, FieldDescriptor, TableDescriptor
+    print("Start")
+    from clair.descriptors import StrD, FloatD, FieldDescriptor, TableDescriptor
     from clair.dataframes import make_data_frame
 
     FD = FieldDescriptor
     td = TableDescriptor("foo-table", "1.0", "foot", 
                          "A table for testing purposes.", 
-                         [FD("foo", FloatT, None, "foo data"),
-                          FD("bar", StrT, None, "bar data")])
+                         [FD("foo", FloatD, None, "foo data"),
+                          FD("bar", StrD, None, "bar data")])
     df = make_data_frame(td, 3)
     df.at[1, "foo"] = 23
     df.at[2, "bar"] = "a"
-    print df
-    print "dtypes:\n", df.dtypes
+    print(df)
+    print("dtypes:\n", df.dtypes)
     
     assert df.shape == (3, 2)
     assert isnan(df.at[0, "bar"])
@@ -222,7 +219,7 @@ def test_make_data_frame():
 
 
 def test_make_listing_frame():
-    print "Start"
+    print("Start")
     from clair.dataframes import make_listing_frame
     
     lf = make_listing_frame(10)

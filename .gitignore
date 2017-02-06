@@ -6,17 +6,17 @@
 # Packages
 *.egg
 *.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-lib
-lib64
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg/
+lib/
+lib64/
 
 # Installer logs
 pip-log.txt
@@ -35,16 +35,20 @@ nosetests.xml
 #Eclipse stuff
 #.project
 #.pydevproject
-clair/.settings/
+.settings/
+.cache/
 
 # Vim swap files
 *.swp
 #Kate trash files
 *~
 
+# 2to3 backup file
+*.bak
+
 # Secret API keys
 *.apikey
 
 #test data
-clair/test-data/
-clair/test-data-1/
+test-data/
+test-data1/

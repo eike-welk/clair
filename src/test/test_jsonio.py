@@ -25,9 +25,6 @@ Test module ``jsonio``, which performs
 input and Output of data in JSON format.
 """
 
-from __future__ import division
-from __future__ import absolute_import
-
 import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
 import os
@@ -76,7 +73,7 @@ def make_test_listings():
     
     fr.ix[0, "thumbnail"] = "www.some.site/dir/to/thumb.pg"
     fr.ix[0, "image"] = "www.some.site/dir/to/img.pg"
-    fr["title"] = [u"Nikon D90 super duper!", u"<>müäh", None]
+    fr["title"] = ["Nikon D90 super duper!", "<>müäh", None]
     fr.ix[0, "description"] = "Buy my old Nikon D90 camera <b>now</b>!"
     fr.set_value(0, "prod_spec", {"Marke":"Nikon", "Modell":"D90"})
     fr.ix[0, "active"] = False
@@ -86,8 +83,8 @@ def make_test_listings():
     fr.ix[0, "shipping"] = 12.
     fr.ix[0, "type"] = "auction"
     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
-    fr.ix[0, "location"] = u"Köln"
-    fr.ix[0, "postcode"] = u"50667"
+    fr.ix[0, "location"] = "Köln"
+    fr.ix[0, "postcode"] = "50667"
     fr.ix[0, "country"] = "DE"
     fr.ix[0, "condition"] = 0.7
     fr.ix[0, "server"] = "Ebay-Germany"
@@ -123,26 +120,26 @@ def assert_frames_equal(fr1, fr2):
                    isnan(fr1[col][i]) and isnan(fr2[col][i]):
                     continue
                 
-                print "col =", repr(col), "; i =", i
-                print "fr1[col][i] =", fr1[col][i], \
-                      "; type(fr1[col][i]) =", type(fr1[col][i])  
-                print "fr2[col][i] =", fr2[col][i], \
-                       "; type(fr2[col][i]) =", type(fr2[col][i])
+                print("col =", repr(col), "; i =", i)
+                print("fr1[col][i] =", fr1[col][i], \
+                      "; type(fr1[col][i]) =", type(fr1[col][i]))  
+                print("fr2[col][i] =", fr2[col][i], \
+                       "; type(fr2[col][i]) =", type(fr2[col][i]))
                     
                 raise
     
 
 def test_JsonWriter_convert_to_dict():
-    print 'Start:'
+    print('Start:')
     from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
-                                  FloatT, StrT, DateTimeT
+                                  FloatD, StrD, DateTimeD
     from clair.dataframes import make_data_frame
     from clair.jsonio import JsonWriter
     
     desc = TableDescriptor(
             'test_table_simple', '1', 'ttb', 'A simple table for testing.', 
-            [FD('text', StrT, None, 'A text field.'),
-             FD('num', FloatT, None, 'An numeric field.'),
+            [FD('text', StrD, None, 'A text field.'),
+             FD('num', FloatD, None, 'An numeric field.'),
 #             FD('date', DateTimeT, None, 'A date and time field.'),
              ])
     frame = make_data_frame(desc, 3)
@@ -150,11 +147,11 @@ def test_JsonWriter_convert_to_dict():
     frame.loc[1] = ['b', 11]
     frame.loc[2] = ['c', 12]
     frame['extra'] = [1, 2, 3]
-    print frame
+    print(frame)
     
     wr = JsonWriter(desc)
     d = wr.convert_to_dict(frame)
-    print d
+    print(d)
     
     
 #@pytest.skip("XmlIOBigFrame is broken")          #IGNORE:E1101

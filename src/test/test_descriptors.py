@@ -25,8 +25,8 @@ Test module ``descriptors``, which contains tools to define the structure
 of a table or database.
 """
 
-from __future__ import division
-from __future__ import absolute_import  
+
+  
             
 #import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
@@ -44,64 +44,64 @@ from __future__ import absolute_import
 
 
 def test_TypeTag_s():
-    print "Start"
+    print("Start")
     from numpy import nan           #IGNORE:E0611
     from datetime import datetime
     from clair.descriptors import \
-        NoneT, StrT, IntT, FloatT, DateTimeT, SumT, ListT, DictT
+        NoneD, StrD, IntD, FloatD, DateTimeD, SumTypeD, ListD, DictD
 
-    assert NoneT.is_instance_T(None)
-    assert not NoneT.is_instance_T(3)
+    assert NoneD.is_py_instance(None)
+    assert not NoneD.is_py_instance(3)
     
-    assert StrT.is_instance_T("foo")
-    assert not StrT.is_instance_T(3)
+    assert StrD.is_py_instance("foo")
+    assert not StrD.is_py_instance(3)
     
-    assert IntT.is_instance_T(23)
-    assert not IntT.is_instance_T(23.5)
+    assert IntD.is_py_instance(23)
+    assert not IntD.is_py_instance(23.5)
     
-    assert FloatT.is_instance_T(4.2)
-    assert FloatT.is_instance_T(nan)
-    assert not FloatT.is_instance_T(3)
+    assert FloatD.is_py_instance(4.2)
+    assert FloatD.is_py_instance(nan)
+    assert not FloatD.is_py_instance(3)
     
-    assert DateTimeT.is_instance_T(datetime(2000, 1, 1))
-    assert not DateTimeT.is_instance_T(3)
+    assert DateTimeD.is_py_instance(datetime(2000, 1, 1))
+    assert not DateTimeD.is_py_instance(3)
 
-    ts = SumT(IntT, FloatT)
-    assert ts.is_instance_T(1)
-    assert ts.is_instance_T(1.41)
-    assert not ts.is_instance_T("a")
+    ts = SumTypeD(IntD, FloatD)
+    assert ts.is_py_instance(1)
+    assert ts.is_py_instance(1.41)
+    assert not ts.is_py_instance("a")
     
-    tl = ListT(FloatT)
-    assert tl.is_instance_T([])
-    assert tl.is_instance_T([1.2, 3.4])
-    assert not tl.is_instance_T([1, 3])
+    tl = ListD(FloatD)
+    assert tl.is_py_instance([])
+    assert tl.is_py_instance([1.2, 3.4])
+    assert not tl.is_py_instance([1, 3])
     
-    tl2 = ListT(SumT(FloatT, IntT))
-    assert tl2.is_instance_T([1.2, 3, 4])
-    assert not tl.is_instance_T([1, "a"])
+    tl2 = ListD(SumTypeD(FloatD, IntD))
+    assert tl2.is_py_instance([1.2, 3, 4])
+    assert not tl.is_py_instance([1, "a"])
     
-    tm = DictT(StrT, IntT)
-    assert tm.is_instance_T({})
-    assert tm.is_instance_T({"foo": 2, "bar": 3})
-    assert not tm.is_instance_T({"foo": 2, "bar": 3.1415})
+    tm = DictD(StrD, IntD)
+    assert tm.is_py_instance({})
+    assert tm.is_py_instance({"foo": 2, "bar": 3})
+    assert not tm.is_py_instance({"foo": 2, "bar": 3.1415})
     
 
 def test_FieldDescriptor():
-    print "Start"
-    from clair.descriptors import FieldDescriptor, IntT
+    print("Start")
+    from clair.descriptors import FieldDescriptor, IntD
     
-    FieldDescriptor("foo", IntT, 1, "A foo integer.")
-    FieldDescriptor("foo", IntT, None, "A foo integer or None.")
+    FieldDescriptor("foo", IntD, 1, "A foo integer.")
+    FieldDescriptor("foo", IntD, None, "A foo integer or None.")
 
 
 def test_TableDescriptor():
-    print "Start"
-    from clair.descriptors import TableDescriptor, FieldDescriptor, IntT
+    print("Start")
+    from clair.descriptors import TableDescriptor, FieldDescriptor, IntD
 
     F = FieldDescriptor
     TableDescriptor("foo_table", "1.0", "fot", "A table of foo elements",
-                    [F("foo1", IntT, 0, "A foo integer."),
-                     F("foo2", IntT, None, "A foo integer or None.")
+                    [F("foo1", IntD, 0, "A foo integer."),
+                     F("foo2", IntD, None, "A foo integer or None.")
                     ])
 
 

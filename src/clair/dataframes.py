@@ -25,14 +25,11 @@ Definitions of the the ``pandas.DataFrame`` objects that store the
 application's important data in 2D tables.
 """
 
-from __future__ import division
-from __future__ import absolute_import              
-
-from numpy import nan, isnan #IGNORE:E0611
-import numpy as np
+#from numpy import nan, isnan #IGNORE:E0611
+#import numpy as np
 import pandas as pd
 
-from clair.descriptors import BoolT, IntT, FloatT, \
+from clair.descriptors import BoolD, IntD, FloatD, \
                               FieldDescriptor, TableDescriptor
 
 from clair.coredata import LISTING_DESCRIPTOR, PRICE_DESCRIPTOR
@@ -48,15 +45,15 @@ def make_data_series(descriptor, nrows=None, index=None):
            "Either ``nrows`` or ``index`` must be specified."
     
     if index is None:
-        index=range(nrows)
+        index=list(range(nrows))
     if nrows is not None:
         assert nrows == len(index), "Inconsistent arguments"
     
-    if   descriptor.data_type == BoolT:
+    if   descriptor.data_type == BoolD:
         dtype = object
-    elif descriptor.data_type == IntT:
+    elif descriptor.data_type == IntD:
         dtype = float
-    elif descriptor.data_type == FloatT:
+    elif descriptor.data_type == FloatD:
         dtype = float
     else:
         dtype = object
@@ -97,7 +94,7 @@ def make_data_frame(descriptor, nrows=None, index=None):
            "Either ``nrows`` or ``index`` must be specified."
            
     if index is None:
-        index=range(nrows)
+        index=list(range(nrows))
     if nrows is not None:
         assert nrows == len(index), "Inconsistent arguments"
     
@@ -159,5 +156,5 @@ def make_price_id(price):
     """
     Create unique ID string for a price.
     """    
-    return (unicode(price["time"]) + "-" + price["product"] + "-"  + 
+    return (str(price["time"]) + "-" + price["product"] + "-"  + 
             price["type"] + "-" + price["listing"])

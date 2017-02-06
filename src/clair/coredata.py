@@ -25,9 +25,6 @@ Central data structures and basic operations on them.
 Disk IO of application data.
 """
 
-from __future__ import division
-from __future__ import absolute_import
-
 #import os
 #import os.path as path
 #import glob
@@ -43,8 +40,8 @@ from __future__ import absolute_import
 #from lxml import etree, objectify
 
 from clair.descriptors import (
-                    NoneT, BoolT, StrT, IntT, FloatT, DateTimeT, 
-                    SumT, ListT, DictT,
+                    NoneD, BoolD, StrD, IntD, FloatD, DateTimeD, 
+                    SumTypeD, ListD, DictD,
                     FieldDescriptor, TableDescriptor)
 FD = FieldDescriptor
 
@@ -55,69 +52,69 @@ LISTING_DESCRIPTOR = TableDescriptor(
     "listing_frame", "1.0", "listings",
     "2D Table of listings. "
     "Each row represents a listing on an e-commerce site.",
-    [FD("id", StrT, None,
+    [FD("id", StrD, None,
         "Internal unique ID of each listing."),
      #Training  and product recognition -----------------------------------
-     FD("training_sample", BoolT, None,
+     FD("training_sample", BoolD, None,
         "This listing is a training sample if `True`."),
-     FD("search_tasks", ListT(StrT), None,
+     FD("search_tasks", ListD(StrD), None,
         "List of task IDs (strings) of search tasks, "
         "that returned this listing."),
-     FD("expected_products", ListT(StrT), None,
+     FD("expected_products", ListD(StrD), None,
         "List of product IDs (strings)."),
-     FD("products", ListT(StrT), None,
+     FD("products", ListD(StrD), None,
         "Products in this listing."),
-     FD("products_absent", ListT(StrT), None,
+     FD("products_absent", ListD(StrD), None,
         "Products not in this listing. List of product IDs (strings)."),
      #Images --------------------------------------------------------------
-     FD("thumbnail", StrT, None,
+     FD("thumbnail", StrD, None,
         "URL of small image."),
-     FD("image", StrT, None,
+     FD("image", StrD, None,
         "URL of large image."),
      #Product description --------------------------------------------------
-     FD("title", StrT, None,
+     FD("title", StrD, None,
         "Short description of listing."),
-     FD("description", StrT, None,
+     FD("description", StrD, None,
         "Long description of listing."),
-     FD("prod_spec", DictT(StrT, StrT), None,
+     FD("prod_spec", DictD(StrD, StrD), None,
         "product specific name value pairs (dict), for example: "
         "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."),
     # Status values ------------------------------------------------------
-     FD("active", BoolT, None,
+     FD("active", BoolD, None,
         "You can still buy the item if True"),
-     FD("sold", BoolT, None,
+     FD("sold", BoolD, None,
         "Successful sale if ``True``."),
-     FD("currency", StrT, None,
+     FD("currency", StrD, None,
         "Currency for price EUR, USD, ..."),
-     FD("price", FloatT, None,
+     FD("price", FloatD, None,
         "Price of listing (all items together)."),
-     FD("shipping", FloatT, None,
+     FD("shipping", FloatD, None,
         "Shipping cost"),
-     FD("type", StrT, None,
+     FD("type", StrD, None,
         "auction, fixed-price, unknown"),
-     FD("time", DateTimeT, None,
+     FD("time", DateTimeD, None,
         "Time when price is/was valid. End time in case of auctions."),
-     FD("location", StrT, None,
+     FD("location", StrD, None,
         "Location of item (pre sale)"),
-     FD("postcode", StrT, None,
+     FD("postcode", StrD, None,
         "Postal code of location"),
-     FD("country", StrT, None,
+     FD("country", StrD, None,
         "Country of item location."),
-     FD("condition", FloatT, None,
+     FD("condition", FloatD, None,
         "1.: new, 0.: completely unusable"),
-     FD("seller", StrT, None,
+     FD("seller", StrD, None,
         "User name of seller."),
-     FD("buyer", StrT, None,
+     FD("buyer", StrD, None,
         "User name of buyer."),
      #Additional ----------------------------------------------------------
-     FD("server", StrT, None,
+     FD("server", StrD, None,
         "String to identify the server."),
-     FD("server_id", StrT, None,
+     FD("server_id", StrD, None,
         "ID of listing on the server."),
     #TODO: Remove? This is essentially ``not active``.
-    FD("final_price", BoolT, None,
+    FD("final_price", BoolD, None,
         "If True: This is the final price of the auction."),
-     FD("url_webui", StrT, None,
+     FD("url_webui", StrD, None,
         "Link to web representation of listing."),
      #TODO: include bid_count?
      ])
@@ -267,22 +264,22 @@ LISTING_DESCRIPTOR = TableDescriptor(
 PRICE_DESCRIPTOR = TableDescriptor(
     "price-frame", "1.0", "prices",
     "2D table of prices.",
-    [FD("id", StrT, None,
+    [FD("id", StrD, None,
         "Internal unique ID of each price."),
-     FD("price", FloatT, None,
+     FD("price", FloatD, None,
         "The numeric value of the price. For example: 'EUR', 'USD'"),
-     FD("currency", StrT, None,
+     FD("currency", StrD, None,
         "The currency of the price."),
-     FD("condition", FloatT, None,
+     FD("condition", FloatD, None,
         "Multiplier for condition. \n"
         "1.0: new/perfect, 0.7: used, 0.0: worthless. "),
-     FD("time", DateTimeT, None,
+     FD("time", DateTimeD, None,
         "Time and date at which the price was payed."),
-     FD("product", StrT, None,
+     FD("product", StrD, None,
         "ID of product for which the price is recorded."),
-     FD("listing", StrT, None,
+     FD("listing", StrD, None,
         "ID of listing from which the price is taken"),
-     FD("type", StrT, None,
+     FD("type", StrD, None,
         """
         Type of the price record. The types are:
 
@@ -299,9 +296,9 @@ PRICE_DESCRIPTOR = TableDescriptor(
         'notsold'
             Item was not sold at this price.
         """),
-     FD("avg_period", StrT, None,
+     FD("avg_period", StrD, None,
         "Time span for taking average. Can be 'day', 'week', 'month'."),
-     FD("avg_num_listings", IntT, None,
+     FD("avg_num_listings", IntD, None,
         "Number of listings used in computation of average."),
      ])
 
@@ -309,16 +306,16 @@ PRICE_DESCRIPTOR = TableDescriptor(
 PRODUCT_DESCRIPTOR = TableDescriptor(
     "product-frame", "1.0", "products",
     "2D table of products.",
-    [FD("id", StrT, None,
+    [FD("id", StrD, None,
         "Internal unique ID of each product."),
-     FD("name", StrT, None,
+     FD("name", StrD, None,
         "Product name. A single line of text."),
-     FD("important_words", ListT(StrT), None,
+     FD("important_words", ListD(StrD), None,
         "<p>Important patterns for the text recognition algorithms.</p>"
         "<p>Each line is one pattern. The patterns can contain spaces.</p>"),
-     FD("categories", ListT(StrT), None,
+     FD("categories", ListD(StrD), None,
         "Categories for grouping products. Each line is one category."),
-     FD("description", StrT, None,
+     FD("description", StrD, None,
         "Description of the product. Any text."),
      ])
 
@@ -326,25 +323,25 @@ PRODUCT_DESCRIPTOR = TableDescriptor(
 SEARCH_TASK_DESCRIPTOR = TableDescriptor(
     "search-task-frame", "1.0", "search-tasks",
     "Tasks to search for a certain product.",
-    [FD("id", StrT, None,
+    [FD("id", StrD, None,
         "Internal unique ID of each product."),
-     FD("due_time", DateTimeT, None,
+     FD("due_time", DateTimeD, None,
         "Time when task should be executed for the next time."),
-     FD("server", StrT, None,
+     FD("server", StrD, None,
         "The server where products should be searched."),
-     FD("recurrence_pattern", StrT, None,
+     FD("recurrence_pattern", StrD, None,
         "How frequently should the task be executed."),
-     FD("query_string", StrT, None,
+     FD("query_string", StrD, None,
         "The query string that is given to the server."),
-     FD("n_listings", IntT, None,
+     FD("n_listings", IntD, None,
         "Number of listings that should be returned by the server."),
-     FD("price_min", FloatT, None,
+     FD("price_min", FloatD, None,
         "Minimum price for searched items."),
-     FD("price_max", FloatT, None,
+     FD("price_max", FloatD, None,
         "Maximum price for searched items."),
-     FD("currency", StrT, None,
+     FD("currency", StrD, None,
         "Currency of the prices."),
-     FD("expected_products", ListT(StrT), None,
+     FD("expected_products", ListD(StrD), None,
         "<p>IDs of products that are expected in listings found by this "
         "search.</p>"
         "<p>The product identification algorithm searches only for "
@@ -355,14 +352,14 @@ SEARCH_TASK_DESCRIPTOR = TableDescriptor(
 UPDATE_TASK_DESCRIPTOR = TableDescriptor(
     "update-task-frame", "1.0", "update-tasks",
     "Tasks to update the information for certain listings.",
-    [FD("id", StrT, None,
+    [FD("id", StrD, None,
         "Internal unique ID of each product."),
-     FD("due_time", DateTimeT, None,
+     FD("due_time", DateTimeD, None,
         "Time when task should be executed for the next time."),
-     FD("server", StrT, None,
+     FD("server", StrD, None,
         "Server on which the listings are located."),
-     FD("recurrence_pattern", StrT, None,
+     FD("recurrence_pattern", StrD, None,
         "How frequently should the task be executed."),
-     FD("listings", ListT(StrT), None,
+     FD("listings", ListD(StrD), None,
         "List of listing IDs. The listings that should be updated."),
      ])
