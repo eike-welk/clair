@@ -2,7 +2,7 @@
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
-#    Copyright (C) 2016 by Eike Welk                                          #
+#    Copyright (C) 2017 by Eike Welk                                          #
 #    eike.welk@gmx.net                                                        #
 #                                                                             #
 #    License: GPL Version 3                                                   #
@@ -25,23 +25,24 @@ Test module ``jsonio``, which performs
 input and Output of data in JSON format.
 """
 
-import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
+# import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
-import os
-import glob
-import time
+# import os
+# import glob
+# import time
+from pprint import pprint 
 import os.path as path
 from datetime import datetime
 
 from numpy import isnan #, nan #IGNORE:E0611
 #from pandas.util.testing import assert_frame_equal
 
-import logging
-from logging import info
-logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
-                    level=logging.DEBUG)
-#Time stamps must be in UTC
-logging.Formatter.converter = time.gmtime
+# import logging
+# from logging import info
+# logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+#                     level=logging.DEBUG)
+# #Time stamps must be in UTC
+# logging.Formatter.converter = time.gmtime
 
 
 
@@ -136,22 +137,37 @@ def test_JsonWriter_convert_to_dict():
     from clair.dataframes import make_data_frame
     from clair.jsonio import JsonWriter
     
+    #Create regular dataframe
     desc = TableDescriptor(
-            'test_table_simple', '1', 'ttb', 'A simple table for testing.', 
+            'test_table_simple', '1.0', 'ttb', 'A simple table for testing.', 
             [FD('text', StrD, None, 'A text field.'),
              FD('num', FloatD, None, 'An numeric field.'),
-#             FD('date', DateTimeT, None, 'A date and time field.'),
+#             FD('date', DateTimeD, None, 'A date and time field.'),
              ])
     frame = make_data_frame(desc, 3)
-    frame.loc[0] = ['a', 10]
-    frame.loc[1] = ['b', 11]
-    frame.loc[2] = ['c', 12]
-    frame['extra'] = [1, 2, 3]
+    frame.iloc[0] = ['a', 10]
+    frame.iloc[1] = ['b', 11]
+    frame.iloc[2] = ['c', 12]
+    frame = frame.set_index('text', False)
+    #add extra column that should not be saved
+    frame['extra'] = [31, 32, 33]
     print(frame)
     
     wr = JsonWriter(desc)
-    d = wr.convert_to_dict(frame)
-    print(d)
+    d = wr._convert_to_dict(frame)
+    pprint(d)
+    
+    # Test existence of some of the data
+    assert d['2_rows'][0]['text'] == 'a'
+    assert d['2_rows'][0]['num'] == 10
+    assert d['2_rows'][2]['text'] == 'c'
+    assert d['2_rows'][2]['num'] == 12
+    
+    # Extra column must not be in generated dict
+    assert 'extra' not in d['2_rows'][0]
+    # Extra column must still be in original dataframe
+    assert 'extra' in frame.columns
+
     
     
 #@pytest.skip("XmlIOBigFrame is broken")          #IGNORE:E1101

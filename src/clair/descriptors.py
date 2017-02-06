@@ -2,7 +2,7 @@
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
-#    Copyright (C) 2016 by Eike Welk                                          #
+#    Copyright (C) 2017 by Eike Welk                                          #
 #    eike.welk@gmx.net                                                        #
 #                                                                             #
 #    License: GPL Version 3                                                   #
@@ -125,7 +125,7 @@ class FieldDescriptor(object):
         assert isinstance(data_type, TypeDescriptor), \
             "`data_type` must be a `TypeDescriptor`."
         assert is_py_instance(default_val, SumTypeD(data_type, NoneD)), \
-            "`default_val` must be of the type described by `data_type` or None"
+            "`default_val` must be of the type described by `data_type` or `None`"
         assert isinstance(comment, str), "`comment` must be a `str`."
         
         self.name = name
