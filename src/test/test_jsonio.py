@@ -130,7 +130,7 @@ def assert_frames_equal(fr1, fr2):
                 raise
     
 
-def test_JsonWriter_convert_to_dict():
+def test_JsonWriter__convert_frame_to_dict():
     print('Start:')
     from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
@@ -148,13 +148,13 @@ def test_JsonWriter_convert_to_dict():
     frame.iloc[0] = ['a', 10]
     frame.iloc[1] = ['b', 11]
     frame.iloc[2] = ['c', 12]
-    frame = frame.set_index('text', False)
+#     frame = frame.set_index('text', False)
     #add extra column that should not be saved
     frame['extra'] = [31, 32, 33]
     print(frame)
     
     wr = JsonWriter(desc)
-    d = wr._convert_to_dict(frame)
+    d = wr._convert_frame_to_dict(frame)
     pprint(d)
     
     # Test existence of some of the data
@@ -169,7 +169,33 @@ def test_JsonWriter_convert_to_dict():
     assert 'extra' in frame.columns
 
     
+def test_JsonWriter__convert_dict_to_frame():
+    print('Start:')
+    from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
+                                  FloatD, StrD, DateTimeD
+    from clair.jsonio import JsonWriter
     
+    #Create regular dataframe
+    desc = TableDescriptor(
+            'test_table_simple', '1.0', 'ttb', 'A simple table for testing.', 
+            [FD('text', StrD, None, 'A text field.'),
+             FD('num', FloatD, None, 'An numeric field.'),
+#             FD('date', DateTimeD, None, 'A date and time field.'),
+             ])
+    #Create data dict
+    ddict = \
+        {'1_header': {'comment': 'A simple table for testing.',
+                      'name': 'test_table_simple',
+                      'version': '1.0'},
+         '2_rows': [{'num': 10.0, 'text': 'a'},
+                    {'num': 11.0, 'text': 'b', 'extra': 'be'},
+                    {'num': 12.0, 'text': 'c'}]}
+    
+    wr = JsonWriter(desc)
+    fr = wr._convert_dict_to_frame(ddict)
+    print(fr)
+    
+
 #@pytest.skip("XmlIOBigFrame is broken")          #IGNORE:E1101
 #def test_XmlBigFrameIO_read_write_text():
 #    """Test reading and writing text files"""
@@ -277,6 +303,7 @@ def test_JsonWriter_convert_to_dict():
 
     
 if __name__ == "__main__":
-    test_JsonWriter_convert_to_dict()
+#     test_JsonWriter__convert_frame_to_dict()
+    test_JsonWriter__convert_dict_to_frame()
     
     pass

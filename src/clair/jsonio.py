@@ -56,22 +56,28 @@ that can be used for all file formats.
 import pandas as pd
 
 from clair.descriptors import TableDescriptor
+from clair.dataframes import make_data_frame
 
-"""
-
-"""
 
 class JsonWriter(object):
     """
-    Convert DataFrame objects to JSON, and write them to disk.
+    Convert `DataFrame` objects to/from JSON. 
+    Reads and writes to/from file objects.
     """
     def __init__(self, descriptor):
         assert isinstance(descriptor, TableDescriptor)
         self.descriptor = descriptor
         
-    def _convert_to_dict(self, frame):
+    # The interface -----------------------------------------------------------
+    def dump(self, frame, file_object):
+        pass
+        
+    def load(self, file_object):
+        pass
+    
+    def _convert_frame_to_dict(self, frame):
         """
-        Convert a dataframe to a nested `dict`. 
+        Convert a `DataFrame` to a nested `dict`. 
         
         Columns that are not in the `TableDescriptor` are removed.
         The dict contains additional metadata from the `TableDescriptor`.
@@ -96,9 +102,31 @@ class JsonWriter(object):
                     '2_rows': frame_rows}
         return out_dict
     
-    # The interface -----------------------------------------------------------
-    def dump(self, frame, file_object):
-        pass
+    def _convert_dict_to_frame(self, in_dict):
+        """
+        Convert a nested `dict` to a `DataFrame`.
         
-    def load(self, file_object):
-        pass
+        Warns if additional columns are present, that are not in the 
+        `TableDescriptor`. Their contents is ignored.
+        """
+        assert isinstance(in_dict, dict)
+        
+        assert in_dict['1_header']['name'] == self.descriptor.name
+        assert in_dict['1_header']['version'] == self.descriptor.version
+        assert isinstance(in_dict['2_rows'], list)
+        
+        legalCols = {col.name for col in self.descriptor.column_descriptors}
+        frame = make_data_frame(self.descriptor, len(in_dict['2_rows']))
+        #TODO: put rows into DataFrame
+        for irow, row in enumerate(in_dict['2_rows']):
+            for colname, data in row.items():
+                if colname not in legalCols:
+                    #TODO: output to logging
+                    print('Illegal column: ', colname)
+                    continue
+                frame.loc[irow, colname] = data
+                
+#         frame = pd.DataFrame.from_dict(in_dict['2_rows'])
+        return frame
+
+    
