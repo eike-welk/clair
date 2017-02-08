@@ -35,6 +35,7 @@ import os.path as path
 from datetime import datetime
 
 from numpy import isnan #, nan #IGNORE:E0611
+import pandas as pd
 #from pandas.util.testing import assert_frame_equal
 
 # import logging
@@ -159,9 +160,9 @@ def test_JsonWriter__convert_frame_to_dict():
     
     # Test existence of some of the data
     assert d['2_rows'][0]['text'] == 'a'
-    assert d['2_rows'][0]['num'] == 10
+    assert d['2_rows'][0]['num']  == 10
     assert d['2_rows'][2]['text'] == 'c'
-    assert d['2_rows'][2]['num'] == 12
+    assert d['2_rows'][2]['num']  == 12
     
     # Extra column must not be in generated dict
     assert 'extra' not in d['2_rows'][0]
@@ -194,6 +195,14 @@ def test_JsonWriter__convert_dict_to_frame():
     wr = JsonWriter(desc)
     fr = wr._convert_dict_to_frame(ddict)
     print(fr)
+    
+    assert isinstance(fr, pd.DataFrame)
+    assert fr.shape == (3, 2)
+    # Test existence of some of the data
+    assert fr['text'][0] == 'a'
+    assert fr['num'][0]  == 10
+    assert fr['text'][2] == 'c'
+    assert fr['num'][2]  == 12
     
 
 #@pytest.skip("XmlIOBigFrame is broken")          #IGNORE:E1101

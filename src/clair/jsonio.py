@@ -111,13 +111,14 @@ class JsonWriter(object):
         """
         assert isinstance(in_dict, dict)
         
+        # TODO: convert dates and times
+
         assert in_dict['1_header']['name'] == self.descriptor.name
         assert in_dict['1_header']['version'] == self.descriptor.version
         assert isinstance(in_dict['2_rows'], list)
         
         legalCols = {col.name for col in self.descriptor.column_descriptors}
         frame = make_data_frame(self.descriptor, len(in_dict['2_rows']))
-        #TODO: put rows into DataFrame
         for irow, row in enumerate(in_dict['2_rows']):
             for colname, data in row.items():
                 if colname not in legalCols:
