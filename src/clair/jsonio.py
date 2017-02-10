@@ -45,19 +45,12 @@ Loading and saving series of files is done by an upper level object,
 that can be used for all file formats.
 """
 
-# import os
-# import os.path as path
-# import glob
-#import string
-# from datetime import datetime #, timedelta
 # import logging
 
-# import dateutil
-# from numpy import nan, isnan #IGNORE:E0611
 import pandas as pd
 
 from clair.descriptors import TableDescriptor, DateTimeD
-from clair.dataframes import make_data_series, make_data_frame
+from clair.dataframes import make_data_series
 
 
 class JsonWriter(object):
