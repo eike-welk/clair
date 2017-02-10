@@ -58,7 +58,7 @@ def test_JsonWriter__convert_frame_to_dict():
     from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
     from clair.dataframes import make_data_frame
-    from clair.jsonio import JsonWriter
+    from clair.jsonio import JsonReadWriter
     
     #Create regular dataframe
     desc = TableDescriptor(
@@ -76,7 +76,7 @@ def test_JsonWriter__convert_frame_to_dict():
     frame['extra'] = [31, 32, 33]
     print(frame)
     
-    jsonrw = JsonWriter(desc)
+    jsonrw = JsonReadWriter(desc)
     d = jsonrw._convert_frame_to_dict(frame)
     pprint(d)
     
@@ -97,7 +97,7 @@ def test_JsonWriter__convert_dict_to_frame():
     print('Start:')
     from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
-    from clair.jsonio import JsonWriter
+    from clair.jsonio import JsonReadWriter
     
     #Create regular dataframe
     desc = TableDescriptor(
@@ -117,7 +117,7 @@ def test_JsonWriter__convert_dict_to_frame():
                     {'num': 12.0, 'text': 'c', 'date': '2002-02-02 00:00:00'},
                     ]}
     
-    jsonrw = JsonWriter(desc)
+    jsonrw = JsonReadWriter(desc)
     fr = jsonrw._convert_dict_to_frame(ddict)
     print(fr)
     
@@ -137,7 +137,7 @@ def test_JsonWriter_dump_load():
     from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
     from clair.dataframes import make_data_frame
-    from clair.jsonio import JsonWriter
+    from clair.jsonio import JsonReadWriter
     
     #Create regular dataframe
     desc = TableDescriptor(
@@ -152,7 +152,7 @@ def test_JsonWriter_dump_load():
     frame.iloc[2] = ['c-ü', None, pd.Timestamp('2002-02-02')]
     print(frame)
     
-    jsonrw = JsonWriter(desc)
+    jsonrw = JsonReadWriter(desc)
     
     # Read and write the Dataframe to a StringIO object.
     fs = io.StringIO()

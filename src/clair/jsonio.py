@@ -52,12 +52,14 @@ from clair.descriptors import TableDescriptor, DateTimeD
 from clair.dataframes import make_data_series
 
 
-class JsonWriter(object):
+class JsonReadWriter(object):
     """
-    Convert `DataFrame` objects to/from JSON. 
-    Reads and writes to/from file objects.
+    Convert `DataFrame` objects to/from JSON files.
     
-    TODO: Test if columns in dataframe have the right type
+    The frames and files must conform to a `TableDescriptor` object,
+    that is given in the constructor.
+    
+    TODO: Test if all columns in the  `DataFrame` have the right type.
     """
     def __init__(self, descriptor):
         assert isinstance(descriptor, TableDescriptor)
@@ -67,14 +69,22 @@ class JsonWriter(object):
     
     def dump(self, frame, file_object):
         """
-        Write the `DataFrame` to a file object in JSON format.
+        Write a `DataFrame` to a file object in JSON format.
         
-        This function does not close the file object.
+        This function does not close the file object. 
+        The ouput stream is in utf-8 encoding.
         """        
+        assert isinstance(frame, pd.DataFrame)
         tmp_dict = self._convert_frame_to_dict(frame)
         json.dump(tmp_dict, file_object, sort_keys=True, indent=2, ensure_ascii=False, check_circular=False)
         
     def load(self, file_object):
+        """
+        Read a `DataFrame` from a file object in JSON format.
+        
+        This function does not close the file object. 
+        The input stream is in utf-8 encoding.
+        """        
         tmp_dict = json.load(file_object)
         return self._convert_dict_to_frame(tmp_dict)
     
