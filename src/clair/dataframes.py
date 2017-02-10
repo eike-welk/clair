@@ -21,15 +21,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Definitions of the the ``pandas.DataFrame`` objects that store the 
+Functions that create the ``pandas.DataFrame`` objects that store the 
 application's important data in 2D tables.
 """
 
-#from numpy import nan, isnan #IGNORE:E0611
-#import numpy as np
+import numpy as np
 import pandas as pd
 
-from clair.descriptors import BoolD, IntD, FloatD, \
+from clair.descriptors import BoolD, IntD, FloatD, DateTimeD, \
                               FieldDescriptor, TableDescriptor
 
 from clair.coredata import LISTING_DESCRIPTOR, PRICE_DESCRIPTOR
@@ -48,18 +47,22 @@ def make_data_series(descriptor, nrows=None, index=None):
         index=list(range(nrows))
     if nrows is not None:
         assert nrows == len(index), "Inconsistent arguments"
+
+    default_val = descriptor.default_val
     
+    if descriptor.data_type == DateTimeD:
+        temp = pd.Series(data=default_val, index=index, dtype=pd.Timestamp)
+        return pd.to_datetime(temp)
+        
     if   descriptor.data_type == BoolD:
         dtype = object
     elif descriptor.data_type == IntD:
-        dtype = float
+        dtype = np.int32
     elif descriptor.data_type == FloatD:
-        dtype = float
+        dtype = np.float64
     else:
         dtype = object
-
-    default_val = descriptor.default_val
-        
+    
     return pd.Series(data=default_val, index=index, dtype=dtype)
     
     
@@ -115,8 +118,10 @@ def make_listing_frame(nrows=None, index=None):
 
     Arguments
     ---------
+    
     nrows : int 
         Number of listings/auctions. 
+        
     index : iterable 
         The index labels of the new data frame. 
         If this argument is omitted or ``None``, a sequence of integers 
@@ -142,8 +147,10 @@ def make_price_frame(nrows=None, index=None):
 
     Arguments
     ---------
+    
     nrows : int 
         Number of listings/auctions. 
+        
     index : iterable 
         The index labels of the new data frame. 
         If this argument is omitted or ``None``, a sequence of integers 

@@ -32,6 +32,7 @@ tables.
 from numpy import isnan #, nan #IGNORE:E0611
 #from pandas.util.testing import assert_frame_equal
 from datetime import datetime
+import pandas as pd
 
 #import time
 #import logging
@@ -152,7 +153,8 @@ def assert_frames_equal(fr1, fr2):
 
 def test_make_data_series():
     print("Start")
-    from clair.descriptors import StrD, IntD, FloatD, BoolD, ListD, DictD, FieldDescriptor
+    from clair.descriptors import (StrD, IntD, FloatD, BoolD, DateTimeD, 
+                                   ListD, DictD, FieldDescriptor)
     from clair.dataframes import make_data_series
 
     fd = FieldDescriptor("foo", FloatD, None, "foo data")
@@ -162,6 +164,14 @@ def test_make_data_series():
     assert len(s) == 3 
     assert isnan(s[0])
     assert s[1] == 1.4
+    
+    fd = FieldDescriptor("foo", FloatD, 0., "foo data")
+    s = make_data_series(fd, 3)
+    s[1] = 4.2
+    print(s)
+    assert len(s) == 3
+    assert s[0] == 0
+    assert s[1] == 4.2
 
     fd = FieldDescriptor("foo", IntD, None, "foo data")
     s = make_data_series(fd, 4)
@@ -179,6 +189,14 @@ def test_make_data_series():
     assert isnan(s[0])
     assert s[1] == True
 
+    fd = FieldDescriptor("foo", DateTimeD, None, "foo data")
+    s = make_data_series(fd, 3)
+    s[1] = pd.Timestamp('2001-01-23 12:30:00')
+    print(s)
+    assert len(s) == 3
+#     assert isnan(s[0])
+    assert s[1] == pd.Timestamp('2001-01-23 12:30:00')
+
     fd = FieldDescriptor("foo", ListD(StrD), None, "foo data")
     s = make_data_series(fd, 3)
     s[1] = ["foo", "bar"]
@@ -186,14 +204,6 @@ def test_make_data_series():
     assert len(s) == 3
     assert isnan(s[0])
     assert s[1] == ["foo", "bar"]
-
-    fd = FieldDescriptor("foo", FloatD, 0., "foo data")
-    s = make_data_series(fd, 3)
-    s[1] = 4.2
-    print(s)
-    assert len(s) == 3
-    assert s[0] == 0
-    assert s[1] == 4.2
     
     
 def test_make_data_frame():
@@ -227,7 +237,7 @@ def test_make_listing_frame():
 
 
 if __name__ == "__main__":
-#    test_make_data_series()
-    test_make_data_frame()
+    test_make_data_series()
+#     test_make_data_frame()
     
     pass #IGNORE:W0107

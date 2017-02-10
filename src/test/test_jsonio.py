@@ -143,12 +143,12 @@ def test_JsonWriter__convert_frame_to_dict():
             'test_table_simple', '1.0', 'ttb', 'A simple table for testing.', 
             [FD('text', StrD, None, 'A text field.'),
              FD('num', FloatD, None, 'An numeric field.'),
-#             FD('date', DateTimeD, None, 'A date and time field.'),
+             FD('date', DateTimeD, None, 'A date and time field.'),
              ])
     frame = make_data_frame(desc, 3)
-    frame.iloc[0] = ['a', 10]
-    frame.iloc[1] = ['b', 11]
-    frame.iloc[2] = ['c', 12]
+    frame.iloc[0] = ['a', 10, pd.Timestamp('2000-01-01')]
+    frame.iloc[1] = ['b', 11, pd.Timestamp('2001-02-02')]
+    frame.iloc[2] = ['c', 12, pd.Timestamp('2002-03-03')]
 #     frame = frame.set_index('text', False)
     #add extra column that should not be saved
     frame['extra'] = [31, 32, 33]
@@ -163,6 +163,7 @@ def test_JsonWriter__convert_frame_to_dict():
     assert d['2_rows'][0]['num']  == 10
     assert d['2_rows'][2]['text'] == 'c'
     assert d['2_rows'][2]['num']  == 12
+    assert d['2_rows'][2]['date']  == '2002-03-03 00:00:00'
     
     # Extra column must not be in generated dict
     assert 'extra' not in d['2_rows'][0]
@@ -180,31 +181,35 @@ def test_JsonWriter__convert_dict_to_frame():
     desc = TableDescriptor(
             'test_table_simple', '1.0', 'ttb', 'A simple table for testing.', 
             [FD('text', StrD, None, 'A text field.'),
-             FD('num', FloatD, None, 'An numeric field.'),
-#             FD('date', DateTimeD, None, 'A date and time field.'),
+             FD('num',  FloatD, None, 'A numeric field.'),
+             FD('num1', FloatD, None, 'An other numeric field.'),
+             FD('date', DateTimeD, None, 'A date and time field.'),
              ])
-    #Create data dict
+    #Create data dict - column 'num1' is missing
     ddict = \
         {'1_header': {'comment': 'A simple table for testing.',
                       'name': 'test_table_simple',
                       'version': '1.0'},
          '2_rows': [{'num': 10.0, 'text': 'a'},
                     {'num': 11.0, 'text': 'b', 'extra': 'be'},
-                    {'num': 12.0, 'text': 'c'}]}
+                    {'num': 12.0, 'text': 'c', 'date': '2002-02-02 00:00:00'},
+                    ]}
     
     wr = JsonWriter(desc)
     fr = wr._convert_dict_to_frame(ddict)
     print(fr)
     
     assert isinstance(fr, pd.DataFrame)
-    assert fr.shape == (3, 2)
+    assert fr.shape == (3, 4)
+    assert (fr.columns == ['text', 'num', 'num1', 'date']).all()
     # Test existence of some of the data
     assert fr['text'][0] == 'a'
     assert fr['num'][0]  == 10
     assert fr['text'][2] == 'c'
     assert fr['num'][2]  == 12
-    
+    assert fr['date'][2]  == pd.Timestamp('2002-02-02')
 
+    
 #@pytest.skip("XmlIOBigFrame is broken")          #IGNORE:E1101
 #def test_XmlBigFrameIO_read_write_text():
 #    """Test reading and writing text files"""

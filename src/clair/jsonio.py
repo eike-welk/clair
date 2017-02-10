@@ -20,6 +20,7 @@
 #    You should have received a copy of the GNU General Public License        #
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
+from scipy.optimize._tstutils import description
 """
 Input and Output of Data in JSON Format
 =======================================
@@ -55,14 +56,16 @@ that can be used for all file formats.
 # from numpy import nan, isnan #IGNORE:E0611
 import pandas as pd
 
-from clair.descriptors import TableDescriptor
-from clair.dataframes import make_data_frame
+from clair.descriptors import TableDescriptor, DateTimeD
+from clair.dataframes import make_data_series, make_data_frame
 
 
 class JsonWriter(object):
     """
     Convert `DataFrame` objects to/from JSON. 
     Reads and writes to/from file objects.
+    
+    TODO: Test if columns in dataframe have the right type
     """
     def __init__(self, descriptor):
         assert isinstance(descriptor, TableDescriptor)
@@ -84,15 +87,18 @@ class JsonWriter(object):
         """
         assert isinstance(frame, pd.DataFrame)
         
-        # TODO: Test if column in dataframe have the right type
-        # TODO: convert dates and times
-        
-        # Remove columns that are not in descriptor.
         frame = frame.copy(deep=False)
-        legalCols = {col.name for col in self.descriptor.column_descriptors}
+        legalCols = {col.name: col for col in self.descriptor.column_descriptors}
         for cname in frame.columns:
+            # Remove columns that are not in descriptor.
             if cname not in legalCols:
+                #TODO: use logging instead
+                print('Illegal column: ', cname)
                 del frame[cname]
+                continue
+            # Convert datetime to string
+            if legalCols[cname].data_type == DateTimeD:
+                frame[cname] = frame[cname].apply(str)
         
         frame_rows = frame.to_dict(orient='records')
         out_dict = {'1_header' : 
@@ -108,26 +114,39 @@ class JsonWriter(object):
         
         Warns if additional columns are present, that are not in the 
         `TableDescriptor`. Their contents is ignored.
+        
+        Warns if columns are absent. They are created empty.
         """
         assert isinstance(in_dict, dict)
         
-        # TODO: convert dates and times
-
         assert in_dict['1_header']['name'] == self.descriptor.name
         assert in_dict['1_header']['version'] == self.descriptor.version
         assert isinstance(in_dict['2_rows'], list)
         
+        tmp_frame = pd.DataFrame.from_dict(in_dict['2_rows'])
+        frame = pd.DataFrame()
+        for col_desc in self.descriptor.column_descriptors:
+            cname = col_desc.name
+            if cname not in tmp_frame.columns:
+                # TODO: use logging instead
+                print('Missing column: ', cname)
+                frame[cname] = make_data_series(col_desc, tmp_frame.shape[0])
+                continue
+            else:
+                frame[cname] = tmp_frame[cname]
+            
+            # Convert string to datetime where needed
+            if col_desc.data_type == DateTimeD:
+                frame[cname] = pd.to_datetime(frame[cname])
+            
+        # Search for illegal columns
         legalCols = {col.name for col in self.descriptor.column_descriptors}
-        frame = make_data_frame(self.descriptor, len(in_dict['2_rows']))
-        for irow, row in enumerate(in_dict['2_rows']):
-            for colname, data in row.items():
-                if colname not in legalCols:
-                    #TODO: output to logging
-                    print('Illegal column: ', colname)
-                    continue
-                frame.loc[irow, colname] = data
-                
-#         frame = pd.DataFrame.from_dict(in_dict['2_rows'])
+        for cname in tmp_frame.columns:        
+            if cname not in legalCols:
+                # TODO: use logging instead
+                print('Additional column: ', cname)
+                continue
+    
         return frame
 
     
