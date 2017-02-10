@@ -23,13 +23,13 @@
 """
 Test module ``jsonio``, which performs
 input and Output of data in JSON format.
+
+TODO: Test if `JsonReadWriter` works correctly with lists and dicts.
 """
 
 # import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
 import os
-# import glob
-# import time
 from pprint import pprint 
 import os.path as path
 import io
@@ -38,12 +38,12 @@ import io
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-# import logging
-# from logging import info
-# logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
-#                     level=logging.DEBUG)
-# #Time stamps must be in UTC
-# logging.Formatter.converter = time.gmtime
+import logging
+import time
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+                    level=logging.DEBUG)
+#Time stamps must be in UTC
+logging.Formatter.converter = time.gmtime
 
 
 def relative(*path_comps):
@@ -181,8 +181,8 @@ def test_JsonWriter_dump_load():
 
         
 if __name__ == "__main__":
-#     test_JsonWriter__convert_frame_to_dict()
-#     test_JsonWriter__convert_dict_to_frame()
+    test_JsonWriter__convert_frame_to_dict()
+    test_JsonWriter__convert_dict_to_frame()
     test_JsonWriter_dump_load()
     
     pass

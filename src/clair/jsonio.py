@@ -44,7 +44,7 @@ Loading and saving series of files is done by an upper level object,
 that can be used for all file formats.
 """
 
-# import logging
+import logging
 import json
 import pandas as pd
 
@@ -104,8 +104,7 @@ class JsonReadWriter(object):
         for cname in frame.columns:
             # Remove columns that are not in descriptor.
             if cname not in legalCols:
-                #TODO: use logging instead
-                print('Illegal column: ', cname)
+                logging.warning('Additional column: ' + cname)
                 del frame[cname]
                 continue
             # Convert datetime to string
@@ -140,8 +139,7 @@ class JsonReadWriter(object):
         for col_desc in self.descriptor.column_descriptors:
             cname = col_desc.name
             if cname not in tmp_frame.columns:
-                # TODO: use logging instead
-                print('Missing column: ', cname)
+                logging.warning('Missing column: ' + cname)
                 frame[cname] = make_data_series(col_desc, tmp_frame.shape[0])
                 continue
             else:
@@ -155,8 +153,7 @@ class JsonReadWriter(object):
         legalCols = {col.name for col in self.descriptor.column_descriptors}
         for cname in tmp_frame.columns:        
             if cname not in legalCols:
-                # TODO: use logging instead
-                print('Additional column: ', cname)
+                logging.warning('Additional column: ' + cname)
                 continue
     
         return frame
