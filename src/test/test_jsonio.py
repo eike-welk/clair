@@ -27,15 +27,16 @@ input and Output of data in JSON format.
 
 # import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 
-# import os
+import os
 # import glob
 # import time
 from pprint import pprint 
 import os.path as path
+import io
 
-from numpy import isnan #, nan #IGNORE:E0611
+# from numpy import isnan #, nan #IGNORE:E0611
 import pandas as pd
-#from pandas.util.testing import assert_frame_equal
+from pandas.util.testing import assert_frame_equal
 
 # import logging
 # from logging import info
@@ -45,41 +46,13 @@ import pandas as pd
 # logging.Formatter.converter = time.gmtime
 
 
-
 def relative(*path_comps):
     "Create file path_comps that are relative to the location of this file."
     return path.abspath(path.join(path.dirname(__file__), *path_comps))
 
-    
-def assert_frames_equal(fr1, fr2):
-    """
-    Asserts that two data frame objects are equal. 
-    Handles ``nan`` and ``None`` right.
-    """
-    assert all(fr1.columns == fr2.columns)
-    
-    #Compare the two DataFrame objects. Complications:
-    #* (nan == nan) == False
-    #* (None == None) == False; Special treatment of None inside DataFrame.
-    for col in fr1.columns:
-        for i in range(len(fr1.index)):
-            try:
-                assert fr1[col][i] == fr2[col][i]
-            except AssertionError:
-                if isinstance(fr1[col][i], float) and \
-                   isinstance(fr2[col][i], float) and \
-                   isnan(fr1[col][i]) and isnan(fr2[col][i]):
-                    continue
-                
-                print("col =", repr(col), "; i =", i)
-                print("fr1[col][i] =", fr1[col][i], \
-                      "; type(fr1[col][i]) =", type(fr1[col][i]))  
-                print("fr2[col][i] =", fr2[col][i], \
-                       "; type(fr2[col][i]) =", type(fr2[col][i]))
-                    
-                raise
-    
 
+
+# The tests -------------------------------------------------------------------
 def test_JsonWriter__convert_frame_to_dict():
     print('Start:')
     from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
@@ -96,15 +69,15 @@ def test_JsonWriter__convert_frame_to_dict():
              ])
     frame = make_data_frame(desc, 3)
     frame.iloc[0] = ['a', 10, pd.Timestamp('2000-01-01')]
-    frame.iloc[1] = ['b', 11, pd.Timestamp('2001-02-02')]
-    frame.iloc[2] = ['c', 12, pd.Timestamp('2002-03-03')]
+    frame.iloc[1] = ['b', 11, pd.Timestamp('2001-01-01')]
+    frame.iloc[2] = ['c', 12, pd.Timestamp('2002-02-02')]
 #     frame = frame.set_index('text', False)
     #add extra column that should not be saved
     frame['extra'] = [31, 32, 33]
     print(frame)
     
-    wr = JsonWriter(desc)
-    d = wr._convert_frame_to_dict(frame)
+    jsonrw = JsonWriter(desc)
+    d = jsonrw._convert_frame_to_dict(frame)
     pprint(d)
     
     # Test existence of some of the data
@@ -112,7 +85,7 @@ def test_JsonWriter__convert_frame_to_dict():
     assert d['2_rows'][0]['num']  == 10
     assert d['2_rows'][2]['text'] == 'c'
     assert d['2_rows'][2]['num']  == 12
-    assert d['2_rows'][2]['date']  == '2002-03-03 00:00:00'
+    assert d['2_rows'][2]['date']  == '2002-02-02 00:00:00'
     
     # Extra column must not be in generated dict
     assert 'extra' not in d['2_rows'][0]
@@ -134,7 +107,7 @@ def test_JsonWriter__convert_dict_to_frame():
              FD('num1', FloatD, None, 'An other numeric field.'),
              FD('date', DateTimeD, None, 'A date and time field.'),
              ])
-    #Create data dict - column 'num1' is missing
+    #Create data dict - column 'num1' is missing, there is an additional column 'extra'
     ddict = \
         {'1_header': {'comment': 'A simple table for testing.',
                       'name': 'test_table_simple',
@@ -144,8 +117,8 @@ def test_JsonWriter__convert_dict_to_frame():
                     {'num': 12.0, 'text': 'c', 'date': '2002-02-02 00:00:00'},
                     ]}
     
-    wr = JsonWriter(desc)
-    fr = wr._convert_dict_to_frame(ddict)
+    jsonrw = JsonWriter(desc)
+    fr = jsonrw._convert_dict_to_frame(ddict)
     print(fr)
     
     assert isinstance(fr, pd.DataFrame)
@@ -159,9 +132,57 @@ def test_JsonWriter__convert_dict_to_frame():
     assert fr['date'][2]  == pd.Timestamp('2002-02-02')
 
 
+def test_JsonWriter_dump_load():
+    print('Start:')
+    from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
+                                  FloatD, StrD, DateTimeD
+    from clair.dataframes import make_data_frame
+    from clair.jsonio import JsonWriter
     
+    #Create regular dataframe
+    desc = TableDescriptor(
+            'test_table_simple', '1.0', 'ttb', 'A simple table for testing.', 
+            [FD('text', StrD, None, 'A text field.'),
+             FD('num', FloatD, None, 'An numeric field.'),
+             FD('date', DateTimeD, None, 'A date and time field.'),
+             ])
+    frame = make_data_frame(desc, 3)
+    frame.iloc[0] = ['a-ä', 10, pd.Timestamp('2000-01-01')]
+    frame.iloc[1] = ['b-ö', 11, pd.Timestamp('2001-01-01')]
+    frame.iloc[2] = ['c-ü', None, pd.Timestamp('2002-02-02')]
+    print(frame)
+    
+    jsonrw = JsonWriter(desc)
+    
+    # Read and write the Dataframe to a StringIO object.
+    fs = io.StringIO()
+    jsonrw.dump(frame, fs)
+    print(fs.getvalue())
+    fs.seek(0)
+    frame1 = jsonrw.load(fs)
+    print(frame1)
+    
+    assert_frame_equal(frame, frame1)
+    
+    # Read and write the frame to a file
+    file_name = relative('../../test-data', 'test_JsonWriter_dump_load.json')
+    try: os.remove(file_name) 
+    except: pass
+    
+    fd = open(file_name, mode='w')
+    jsonrw.dump(frame, fd)
+    fd.close()
+    fd = open(file_name, mode='r')
+    frame2 = jsonrw.load(fd)
+    fd.close()
+    
+    assert_frame_equal(frame, frame2)
+
+
+        
 if __name__ == "__main__":
 #     test_JsonWriter__convert_frame_to_dict()
 #     test_JsonWriter__convert_dict_to_frame()
+    test_JsonWriter_dump_load()
     
     pass

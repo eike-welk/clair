@@ -20,7 +20,6 @@
 #    You should have received a copy of the GNU General Public License        #
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
-from scipy.optimize._tstutils import description
 """
 Input and Output of Data in JSON Format
 =======================================
@@ -46,7 +45,7 @@ that can be used for all file formats.
 """
 
 # import logging
-
+import json
 import pandas as pd
 
 from clair.descriptors import TableDescriptor, DateTimeD
@@ -65,15 +64,25 @@ class JsonWriter(object):
         self.descriptor = descriptor
         
     # The interface -----------------------------------------------------------
+    
     def dump(self, frame, file_object):
-        pass
+        """
+        Write the `DataFrame` to a file object in JSON format.
+        
+        This function does not close the file object.
+        """        
+        tmp_dict = self._convert_frame_to_dict(frame)
+        json.dump(tmp_dict, file_object, sort_keys=True, indent=2, ensure_ascii=False, check_circular=False)
         
     def load(self, file_object):
-        pass
+        tmp_dict = json.load(file_object)
+        return self._convert_dict_to_frame(tmp_dict)
     
     def _convert_frame_to_dict(self, frame):
         """
-        Convert a `DataFrame` to a nested `dict`. 
+        Convert a `DataFrame` to a nested `dict`.
+        
+        The `dict` can be directly fed to the JSON writer.
         
         Columns that are not in the `TableDescriptor` are removed.
         The dict contains additional metadata from the `TableDescriptor`.

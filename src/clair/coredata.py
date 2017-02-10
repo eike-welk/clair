@@ -41,8 +41,7 @@ Central data structures and basic operations on them.
 from clair.descriptors import (
                     BoolD, StrD, IntD, FloatD, DateTimeD, 
                     ListD, DictD,
-                    FieldDescriptor, TableDescriptor)
-FD = FieldDescriptor
+                    FieldDescriptor as FD, TableDescriptor)
 
 
 LISTING_DESCRIPTOR = TableDescriptor(
