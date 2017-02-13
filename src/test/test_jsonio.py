@@ -165,7 +165,7 @@ def test_JsonWriter_dump_load():
     assert_frame_equal(frame, frame1)
     
     # Read and write the frame to a file
-    file_name = relative('../../test-data', 'test_JsonWriter_dump_load.json')
+    file_name = relative('../../test-tmp', 'test_JsonWriter_dump_load.json')
     try: os.remove(file_name) 
     except: pass
     
