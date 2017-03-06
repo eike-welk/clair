@@ -25,20 +25,19 @@ Put module description here.
 """
 
 
-              
-
+from pprint import pprint
 import os.path
 import math
 # from types import NoneType
-from collections import defaultdict
+# from collections import defaultdict
 import  logging
 from datetime import datetime
 
-import dateutil.parser as dprs 
+# import dateutil.parser as dprs 
 # from lxml import etree, objectify
 import pandas as pd
 # from numpy import nan
-from ebaysdk.finding import Connection 
+from ebaysdk.finding import Connection as FConnection
 from ebaysdk.exception import ConnectionError
 
 from clair.dataframes import make_listing_frame
@@ -76,6 +75,11 @@ def convert_ebay_condition(ebay_cond):
 
     Internal condition numbers:
         1.0 : new; 0.0 : completely unusable
+        
+    TODO: A better mapping of the condition number. Linear mapping is insufficient. 
+        * 1750     New with defects - This shoould probably be like:  6000 Acceptable
+        * 3000     Used - This should be equivalent to:               5000 Good
+        
     """
     # Linear transformation:
     # int_contd = a * ebay_cond + b
@@ -246,7 +250,7 @@ class EbayFindListings(object):
 
         # Remove duplicate rows: Ebay uses the same ID for variants of the 
         # same product.
-        listings = listings.drop_duplicates(cols="id") 
+        listings = listings.drop_duplicates(subset="id") 
         # Put internal IDs into index
         listings.set_index("id", drop=False, inplace=True,
                            verify_integrity=True)
@@ -269,7 +273,7 @@ class EbayGetListings(object):
         
         ids : iterable of strings
             Iterable with Ebay IDs of items whose information is downloaded.
-            Maimum length is 20. This is a limitation of Ebay.
+            Maximum length is 20. This is a limitation of Ebay.
         """
         assert len(ids) <= 20  # Ebay limitation
         ids_str = ",".join(ids)  # Create comma separated string of IDs
@@ -440,11 +444,11 @@ class EbayConnector(object):
         os.path.isfile(keyfile) 
 
         self.keyfile = keyfile
-    
-    
+
     def find_listings(self, keywords, n_listings=10,
                       price_min=None, price_max=None, currency="EUR",
-                      time_from=None, time_to=None):
+                      time_from=None, time_to=None, 
+                      ebay_site='EBAY-US'):
         """
         Find listings on Ebay by keyword. 
         Returns only incomplete information: the description is missing.
@@ -460,6 +464,9 @@ class EbayConnector(object):
             Number of listings that Ebay should return. Might return fewer or
             slightly more listings.
             
+            Currently limited to 100 listings, the maximum number of listings 
+            in one page.
+            
         price_min : float
             Minimum price for listings, that are returned.
             
@@ -468,6 +475,11 @@ class EbayConnector(object):
             
         currency : str
             Currency unit for ``price_min`` and ``price_max``.
+            
+            US Dollar: USD
+            Euro: EUR
+            
+            https://developer.ebay.com/devzone/finding/CallRef/Enums/currencyIdList.html
         
         time_from : datetime
             Earliest end time for listings (auctions) that are returned.
@@ -476,7 +488,15 @@ class EbayConnector(object):
         time_to : datetime
             Latest end time for listings (auctions) that are returned.
             Time is in UTC!
+        
+        ebay_site : str
+            Ebay site (country) where the search is executed. 
             
+            * Ebay USA: 'EBAY-US'
+            * Ebay Germany: 'EBAY-DE'
+        
+            http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
+        
         Returns
         -------
         
@@ -494,13 +514,39 @@ class EbayConnector(object):
         assert isinstance(n_listings, (int))
         assert isinstance(price_min, (float, int, type(None)))
         assert isinstance(price_max, (float, int, type(None)))
-        assert isinstance(time_from, (datetime, type(None)))
-        assert isinstance(time_to, (datetime, type(None)))
-        
-        f = EbayFindListings()
-        listings = f.find(keywords, n_listings, price_min, price_max, currency,
-                          time_from, time_to)
-        return listings
+        assert isinstance(currency,  (str, type(None)))
+        assert isinstance(time_from, (datetime, pd.Timestamp, type(None)))
+        assert isinstance(time_to,   (datetime, pd.Timestamp, type(None)))
+
+        itemFilters = []
+        if price_min:
+            itemFilters += [{'name': 'MinPrice', 'value': price_min, 
+                             'paramName': 'Currency', 'paramValue': currency}]
+        if price_max:
+            itemFilters += [{'name': 'MaxPrice', 'value': price_max, 
+                             'paramName': 'Currency', 'paramValue': currency}]
+        if time_from:
+            itemFilters += [{'name': 'EndTimeFrom', 'value': time_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")}]
+        if time_to:
+            itemFilters += [{'name': 'EndTimeTo', 'value': time_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")}]
+            
+        try:
+            api = FConnection(config_file=self.keyfile, siteid=ebay_site)
+            response = api.execute('findItemsAdvanced', 
+                                   {'keywords': keywords, 'descriptionSearch': 'true',
+                                    'paginationInput': {'entriesPerPage': n_listings,
+                                                        'pageNumber': 1},
+                                    'itemFilter':  itemFilters,
+                                    })
+            pprint(response.dict())
+        except ConnectionError as e:
+            logging.error('Finding items on Ebay failed! Error: ' + str(e))
+            logging.error(e.response.dict())
+            return []
+
+#         listings = f.find(keywords, n_listings, price_min, price_max, currency,
+#                           time_from, time_to)
+        return []
     
     
     def update_listings(self, listings):

@@ -24,15 +24,19 @@
 Put module description here.
 """
 
-
-              
-
 #import pytest #contains `skip`, `fail`, `raises`, `config`
 
 from os.path import join, dirname, abspath
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 # from lxml import etree
 import pandas as pd
+
+import logging
+import time
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+                    level=logging.DEBUG)
+#Time stamps must be in UTC
+logging.Formatter.converter = time.gmtime
 
 
 
@@ -1006,15 +1010,16 @@ Bitte beachten Sie desweiteren die rechtlichen Informationen in der Mich Sektion
    
 def test_EbayConnector_find_listings():
     """Test finding listings by keyword through the high level interface."""
+    print('Start')
     from clair.network import EbayConnector
     
-    c = EbayConnector(relative("../python-ebay.apikey"))
+    c = EbayConnector(relative("../ebay-sdk.apikey"))
     listings = c.find_listings(keywords="Nikon D90", n_listings=5)
     
-#    print listings
-    print(listings[["title", "price", "currency"]].to_string())
-    print()
-    assert 0.8 * 5 <= len(listings) <= 5 #Duplicates are removed
+    print(listings)
+#     print(listings[["title", "price", "currency"]].to_string())
+#     print()
+#     assert 0.8 * 5 <= len(listings) <= 5 #Duplicates are removed
 
 
 def test_EbayConnector_update_listings():
@@ -1043,7 +1048,7 @@ def test_EbayConnector_update_listings():
    
 
 if __name__ == '__main__':
-#    test_convert_ebay_condition()
+#     test_convert_ebay_condition()
 #    test_EbayFindListings_download()
 #    test_EbayFindListings_parse()
 #    test_EbayFindListings_find()
@@ -1052,7 +1057,7 @@ if __name__ == '__main__':
 #    test_EbayGetListings_parse()
 #    test_EbayGetListings_get_listings()
     
-#    test_EbayConnector_find_listings()
+    test_EbayConnector_find_listings()
 #    test_EbayConnector_update_listings()
     
     pass #pylint: disable=W0107
