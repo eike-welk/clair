@@ -446,13 +446,17 @@ class EbayConnector(object):
         self.keyfile = keyfile
 
     def find_listings(self, keywords, n_listings=10,
-                      price_min=None, price_max=None, currency="EUR",
+                      price_min=None, price_max=None, currency="USD",
                       time_from=None, time_to=None, 
                       ebay_site='EBAY-US'):
         """
         Find listings on Ebay by keyword. 
         Returns only incomplete information: the description is missing.
         
+        Calls the Ebay API function 'findItemsAdvanced':
+        
+        https://developer.ebay.com/devzone/finding/CallRef/findItemsAdvanced.html
+
         Parameters
         -----------
         
@@ -504,7 +508,7 @@ class EbayConnector(object):
             Table with one row for each listing. Our Id is the index.
             
             Some columns are empty (especially "description"), because Ebay's
-            find RPC call doesn't return this information. These columns 
+            find API call doesn't return this information. These columns 
             can be filled in with a subsequent call to ``update_listings``.
         """
         # TODO: Additionally return number of listings that match the search 
@@ -518,6 +522,64 @@ class EbayConnector(object):
         assert isinstance(time_from, (datetime, pd.Timestamp, type(None)))
         assert isinstance(time_to,   (datetime, pd.Timestamp, type(None)))
 
+        # Ebay returns a maximum of 100 listings per call (pagination).
+        # Compute necessary number of calls to Ebay and number of 
+        # listings per call. 
+        max_per_page = 100  # max number of listings per call - Ebay limit
+        n_pages = math.ceil(n_listings / max_per_page)
+        n_per_page = math.ceil(n_listings / n_pages)
+        
+        # Call Ebay repeatedly and concatenate results
+        listings = make_listing_frame(0)
+        for i_page in range(1, int(n_pages + 1)):
+            resp = self._find_call_ebay(keywords, n_per_page, i_page, 
+                                        price_min, price_max, currency, 
+                                        time_from, time_to, ebay_site)
+            listings_part = self._find_parse_response(resp)
+            # Stop searching when Ebay returns an empty result.
+            if len(listings_part) == 0:
+                break
+            listings = listings.append(listings_part, ignore_index=True,
+                                       verify_integrity=False)
+
+        # Remove duplicate rows: Ebay uses the same ID for variants of the 
+        # same product.
+        listings = listings.drop_duplicates(subset="id") 
+        # Put internal IDs into index
+        listings.set_index("id", drop=False, inplace=True,
+                           verify_integrity=True)
+        # Only interested in auctions, assume that no prices are final.
+#         listings["final_price"] = False
+        return listings
+
+    def _find_call_ebay(self, keywords, n_per_page, i_page,
+                        price_min=None, price_max=None, currency="USD",
+                        time_from=None, time_to=None, 
+                        ebay_site='EBAY-US'):
+        """
+        Perform Ebay API call to find listings on Ebay; by keyword. 
+        Returns only incomplete information: the description is missing.
+        
+        For documentation on parameters see: ``EbayConnector.find_listings``
+
+        * Calls the Ebay API function 'findItemsAdvanced':
+            https://developer.ebay.com/devzone/finding/CallRef/findItemsAdvanced.html
+
+        * Ebay's searching language. 
+            http://pages.ebay.com/help/search/advanced-search.html#using
+        
+        * Currency unit for ``price_min`` and ``price_max``.
+            * US Dollar: USD
+            * Euro: EUR
+            
+            https://developer.ebay.com/devzone/finding/CallRef/Enums/currencyIdList.html
+        
+        * Ebay site (country) where the search is executed. 
+            * Ebay USA: 'EBAY-US'
+            * Ebay Germany: 'EBAY-DE'
+        
+            http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
+        """
         itemFilters = []
         if price_min:
             itemFilters += [{'name': 'MinPrice', 'value': price_min, 
@@ -526,29 +588,51 @@ class EbayConnector(object):
             itemFilters += [{'name': 'MaxPrice', 'value': price_max, 
                              'paramName': 'Currency', 'paramValue': currency}]
         if time_from:
-            itemFilters += [{'name': 'EndTimeFrom', 'value': time_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")}]
+            itemFilters += [{'name': 'EndTimeFrom', 
+                             'value': time_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")}]
         if time_to:
-            itemFilters += [{'name': 'EndTimeTo', 'value': time_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")}]
-            
+            itemFilters += [{'name': 'EndTimeTo', 
+                             'value': time_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")}]
         try:
             api = FConnection(config_file=self.keyfile, siteid=ebay_site)
             response = api.execute('findItemsAdvanced', 
                                    {'keywords': keywords, 'descriptionSearch': 'true',
-                                    'paginationInput': {'entriesPerPage': n_listings,
-                                                        'pageNumber': 1},
-                                    'itemFilter':  itemFilters,
+                                    'paginationInput': {'entriesPerPage': n_per_page,
+                                                        'pageNumber': i_page},
+                                    'itemFilter': itemFilters,
                                     })
-            pprint(response.dict())
         except ConnectionError as e:
-            logging.error('Finding items on Ebay failed! Error: ' + str(e))
+            err_text = 'Finding items on Ebay failed! Error: ' + str(e)
+            logging.error(err_text)
             logging.error(e.response.dict())
-            return []
+            raise EbayError(err_text)
 
-#         listings = f.find(keywords, n_listings, price_min, price_max, currency,
-#                           time_from, time_to)
-        return []
-    
-    
+        pprint('status_code: ' + str(response.status_code))
+        pprint('reason: ' + response.reason)
+        pprint(response.dict())
+
+        resp_dict = response.dict()
+        #TODO: Act on resonse status
+        if resp_dict['ack'] == 'Success':
+            logging.debug('Successfully called Ebay finding API.')
+        elif resp_dict['ack'] in ['Warning', 'PartialFailure']:
+            logging.error('Ebay finding API returned warning.')
+        else:
+            logging.error('Ebay finding API returned error.')
+            raise EbayError('Ebay finding API returned error.')
+        
+        return resp_dict
+
+    def _find_parse_response(self, resp_dict):
+        """
+        Parse the response from the Ebay API call.
+        """
+#         pprint(resp_dict)
+        # TODO: implement `make_ebay_id` function, that concatenates id and end-date
+        
+        return make_listing_frame(0)
+
+
     def update_listings(self, listings):
         """
         Update listings by connecting to Ebay over the Internet.
