@@ -28,6 +28,7 @@ Put module description here.
 from pprint import pprint
 import os.path
 import math
+import io
 # from types import NoneType
 # from collections import defaultdict
 import  logging
@@ -601,24 +602,27 @@ class EbayConnector(object):
                                                         'pageNumber': i_page},
                                     'itemFilter': itemFilters,
                                     })
-        except ConnectionError as e:
-            err_text = 'Finding items on Ebay failed! Error: ' + str(e)
+        except ConnectionError as err:
+            err_text = 'Finding items on Ebay failed! Error: ' + str(err)
             logging.error(err_text)
-            logging.error(e.response.dict())
+            logging.debug(err.response.dict())
             raise EbayError(err_text)
 
-        pprint('status_code: ' + str(response.status_code))
-        pprint('reason: ' + response.reason)
-        pprint(response.dict())
-
         resp_dict = response.dict()
-        #TODO: Act on resonse status
+
+        # Act on resonse status
         if resp_dict['ack'] == 'Success':
             logging.debug('Successfully called Ebay finding API.')
         elif resp_dict['ack'] in ['Warning', 'PartialFailure']:
-            logging.error('Ebay finding API returned warning.')
+            logging.warning('Ebay finding API returned warning.')
+            sio = io.StringIO()
+            pprint(resp_dict, sio)
+            logging.debug(sio.getvalue())
         else:
             logging.error('Ebay finding API returned error.')
+            sio = io.StringIO()
+            pprint(resp_dict, sio)
+            logging.debug(sio.getvalue())
             raise EbayError('Ebay finding API returned error.')
         
         return resp_dict
