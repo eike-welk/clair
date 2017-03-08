@@ -129,13 +129,14 @@ def make_listing_frame(nrows=None, index=None):
     """
     return make_data_frame(LISTING_DESCRIPTOR, nrows, index)
 
-##TODO: create make listing ID
-#def make_listing_id(listing):
-#    """
-#    Create unique ID string for a listing.
-#    """
-#    return unicode(listing["site"] + "-" + listing["date"] + "-" + 
-#                   listing["site_id"])
+def make_listing_id(listing):
+    """
+    Create unique ID string for a listing.
+    
+    Integrates the date into the ID, because Ebay recycles ID numbers for 
+    recurrent listings.
+    """
+    return listing["site"] + "-" + listing["date"] + "-" + listing["site_id"]
 
 
 def make_price_frame(nrows=None, index=None):

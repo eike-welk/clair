@@ -29,13 +29,11 @@ from pprint import pprint
 import os.path
 import math
 import io
-# from types import NoneType
 # from collections import defaultdict
 import  logging
 from datetime import datetime
 
 # import dateutil.parser as dprs 
-# from lxml import etree, objectify
 import pandas as pd
 # from numpy import nan
 from ebaysdk.finding import Connection as FConnection
@@ -528,12 +526,12 @@ class EbayConnector(object):
         # listings per call. 
         max_per_page = 100  # max number of listings per call - Ebay limit
         n_pages = math.ceil(n_listings / max_per_page)
-        n_per_page = math.ceil(n_listings / n_pages)
+        n_per_page = round(n_listings / n_pages)
         
         # Call Ebay repeatedly and concatenate results
         listings = make_listing_frame(0)
         for i_page in range(1, int(n_pages + 1)):
-            resp = self._find_call_ebay(keywords, n_per_page, i_page, 
+            resp = self._find_call_api(keywords, n_per_page, i_page, 
                                         price_min, price_max, currency, 
                                         time_from, time_to, ebay_site)
             listings_part = self._find_parse_response(resp)
@@ -553,7 +551,7 @@ class EbayConnector(object):
 #         listings["final_price"] = False
         return listings
 
-    def _find_call_ebay(self, keywords, n_per_page, i_page,
+    def _find_call_api(self, keywords, n_per_page, i_page,
                         price_min=None, price_max=None, currency="USD",
                         time_from=None, time_to=None, 
                         ebay_site='EBAY-US'):
@@ -631,9 +629,56 @@ class EbayConnector(object):
         """
         Parse the response from the Ebay API call.
         """
-#         pprint(resp_dict)
-        # TODO: implement `make_ebay_id` function, that concatenates id and end-date
+        pprint(resp_dict)
         
+        eb_items = resp_dict['searchResult']['item']
+        listings = make_listing_frame(len(eb_items))
+        for i, item in enumerate(eb_items):
+            eb_id = item['itemId']
+            print('itemId: ' + eb_id)
+            
+            """ 
+            https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html
+            1000     New                            
+            1500     New other (see details) 
+            1750     New with defects (small, superficial, defects of clothes)
+            2000     Manufacturer refurbished
+            2500     Seller refurbished 
+            3000     Used               
+            4000     Very Good (books)
+            5000     Good (books)    
+            6000     Acceptable (books)
+            7000     For parts or not working                 
+            """
+            eb_condition = item['condition']['conditionId']
+            
+            eb_end_time = item['listingInfo']['endTime']
+            eb_start_time = item['listingInfo']['startTime']
+            
+            """
+            https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
+            Auction            Auction listing.
+            AuctionWithBIN     Auction listing with "Buy It Now" available.
+            Classified         Classified Ad.
+            FixedPrice         Fixed price items.
+            StoreInventory     Store Inventory format items.
+            """
+            eb_listing_type = item['listingInfo']['listingType']
+
+            """String describing location."""
+            eb_item_location = item['location']
+            
+            eb_selling_state = item['sellingStatus']['sellingState']
+            eb_item_currency = item['sellingStatus']['currentPrice']['_currencyId']
+            eb_item_price = item['sellingStatus']['currentPrice']['value']
+
+            eb_shipping_to_locations = item['shippingInfo']['shipToLocations']
+            eb_shipping_currency = item['shippingInfo']['shippingServiceCost']['_currencyId']
+            eb_shipping_price = item['shippingInfo']['shippingServiceCost']['value']
+
+            eb_title = item['title']
+            eb_view_item_URL = item['viewItemURL']
+
         return make_listing_frame(0)
 
 
