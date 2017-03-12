@@ -35,13 +35,10 @@ Installation and Usage
 
 Clair needs fairly many libraries to function:
 
-**Requests**
-    A HTTP library, needed by *python-ebay*.
-    http://docs.python-requests.org/en/latest/
-
-**python-ebay**
+**Python Ebaysdk**
     A library to communicate with Ebay over the Internet.
-    https://github.com/roopeshvaddepally/python-ebay
+    Ebay seems to treat this library as the official Python API.
+    https://github.com/timotheus/ebaysdk-python
     
 **LXML**
     A XML parsing library.
@@ -50,10 +47,6 @@ Clair needs fairly many libraries to function:
 **Pandas**
     A data analysis toolkit for time series.
     http://pandas.pydata.org/
-
-**PyTables**
-    A library for the HDF5 data format.
-    http://www.pytables.org
 
 **Numpy**
     A library for n-dimensional arrays, and numerical computations.
