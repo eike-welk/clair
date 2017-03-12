@@ -1013,13 +1013,14 @@ def test_EbayConnector_find_listings():
     print('Start')
     from clair.network import EbayConnector
     
-    c = EbayConnector(relative("../ebay-sdk.apikey"))
-    listings = c.find_listings(keywords="Nikon D90", n_listings=5, ebay_site='EBAY-US')
+    n = 5
+    ebc = EbayConnector(relative("../ebay-sdk.apikey"))
+    listings = ebc.find_listings(keywords="Nikon D90", n_listings=n, ebay_site='EBAY-US')
     
-    print(listings)
-#     print(listings[["title", "price", "currency"]].to_string())
+#     print(listings)
+    print(listings[["title", "price", "currency"]])
 #     print()
-#     assert 0.8 * 5 <= len(listings) <= 5 #Duplicates are removed
+    assert 0.8 * n <= len(listings) <= n #Duplicates are removed
 
 
 def test_EbayConnector_update_listings():

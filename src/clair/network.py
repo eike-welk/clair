@@ -47,217 +47,133 @@ class EbayError(Exception):
     pass
 
 
-def convert_ebay_condition(ebay_cond):
+def to_str_list(list_or_str):
     """
-    Convert Ebay condition numbers to internal condition numbers.
-    Converts string input to float.
-    
-    The function does a linear transformation.
+    Convert list of strings to long comma separated string.
+    A single string is returned unaltered.
+    """
+    if isinstance(list_or_str, str):
+        return list_or_str
+    elif isinstance(list_or_str, list):
+        return ', '.join(list_or_str)
+    else:
+        raise TypeError('Expecting list or str.')
+
+
+def convert_ebay_condition(ebay_condition):
+    """
+    Convert Ebay condition numbers to internal condition values.
     
     Ebay condition numbers:
         http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
 
-        --------------------------------------------------------------
-        Ebay     Description                    Internal number
-        ----     ---------------------------    ----------------------
-        1000     New, brand-new                 1.0
-        1500     New other (see details)
-        1750     New with defects
-        2000     Manufacturer refurbished
-        2500     Seller refurbished
-        3000     Used                           (0.7) 
-        4000     Very Good
-        5000     Good
-        6000     Acceptable
-        7000     For parts or not working       0.1
-        --------------------------------------------------------------
+    --------------------------------------------------------------
+    Ebay code    Description                    Internal code
+    ---------    ---------------------------    ----------------------
+    1000         New, brand-new                 new
+    1500         New other                      new-defects
+    1750         New with defects (very small   new-defects
+                 defects of clothes)
+    2000         Manufacturer refurbished       refurbished
+    2500         Seller refurbished             refurbished
+    3000         Used                           used
+    4000         Very Good (books)              used-very-good
+    5000         Good (books)                   used-good
+    6000         Acceptable (books)             used-acceptable
+    7000         For parts or not working       not-working
+    --------------------------------------------------------------
 
-    Internal condition numbers:
-        1.0 : new; 0.0 : completely unusable
+    Parameters
+    ----------
+    
+    ebay_condition: str
+        Ebay condition code (numeric string).
         
-    TODO: A better mapping of the condition number. Linear mapping is insufficient. 
-        * 1750     New with defects - This shoould probably be like:  6000 Acceptable
-        * 3000     Used - This should be equivalent to:               5000 Good
-        
+    Returns
+    -------
+    str
+        Internal condition code.
     """
-    # Linear transformation:
-    # int_contd = a * ebay_cond + b
-    #
-    # Solve system of equations:
-    # 1.0 = a * 1000 + b
-    # 0.1 = a * 7000 + b
-    #
-    # 1.0 - 0.1 = a * (1000 - 7000)
-    a = (1.0 - 0.1) / (1000 - 7000)
-    b = 1.0 - a * 1000
-    
-    int_contd = a * float(ebay_cond) + b
-    return int_contd
+    cond_map = {'1000': 'new', '1500': 'new-defects', '1750': 'new-defects', 
+                '2000': 'refurbished', '2500': 'refurbished', 
+                '3000': 'used', 
+                '4000': 'used-very-good', '5000': 'used-good', '6000': 'used-acceptable', 
+                '7000': 'not-working', }
+    return cond_map[ebay_condition]
 
 
-class EbayFindListings(object):
+def convert_ebay_listing_type(listing_type):
     """
-    Find listings on Ebay. Returns only incomplete information.
+    Convert Ebay listing type (ListingType) codes to internal codes.
     
-    Uses ``findItemsByKeywords`` on the ``finding`` API:
-    http://developer.ebay.com/Devzone/finding/CallRef/findItemsByKeywords.html
+    Ebay listing type numbers:
+        https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
+
+    --------------------------------------------------------------
+    Ebay code       Description                 Internal code
+    ---------       ------------------------    ----------------------
+    Auction         Auction listing.            auction
+    AuctionWithBIN  Auction listing with        auction
+                    "Buy It Now" available.
+    Classified      Classified Ad.              classified
+    FixedPrice      Fixed price items.          fixed-price
+    StoreInventory  Store Inventory format      fixed-price
+                    items.
+    --------------------------------------------------------------
+
+    Parameters
+    ----------
+    
+    listing_type: str
+        Ebay listing-type code.
+        
+    Returns
+    -------
+    str
+        Internal listing-type code.
     """
-    
-    @staticmethod
-    def download_xml(keywords,
-                     entries_per_page=10, page_number=1,
-                     min_price=None, max_price=None, currency="EUR",
-                     time_from=None, time_to=None):
-        """
-        Perform findItemsByKeywords call to Ebay over Internet.
-        
-        time_from, time_to: datetime in UTC
-        """
-        assert isinstance(time_from, (datetime, type(None)))
-        assert isinstance(time_to, (datetime, type(None)))
-        
-        # http://developer.ebay.com/Devzone/finding/CallRef/types/ItemFilterType.html
-        item_filter = []
-        if min_price:
-            item_filter.append({"name":"MinPrice", "value":str(min_price),
-                                "paramName":"Currency", "paramValue":currency})
-        if max_price:
-            item_filter.append({"name":"MaxPrice", "value":str(max_price),
-                                "paramName":"Currency", "paramValue":currency})
-        # Times in UTC
-        if time_from:
-            item_filter.append({"name":"EndTimeFrom", "value":
-                                time_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")})
-        if time_to:
-            item_filter.append({"name":"EndTimeTo", "value":
-                                time_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")})
-    
-        res_xml = eb_find.findItemsByKeywords(
-            keywords=keywords,
-            # buyerPostalCode, 
-            paginationInput={"entriesPerPage": str(int(entries_per_page)),
-                              "pageNumber":     str(int(page_number))},
-            sortOrder="EndTimeSoonest",
-            itemFilter=item_filter,
-            # outputSelector, # SellerInfo
-            encoding="XML")
-#        print res_xml
-        return res_xml
-    
-    
-#     @staticmethod
-#     def parse_xml(xml):
-#         """
-#         Parse the XML response from Ebay's finding API, 
-#         and convert it into a table of listings.
-#         
-#         http://developer.ebay.com/DevZone/finding/CallRef/findItemsByKeywords.html
-#         """
-#         root = objectify.fromstring(xml)
-# #        print etree.tostring(root, pretty_print=True)
-# 
-#         if root.ack.text == "Success":
-#             pass
-#         elif root.ack.text in ["Warning", "PartialFailure"]:
-#             logging.warning(
-#                 "Ebay warning in EbayGetListings.parse_xml: " + root.Ack.text + 
-#                 "\n" + etree.tostring(root.errorMessage, pretty_print=True))
-#         else:
-# #            raise EbayError(etree.tostring(root, pretty_print=True))
-#             logging.error("Ebay error in EbayFindListings.parse_xml: \n" + 
-#                           etree.tostring(root, pretty_print=True))
-#             return make_listing_frame(0)
-#         
-#         try: item = root.searchResult.item
-#         except AttributeError: 
-#             return make_listing_frame(0)
-#         nrows = len(item)
-#         listings = make_listing_frame(nrows)
-#         for i, itemi in enumerate(item):
-# #            listings["training_sample"][i] = False #This is training sample if True
-#             try: listings["thumbnail"][i] = itemi.galleryURL.text
-#             except AttributeError: pass
-#             listings["title"][i] = itemi.title.text
-#             listings["active"][i] = True  # findItemsByKeywords only returns active listings
-#             listings["currency"][i] = itemi.sellingStatus.currentPrice \
-#                                                             .get("currencyId")
-#             listings["price"][i] = itemi.sellingStatus.currentPrice.text
-#             try: listings["shipping"][i] = itemi.shippingInfo \
-#                                                 .shippingServiceCost.text
-#             except AttributeError: pass
-#             # Type of listing: auction, fixed-price, unknown
-#             l_type = defaultdict(lambda: "unknown",
-#                                  {"Auction"         : "auction",
-#                                   "AuctionWithBIN"  : "auction",
-#                                   "FixedPrice"      : "fixed-price",
-#                                   "StoreInventory"  : "fixed-price" })
-#             listings["type"][i] = l_type[itemi.listingInfo.listingType.text]
-#             time = dprs.parse(itemi.listingInfo.endTime.text)
-#             listings["time"][i] = time.replace(tzinfo=None)
-#             listings["location"][i] = itemi.location.text
-#             try: listings["postcode"][i] = itemi.postalCode.text
-#             except AttributeError: pass
-#             listings["country"][i] = itemi.country.text
-#             try: listings["condition"][i] = \
-#                 convert_ebay_condition(itemi.condition.conditionId.text) 
-#             except AttributeError: pass
-#             listings["server"][i] = "Ebay-" + itemi.globalId.text
-#             listings["server_id"][i] = itemi.itemId.text
-#             listings["url_webui"][i] = itemi.viewItemURL.text
-#             
-#         # Create internal IDs - Ebay IDs are unique (except for variants)
-#         listings["id"] = "eb-" + listings["server_id"]
-# #        listings.to_csv("listings0.csv")
-# #        print listings
-#         return listings
-     
-    
-    @staticmethod
-    def find(keywords, n_listings=10,
-             min_price=None, max_price=None, currency="EUR",
-             time_from=None, time_to=None):
-        """
-        Find listings on Ebay by keyword. 
-        Finds only active listings, now finished listings.
-        
-        time_from, time_to: datetime in UTC
-        """
-        efind = EbayFindListings
-        
-        # Ebay returns a maximum of 100 listings per call (pagination).
-        # Compute necessary number of calls to Ebay and number of 
-        # listings per call. 
-        max_per_page = 100  # max number of listings per call - Ebay limit
-        n_pages = math.ceil(n_listings / max_per_page)
-        n_per_page = math.ceil(n_listings / n_pages)
-        
-        # Call Ebay repeatedly and concatenate results
-        listings = make_listing_frame(0)
-        for i_page in range(1, int(n_pages + 1)):
-            xml = efind.download_xml(keywords=keywords,
-                                     entries_per_page=n_per_page,
-                                     page_number=i_page,
-                                     min_price=min_price, max_price=max_price,
-                                     currency=currency,
-                                     time_from=time_from, time_to=time_to)
-            listings_part = efind.parse_xml(xml)
-            # Stop searching when Ebay returns an empty result.
-            if len(listings_part) == 0:
-                break
-            listings = listings.append(listings_part, ignore_index=True,
-                                       verify_integrity=False)
-
-        # Remove duplicate rows: Ebay uses the same ID for variants of the 
-        # same product.
-        listings = listings.drop_duplicates(subset="id") 
-        # Put internal IDs into index
-        listings.set_index("id", drop=False, inplace=True,
-                           verify_integrity=True)
-        # Only interested in auctions, assume that no prices are final.
-        listings["final_price"] = False
-        return listings
+    ltype_map = {'Auction': 'auction', 'AuctionWithBIN': 'auction', 
+                 'Classified': 'classified', 
+                 'FixedPrice': 'fixed-price', 'StoreInventory': 'fixed-price'}
+    return ltype_map[listing_type]
 
 
+def convert_ebay_selling_state(selling_state):
+    """
+    Convert Ebay selling state codes to internal codes.
+    
+    Ebay selling state codes:
+        https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html
+
+    ---------------------------------------------------------------
+    Ebay code          Description                    Internal code
+    ---------          ------------------------       -------------
+    Active            The listing is still live.      active
+    Canceled          The listing has been canceled   canceled
+                      by either the seller or eBay. 
+    Ended             The listing has ended and eBay  ended
+                      has completed the processing.
+    EndedWithSales    The listing has been ended      ended
+                      with sales. 
+    EndedWithoutSales The listing has been ended      ended
+                      without sales. 
+    ---------------------------------------------------------------
+
+    Parameters
+    ----------
+    
+    selling_state: str
+        Ebay selling state code.
+        
+    Returns
+    -------
+    str
+        Internal selling state code.
+    """
+    smap = {'Active': 'active', 'Canceled': 'canceled', 'Ended': 'ended', 
+            'EndedWithSales': 'ended', 'EndedWithoutSales': 'ended'}
+    return smap[selling_state]
+ 
 
 class EbayGetListings(object):
     """
@@ -530,10 +446,10 @@ class EbayConnector(object):
         # Call Ebay repeatedly and concatenate results
         listings = make_listing_frame(0)
         for i_page in range(1, int(n_pages + 1)):
-            resp = self._find_call_api(keywords, n_per_page, i_page, ebay_site, 
+            resp = self._call_find_api(keywords, n_per_page, i_page, ebay_site, 
                                         price_min, price_max, currency, 
                                         time_from, time_to)
-            listings_part = self._find_parse_response(resp)
+            listings_part = self._parse_find_response(resp)
             # Stop searching when Ebay returns an empty result.
             if len(listings_part) == 0:
                 break
@@ -548,7 +464,7 @@ class EbayConnector(object):
                            verify_integrity=True)
         return listings
 
-    def _find_call_api(self, keywords, n_per_page, i_page, ebay_site,
+    def _call_find_api(self, keywords, n_per_page, i_page, ebay_site,
                         price_min=None, price_max=None, currency="USD",
                         time_from=None, time_to=None):
         """
@@ -621,120 +537,73 @@ class EbayConnector(object):
         
         return resp_dict
 
-    def _find_parse_response(self, resp_dict):
+    def _parse_find_response(self, resp_dict):
         """
         Parse the response from the Ebay API call.
-        """
-        pprint(resp_dict)
         
+        See:
+        https://developer.ebay.com/devzone/finding/CallRef/findItemsAdvanced.html#Output
+        """
+#         pprint(resp_dict)
         eb_items = resp_dict['searchResult']['item']
         listings = make_listing_frame(len(eb_items))
         for i, item in enumerate(eb_items):
             try:
-                """
-                The ID that uniquely identifies the item listing. eBay generates
-                this ID when an item is listed. ID values are unique across all
-                eBay sites. Max length: 19
-                
-                Ebay really reuses itemId values for recurrent listings. Or maybe
-                these listings aren't ended after their end time has passed, 
-                but extended.
-                """
+                "The ID that uniquely identifies the item listing."
                 eb_id = item['itemId']
 #                 print('itemId: ' + eb_id)
                 listings.loc[i, 'id_site'] = eb_id
+                listings.loc[i, 'title'] = item['title']
+                listings.loc[i, 'item_url'] = item['viewItemURL']
                 
-                """Ebay Global ID, for example: 'EBAY-US' """
-#                 eb_site = item['globalId']
-
-                """ 
-                https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html
-                1000     New                            
-                1500     New other (see details) 
-                1750     New with defects (small, superficial, defects of clothes)
-                2000     Manufacturer refurbished
-                2500     Seller refurbished 
-                3000     Used               
-                4000     Very Good (books)
-                5000     Good (books)    
-                6000     Acceptable (books)
-                7000     For parts or not working                 
-                """
-                eb_condition = item['condition']['conditionId']
+                "https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html"
+                listings.loc[i, 'condition'] = convert_ebay_condition(item['condition']['conditionId'])
                 
                 listings.loc[i, 'time'] = pd.Timestamp(item['listingInfo']['endTime']).to_datetime64()
 #                 eb_start_time = item['listingInfo']['startTime']
                 
-                """
-                https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
-                Auction            Auction listing.
-                AuctionWithBIN     Auction listing with "Buy It Now" available.
-                Classified         Classified Ad.
-                FixedPrice         Fixed price items.
-                StoreInventory     Store Inventory format items.
-                """
-                eb_listing_type = item['listingInfo']['listingType']
-                listings.loc[i, 'type'] = None
-                listings.loc[i, 'is_real'] = None
+                "https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html"
+                ltype = convert_ebay_listing_type(item['listingInfo']['listingType'])
+                listings.loc[i, 'type'] = ltype
+                if ltype in ['fixed-price', 'classified']:
+                    listings.loc[i, 'is_real'] = True
+                else:
+                    listings.loc[i, 'is_real'] = False
     
-                """
-                https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html
-                Active            - The listing is still live. It is also possible 
-                                    that the auction has recently ended, but eBay
-                                    has not completed the final processing.
-                Canceled          - The listing has been canceled by either the seller or eBay. 
-                Ended             - The listing has ended and eBay has completed the processing.
-                EndedWithSales    - The listing has been ended with sales. 
-                EndedWithoutSales - The listing has been ended without sales. 
-                """
-                eb_selling_state = item['sellingStatus']['sellingState']
+                "https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html"
+                listings.loc[i, 'status'] = convert_ebay_selling_state(item['sellingStatus']['sellingState'])
 
-                """
-                String describing location. For example: 'Pensacola,FL,USA'.
-                """
+                "String describing location. For example: 'Pensacola,FL,USA'."
                 listings.loc[i, 'location'] = item['location']
                 
                 """
-                https://developer.ebay.com/devzone/finding/CallRef/Enums/currencyIdList.html
-                https://en.wikipedia.org/wiki/ISO_4217
-                AUD     Australian Dollar. 
-                CAD     Canadian Dollar. 
-                CHF     Swiss Franc. 
-                CNY     Chinese Renminbi.
+                ISO currency codes. https://en.wikipedia.org/wiki/ISO_4217
                 EUR     Euro. 
                 GBP     British Pound. 
-                HKD     Hong Kong Dollar.
-                INR     Indian Rupee. 
-                MYR     Malaysian Ringgit. 
-                PHP     Philippines Peso. 
-                PLN     Poland, Zloty. 
-                SEK     Swedish Krona. 
-                SGD     Singapore Dollar. 
-                TWD     New Taiwan Dollar.
                 USD     US Dollar. 
                 """
-                eb_item_currency = item['sellingStatus']['currentPrice']['_currencyId']
+                eb_item_currency = item['sellingStatus']['convertedCurrentPrice']['_currencyId']
                 listings.loc[i, 'currency'] = eb_item_currency
-                listings.loc[i, 'price'] = item['sellingStatus']['currentPrice']['value']
-    
-                """
-                https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-                List of country codes, to which the item can be delivered. For example: 
-                ['US', 'CA', 'GB', 'AU', 'NO'] or 'Worldwide' or 'US'.
-                """
-#                 eb_shipping_to_locations = item['shippingInfo']['shipToLocations']
-                
-                eb_shipping_currency = item['shippingInfo']['shippingServiceCost']['_currencyId']
-                listings.loc[i, 'shipping_price'] = item['shippingInfo']['shippingServiceCost']['value']
+                listings.loc[i, 'price'] = item['sellingStatus']['convertedCurrentPrice']['value']
 
-                assert eb_shipping_currency == eb_item_currency, \
-                        'Prices in a listing must be of the same currency.'
-    
-                listings.loc[i, 'title'] = item['title']
-                listings.loc[i, 'item_url'] = item['viewItemURL']
+                try:
+                    """
+                    https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+                    List of country codes, to which the item can be delivered. For example: 
+                    ['US', 'CA', 'GB', 'AU', 'NO'] or 'Worldwide' or 'US'.
+                    """
+                    listings.loc[i, 'shipping_locations'] = to_str_list(item['shippingInfo']['shipToLocations'])
+                    
+                    eb_shipping_currency = item['shippingInfo']['shippingServiceCost']['_currencyId']
+                    assert eb_shipping_currency == eb_item_currency, \
+                            'Prices in a listing must be of the same currency.'
+        
+                    listings.loc[i, 'shipping_price'] = item['shippingInfo']['shippingServiceCost']['value']
+                except KeyError as err:
+                    logging.debug('Missing field in "shippingInfo": ' + str(err))
 
             except (KeyError, AssertionError) as err:
-                logging.error('Error while parsing Ebay listing: ' + str(err))
+                logging.error('Error while parsing Ebay listing: ' + repr(err))
                 sio = io.StringIO()
                 pprint(item, sio)
                 logging.debug(sio.getvalue())
@@ -742,6 +611,10 @@ class EbayConnector(object):
         listings['site'] = 'ebay'
         listings['is_sold'] = False
 
+        """                
+        Ebay really reuses ``itemId`` values for recurrent listings of 
+        professional sellers. Therefore the date is included in the listing's ID.
+        """
         dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
         listings['id'] = listings['site'] + '-' + dates + '-' + listings['id_site']
 

@@ -76,8 +76,11 @@ LISTING_DESCRIPTOR = TableDescriptor(
      FD("prod_spec", StrD, None,
         "Product specific name value pairs (dict), in JSON. For example: "
         "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."),
-     FD("condition", FloatD, None,
-        "1.: new, 0.: completely unusable"),
+     FD("condition", StrD, None,
+        "Condition of the sold item(s):"
+        " new, new-defects, refurbished, used,"
+        " used-very-good, used-good, used-acceptable"
+        " not-working"),
     # Price -----------------------------------------------------------
      FD("time", DateTimeD, None,
         "Time when price is/was valid. End time in case of auctions."),
@@ -95,6 +98,8 @@ LISTING_DESCRIPTOR = TableDescriptor(
     # Listing Data -----------------------------------------------------------
      FD("location", StrD, None,
         "Location of item (pre sale)"),
+     FD("shipping_locations", StrD, None,
+        "Locations to where the item(s) can be shipped."),
      FD("seller", StrD, None,
         "User name of seller."),
      FD("buyer", StrD, None,
@@ -105,10 +110,8 @@ LISTING_DESCRIPTOR = TableDescriptor(
      FD("status", StrD, None,
         "Status string"),
      FD("type", StrD, None,
-        "auction, fixed-price, classified-ad"),
+        "Type of the listing: auction, classified, fixed-price"),
     # Additional ----------------------------------------------------------
-    #TODO: Remove? This is essentially ``not active``.
-     #TODO: include bid_count?
      ])
 
 
