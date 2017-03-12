@@ -48,70 +48,66 @@ LISTING_DESCRIPTOR = TableDescriptor(
     "listing_frame", "1.0", "listings",
     "2D Table of listings. "
     "Each row represents a listing on an e-commerce site.",
+    # IDs ---------------------------------------------------------------------
     [FD("id", StrD, None,
         "Internal unique ID of each listing."),
-     #Training  and product recognition -----------------------------------
-     FD("training_sample", BoolD, None,
-        "This listing is a training sample if `True`."),
-     FD("search_tasks", ListD(StrD), None,
-        "List of task IDs (strings) of search tasks, "
-        "that returned this listing."),
-     FD("expected_products", ListD(StrD), None,
-        "List of product IDs (strings)."),
-     FD("products", ListD(StrD), None,
-        "Products in this listing."),
-     FD("products_absent", ListD(StrD), None,
-        "Products not in this listing. List of product IDs (strings)."),
-     #Images --------------------------------------------------------------
-     FD("thumbnail", StrD, None,
-        "URL of small image."),
-     FD("image", StrD, None,
-        "URL of large image."),
-     #Product description --------------------------------------------------
+     FD("site", StrD, None,
+        "String to identify the remote site. For example 'Ebay'."),
+     FD("id_site", StrD, None,
+        "ID of listing on the remote site."),
+#      #Training  and product recognition -----------------------------------
+#      # TODO: This information must go to other databases.
+#      FD("training_sample", BoolD, None,
+#         "This listing is a training sample if `True`."),
+#      FD("search_tasks", ListD(StrD), None,
+#         "List of task IDs (strings) of search tasks, "
+#         "that returned this listing."),
+#      FD("expected_products", ListD(StrD), None,
+#         "List of product IDs (strings)."),
+#      FD("products", ListD(StrD), None,
+#         "Products in this listing."),
+#      FD("products_absent", ListD(StrD), None,
+#         "Products not in this listing. List of product IDs (strings)."),
+    # Product description --------------------------------------------------
      FD("title", StrD, None,
         "Short description of listing."),
      FD("description", StrD, None,
         "Long description of listing."),
-     FD("prod_spec", DictD(StrD, StrD), None,
-        "product specific name value pairs (dict), for example: "
+     FD("prod_spec", StrD, None,
+        "Product specific name value pairs (dict), in JSON. For example: "
         "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."),
-    # Status values ------------------------------------------------------
-     FD("active", BoolD, None,
-        "You can still buy the item if True"),
-     FD("sold", BoolD, None,
-        "Successful sale if ``True``."),
+     FD("condition", FloatD, None,
+        "1.: new, 0.: completely unusable"),
+    # Price -----------------------------------------------------------
+     FD("time", DateTimeD, None,
+        "Time when price is/was valid. End time in case of auctions."),
      FD("currency", StrD, None,
         "Currency for price EUR, USD, ..."),
      FD("price", FloatD, None,
         "Price of listing (all items together)."),
-     FD("shipping", FloatD, None,
+     FD("shipping_price", FloatD, None,
         "Shipping cost"),
-     FD("type", StrD, None,
-        "auction, fixed-price, unknown"),
-     FD("time", DateTimeD, None,
-        "Time when price is/was valid. End time in case of auctions."),
+     FD("is_real", BoolD, None,
+        "If True: One could really buy the item for this price. "
+        "This is not a temporary price from an ongoing auction."),
+     FD("is_sold", BoolD, None,
+        "Successful sale if ``True``."),
+    # Listing Data -----------------------------------------------------------
      FD("location", StrD, None,
         "Location of item (pre sale)"),
-     FD("postcode", StrD, None,
-        "Postal code of location"),
-     FD("country", StrD, None,
-        "Country of item location."),
-     FD("condition", FloatD, None,
-        "1.: new, 0.: completely unusable"),
      FD("seller", StrD, None,
         "User name of seller."),
      FD("buyer", StrD, None,
         "User name of buyer."),
-     #Additional ----------------------------------------------------------
-     FD("server", StrD, None,
-        "String to identify the server."),
-     FD("server_id", StrD, None,
-        "ID of listing on the server."),
-    #TODO: Remove? This is essentially ``not active``.
-    FD("final_price", BoolD, None,
-        "If True: This is the final price of the auction."),
-     FD("url_webui", StrD, None,
+     FD("item_url", StrD, None,
         "Link to web representation of listing."),
+    # Status values -----------------------------------------------------------
+     FD("status", StrD, None,
+        "Status string"),
+     FD("type", StrD, None,
+        "auction, fixed-price, classified-ad"),
+    # Additional ----------------------------------------------------------
+    #TODO: Remove? This is essentially ``not active``.
      #TODO: include bid_count?
      ])
 

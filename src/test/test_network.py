@@ -1014,7 +1014,7 @@ def test_EbayConnector_find_listings():
     from clair.network import EbayConnector
     
     c = EbayConnector(relative("../ebay-sdk.apikey"))
-    listings = c.find_listings(keywords="Nikon D90", n_listings=5)
+    listings = c.find_listings(keywords="Nikon D90", n_listings=5, ebay_site='EBAY-US')
     
     print(listings)
 #     print(listings[["title", "price", "currency"]].to_string())

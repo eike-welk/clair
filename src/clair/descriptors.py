@@ -154,3 +154,14 @@ class TableDescriptor(object):
         self.extension = extension
         self.comment = comment
         self.column_descriptors = field_descriptors
+        
+        self.assert_column_names_unique()
+    
+    def assert_column_names_unique(self):
+        """Assert that the column descrptors have uniqe names."""
+        names = set()
+        for descr in self.column_descriptors:
+            assert descr.name not in names, \
+                "Column names must be unique in a table descriptor. Name: '" \
+                + descr.name + "' appears twice."
+            names.add(descr.name)

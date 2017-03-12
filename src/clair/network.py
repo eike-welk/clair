@@ -444,10 +444,9 @@ class EbayConnector(object):
 
         self.keyfile = keyfile
 
-    def find_listings(self, keywords, n_listings=10,
+    def find_listings(self, keywords, n_listings, ebay_site,
                       price_min=None, price_max=None, currency="USD",
-                      time_from=None, time_to=None, 
-                      ebay_site='EBAY-US'):
+                      time_from=None, time_to=None):
         """
         Find listings on Ebay by keyword. 
         Returns only incomplete information: the description is missing.
@@ -470,6 +469,14 @@ class EbayConnector(object):
             Currently limited to 100 listings, the maximum number of listings 
             in one page.
             
+        ebay_site : str
+            Ebay site (country) where the search is executed. 
+            
+            * Ebay USA: 'EBAY-US'
+            * Ebay Germany: 'EBAY-DE'
+        
+            http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
+        
         price_min : float
             Minimum price for listings, that are returned.
             
@@ -491,14 +498,6 @@ class EbayConnector(object):
         time_to : datetime
             Latest end time for listings (auctions) that are returned.
             Time is in UTC!
-        
-        ebay_site : str
-            Ebay site (country) where the search is executed. 
-            
-            * Ebay USA: 'EBAY-US'
-            * Ebay Germany: 'EBAY-DE'
-        
-            http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
         
         Returns
         -------
@@ -531,9 +530,9 @@ class EbayConnector(object):
         # Call Ebay repeatedly and concatenate results
         listings = make_listing_frame(0)
         for i_page in range(1, int(n_pages + 1)):
-            resp = self._find_call_api(keywords, n_per_page, i_page, 
+            resp = self._find_call_api(keywords, n_per_page, i_page, ebay_site, 
                                         price_min, price_max, currency, 
-                                        time_from, time_to, ebay_site)
+                                        time_from, time_to)
             listings_part = self._find_parse_response(resp)
             # Stop searching when Ebay returns an empty result.
             if len(listings_part) == 0:
@@ -547,14 +546,11 @@ class EbayConnector(object):
         # Put internal IDs into index
         listings.set_index("id", drop=False, inplace=True,
                            verify_integrity=True)
-        # Only interested in auctions, assume that no prices are final.
-#         listings["final_price"] = False
         return listings
 
-    def _find_call_api(self, keywords, n_per_page, i_page,
+    def _find_call_api(self, keywords, n_per_page, i_page, ebay_site,
                         price_min=None, price_max=None, currency="USD",
-                        time_from=None, time_to=None, 
-                        ebay_site='EBAY-US'):
+                        time_from=None, time_to=None):
         """
         Perform Ebay API call to find listings on Ebay; by keyword. 
         Returns only incomplete information: the description is missing.
@@ -634,53 +630,122 @@ class EbayConnector(object):
         eb_items = resp_dict['searchResult']['item']
         listings = make_listing_frame(len(eb_items))
         for i, item in enumerate(eb_items):
-            eb_id = item['itemId']
-            print('itemId: ' + eb_id)
-            
-            """ 
-            https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html
-            1000     New                            
-            1500     New other (see details) 
-            1750     New with defects (small, superficial, defects of clothes)
-            2000     Manufacturer refurbished
-            2500     Seller refurbished 
-            3000     Used               
-            4000     Very Good (books)
-            5000     Good (books)    
-            6000     Acceptable (books)
-            7000     For parts or not working                 
-            """
-            eb_condition = item['condition']['conditionId']
-            
-            eb_end_time = item['listingInfo']['endTime']
-            eb_start_time = item['listingInfo']['startTime']
-            
-            """
-            https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
-            Auction            Auction listing.
-            AuctionWithBIN     Auction listing with "Buy It Now" available.
-            Classified         Classified Ad.
-            FixedPrice         Fixed price items.
-            StoreInventory     Store Inventory format items.
-            """
-            eb_listing_type = item['listingInfo']['listingType']
+            try:
+                """
+                The ID that uniquely identifies the item listing. eBay generates
+                this ID when an item is listed. ID values are unique across all
+                eBay sites. Max length: 19
+                
+                Ebay really reuses itemId values for recurrent listings. Or maybe
+                these listings aren't ended after their end time has passed, 
+                but extended.
+                """
+                eb_id = item['itemId']
+#                 print('itemId: ' + eb_id)
+                listings.loc[i, 'id_site'] = eb_id
+                
+                """Ebay Global ID, for example: 'EBAY-US' """
+#                 eb_site = item['globalId']
 
-            """String describing location."""
-            eb_item_location = item['location']
-            
-            eb_selling_state = item['sellingStatus']['sellingState']
-            eb_item_currency = item['sellingStatus']['currentPrice']['_currencyId']
-            eb_item_price = item['sellingStatus']['currentPrice']['value']
+                """ 
+                https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html
+                1000     New                            
+                1500     New other (see details) 
+                1750     New with defects (small, superficial, defects of clothes)
+                2000     Manufacturer refurbished
+                2500     Seller refurbished 
+                3000     Used               
+                4000     Very Good (books)
+                5000     Good (books)    
+                6000     Acceptable (books)
+                7000     For parts or not working                 
+                """
+                eb_condition = item['condition']['conditionId']
+                
+                listings.loc[i, 'time'] = pd.Timestamp(item['listingInfo']['endTime']).to_datetime64()
+#                 eb_start_time = item['listingInfo']['startTime']
+                
+                """
+                https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
+                Auction            Auction listing.
+                AuctionWithBIN     Auction listing with "Buy It Now" available.
+                Classified         Classified Ad.
+                FixedPrice         Fixed price items.
+                StoreInventory     Store Inventory format items.
+                """
+                eb_listing_type = item['listingInfo']['listingType']
+                listings.loc[i, 'type'] = None
+                listings.loc[i, 'is_real'] = None
+    
+                """
+                https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html
+                Active            - The listing is still live. It is also possible 
+                                    that the auction has recently ended, but eBay
+                                    has not completed the final processing.
+                Canceled          - The listing has been canceled by either the seller or eBay. 
+                Ended             - The listing has ended and eBay has completed the processing.
+                EndedWithSales    - The listing has been ended with sales. 
+                EndedWithoutSales - The listing has been ended without sales. 
+                """
+                eb_selling_state = item['sellingStatus']['sellingState']
 
-            eb_shipping_to_locations = item['shippingInfo']['shipToLocations']
-            eb_shipping_currency = item['shippingInfo']['shippingServiceCost']['_currencyId']
-            eb_shipping_price = item['shippingInfo']['shippingServiceCost']['value']
+                """
+                String describing location. For example: 'Pensacola,FL,USA'.
+                """
+                listings.loc[i, 'location'] = item['location']
+                
+                """
+                https://developer.ebay.com/devzone/finding/CallRef/Enums/currencyIdList.html
+                https://en.wikipedia.org/wiki/ISO_4217
+                AUD     Australian Dollar. 
+                CAD     Canadian Dollar. 
+                CHF     Swiss Franc. 
+                CNY     Chinese Renminbi.
+                EUR     Euro. 
+                GBP     British Pound. 
+                HKD     Hong Kong Dollar.
+                INR     Indian Rupee. 
+                MYR     Malaysian Ringgit. 
+                PHP     Philippines Peso. 
+                PLN     Poland, Zloty. 
+                SEK     Swedish Krona. 
+                SGD     Singapore Dollar. 
+                TWD     New Taiwan Dollar.
+                USD     US Dollar. 
+                """
+                eb_item_currency = item['sellingStatus']['currentPrice']['_currencyId']
+                listings.loc[i, 'currency'] = eb_item_currency
+                listings.loc[i, 'price'] = item['sellingStatus']['currentPrice']['value']
+    
+                """
+                https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+                List of country codes, to which the item can be delivered. For example: 
+                ['US', 'CA', 'GB', 'AU', 'NO'] or 'Worldwide' or 'US'.
+                """
+#                 eb_shipping_to_locations = item['shippingInfo']['shipToLocations']
+                
+                eb_shipping_currency = item['shippingInfo']['shippingServiceCost']['_currencyId']
+                listings.loc[i, 'shipping_price'] = item['shippingInfo']['shippingServiceCost']['value']
 
-            eb_title = item['title']
-            eb_view_item_URL = item['viewItemURL']
+                assert eb_shipping_currency == eb_item_currency, \
+                        'Prices in a listing must be of the same currency.'
+    
+                listings.loc[i, 'title'] = item['title']
+                listings.loc[i, 'item_url'] = item['viewItemURL']
 
-        return make_listing_frame(0)
+            except (KeyError, AssertionError) as err:
+                logging.error('Error while parsing Ebay listing: ' + str(err))
+                sio = io.StringIO()
+                pprint(item, sio)
+                logging.debug(sio.getvalue())
 
+        listings['site'] = 'ebay'
+        listings['is_sold'] = False
+
+        dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
+        listings['id'] = listings['site'] + '-' + dates + '-' + listings['id_site']
+
+        return listings
 
     def update_listings(self, listings):
         """
