@@ -425,9 +425,6 @@ class EbayConnector(object):
             find API call doesn't return this information. These columns 
             can be filled in with a subsequent call to ``update_listings``.
         """
-        # TODO: Additionally return number of listings that match the search 
-        #      query. Returned by Ebay at end of response.
-        # TODO: Additional argument ``n_start`` to continue the same search.  
         assert isinstance(keywords, (str))
         assert isinstance(n_listings, (int))
         assert isinstance(price_min, (float, int, type(None)))

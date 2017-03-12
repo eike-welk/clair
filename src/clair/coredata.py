@@ -48,14 +48,15 @@ LISTING_DESCRIPTOR = TableDescriptor(
     "listing_frame", "1.0", "listings",
     "2D Table of listings. "
     "Each row represents a listing on an e-commerce site.",
+    [
     # IDs ---------------------------------------------------------------------
-    [FD("id", StrD, None,
+     FD("id", StrD, None,
         "Internal unique ID of each listing."),
      FD("site", StrD, None,
         "String to identify the remote site. For example 'Ebay'."),
      FD("id_site", StrD, None,
         "ID of listing on the remote site."),
-#      #Training  and product recognition -----------------------------------
+#      #Training  and product recognition 
 #      # TODO: This information must go to other databases.
 #      FD("training_sample", BoolD, None,
 #         "This listing is a training sample if `True`."),
@@ -113,147 +114,6 @@ LISTING_DESCRIPTOR = TableDescriptor(
         "Type of the listing: auction, classified, fixed-price"),
     # Additional ----------------------------------------------------------
      ])
-
-
-#class ListingConstants(object):
-#    """
-#    Name space for constants related to listing ``DataFrame``.
-#    Dummy class, used by ``make_listing_frame``.
-#
-#    For an explanation of a listing's fields, the columns of the ``DataFrame``,
-#    see the comments below.
-#
-#    TODO: include bid_count?
-#    """
-#    #List of column names
-#    columns = []
-#    #List of default values for each column.
-#    defaults = []
-#    #Dictionary {"column column":"Comment"} can be used as tool tips.
-#    comments = {}
-#
-#    column = "id"; default = None
-#    comment = "Internal unique ID of each listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Training  and product recognition -----------------------------------
-#    column = "training_sample"; default = nan
-#    comment = "This is training sample if `True`."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "search_tasks"; default = None
-#    comment = "List of task IDs (strings) of search tasks, " \
-#              "that returned this listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "expected_products"; default = None
-#    comment = "List of product IDs (strings)."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "products"; default = None
-#    comment = "Products in this listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "products_absent"; default = None
-#    comment = "Products not in this listing. List of product IDs (strings)."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Images --------------------------------------------------------------
-#    column = "thumbnail"; default = None
-#    comment = "URL of small image."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "image"; default = None
-#    comment = "URL of large image."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Product description --------------------------------------------------
-#    column = "title"; default = None
-#    comment = "Short description of listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "description"; default = None
-#    comment = "Long description of listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "prod_spec"; default = None
-#    comment = "product specific name value pairs (dict), for example: " \
-#              "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    # Status values ------------------------------------------------------
-#    column = "active"; default = nan
-#    comment = "you can still buy it if True"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "sold"; default = nan
-#    comment = "Successful sale if ``True``."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "currency"; default = None
-#    comment = "Currency for price EUR, USD, ..."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "price"; default = nan
-#    comment = "Price of listing (all items together)."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "shipping"; default = nan
-#    comment = "Shipping cost"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "type"; default = None
-#    comment = "auction, fixed-price, unknown"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "time"; default = None
-#    comment = "Time when price is/was valid. End time in case of auctions."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "location"; default = None
-#    comment = "Location of item (pre sale)"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "postcode"; default = None
-#    comment = "Postal code of location"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "country"; default = None
-#    comment = "Country of item location."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "condition"; default = nan
-#    comment = "1.: new, 0.: completely unusable"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "seller"; default = None
-#    comment = "User name of seller."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "buyer"; default = None
-#    comment = "User name of buyer."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Additional ----------------------------------------------------------
-#    column = "server"; default = None
-#    comment = "String to identify the server."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "server_id"; default = None
-#    comment = "ID of listing on the server."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #TODO: Remove? This is essentially ``not active``.
-#    column = "final_price"; default = nan
-#    comment = "If True: This is the final price of the auction."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "url_webui"; default = None
-#    comment = "Link to web representation of listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    del column; del default; del comment
-
 
 
 PRICE_DESCRIPTOR = TableDescriptor(

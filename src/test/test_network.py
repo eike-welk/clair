@@ -43,31 +43,7 @@ def relative(*paths):
     return abspath(join(dirname(abspath(__file__)), *paths))
 
 
-def test_convert_ebay_condition():
-    """
-    Test conversion Ebay condition numbers to internal condition numbers.
-    
-    http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
 
-    --------------------------------------------------------------
-    Ebay     Description                    Internal number
-    ----     ---------------------------    ----------------------
-    1000     New, brand-new                 1.0
-    3000     Used
-    7000     For parts or not working       0.1
-    --------------------------------------------------------------
-    """
-    from clair.network import convert_ebay_condition
-    
-    print(convert_ebay_condition(1000))
-    assert abs(convert_ebay_condition(1000) - 1.0) < 0.0001
-
-    print(convert_ebay_condition(7000))
-    assert abs(convert_ebay_condition(7000) - 0.1) < 0.0001
-
-    print(convert_ebay_condition(3000))
-    
-    
 #---- EbayConnector --------------------------------------------------------- 
    
 def test_EbayConnector_find_listings():
