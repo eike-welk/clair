@@ -40,7 +40,7 @@ Central data structures and basic operations on them.
 
 from clair.descriptors import (
                     BoolD, StrD, IntD, FloatD, DateTimeD, 
-                    ListD, DictD,
+                    ListD, # DictD,
                     FieldDescriptor as FD, TableDescriptor)
 
 
@@ -108,7 +108,7 @@ LISTING_DESCRIPTOR = TableDescriptor(
         "Link to web representation of listing."),
     # Status values -----------------------------------------------------------
      FD("status", StrD, None,
-        "Status string"),
+        "State of the listing: active, canceled, ended"),
      FD("type", StrD, None,
         "Type of the listing: auction, classified, fixed-price"),
     # Additional ----------------------------------------------------------
