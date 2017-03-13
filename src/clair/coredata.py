@@ -24,19 +24,6 @@
 Central data structures and basic operations on them.
 """
 
-#import os
-#import os.path as path
-#import glob
-##import string
-#from datetime import datetime  #, timedelta
-#from types import NoneType
-#import random
-#import logging
-#
-#import dateutil
-#from numpy import nan, isnan  #IGNORE:E0611
-#import pandas as pd
-#from lxml import etree, objectify
 
 from clair.descriptors import (
                     BoolD, StrD, IntD, FloatD, DateTimeD, 

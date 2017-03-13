@@ -67,29 +67,30 @@ def test_EbayConnector_update_listings():
     """Test finding listings by keyword through the high level interface."""
     from clair.network import EbayConnector
     
-    n = 35
+    n = 5
     
-    c = EbayConnector(relative("../python-ebay.apikey"))
+    c = EbayConnector(relative("../ebay-sdk.apikey"))
     listings = c.find_listings(keywords="Nikon D90", 
-                               n_listings=n, 
+                               n_listings=n, ebay_site='EBAY-US',
                                price_min=100, price_max=500, currency="EUR")
-    print(listings)
-    print()
-    print(listings[["title", "price", "sold", "active"]].to_string())
+#     print(listings)
+#     print()
+    print(listings[["title", "price", "currency", "type"]])
 
     #The test
-    listings =c.update_listings(listings)
+    listings =c.update_listings(listings, ebay_site='EBAY-US')
     
+#     print()
+#     print(listings)
     print()
-    print(listings)
-    print()
-    print(listings[["title", "price", "sold", "active"]].to_string())
+    print(listings[["title", "price", "currency", "type"]])
 
-    assert 0.95 * n <= len(listings) <= n #Duplicates are removed
+#     assert 0.95 * n <= len(listings) <= n #Duplicates are removed
+    #TODO: Test that descriptions are not none
    
 
 if __name__ == '__main__':
-    test_EbayConnector_find_listings()
-#    test_EbayConnector_update_listings()
+#     test_EbayConnector_find_listings()
+    test_EbayConnector_update_listings()
     
     pass #pylint: disable=W0107

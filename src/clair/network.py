@@ -37,6 +37,7 @@ from datetime import datetime
 import pandas as pd
 # from numpy import nan
 from ebaysdk.finding import Connection as FConnection
+from ebaysdk.shopping import Connection as SConnection
 from ebaysdk.exception import ConnectionError
 
 from clair.dataframes import make_listing_frame
@@ -342,21 +343,14 @@ class EbayConnector(object):
     keyfile : str
         Name of the configuration file for the ``python-ebay`` library,
         that contains the (secret) access keys for the Ebay API.
-        
-        **Warning:** This parameter is really a global setting!
-        
-        If there are multiple EbayConnector instances they must all use 
-        the same configuration (key) file. 
-        
-    TODO: make date part of listing Id: ``"{year}-{month}-{day}-eb-{server_id}"``
-          * Ebay reuses the IDs of fixed price auctions, they might also 
-            reuse IDs generally.
-          * Listings are are kept roughly sorted by time, reducing the work 
-            when they are really sorted by time.
     """
+
+    EBAY_SITE_NAME = 'ebay'
+    "Value for the 'site' field, to show that the listings come from Ebay."
+
     def __init__(self, keyfile):
         assert isinstance(keyfile, (str, type(None)))
-        os.path.isfile(keyfile) 
+        assert os.path.isfile(keyfile) 
 
         self.keyfile = keyfile
 
@@ -600,24 +594,22 @@ class EbayConnector(object):
                     logging.debug('Missing field in "shippingInfo": ' + str(err))
 
             except (KeyError, AssertionError) as err:
-                logging.error('Error while parsing Ebay listing: ' + repr(err))
+                logging.error('Error while parsing Ebay find result: ' + repr(err))
                 sio = io.StringIO()
                 pprint(item, sio)
                 logging.debug(sio.getvalue())
 
-        listings['site'] = 'ebay'
+        listings['site'] = self.EBAY_SITE_NAME
         listings['is_sold'] = False
 
-        """                
-        Ebay really reuses ``itemId`` values for recurrent listings of 
-        professional sellers. Therefore the date is included in the listing's ID.
-        """
+        # Ebay reuses ``itemId`` values for recurrent listings of  professional
+        # sellers. Therefore the date is included in the listing's ID.
         dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
-        listings['id'] = listings['site'] + '-' + dates + '-' + listings['id_site']
+        listings['id'] = dates + '-' + listings['site'] + '-' + listings['id_site']
 
         return listings
 
-    def update_listings(self, listings):
+    def update_listings(self, listings, ebay_site):
         """
         Update listings by connecting to Ebay over the Internet.
         
@@ -627,20 +619,75 @@ class EbayConnector(object):
         --------
         
         listings : pandas.DataFrame
-            Table with listings that are updated.
-            Expects that column ID is used as the table's index.
+            Table with listings that should be updated.
+            Expects that column 'id' is used as the table's index.
         
         Returns
         -------
         
         pandas.DataFrame
             New table with updated information.
-            There is one row in the table for each listing. Our Id is the index.     
         """
         assert isinstance(listings, pd.DataFrame)
         
-        ids = listings["server_id"]
-        g = EbayGetListings()
-        new_listings = g.get_listings(ids)
-        new_listings.combine_first(listings)        
-        return new_listings
+        ebay_listings = listings[listings['site'] == self.EBAY_SITE_NAME]
+        ids = ebay_listings["id_site"]
+
+
+        # Remove duplicate IDs
+        ids = list(set(ids))
+      
+        # Download information in chunks of 20 listings.
+        listings = make_listing_frame(0)
+        for i_start in range(0, len(ids), 20):
+            resp = self._call_update_api(ids[i_start:i_start + 20], ebay_site)
+            listings_part = self._parse_update_response(resp)
+            listings = listings.append(listings_part, ignore_index=True,
+                                       verify_integrity=False)
+        
+        # Put our IDs into index
+        listings.set_index("id", drop=False, inplace=True,
+                           verify_integrity=True)
+        return listings
+
+    def _call_update_api(self, ids, ebay_site):
+        """
+        Call Ebay's shopping API to get complete information about a listing. 
+        """
+        print(ids)
+        try:
+            api = SConnection(config_file=self.keyfile, siteid=ebay_site)
+#             response = api.execute('findPopularItems', {'QueryKeywords': 'Python'})
+            response = api.execute('GetMultipleItems', 
+                                   {'IncludeSelector': 'Description,Details,ItemSpecifics,Variations',
+                                    'ItemID': ids})
+        except ConnectionError as err:
+            err_text = 'Updating items on Ebay failed! Error: ' + str(err)
+            logging.error(err_text)
+            logging.debug(err.response.dict())
+            raise EbayError(err_text)
+
+        resp_dict = response.dict()
+
+        # Act on resonse status
+        if resp_dict['Ack'] == 'Success':
+            logging.debug('Successfully called Ebay finding API.')
+        elif resp_dict['Ack'] in ['Warning', 'PartialFailure']:
+            logging.warning('Ebay shopping API returned warning.')
+            sio = io.StringIO()
+            pprint(resp_dict, sio)
+            logging.debug(sio.getvalue())
+        else:
+            logging.error('Ebay shopping API returned error.')
+            sio = io.StringIO()
+            pprint(resp_dict, sio)
+            logging.debug(sio.getvalue())
+            raise EbayError('Ebay shopping API returned error.')
+        
+        return resp_dict
+
+    def _parse_update_response(self, resp):
+        """
+        """
+        pprint(resp)
+        return make_listing_frame(0)
