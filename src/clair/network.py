@@ -29,6 +29,7 @@ from pprint import pprint
 import os.path
 import math
 import io
+import json
 # from collections import defaultdict
 import  logging
 from datetime import datetime
@@ -589,7 +590,6 @@ class EbayFindingAPIConnector(object):
                      'FixedPrice': 'fixed-price', 'StoreInventory': 'fixed-price'}
         return ltype_map[listing_type]
 
-
     @staticmethod
     def convert_selling_state(selling_state):
         """
@@ -764,6 +764,7 @@ class EbayShoppingAPIConnector(object):
         listings = make_listing_frame(len(items))
         for i, item in enumerate(items):
             try:
+                # ID --------------------------------------------------
                 listings.loc[i, 'id_site'] = item['ItemID']
                 # Product description --------------------------------------------------
                 listings.loc[i, 'title'] = item['Title']
@@ -781,28 +782,30 @@ class EbayShoppingAPIConnector(object):
                             'Prices in a listing must be of the same currency.'
                 except KeyError as err:
                     logging.debug("Missing field in 'ShippingCostSummary': " + str(err))
+                # Listing Data -----------------------------------------------------------
+                listings.loc[i, 'location'] = item['Location'] + ', ' + item['Country']
+                listings.loc[i, 'shipping_locations'] = to_str_list(item['ShipToLocations'])
+                listings.loc[i, 'seller'] = item['Seller']['UserID']
+                listings.loc[i, 'item_url'] = item['ViewItemURLForNaturalSearch']
+                # Status values -----------------------------------------------------------
+                listings.loc[i, 'status'] = self.convert_listing_status_shp(item['ListingStatus'])
+                listings.loc[i, 'type'] = self.convert_listing_type_shp(item['ListingType'])
                 
+#                 listings.loc[i, ''] = item['']
+
+                #TODO: check if the item was actually sold with: 'Item.QuantitySold'
     #          FD("is_real", BoolD, None,
     #             "If True: One could really buy the item for this price. "
     #             "This is not a temporary price from an ongoing auction."),
     #          FD("is_sold", BoolD, None,
     #             "Successful sale if ``True``."),
 
-    #         # Listing Data -----------------------------------------------------------
-                listings.loc[i, 'location'] = item['Location'] + ', ' + item['Country']
-                listings.loc[i, 'shipping_locations'] = to_str_list(item['ShipToLocations'])
-                listings.loc[i, 'seller'] = item['Seller']['UserID']
-    #             listings.loc[i, ''] = item['']
+                try:
+                    #TODO: Only store this if the item has been sold.
+                    listings.loc[i, 'buyer'] = item['HighBidder']['UserID']
+                except KeyError as err:
+                    logging.debug("Missing field in 'HighBidder': " + str(err))
 
-    #          FD("buyer", StrD, None,
-    #             "User name of buyer."),
-    #          FD("item_url", StrD, None,
-    #             "Link to web representation of listing."),
-    #         # Status values -----------------------------------------------------------
-    #          FD("status", StrD, None,
-    #             "State of the listing: active, canceled, ended"),
-    #          FD("type", StrD, None,
-    #             "Type of the listing: auction, classified, fixed-price"),
             except (KeyError, AssertionError) as err:
                 logging.error('Error while parsing Ebay find result: ' + repr(err))
                 sio = io.StringIO()
@@ -819,7 +822,8 @@ class EbayShoppingAPIConnector(object):
         specs = {}
         for nvpair in item_specifics['NameValueList']:
             specs[nvpair['Name']] = nvpair['Value']
-        return str(specs)
+        return json.dumps(specs, ensure_ascii=False, check_circular=False, sort_keys=True)
+#         return str(specs)
 
     @staticmethod
     def convert_condition(ebay_condition):
@@ -863,6 +867,89 @@ class EbayShoppingAPIConnector(object):
                     '7000': 'not-working', }
         return cond_map[ebay_condition]
 
+    @staticmethod
+    def convert_listing_type_shp(listing_type):
+        """
+        Convert Ebay listing type (ListingType) codes to internal codes.
+        
+        Ebay listing type numbers:
+            http://developer.ebay.com/DevZone/Shopping/docs/CallRef/extra/GtMltplItms.Rspns.Itm.LstngTyp.html
+
+        ------------------------------------------------------------------------
+        Ebay code         Description                              Internal code
+        ----------------  ---------------------------------------  -------------
+        AdType            Advertisement. Permits no bidding on     None
+                          that item.
+        Chinese           Single-quantity online auction format.   auction
+        CustomCode        Placeholder value.                       None
+        Dutch             Deprecated. Multiple-quantity online     auction
+                          auction format. 
+        Express           Deprecated. Germany only: eBay           None
+                          Express-only format.
+        FixedPriceItem    A basic fixed-price listing with a       fixed-price
+                          Quantity of 1. 
+        LeadGeneration    Advertisement-style listing, no bidding  None
+                          or fixed price.
+        Live              Live auction, on-site auction that can   auction
+                          include non-eBay bidders. 
+        PersonalOffer     Second chance offer made to a non-       auction
+                          winning bidder on an ended listing. 
+        StoresFixedPrice  A fixed-price format for eBay Store      fixed-price
+                          sellers. 
+        ------------------------------------------------------------------------
+
+        Parameters
+        ----------
+        
+        listing_type: str
+            Ebay listing-type code.
+            
+        Returns
+        -------
+        str
+            Internal listing-type code.
+        """
+        ltype_map = {'Advertisement': None, 'Chinese': 'auction', 
+                     'CustomCode': None, 'Dutch': 'auction', 'Express': None, 
+                     'FixedPriceItem': 'fixed-price', 'LeadGeneration': None, 
+                     'Live': 'auction', 'PersonalOffer': 'auction', 
+                     'StoresFixedPrice': 'fixed-price'}
+        return ltype_map[listing_type]
+
+    @staticmethod
+    def convert_listing_status_shp(listing_status):
+        """
+        Convert Ebay selling state codes to internal codes.
+        
+        Ebay listing status codes:
+            http://developer.ebay.com/DevZone/Shopping/docs/CallRef/GetMultipleItems.html#Response.Item.ListingStatus
+        
+        ------------------------------------------------------------------------
+        Ebay code         Description                              Internal code
+        ----------------  ---------------------------------------  -------------
+        Active            The listing is still live.               active 
+        Completed         The listing has ended. You can think of  ended
+                          Completed and Ended as essentially 
+                          equivalent. 
+        CustomCode        Placeholder value.                       None
+        Ended             The listing has ended.                   ended
+        ------------------------------------------------------------------------
+
+        Parameters
+        ----------
+        
+        listing_status: str
+            Ebay selling state code.
+            
+        Returns
+        -------
+        str
+            Internal selling state code.
+        """
+        smap = {'Active': 'active', 'Completed': 'ended', 'Ended': 'ended', 
+                'CustomCode': None}
+        return smap[listing_status]
+ 
 
 class EbayConnector(object):
     """
