@@ -80,10 +80,10 @@ def test_EbayConnector_update_listings():
     #The test
     listings =c.update_listings(listings, ebay_site='EBAY-US')
     
-#     print()
-#     print(listings)
     print()
-    print(listings[["title", "price", "currency", "type"]])
+    print(listings)
+#     print()
+#     print(listings[["title", "price", "currency", "type"]])
 
 #     assert 0.95 * n <= len(listings) <= n #Duplicates are removed
     #TODO: Test that descriptions are not none

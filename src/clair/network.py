@@ -402,6 +402,14 @@ class EbayFindingAPIConnector(object):
             logging.debug(err.response.dict())
             raise EbayError(err_text)
 
+#         #TODO: react on the following status information
+#         # Returns the HTTP response code.
+#         response_code()
+#         # Returns the HTTP response status
+#         response_status()
+#         # Returns an array of eBay response codes
+#         response_codes()
+
         resp_dict = response.dict()
 
         # Act on resonse status
@@ -632,6 +640,8 @@ class EbayShoppingAPIConnector(object):
     
     http://developer.ebay.com/DevZone/shopping/docs/CallRef/index.html
     
+    https://github.com/timotheus/ebaysdk-python/wiki/Shopping-API-Class
+    
     Parameters
     -------------
     
@@ -692,42 +702,50 @@ class EbayShoppingAPIConnector(object):
         # Download information in chunks of 20 listings.
         listings = make_listing_frame(0)
         for i_start in range(0, len(ids), 20):
-            resp = self._call_update_api(ids[i_start:i_start + 20], ebay_site)
-            listings_part = self._parse_update_response(resp)
+            resp = self._call_shopping_api(ids[i_start:i_start + 20], ebay_site)
+            listings_part = self._parse_shopping_response(resp)
             listings = listings.append(listings_part, ignore_index=True,
                                        verify_integrity=False)
         
         # Put our IDs into index
-        listings.set_index("id", drop=False, inplace=True,
-                           verify_integrity=True)
+#         listings.set_index("id", drop=False, inplace=True,
+#                            verify_integrity=True)
         return listings
 
-    def _call_update_api(self, ids, ebay_site):
+    def _call_shopping_api(self, ids, ebay_site):
         """
         Call Ebay's shopping API to get complete information about a listing. 
         """
         print(ids)
         try:
             api = SConnection(config_file=self.keyfile, siteid=ebay_site)
-#             response = api.execute('findPopularItems', {'QueryKeywords': 'Python'})
             response = api.execute('GetMultipleItems', 
-                                   {'IncludeSelector': 'Description,Details,ItemSpecifics,Variations',
+                                   {'IncludeSelector': 'Description,Details,ItemSpecifics,ShippingCosts',
                                     'ItemID': ids})
         except ConnectionError as err:
-            err_text = 'Updating items on Ebay failed! Error: ' + str(err)
+            err_text = 'Downloading full item information from Ebay failed! ' \
+                       'Error: ' + str(err)
             logging.error(err_text)
             logging.debug(err.response.dict())
             raise EbayError(err_text)
+
+#         #TODO: react on the following status information
+#         # Returns the HTTP response code.
+#         response_code()
+#         # Returns the HTTP response status
+#         response_status()
+#         # Returns an array of eBay response codes
+#         response_codes()
 
         resp_dict = response.dict()
 
         # Act on resonse status
         if resp_dict['Ack'] == 'Success':
-            logging.debug('Successfully called Ebay finding API.')
+            logging.debug('Successfully called Ebay shopping API.')
         elif resp_dict['Ack'] in ['Warning', 'PartialFailure']:
             logging.warning('Ebay shopping API returned warning.')
             sio = io.StringIO()
-            pprint(resp_dict, sio)
+            pprint(resp_dict['Errors'], sio)
             logging.debug(sio.getvalue())
         else:
             logging.error('Ebay shopping API returned error.')
@@ -738,11 +756,112 @@ class EbayShoppingAPIConnector(object):
         
         return resp_dict
 
-    def _parse_update_response(self, resp):
+    def _parse_shopping_response(self, resp):
         """
         """
         pprint(resp)
-        return make_listing_frame(0)
+        items = resp['Item']
+        listings = make_listing_frame(len(items))
+        for i, item in enumerate(items):
+            try:
+                listings.loc[i, 'id_site'] = item['ItemID']
+                # Product description --------------------------------------------------
+                listings.loc[i, 'title'] = item['Title']
+                listings.loc[i, 'description'] = item['Description']
+                listings.loc[i, 'prod_spec'] = self.convert_ItemSpecifics(item['ItemSpecifics'])
+                listings.loc[i, 'condition'] = self.convert_condition(item['ConditionID'])
+                # Price -----------------------------------------------------------
+                listings.loc[i, 'time'] = pd.Timestamp(item['EndTime']).to_datetime64()
+                listings.loc[i, 'currency'] = item['ConvertedCurrentPrice']['_currencyID']
+                listings.loc[i, 'price'] = item['ConvertedCurrentPrice']['value']
+                try:
+                    listings.loc[i, 'shipping_price'] = item['ShippingCostSummary']['ShippingServiceCost']['value']
+                    shipping_currency = item['ShippingCostSummary']['ShippingServiceCost']['_currencyID']
+                    assert shipping_currency == listings.loc[i, 'currency'], \
+                            'Prices in a listing must be of the same currency.'
+                except KeyError as err:
+                    logging.debug("Missing field in 'ShippingCostSummary': " + str(err))
+                
+    #          FD("is_real", BoolD, None,
+    #             "If True: One could really buy the item for this price. "
+    #             "This is not a temporary price from an ongoing auction."),
+    #          FD("is_sold", BoolD, None,
+    #             "Successful sale if ``True``."),
+
+    #         # Listing Data -----------------------------------------------------------
+                listings.loc[i, 'location'] = item['Location'] + ', ' + item['Country']
+                listings.loc[i, 'shipping_locations'] = to_str_list(item['ShipToLocations'])
+                listings.loc[i, 'seller'] = item['Seller']['UserID']
+    #             listings.loc[i, ''] = item['']
+
+    #          FD("buyer", StrD, None,
+    #             "User name of buyer."),
+    #          FD("item_url", StrD, None,
+    #             "Link to web representation of listing."),
+    #         # Status values -----------------------------------------------------------
+    #          FD("status", StrD, None,
+    #             "State of the listing: active, canceled, ended"),
+    #          FD("type", StrD, None,
+    #             "Type of the listing: auction, classified, fixed-price"),
+            except (KeyError, AssertionError) as err:
+                logging.error('Error while parsing Ebay find result: ' + repr(err))
+                sio = io.StringIO()
+                pprint(item, sio)
+                logging.debug(sio.getvalue())
+
+        listings['site'] = self.ebay_name
+        
+        return listings
+
+    @staticmethod
+    def convert_ItemSpecifics(item_specifics):
+        """Convert the ``ItemSpecifics`` to a suitable JSON representation."""
+        specs = {}
+        for nvpair in item_specifics['NameValueList']:
+            specs[nvpair['Name']] = nvpair['Value']
+        return str(specs)
+
+    @staticmethod
+    def convert_condition(ebay_condition):
+        """
+        Convert Ebay condition numbers to internal condition values.
+        
+        Ebay condition numbers:
+            http://developer.ebay.com/DevZone/finding/CallRef/Enums/conditionIdList.html
+
+        --------------------------------------------------------------
+        Ebay code    Description                    Internal code
+        ---------    ---------------------------    ----------------------
+        1000         New, brand-new                 new
+        1500         New other                      new-defects
+        1750         New with defects (very small   new-defects
+                     defects of clothes)
+        2000         Manufacturer refurbished       refurbished
+        2500         Seller refurbished             refurbished
+        3000         Used                           used
+        4000         Very Good (books)              used-very-good
+        5000         Good (books)                   used-good
+        6000         Acceptable (books)             used-acceptable
+        7000         For parts or not working       not-working
+        --------------------------------------------------------------
+
+        Parameters
+        ----------
+        
+        ebay_condition: str
+            Ebay condition code (numeric string).
+            
+        Returns
+        -------
+        str
+            Internal condition code.
+        """
+        cond_map = {'1000': 'new', '1500': 'new-defects', '1750': 'new-defects', 
+                    '2000': 'refurbished', '2500': 'refurbished', 
+                    '3000': 'used', 
+                    '4000': 'used-very-good', '5000': 'used-good', '6000': 'used-acceptable', 
+                    '7000': 'not-working', }
+        return cond_map[ebay_condition]
 
 
 class EbayConnector(object):
