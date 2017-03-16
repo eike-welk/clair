@@ -63,160 +63,6 @@ def to_str_list(list_or_str):
 
 
 
-class EbayGetListings(object):
-    """
-    Get full information on ebay listings, needs information (IDs) 
-    from Ebay's finding functionality.
-    """
-    @staticmethod
-    def download_xml(ids):
-        """
-        Call ``GetMultipleItems`` from Ebay's shopping API.
-        Return the XML response.
-        
-        ids : iterable of strings
-            Iterable with Ebay IDs of items whose information is downloaded.
-            Maximum length is 20. This is a limitation of Ebay.
-        """
-        assert len(ids) <= 20  # Ebay limitation
-        ids_str = ",".join(ids)  # Create comma separated string of IDs
-        res_xml = eb_shop.GetMultipleItems(
-                    item_id=ids_str,
-                    include_selector=
-                    "Description,Details,ItemSpecifics,ShippingCosts",
-                    encoding="XML")
-#        print res_xml
-        
-        return res_xml
-    
-    
-#     @staticmethod
-#     def parse_xml(xml):
-#         """
-#         Parse the XML response from Ebay's shopping API.
-#         
-#         http://developer.ebay.com/Devzone/shopping/docs/CallRef/GetMultipleItems.html
-#         """
-#         root = objectify.fromstring(xml)
-# #        print etree.tostring(root, pretty_print=True)
-# 
-#         if root.Ack.text == "Success":
-#             pass
-#         elif root.Ack.text in ["Warning", "PartialFailure"]:
-#             error_list = [etree.tostring(err, pretty_print=True) 
-#                           for err in root.Errors]
-#             error_str = "\n".join(error_list)
-#             logging.warning(
-#                 "Ebay warning in EbayGetListings.parse_xml: " + root.Ack.text + 
-#                 "\n" + error_str)
-#         else:
-# #            raise EbayError(etree.tostring(root, pretty_print=True))
-#             logging.error("Ebay error in EbayGetListings.parse_xml: \n" + 
-#                           etree.tostring(root, pretty_print=True))
-#             return make_listing_frame(0)
-#         
-#         item = root.Item
-#         nrows = len(item)
-#         listings = make_listing_frame(nrows)
-#         for i, itemi in enumerate(item):            
-#             try: listings["thumbnail"][i] = itemi.GalleryURL.text
-#             except AttributeError: pass
-#             try: listings["image"][i] = itemi.PictureURL.text
-#             except AttributeError: pass
-#             
-#             listings["title"][i] = itemi.Title.text 
-#             # Escaping and un-escaping XML. Necessary for the HTML description.
-#             # http://wiki.python.org/moin/EscapingXml
-#             # Cleaning up html
-#             # http://lxml.de/lxmlhtml.html#cleaning-up-html
-#             listings["description"][i] = itemi.Description.text
-#             # ItemSpecifics: 
-#             try:
-#                 xml_prod_specs = itemi.ItemSpecifics.NameValueList
-#                 prod_specs = {}
-#                 for xml_spec in xml_prod_specs:
-#                     name = xml_spec.Name.text
-#                     value = xml_spec.Value.text
-#                     prod_specs[name] = value
-#                 listings["prod_spec"][i] = prod_specs
-#             except AttributeError:
-#                 pass
-#             # Listing status
-#             # http://developer.ebay.com/Devzone/shopping/docs/CallRef/GetMultipleItems.html#Response.Item.ListingStatus
-#             listings["active"][i] = itemi.ListingStatus.text == "Active"
-#             listings["final_price"][i] = (itemi.ListingStatus.text in 
-#                                           ["Ended", "Completed"])
-#             listings["sold"][i] = int(itemi.QuantitySold.text) > 0
-#             # Price and shipping cost
-#             listings["currency"][i] = itemi.ConvertedCurrentPrice.get(# EUR, USD, ...
-#                                                                 "currencyID")
-#             listings["price"][i] = itemi.ConvertedCurrentPrice.text
-#             try: listings["shipping"][i] = itemi.ShippingCostSummary \
-#                                                 .ListedShippingServiceCost.text
-#             except AttributeError: pass
-#             # Type of listing: auction, fixed-price, unknown
-#             l_type = defaultdict(lambda: "unknown",
-#                                  {"Chinese"         : "auction",
-#                                   "FixedPriceItem"  : "fixed-price",
-#                                   "StoresFixedPrice": "fixed-price" })
-#             listings["type"][i] = l_type[itemi.ListingType.text]
-#             # Approximate time when price is/was valid, end time in case of auctions
-#             time = dprs.parse(itemi.EndTime.text) 
-#             listings["time"][i] = time.replace(tzinfo=None)
-#             listings["location"][i] = itemi.Location.text
-#             try: listings["postcode"][i] = itemi.PostalCode.text
-#             except AttributeError: pass
-#             listings["country"][i] = itemi.Country.text
-#             try: listings["condition"][i] = convert_condition(# 1.: new, 0.: worthless
-#                                                     itemi.ConditionID.text) 
-#             except AttributeError: pass
-#             listings["seller"][i] = itemi.Seller.UserID.text
-#             try: listings["buyer"][i] = itemi.HighBidder.UserID.text
-#             except AttributeError: pass
-# #            listings["server"][i] = "Ebay-" + itemi.Site.text   #string to identify the server
-#             listings["server_id"][i] = itemi.ItemID.text  # ID of item on server
-# #            listings["data_directory"] = ""
-#             listings["url_webui"][i] = itemi.ViewItemURLForNaturalSearch.text
-# #            listings["server_repr"][i] = nan      #representation of listing on server (XML)
-#         
-#         # Create internal IDs - Ebay IDs are unique (except for variants)
-#         listings["id"] = "eb-" + listings["server_id"]
-#         
-#         return listings
-
-    @staticmethod
-    def get_listings(ids):
-        """
-        Download detailed listings from Ebay. 
-        
-        Needs a ``list``, ``pandas.Series``, or any iterable of Ebay item IDs. 
-        """
-        eget = EbayGetListings
-        
-        # Remove duplicate IDs
-        ids = list(set(ids))
-      
-        # Download information in chunks of 20 listings.
-        listings = make_listing_frame(0)
-        for i_start in range(0, len(ids), 20):
-            xml = eget.download_xml(ids[i_start:i_start + 20])
-            listings_part = eget.parse_xml(xml)
-            listings = listings.append(listings_part, ignore_index=True,
-                                       verify_integrity=False)
-        
-        # Put our IDs into index
-        listings.set_index("id", drop=False, inplace=True,
-                           verify_integrity=True)
-        
-#        #TODO: compute listings["final_price"] from ``Item.ListingStatus``
-#        #      http://developer.ebay.com/Devzone/shopping/docs/CallRef/GetMultipleItems.html#Response.Item.ListingStatus
-#        #Ebay shows final price some minutes after auction ends, in worst case.       
-#        fp = listings["time"] < datetime.utcnow() + timedelta(minutes=15)
-#        listings["final_price"] = fp
-
-        return listings
-
-
 class EbayFindingAPIConnector(object):
     """
     Abstraction for Ebay's finding API. 
@@ -347,10 +193,10 @@ class EbayFindingAPIConnector(object):
 
         # Remove duplicate rows: Ebay uses the same ID for variants of the 
         # same product.
-        listings = listings.drop_duplicates(subset="id") 
-        # Put internal IDs into index
-        listings.set_index("id", drop=False, inplace=True,
-                           verify_integrity=True)
+#         listings = listings.drop_duplicates(subset="id") 
+#         # Put internal IDs into index
+#         listings.set_index("id", drop=False, inplace=True,
+#                            verify_integrity=True)
         return listings
 
     def _call_find_api(self, keywords, n_per_page, i_page,
@@ -432,7 +278,7 @@ class EbayFindingAPIConnector(object):
 
     def _parse_find_response(self, resp_dict):
         """
-        Parse the response from the Ebay API call.
+        Parse response from call to Ebay's finding API.
         
         See:
         https://developer.ebay.com/devzone/finding/CallRef/findItemsAdvanced.html#Output
@@ -502,13 +348,12 @@ class EbayFindingAPIConnector(object):
                 logging.debug(sio.getvalue())
 
         listings['site'] = self.ebay_name
-        listings['is_sold'] = False
 
-        #TODO: Create function that is used by all Ebay code.
-        # Ebay reuses ``itemId`` values for recurrent listings of  professional
-        # sellers. Therefore the date is included in the listing's ID.
-        dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
-        listings['id'] = dates + '-' + listings['site'] + '-' + listings['id_site']
+#         #TODO: Create function that is used by all Ebay code.
+#         # Ebay reuses ``itemId`` values for recurrent listings of  professional
+#         # sellers. Therefore the date is included in the listing's ID.
+#         dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
+#         listings['id'] = dates + '-' + listings['site'] + '-' + listings['id_site']
 
         return listings
 
@@ -685,6 +530,10 @@ class EbayShoppingAPIConnector(object):
             Table with listings that should be updated.
             Expects that column 'id' is used as the table's index.
         
+        ebay_site : str
+            Localized site that is accessed. Influences shipping costs and 
+            currency.
+
         Returns
         -------
         
@@ -692,6 +541,7 @@ class EbayShoppingAPIConnector(object):
             New table with updated information.
         """
         assert isinstance(listings, pd.DataFrame)
+        assert isinstance(ebay_site, str)
         
         # Get ids from listings that are really from Ebay
         ebay_listings = listings[listings['site'] == self.ebay_name]
@@ -716,7 +566,6 @@ class EbayShoppingAPIConnector(object):
         """
         Call Ebay's shopping API to get complete information about a listing. 
         """
-        print(ids)
         try:
             api = SConnection(config_file=self.keyfile, siteid=ebay_site)
             response = api.execute('GetMultipleItems', 
@@ -758,8 +607,12 @@ class EbayShoppingAPIConnector(object):
 
     def _parse_shopping_response(self, resp):
         """
+        Parse response from call to Ebay's shopping API.
+        
+        See:
+        http://developer.ebay.com/DevZone/Shopping/docs/CallRef/GetMultipleItems.html
         """
-        pprint(resp)
+#         pprint(resp)
         items = resp['Item']
         listings = make_listing_frame(len(items))
         for i, item in enumerate(items):
@@ -769,7 +622,10 @@ class EbayShoppingAPIConnector(object):
                 # Product description --------------------------------------------------
                 listings.loc[i, 'title'] = item['Title']
                 listings.loc[i, 'description'] = item['Description']
-                listings.loc[i, 'prod_spec'] = self.convert_ItemSpecifics(item['ItemSpecifics'])
+                try:
+                    listings.loc[i, 'prod_spec'] = self.convert_ItemSpecifics(item['ItemSpecifics'])
+                except KeyError as err:
+                    logging.debug("Missing field 'ItemSpecifics': " + str(err))
                 listings.loc[i, 'condition'] = self.convert_condition(item['ConditionID'])
                 # Price -----------------------------------------------------------
                 listings.loc[i, 'time'] = pd.Timestamp(item['EndTime']).to_datetime64()
@@ -788,26 +644,36 @@ class EbayShoppingAPIConnector(object):
                 listings.loc[i, 'seller'] = item['Seller']['UserID']
                 listings.loc[i, 'item_url'] = item['ViewItemURLForNaturalSearch']
                 # Status values -----------------------------------------------------------
-                listings.loc[i, 'status'] = self.convert_listing_status_shp(item['ListingStatus'])
-                listings.loc[i, 'type'] = self.convert_listing_type_shp(item['ListingType'])
+                listings.loc[i, 'status'] = status = self.convert_listing_status_shp(item['ListingStatus'])
+                listings.loc[i, 'type'] = lstype = self.convert_listing_type_shp(item['ListingType'])
+                quantitySold = int(item['QuantitySold'])
                 
-#                 listings.loc[i, ''] = item['']
+                # is_real - If True: One could really buy the item for this price.
+                if lstype == 'fixed-price':
+                    is_real = True
+                elif lstype == 'auction' and status == 'ended' and quantitySold >= 1:
+                    is_real = True
+                else:
+                    is_real = False
+                listings.loc[i, 'is_real'] = is_real
 
-                #TODO: check if the item was actually sold with: 'Item.QuantitySold'
-    #          FD("is_real", BoolD, None,
-    #             "If True: One could really buy the item for this price. "
-    #             "This is not a temporary price from an ongoing auction."),
-    #          FD("is_sold", BoolD, None,
-    #             "Successful sale if ``True``."),
+                # is_sold - Successful sale if ``True``.
+                if lstype == 'fixed-price' and quantitySold >= 1:
+                    is_sold = True
+                elif lstype == 'auction' and status == 'ended' and quantitySold >= 1:
+                    is_sold = True
+                else:
+                    is_sold = False
+                listings.loc[i, 'is_sold'] = is_real
 
-                try:
-                    #TODO: Only store this if the item has been sold.
-                    listings.loc[i, 'buyer'] = item['HighBidder']['UserID']
-                except KeyError as err:
-                    logging.debug("Missing field in 'HighBidder': " + str(err))
+                if is_sold:
+                    try:
+                        listings.loc[i, 'buyer'] = item['HighBidder']['UserID']
+                    except KeyError as err:
+                        logging.debug("Missing field in 'HighBidder': " + str(err))
 
             except (KeyError, AssertionError) as err:
-                logging.error('Error while parsing Ebay find result: ' + repr(err))
+                logging.error('Error while parsing Ebay shopping API result: ' + repr(err))
                 sio = io.StringIO()
                 pprint(item, sio)
                 logging.debug(sio.getvalue())
@@ -1052,6 +918,13 @@ class EbayConnector(object):
         listings = fapic.find_listings(keywords, n_listings, 
                                       price_min, price_max, currency, 
                                       time_from, time_to)
+        self.create_ids(listings)
+        # Remove duplicate rows: Ebay uses the same ID for variants of the 
+        # same product.
+        listings = listings.drop_duplicates(subset="id") 
+        # Put internal IDs into index
+        listings.set_index("id", drop=False, inplace=True,
+                           verify_integrity=True)
         return listings
 
     def update_listings(self, listings, ebay_site):
@@ -1078,4 +951,20 @@ class EbayConnector(object):
         
         sapic = EbayShoppingAPIConnector(self.keyfile, ebay_site, self.EBAY_SITE_NAME)
         listings = sapic.update_listings(listings, ebay_site)
+        self.create_ids(listings)
+        listings.set_index("id", drop=False, inplace=True,
+                           verify_integrity=True)
         return listings
+
+    def create_ids(self, listings):
+        """
+        Create the internal IDs for Ebay listings.
+        
+        The have the form: {date}-ebay-{number}
+        """
+        # Ebay reuses ``itemId`` values for recurrent listings of  professional
+        # sellers. Therefore the date is included in the listing's ID.
+        dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
+        listings['id'] = dates + '-' + listings['site'] + '-' + listings['id_site']
+#         return listings
+    

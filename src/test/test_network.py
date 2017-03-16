@@ -67,8 +67,7 @@ def test_EbayConnector_update_listings():
     """Test finding listings by keyword through the high level interface."""
     from clair.network import EbayConnector
     
-    n = 5
-    
+    n = 35
     c = EbayConnector(relative("../ebay-sdk.apikey"))
     listings = c.find_listings(keywords="Nikon D90", 
                                n_listings=n, ebay_site='EBAY-US',
@@ -85,7 +84,7 @@ def test_EbayConnector_update_listings():
 #     print()
 #     print(listings[["title", "price", "currency", "type"]])
 
-#     assert 0.95 * n <= len(listings) <= n #Duplicates are removed
+    assert 0.95 * n <= len(listings) <= n #Duplicates are removed
     #TODO: Test that descriptions are not none
    
 
