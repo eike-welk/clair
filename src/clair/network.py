@@ -30,13 +30,10 @@ import os.path
 import math
 import io
 import json
-# from collections import defaultdict
 import  logging
 from datetime import datetime
 
-# import dateutil.parser as dprs 
 import pandas as pd
-# from numpy import nan
 from ebaysdk.finding import Connection as FConnection
 from ebaysdk.shopping import Connection as SConnection
 from ebaysdk.exception import ConnectionError
@@ -191,12 +188,6 @@ class EbayFindingAPIConnector(object):
             listings = listings.append(listings_part, ignore_index=True,
                                        verify_integrity=False)
 
-        # Remove duplicate rows: Ebay uses the same ID for variants of the 
-        # same product.
-#         listings = listings.drop_duplicates(subset="id") 
-#         # Put internal IDs into index
-#         listings.set_index("id", drop=False, inplace=True,
-#                            verify_integrity=True)
         return listings
 
     def _call_find_api(self, keywords, n_per_page, i_page,
@@ -348,13 +339,6 @@ class EbayFindingAPIConnector(object):
                 logging.debug(sio.getvalue())
 
         listings['site'] = self.ebay_name
-
-#         #TODO: Create function that is used by all Ebay code.
-#         # Ebay reuses ``itemId`` values for recurrent listings of  professional
-#         # sellers. Therefore the date is included in the listing's ID.
-#         dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
-#         listings['id'] = dates + '-' + listings['site'] + '-' + listings['id_site']
-
         return listings
 
     @staticmethod
@@ -557,9 +541,6 @@ class EbayShoppingAPIConnector(object):
             listings = listings.append(listings_part, ignore_index=True,
                                        verify_integrity=False)
         
-        # Put our IDs into index
-#         listings.set_index("id", drop=False, inplace=True,
-#                            verify_integrity=True)
         return listings
 
     def _call_shopping_api(self, ids, ebay_site):
