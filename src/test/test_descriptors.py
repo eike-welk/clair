@@ -106,8 +106,8 @@ def test_TableDescriptor():
 
 
 if __name__ == "__main__":
-    test_TypeTag_s()
-#    test_FieldDescriptor()
-#    test_TableDescriptor()
+#     test_TypeTag_s()
+#     test_FieldDescriptor()
+#     test_TableDescriptor()
     
     pass #IGNORE:W0107

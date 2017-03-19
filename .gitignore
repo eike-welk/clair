@@ -50,5 +50,5 @@ nosetests.xml
 *.apikey
 
 #test data
-test-data/
-test-data1/
+test-tmp/
+#test-data1/

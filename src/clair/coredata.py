@@ -24,23 +24,10 @@
 Central data structures and basic operations on them.
 """
 
-#import os
-#import os.path as path
-#import glob
-##import string
-#from datetime import datetime  #, timedelta
-#from types import NoneType
-#import random
-#import logging
-#
-#import dateutil
-#from numpy import nan, isnan  #IGNORE:E0611
-#import pandas as pd
-#from lxml import etree, objectify
 
 from clair.descriptors import (
                     BoolD, StrD, IntD, FloatD, DateTimeD, 
-                    ListD, DictD,
+                    ListD, # DictD,
                     FieldDescriptor as FD, TableDescriptor)
 
 
@@ -48,213 +35,72 @@ LISTING_DESCRIPTOR = TableDescriptor(
     "listing_frame", "1.0", "listings",
     "2D Table of listings. "
     "Each row represents a listing on an e-commerce site.",
-    [FD("id", StrD, None,
+    [
+    # IDs ---------------------------------------------------------------------
+     FD("id", StrD, None,
         "Internal unique ID of each listing."),
-     #Training  and product recognition -----------------------------------
-     FD("training_sample", BoolD, None,
-        "This listing is a training sample if `True`."),
-     FD("search_tasks", ListD(StrD), None,
-        "List of task IDs (strings) of search tasks, "
-        "that returned this listing."),
-     FD("expected_products", ListD(StrD), None,
-        "List of product IDs (strings)."),
-     FD("products", ListD(StrD), None,
-        "Products in this listing."),
-     FD("products_absent", ListD(StrD), None,
-        "Products not in this listing. List of product IDs (strings)."),
-     #Images --------------------------------------------------------------
-     FD("thumbnail", StrD, None,
-        "URL of small image."),
-     FD("image", StrD, None,
-        "URL of large image."),
-     #Product description --------------------------------------------------
+     FD("site", StrD, None,
+        "String to identify the remote site. For example 'Ebay'."),
+     FD("id_site", StrD, None,
+        "ID of listing on the remote site."),
+#      #Training  and product recognition 
+#      # TODO: This information must go to other databases.
+#      FD("training_sample", BoolD, None,
+#         "This listing is a training sample if `True`."),
+#      FD("search_tasks", ListD(StrD), None,
+#         "List of task IDs (strings) of search tasks, "
+#         "that returned this listing."),
+#      FD("expected_products", ListD(StrD), None,
+#         "List of product IDs (strings)."),
+#      FD("products", ListD(StrD), None,
+#         "Products in this listing."),
+#      FD("products_absent", ListD(StrD), None,
+#         "Products not in this listing. List of product IDs (strings)."),
+    # Product description --------------------------------------------------
      FD("title", StrD, None,
         "Short description of listing."),
      FD("description", StrD, None,
         "Long description of listing."),
-     FD("prod_spec", DictD(StrD, StrD), None,
-        "product specific name value pairs (dict), for example: "
+     FD("prod_spec", StrD, None,
+        "Product specific name value pairs (dict), in JSON. For example: "
         "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."),
-    # Status values ------------------------------------------------------
-     FD("active", BoolD, None,
-        "You can still buy the item if True"),
-     FD("sold", BoolD, None,
-        "Successful sale if ``True``."),
+     FD("condition", StrD, None,
+        "Condition of the sold item(s):"
+        " new, new-defects, refurbished, used,"
+        " used-very-good, used-good, used-acceptable"
+        " not-working"),
+    # Price -----------------------------------------------------------
+     FD("time", DateTimeD, None,
+        "Time when price is/was valid. End time in case of auctions."),
      FD("currency", StrD, None,
         "Currency for price EUR, USD, ..."),
      FD("price", FloatD, None,
         "Price of listing (all items together)."),
-     FD("shipping", FloatD, None,
+     FD("shipping_price", FloatD, None,
         "Shipping cost"),
-     FD("type", StrD, None,
-        "auction, fixed-price, unknown"),
-     FD("time", DateTimeD, None,
-        "Time when price is/was valid. End time in case of auctions."),
+     FD("is_real", BoolD, None,
+        "If True: One could really buy the item for this price. "
+        "This is not a temporary price from an ongoing auction."),
+     FD("is_sold", BoolD, None,
+        "Successful sale if ``True``."),
+    # Listing Data -----------------------------------------------------------
      FD("location", StrD, None,
         "Location of item (pre sale)"),
-     FD("postcode", StrD, None,
-        "Postal code of location"),
-     FD("country", StrD, None,
-        "Country of item location."),
-     FD("condition", FloatD, None,
-        "1.: new, 0.: completely unusable"),
+     FD("shipping_locations", StrD, None,
+        "Locations to where the item(s) can be shipped."),
      FD("seller", StrD, None,
         "User name of seller."),
      FD("buyer", StrD, None,
         "User name of buyer."),
-     #Additional ----------------------------------------------------------
-     FD("server", StrD, None,
-        "String to identify the server."),
-     FD("server_id", StrD, None,
-        "ID of listing on the server."),
-    #TODO: Remove? This is essentially ``not active``.
-    FD("final_price", BoolD, None,
-        "If True: This is the final price of the auction."),
-     FD("url_webui", StrD, None,
+     FD("item_url", StrD, None,
         "Link to web representation of listing."),
-     #TODO: include bid_count?
+    # Status values -----------------------------------------------------------
+     FD("status", StrD, None,
+        "State of the listing: active, canceled, ended"),
+     FD("type", StrD, None,
+        "Type of the listing: auction, classified, fixed-price"),
+    # Additional ----------------------------------------------------------
      ])
-
-
-#class ListingConstants(object):
-#    """
-#    Name space for constants related to listing ``DataFrame``.
-#    Dummy class, used by ``make_listing_frame``.
-#
-#    For an explanation of a listing's fields, the columns of the ``DataFrame``,
-#    see the comments below.
-#
-#    TODO: include bid_count?
-#    """
-#    #List of column names
-#    columns = []
-#    #List of default values for each column.
-#    defaults = []
-#    #Dictionary {"column column":"Comment"} can be used as tool tips.
-#    comments = {}
-#
-#    column = "id"; default = None
-#    comment = "Internal unique ID of each listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Training  and product recognition -----------------------------------
-#    column = "training_sample"; default = nan
-#    comment = "This is training sample if `True`."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "search_tasks"; default = None
-#    comment = "List of task IDs (strings) of search tasks, " \
-#              "that returned this listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "expected_products"; default = None
-#    comment = "List of product IDs (strings)."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "products"; default = None
-#    comment = "Products in this listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "products_absent"; default = None
-#    comment = "Products not in this listing. List of product IDs (strings)."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Images --------------------------------------------------------------
-#    column = "thumbnail"; default = None
-#    comment = "URL of small image."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "image"; default = None
-#    comment = "URL of large image."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Product description --------------------------------------------------
-#    column = "title"; default = None
-#    comment = "Short description of listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "description"; default = None
-#    comment = "Long description of listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "prod_spec"; default = None
-#    comment = "product specific name value pairs (dict), for example: " \
-#              "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    # Status values ------------------------------------------------------
-#    column = "active"; default = nan
-#    comment = "you can still buy it if True"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "sold"; default = nan
-#    comment = "Successful sale if ``True``."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "currency"; default = None
-#    comment = "Currency for price EUR, USD, ..."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "price"; default = nan
-#    comment = "Price of listing (all items together)."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "shipping"; default = nan
-#    comment = "Shipping cost"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "type"; default = None
-#    comment = "auction, fixed-price, unknown"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "time"; default = None
-#    comment = "Time when price is/was valid. End time in case of auctions."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "location"; default = None
-#    comment = "Location of item (pre sale)"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "postcode"; default = None
-#    comment = "Postal code of location"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "country"; default = None
-#    comment = "Country of item location."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "condition"; default = nan
-#    comment = "1.: new, 0.: completely unusable"
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "seller"; default = None
-#    comment = "User name of seller."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "buyer"; default = None
-#    comment = "User name of buyer."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #Additional ----------------------------------------------------------
-#    column = "server"; default = None
-#    comment = "String to identify the server."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "server_id"; default = None
-#    comment = "ID of listing on the server."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    #TODO: Remove? This is essentially ``not active``.
-#    column = "final_price"; default = nan
-#    comment = "If True: This is the final price of the auction."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    column = "url_webui"; default = None
-#    comment = "Link to web representation of listing."
-#    comments[column] = comment; columns += [column]; defaults += [default]
-#
-#    del column; del default; del comment
-
 
 
 PRICE_DESCRIPTOR = TableDescriptor(
