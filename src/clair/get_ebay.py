@@ -21,14 +21,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Get listings from Ebay through its API.
 """
 
 
-from pprint import pprint
+from pprint import pformat
 import os.path
 import math
-import io
 import json
 import  logging
 from datetime import datetime
@@ -210,8 +209,6 @@ class EbayFindingAPIConnector(object):
             * Euro: EUR
             
             https://developer.ebay.com/devzone/finding/CallRef/Enums/currencyIdList.html
-            
-        TODO: Implement sort order
         """
         itemFilters = []
         if price_min:
@@ -255,14 +252,10 @@ class EbayFindingAPIConnector(object):
             logging.debug('Successfully called Ebay finding API.')
         elif resp_dict['ack'] in ['Warning', 'PartialFailure']:
             logging.warning('Ebay finding API returned warning.')
-            sio = io.StringIO()
-            pprint(resp_dict, sio)
-            logging.debug(sio.getvalue())
+            logging.debug(pformat(resp_dict))
         else:
             logging.error('Ebay finding API returned error.')
-            sio = io.StringIO()
-            pprint(resp_dict, sio)
-            logging.debug(sio.getvalue())
+            logging.debug(pformat(resp_dict))
             raise EbayError('Ebay finding API returned error.')
         
         return resp_dict
@@ -285,58 +278,50 @@ class EbayFindingAPIConnector(object):
                 listings.loc[i, 'id_site'] = eb_id
                 listings.loc[i, 'title'] = item['title']
                 listings.loc[i, 'item_url'] = item['viewItemURL']
-                
-                "https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html"
+                # https://developer.ebay.com/devzone/finding/CallRef/Enums/conditionIdList.html
                 listings.loc[i, 'condition'] = self.convert_condition(item['condition']['conditionId'])
-                
                 listings.loc[i, 'time'] = pd.Timestamp(item['listingInfo']['endTime']).to_datetime64()
-#                 eb_start_time = item['listingInfo']['startTime']
-                
-                "https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html"
-                ltype = self.convert_listing_type(item['listingInfo']['listingType'])
-                listings.loc[i, 'type'] = ltype
-                if ltype in ['fixed-price', 'classified']:
-                    listings.loc[i, 'is_real'] = True
-                else:
-                    listings.loc[i, 'is_real'] = False
-    
-                "https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html"
-                listings.loc[i, 'status'] = self.convert_selling_state(item['sellingStatus']['sellingState'])
-
-                "String describing location. For example: 'Pensacola,FL,USA'."
+                # String describing location. For example: 'Pensacola,FL,USA'.
                 listings.loc[i, 'location'] = item['location']
-                
-                """
-                ISO currency codes. https://en.wikipedia.org/wiki/ISO_4217
-                EUR     Euro. 
-                GBP     British Pound. 
-                USD     US Dollar. 
-                """
-                eb_item_currency = item['sellingStatus']['convertedCurrentPrice']['_currencyId']
-                listings.loc[i, 'currency'] = eb_item_currency
+                # ISO currency codes. https://en.wikipedia.org/wiki/ISO_4217
+                # EUR: Euro; GBP: British Pound; USD: US Dollar. 
+                listings.loc[i, 'currency'] = item_currency = item['sellingStatus']['convertedCurrentPrice']['_currencyId']
                 listings.loc[i, 'price'] = item['sellingStatus']['convertedCurrentPrice']['value']
-
                 try:
-                    """
-                    https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-                    List of country codes, to which the item can be delivered. For example: 
-                    ['US', 'CA', 'GB', 'AU', 'NO'] or 'Worldwide' or 'US'.
-                    """
+                    # https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+                    # List of country codes, to which the item can be delivered. For example: 
+                    # ['US', 'CA', 'GB', 'AU', 'NO'] or 'Worldwide' or 'US'.
                     listings.loc[i, 'shipping_locations'] = to_str_list(item['shippingInfo']['shipToLocations'])
-                    
                     eb_shipping_currency = item['shippingInfo']['shippingServiceCost']['_currencyId']
-                    assert eb_shipping_currency == eb_item_currency, \
+                    assert eb_shipping_currency == item_currency, \
                             'Prices in a listing must be of the same currency.'
-        
                     listings.loc[i, 'shipping_price'] = item['shippingInfo']['shippingServiceCost']['value']
                 except KeyError as err:
                     logging.debug('Missing field in "shippingInfo": ' + str(err))
 
+                # https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
+                listings.loc[i, 'type'] = ltype = self.convert_listing_type(item['listingInfo']['listingType'])
+                # https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html
+                sstate_raw = item['sellingStatus']['sellingState']
+                listings.loc[i, 'status'] = sstate = self.convert_selling_state(sstate_raw)
+
+                if ltype in ['fixed-price', 'classified']:
+                    listings.loc[i, 'is_real'] = True
+                elif ltype == 'auction' and sstate == 'ended':
+                    listings.loc[i, 'is_real'] = True
+                else:
+                    listings.loc[i, 'is_real'] = False
+                
+                if sstate_raw == 'EndedWithSales':
+                    listings.loc[i, 'is_sold'] = True
+                elif sstate_raw == 'EndedWithoutSales':
+                    listings.loc[i, 'is_sold'] = False
+                else:
+                    listings.loc[i, 'is_sold'] = None
+
             except (KeyError, AssertionError) as err:
                 logging.error('Error while parsing Ebay find result: ' + repr(err))
-                sio = io.StringIO()
-                pprint(item, sio)
-                logging.debug(sio.getvalue())
+                logging.debug(pformat(item))
 
         listings['site'] = self.ebay_name
         return listings
@@ -574,14 +559,10 @@ class EbayShoppingAPIConnector(object):
             logging.debug('Successfully called Ebay shopping API.')
         elif resp_dict['Ack'] in ['Warning', 'PartialFailure']:
             logging.warning('Ebay shopping API returned warning.')
-            sio = io.StringIO()
-            pprint(resp_dict['Errors'], sio)
-            logging.debug(sio.getvalue())
+            logging.debug(pformat(resp_dict['Errors']))
         else:
             logging.error('Ebay shopping API returned error.')
-            sio = io.StringIO()
-            pprint(resp_dict, sio)
-            logging.debug(sio.getvalue())
+            logging.debug(pformat(resp_dict))
             raise EbayError('Ebay shopping API returned error.')
         
         return resp_dict
@@ -655,9 +636,7 @@ class EbayShoppingAPIConnector(object):
 
             except (KeyError, AssertionError) as err:
                 logging.error('Error while parsing Ebay shopping API result: ' + repr(err))
-                sio = io.StringIO()
-                pprint(item, sio)
-                logging.debug(sio.getvalue())
+                logging.debug(pformat(item))
 
         listings['site'] = self.ebay_name
         

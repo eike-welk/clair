@@ -21,13 +21,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Put module description here.
+Test getting listings from Ebay through its API.
 """
 
 #import pytest #contains `skip`, `fail`, `raises`, `config`
 
 from os.path import join, dirname, abspath
-# import pandas as pd
 
 import logging
 import time
@@ -49,7 +48,7 @@ def relative(*paths):
 def test_EbayConnector_find_listings():
     """Test finding listings by keyword through the high level interface."""
     print('Start')
-    from clair.network import EbayConnector
+    from clair.get_ebay import EbayConnector
     
     n = 5
     ebc = EbayConnector(relative("../ebay-sdk.apikey"))
@@ -65,7 +64,7 @@ def test_EbayConnector_find_listings():
 
 def test_EbayConnector_update_listings():
     """Test finding listings by keyword through the high level interface."""
-    from clair.network import EbayConnector
+    from clair.get_ebay import EbayConnector
     
     n = 35
     c = EbayConnector(relative("../ebay-sdk.apikey"))
@@ -86,7 +85,7 @@ def test_EbayConnector_update_listings():
 
     assert 0.95 * n <= len(listings) <= n #Duplicates are removed
     #TODO: Test that descriptions are not none
-   
+ 
 
 if __name__ == '__main__':
 #     test_EbayConnector_find_listings()
