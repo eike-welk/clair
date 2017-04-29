@@ -52,3 +52,7 @@ nosetests.xml
 #test data
 test-tmp/
 #test-data1/
+
+#The Sqlite database of auto generated Django sites.
+src/clairweb/db.sqlite3
+
