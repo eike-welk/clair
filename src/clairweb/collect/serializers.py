@@ -1,27 +1,16 @@
-#from .models import Listing, Product, Price
-#from rest_framework import serializers
-#
-#
-#class ListingSerializer(serializers.HyperlinkedModelSerializer):
-#    class Meta:
-#        model = Listing
-#        fields = (
-#            'id', 'site', 'id_site', 
-#            'title', 'description', 'prod_spec', 'condition', 
-#            'time', 'currency', 'price', 'shipping_price', 'is_real', 'is_sold',
-#            'location', 'shipping_locations', 'seller', 'buyer', 'item_url', 
-#            'status', 'listing_type',)
-#
-#class ProductSerializer(serializers.HyperlinkedModelSerializer):
-#    class Meta:
-#        model = Product
-#        fields = ('id', 'name', 'important_words', 'categories', 'description',
-#                  'description_url1', 'description_url2',)
-#
-#class PriceSerializer(serializers.HyperlinkedModelSerializer):
-#    class Meta:
-#        model = Price
-#        fields = ('id', 'price', 'currency', 'condition', 'time', 'product', 
-#                  'listing', 'price_type', 'is_sold', 'avg_period', 
-#                  'avg_num_listings',)
-#
+from .models import SearchTask, Event
+from rest_framework import serializers
+
+
+class SearchTaskSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = SearchTask
+        fields = (
+            'id', 'recurrence', 'server', 'product', 'query_string', 
+            'n_listings', 'price_min', 'price_max', 'currency',)
+
+class EventSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Event
+        fields = ('id', 'due_time', 'listing', 'search_task',)
+

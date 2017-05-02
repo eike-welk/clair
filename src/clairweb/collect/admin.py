@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import SearchTask, Event
+
+
+admin.site.register(SearchTask)
+admin.site.register(Event)
