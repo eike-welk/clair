@@ -28,10 +28,10 @@ application's important data in 2D tables.
 import numpy as np
 import pandas as pd
 
-from clair.descriptors import BoolD, IntD, FloatD, DateTimeD, \
+from libclair.descriptors import BoolD, IntD, FloatD, DateTimeD, \
                               FieldDescriptor, TableDescriptor
 
-from clair.coredata import LISTING_DESCRIPTOR, PRICE_DESCRIPTOR
+from libclair.coredata import LISTING_DESCRIPTOR, PRICE_DESCRIPTOR
 
 
 

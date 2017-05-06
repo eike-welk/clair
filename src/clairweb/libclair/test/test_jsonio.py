@@ -55,10 +55,10 @@ def relative(*path_comps):
 # The tests -------------------------------------------------------------------
 def test_JsonWriter__convert_frame_to_dict():
     print('Start:')
-    from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
+    from libclair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
-    from clair.dataframes import make_data_frame
-    from clair.jsonio import JsonReadWriter
+    from libclair.dataframes import make_data_frame
+    from libclair.jsonio import JsonReadWriter
     
     #Create regular dataframe
     desc = TableDescriptor(
@@ -95,9 +95,9 @@ def test_JsonWriter__convert_frame_to_dict():
     
 def test_JsonWriter__convert_dict_to_frame():
     print('Start:')
-    from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
+    from libclair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
-    from clair.jsonio import JsonReadWriter
+    from libclair.jsonio import JsonReadWriter
     
     #Create regular dataframe
     desc = TableDescriptor(
@@ -134,10 +134,10 @@ def test_JsonWriter__convert_dict_to_frame():
 
 def test_JsonWriter_dump_load():
     print('Start:')
-    from clair.descriptors import TableDescriptor, FieldDescriptor as FD, \
+    from libclair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
-    from clair.dataframes import make_data_frame
-    from clair.jsonio import JsonReadWriter
+    from libclair.dataframes import make_data_frame
+    from libclair.jsonio import JsonReadWriter
     
     #Create regular dataframe
     desc = TableDescriptor(
@@ -165,7 +165,7 @@ def test_JsonWriter_dump_load():
     assert_frame_equal(frame, frame1)
     
     # Read and write the frame to a file
-    file_name = relative('../../test-tmp', 'test_JsonWriter_dump_load.json')
+    file_name = relative('../../../../test-tmp', 'test_JsonWriter_dump_load.json')
     try: os.remove(file_name) 
     except: pass
     

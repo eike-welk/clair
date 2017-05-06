@@ -48,8 +48,8 @@ import logging
 import json
 import pandas as pd
 
-from clair.descriptors import TableDescriptor, DateTimeD
-from clair.dataframes import make_data_series
+from libclair.descriptors import TableDescriptor, DateTimeD
+from libclair.dataframes import make_data_series
 
 
 class JsonReadWriter(object):

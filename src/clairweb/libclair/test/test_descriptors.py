@@ -47,7 +47,7 @@ def test_TypeTag_s():
     print("Start")
     from numpy import nan           #IGNORE:E0611
     from datetime import datetime
-    from clair.descriptors import \
+    from libclair.descriptors import \
         NoneD, StrD, IntD, FloatD, DateTimeD, SumTypeD, ListD, DictD
 
     assert NoneD.is_py_instance(None)
@@ -88,7 +88,7 @@ def test_TypeTag_s():
 
 def test_FieldDescriptor():
     print("Start")
-    from clair.descriptors import FieldDescriptor, IntD
+    from libclair.descriptors import FieldDescriptor, IntD
     
     FieldDescriptor("foo", IntD, 1, "A foo integer.")
     FieldDescriptor("foo", IntD, None, "A foo integer or None.")
@@ -96,7 +96,7 @@ def test_FieldDescriptor():
 
 def test_TableDescriptor():
     print("Start")
-    from clair.descriptors import TableDescriptor, FieldDescriptor, IntD
+    from libclair.descriptors import TableDescriptor, FieldDescriptor, IntD
 
     F = FieldDescriptor
     TableDescriptor("foo_table", "1.0", "fot", "A table of foo elements",
