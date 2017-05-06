@@ -37,7 +37,7 @@ from ebaysdk.finding import Connection as FConnection
 from ebaysdk.shopping import Connection as SConnection
 from ebaysdk.exception import ConnectionError
 
-from clair.dataframes import make_listing_frame
+from libclair.dataframes import make_listing_frame
 
 
 

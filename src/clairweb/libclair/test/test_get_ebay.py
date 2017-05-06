@@ -48,10 +48,10 @@ def relative(*paths):
 def test_EbayConnector_find_listings():
     """Test finding listings by keyword through the high level interface."""
     print('Start')
-    from clair.get_ebay import EbayConnector
+    from libclair.get_ebay import EbayConnector
     
     n = 5
-    ebc = EbayConnector(relative("../ebay-sdk.apikey"))
+    ebc = EbayConnector(relative("../../ebay-sdk.apikey"))
     listings = ebc.find_listings(keywords="Nikon D90", n_listings=n, 
                                  ebay_site='EBAY-US', 
                                  price_min=100, price_max=500, currency="EUR")
@@ -64,10 +64,10 @@ def test_EbayConnector_find_listings():
 
 def test_EbayConnector_update_listings():
     """Test finding listings by keyword through the high level interface."""
-    from clair.get_ebay import EbayConnector
+    from libclair.get_ebay import EbayConnector
     
     n = 35
-    c = EbayConnector(relative("../ebay-sdk.apikey"))
+    c = EbayConnector(relative("../../ebay-sdk.apikey"))
     listings = c.find_listings(keywords="Nikon D90", 
                                n_listings=n, ebay_site='EBAY-US',
                                price_min=100, price_max=500, currency="EUR")

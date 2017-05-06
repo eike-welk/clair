@@ -45,7 +45,7 @@ Test module ``coredata``, which contains definitions of central data structures.
 
 def test_import():
     print('Start...')
-    from clair.coredata import (LISTING_DESCRIPTOR, PRICE_DESCRIPTOR, 
+    from libclair.coredata import (LISTING_DESCRIPTOR, PRICE_DESCRIPTOR, 
                                 PRODUCT_DESCRIPTOR, SEARCH_TASK_DESCRIPTOR, 
                                 UPDATE_TASK_DESCRIPTOR)
     

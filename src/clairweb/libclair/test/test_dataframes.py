@@ -51,7 +51,7 @@ def make_test_listings():
     Contains 3 listings: 
     row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
     """
-    from clair.dataframes import make_listing_frame
+    from libclair.dataframes import make_listing_frame
     
     fr = make_listing_frame(3)
     #All listings need unique ids
@@ -125,7 +125,7 @@ def assert_frames_equal(fr1, fr2):
 
 #def test_make_price_frame():
 #    "Test creation of a empty data frame of prices."
-#    from clair.coredata import PriceConstants, make_price_frame
+#    from libclair.coredata import PriceConstants, make_price_frame
 #    print "start"
 #    
 #    prices = make_price_frame(5)
@@ -153,9 +153,9 @@ def assert_frames_equal(fr1, fr2):
 
 def test_make_data_series():
     print("Start")
-    from clair.descriptors import (StrD, IntD, FloatD, BoolD, DateTimeD, 
+    from libclair.descriptors import (StrD, IntD, FloatD, BoolD, DateTimeD, 
                                    ListD, DictD, FieldDescriptor)
-    from clair.dataframes import make_data_series
+    from libclair.dataframes import make_data_series
 
     fd = FieldDescriptor("foo", FloatD, None, "foo data")
     s = make_data_series(fd, 3)
@@ -208,8 +208,8 @@ def test_make_data_series():
     
 def test_make_data_frame():
     print("Start")
-    from clair.descriptors import StrD, FloatD, FieldDescriptor, TableDescriptor
-    from clair.dataframes import make_data_frame
+    from libclair.descriptors import StrD, FloatD, FieldDescriptor, TableDescriptor
+    from libclair.dataframes import make_data_frame
 
     FD = FieldDescriptor
     td = TableDescriptor("foo-table", "1.0", "foot", 
@@ -230,7 +230,7 @@ def test_make_data_frame():
 
 def test_make_listing_frame():
     print("Start")
-    from clair.dataframes import make_listing_frame
+    from libclair.dataframes import make_listing_frame
     
     lf = make_listing_frame(10)
     assert len(lf.index) == 10

@@ -25,7 +25,7 @@ Central data structures and basic operations on them.
 """
 
 
-from clair.descriptors import (
+from libclair.descriptors import (
                     BoolD, StrD, IntD, FloatD, DateTimeD, 
                     ListD, # DictD,
                     FieldDescriptor as FD, TableDescriptor)
