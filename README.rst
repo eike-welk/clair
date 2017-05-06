@@ -51,8 +51,7 @@ Clair needs fairly many libraries to function:
 
 **Django REST framework**
     An extension for Django to create an API, so that other programs can easily
-    communicate with the server. Intended for communication between server and 
-    GUI, which is planned to be written in Javascript.
+    communicate with the server.
     http://www.django-rest-framework.org/
 
 To communicate with Ebay over its API, you need an *Ebay developer key*, which 
