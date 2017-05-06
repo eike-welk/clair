@@ -53,11 +53,16 @@ Clair needs fairly many libraries to function:
     An extension for Django to create an API, so that other programs can easily
     communicate with the server. Intended for communication between server and 
     GUI, which is planned to be written in Javascript.
+    http://www.django-rest-framework.org/
 
 To communicate with Ebay over its API, you need an *Ebay developer key*, which 
 can be easily obtained through Ebay's developer website:
 
     https://go.developer.ebay.com/developers/ebay
+
+Some information from your Ebay developer keys must be filled into the file
+``src/clairweb/ebay-sdk.apikey.example``. The file must then be renamed into 
+``src/clairweb/ebay-sdk.apikey``.
 
 There is currently no installation script, the applications must be run in the
 source directory (``src/clairweb``). The server is started with::
@@ -65,8 +70,4 @@ source directory (``src/clairweb``). The server is started with::
     python3 manage.py runserver
 
 There is example data in the directory ``example-data/``.
-
-Some information from your Ebay developer keys must be filled into the file
-``src/clairweb/ebay-sdk.apikey.example``. The file must then be renamed into 
-``src/clairweb/ebay-sdk.apikey``.
 
