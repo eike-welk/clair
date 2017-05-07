@@ -20,6 +20,7 @@
 #    You should have received a copy of the GNU General Public License        #
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
+from django.template.defaultfilters import default
 """
 Test module ``dataframes``, which contains definitions of the the 
 ``pandas.DataFrame`` objects that store the application's important data in 2D
@@ -31,67 +32,66 @@ tables.
 
 from numpy import isnan #, nan #IGNORE:E0611
 #from pandas.util.testing import assert_frame_equal
-from datetime import datetime
+# from datetime import datetime
 import pandas as pd
 
-#import time
-#import logging
-#from logging import info
-#logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
-#                    level=logging.DEBUG)
-##Time stamps must be in UTC
-#logging.Formatter.converter = time.gmtime
+# import time
+# import logging
+# logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
+#                     level=logging.DEBUG)
+# #Time stamps must be in UTC
+# logging.Formatter.converter = time.gmtime
 
 
-
-def make_test_listings():
-    """
-    Create a DataFrame with some data.
-    
-    Contains 3 listings: 
-    row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
-    """
-    from libclair.dataframes import make_listing_frame
-    
-    fr = make_listing_frame(3)
-    #All listings need unique ids
-    fr["id"] = ["eb-123", "eb-456", "eb-457"]
-    
-    fr.ix[0, "training_sample"] = True 
-    fr.ix[0, "search_tasks"] = ["s-nikon-d90"]
-#    fr.ix[0, "query_string"] = "Nikon D90"
-
-    fr.set_value(0, "expected_products", ["nikon-d90", "nikon-sb-24"])
-    fr.ix[0, "products"] = ["nikon-d90"]
-    fr.ix[0, "products_absent"] = ["nikon-sb-24"]
-    
-    fr.ix[0, "thumbnail"] = "www.some.site/dir/to/thumb.pg"
-    fr.ix[0, "image"] = "www.some.site/dir/to/img.pg"
-    fr["title"] = ["Nikon D90 super duper!", "<>müäh", None]
-    fr.ix[0, "description"] = "Buy my old Nikon D90 camera <b>now</b>!"
-    fr.set_value(0, "prod_spec", {"Marke":"Nikon", "Modell":"D90"})
-    fr.ix[0, "active"] = False
-    fr.ix[0, "sold"] = False
-    fr.ix[0, "currency"] = "EUR"
-    fr.ix[0, "price"]    = 400.
-    fr.ix[0, "shipping"] = 12.
-    fr.ix[0, "type"] = "auction"
-    fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
-    fr.ix[0, "location"] = "Köln"
-    fr.ix[0, "postcode"] = "50667"
-    fr.ix[0, "country"] = "DE"
-    fr.ix[0, "condition"] = 0.7
-    fr.ix[0, "server"] = "Ebay-Germany"
-    fr.ix[0, "server_id"] = "123" #ID of listing on server
-    fr.ix[0, "final_price"] = True
-#    fr["data_directory"] = ""
-    fr.ix[0, "url_webui"] = "www.some.site/dir/to/web-page.html"
-#     fr.ix[0, "server_repr"] = nan
-    #Put our IDs into index
-    fr.set_index("id", drop=False, inplace=True, 
-                 verify_integrity=True)
-#    print fr
-    return fr
+ 
+# def make_test_listings():
+#     """
+#     Create a DataFrame with some data.
+#     
+#     Contains 3 listings: 
+#     row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
+#     """
+#     from libclair.dataframes import make_listing_frame
+#     
+#     fr = make_listing_frame(3)
+#     #All listings need unique ids
+#     fr["id"] = ["eb-123", "eb-456", "eb-457"]
+#     
+#     fr.ix[0, "training_sample"] = True 
+#     fr.ix[0, "search_tasks"] = ["s-nikon-d90"]
+# #    fr.ix[0, "query_string"] = "Nikon D90"
+# 
+#     fr.set_value(0, "expected_products", ["nikon-d90", "nikon-sb-24"])
+#     fr.ix[0, "products"] = ["nikon-d90"]
+#     fr.ix[0, "products_absent"] = ["nikon-sb-24"]
+#     
+#     fr.ix[0, "thumbnail"] = "www.some.site/dir/to/thumb.pg"
+#     fr.ix[0, "image"] = "www.some.site/dir/to/img.pg"
+#     fr["title"] = ["Nikon D90 super duper!", "<>müäh", None]
+#     fr.ix[0, "description"] = "Buy my old Nikon D90 camera <b>now</b>!"
+#     fr.set_value(0, "prod_spec", {"Marke":"Nikon", "Modell":"D90"})
+#     fr.ix[0, "active"] = False
+#     fr.ix[0, "sold"] = False
+#     fr.ix[0, "currency"] = "EUR"
+#     fr.ix[0, "price"]    = 400.
+#     fr.ix[0, "shipping"] = 12.
+#     fr.ix[0, "type"] = "auction"
+#     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
+#     fr.ix[0, "location"] = "Köln"
+#     fr.ix[0, "postcode"] = "50667"
+#     fr.ix[0, "country"] = "DE"
+#     fr.ix[0, "condition"] = 0.7
+#     fr.ix[0, "server"] = "Ebay-Germany"
+#     fr.ix[0, "server_id"] = "123" #ID of listing on server
+#     fr.ix[0, "final_price"] = True
+# #    fr["data_directory"] = ""
+#     fr.ix[0, "url_webui"] = "www.some.site/dir/to/web-page.html"
+# #     fr.ix[0, "server_repr"] = nan
+#     #Put our IDs into index
+#     fr.set_index("id", drop=False, inplace=True, 
+#                  verify_integrity=True)
+# #    print fr
+#     return fr
 
     
 def assert_frames_equal(fr1, fr2):
@@ -151,10 +151,15 @@ def assert_frames_equal(fr1, fr2):
 #    print "Finished"
     
 
-def test_make_data_series():
+def test_make_data_series_1():
+    """
+    Create a data series using a ``libclair.descriptors.FieldDescriptor`` 
+    to describe the data type.
+    """
     print("Start")
+    from django.db import models
     from libclair.descriptors import (StrD, IntD, FloatD, BoolD, DateTimeD, 
-                                   ListD, DictD, FieldDescriptor)
+                                   ListD, FieldDescriptor)
     from libclair.dataframes import make_data_series
 
     fd = FieldDescriptor("foo", FloatD, None, "foo data")
@@ -204,8 +209,58 @@ def test_make_data_series():
     assert len(s) == 3
     assert isnan(s[0])
     assert s[1] == ["foo", "bar"]
+
+
+def test_make_data_series_2():
+    """
+    Create a data series using a ``django.db.models.Field`` 
+    to describe the data type.
+    """
+    print("Start")
+    from django.db import models
+    from libclair.dataframes import make_data_series
+
+    fd = models.FloatField("foo data")
+    s = make_data_series(fd, 3)
+    s[1] = 1.4
+    print(s)
+    assert len(s) == 3 
+    assert isnan(s[0])
+    assert s[1] == 1.4
     
+    fd = models.FloatField("foo data", default=0.)
+    s = make_data_series(fd, 3)
+    s[1] = 4.2
+    print(s)
+    assert len(s) == 3
+    assert s[0] == 0
+    assert s[1] == 4.2
+
+    fd = models.IntegerField("foo data")
+    s = make_data_series(fd, 4)
+    s[1] = 23
+    print(s)
+    assert len(s) == 4
+    assert isnan(s[0])
+    assert s[1] == 23
     
+    fd = models.NullBooleanField("foo data")
+    s = make_data_series(fd, 3)
+    s[1] = True
+    print(s)
+    assert len(s) == 3
+    assert isnan(s[0])
+    assert s[1] == True
+
+    fd = models.DateTimeField("foo data")
+    s = make_data_series(fd, 3)
+    s[1] = pd.Timestamp('2001-01-23 12:30:00')
+    print(s)
+    assert len(s) == 3
+#     assert isnan(s[0])
+    assert s[1] == pd.Timestamp('2001-01-23 12:30:00')
+
+
 def test_make_data_frame():
     print("Start")
     from libclair.descriptors import StrD, FloatD, FieldDescriptor, TableDescriptor
@@ -228,16 +283,17 @@ def test_make_data_frame():
     assert df.at[2, "bar"] == "a"
 
 
-def test_make_listing_frame():
-    print("Start")
-    from libclair.dataframes import make_listing_frame
-    
-    lf = make_listing_frame(10)
-    assert len(lf.index) == 10
+# def test_make_listing_frame():
+#     print("Start")
+#     from libclair.dataframes import make_listing_frame
+#     
+#     lf = make_listing_frame(10)
+#     assert len(lf.index) == 10
 
 
 if __name__ == "__main__":
-    test_make_data_series()
+    test_make_data_series_1()
+    test_make_data_series_2()
 #     test_make_data_frame()
     
     pass #IGNORE:W0107
