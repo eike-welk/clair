@@ -32,6 +32,47 @@ from django.db import models
 from libclair import descriptors 
 
 
+
+def convert_model_to_descriptor(dj_model):
+    """
+    Convert a Django database model into an equivalent Clair descriptor.
+    """
+    assert issubclass(dj_model, models.Model)
+    
+    dj_fields = dj_model._meta.get_fields()
+    fields = [_convert_field_to_descriptor(f) for f in dj_fields
+              if f.auto_created == False]
+
+    return descriptors.TableDescriptor(dj_model.__name__, 
+                                       '0', 
+                                       dj_model.__name__ + '.json', 
+                                       dj_model.__doc__ if dj_model.__doc__ is not None else '', 
+                                       fields)
+
+def _convert_field_to_descriptor(dj_field):
+    """
+    Convert a Django database dj_field to an equivalent Clair descriptor.
+    """
+    assert isinstance(dj_field, models.Field)
+    
+    type_trans = {
+        models.CharField: descriptors.StrD,
+        models.FloatField: descriptors.FloatD,
+        models.IntegerField: descriptors.IntD,
+        models.BooleanField: descriptors.BoolD,
+        models.NullBooleanField: descriptors.BoolD,
+        models.DateField: descriptors.DateTimeD,
+        models.DateTimeField: descriptors.DateTimeD,
+        }
+    
+    cl_type = type_trans[type(dj_field)]
+    print(dj_field.name)
+    return descriptors.FieldDescriptor(str(dj_field.name), 
+                                       cl_type, 
+                                       dj_field.get_default(), 
+                                       dj_field.verbose_name)
+
+
 def make_data_series(descr, nrows=None, index=None):
     """
     Create an empty ``pandas.Series``. 
@@ -55,24 +96,15 @@ def make_data_series(descr, nrows=None, index=None):
     assert isinstance(descr, (descriptors.FieldDescriptor, models.Field))
     assert nrows is not None or index is not None, \
            "Either ``nrows`` or ``index`` must be specified."
+
+    if isinstance(descr, models.Field):
+        descr = _convert_field_to_descriptor(descr)
     
     #Create the index if it is not given.
     if index is None:
         index=list(range(nrows))
     if nrows is not None:
         assert nrows == len(index), "Inconsistent arguments"
-
-    if isinstance(descr, descriptors.FieldDescriptor):
-        return _make_data_series_from_descriptor(descr, index)
-    else:
-        return _make_data_series_from_model(descr, index)
-
-def _make_data_series_from_descriptor(descr, index):
-    """
-    Create an empty ``pandas.Series``. 
-    The data type is specified by a ``libclair.descriptors.FieldDescriptor``.
-    """
-    assert isinstance(descr, descriptors.FieldDescriptor)
 
     default_val = descr.default_val
     
@@ -90,45 +122,6 @@ def _make_data_series_from_descriptor(descr, index):
         dtype = object
     return pd.Series(data=default_val, index=index, dtype=dtype)
 
-def _make_data_series_from_model(descr, index):
-    """
-    Create an empty ``pandas.Series``. 
-    The data type is specified by a ``django.db.models.Field``.
-    """
-    assert isinstance(descr, models.Field)
-
-    default_val = descr.get_default()
-    
-    if isinstance(descr, (models.DateField, models.DateTimeField)):
-        temp = pd.Series(data=default_val, index=index, dtype=pd.Timestamp)
-        return pd.to_datetime(temp)
-        
-    if   isinstance(descr, models.IntegerField):
-        dtype = np.int32
-    elif isinstance(descr, models.FloatField):
-        dtype = np.float64
-    else:
-        dtype = object
-    return pd.Series(data=default_val, index=index, dtype=dtype)
-    
- 
-def get_descriptor_fields(descr):
-    """
-    Return a list of fields (columns), that are in a ``TableDescriptor`` or
-    database model.
-    """
-    assert isinstance(descr, descriptors.TableDescriptor) or \
-           issubclass(descr, models.Model)
-    
-    if isinstance(descr, descriptors.TableDescriptor):
-        return descr.column_descriptors
-    else:
-        fields = descr._meta.get_fields() 
-        fields_filt = [f for f in fields if f.auto_created == False]
-#         print(fields)
-#         print(fields_filt)
-        return fields_filt
-     
 
 def make_data_frame(descr, nrows=None, index=None):
     """
@@ -161,6 +154,9 @@ def make_data_frame(descr, nrows=None, index=None):
            issubclass(descr, models.Model)
     assert nrows is not None or index is not None, \
            "Either ``nrows`` or ``index`` must be specified."
+    
+    if isinstance(descr, type) and issubclass(descr, models.Model):
+        descr = convert_model_to_descriptor(descr)
            
     if index is None:
         index=list(range(nrows))
@@ -168,7 +164,7 @@ def make_data_frame(descr, nrows=None, index=None):
         assert nrows == len(index), "Inconsistent arguments"
     
     dframe = pd.DataFrame(index=index)
-    for fieldD in get_descriptor_fields(descr):
+    for fieldD in descr.column_descriptors:
         col = make_data_series(fieldD, index=index)
         dframe[fieldD.name] = col
         

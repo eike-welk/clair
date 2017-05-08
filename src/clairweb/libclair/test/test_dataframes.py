@@ -234,11 +234,57 @@ def test_make_data_frame_2():
     assert df.at[2, "bar"] == "a"
 
 
+def test_convert_model_to_descriptor():
+    print("Start")
+    import django
+    from django.db import models
+    from libclair.dataframes import convert_model_to_descriptor
+    from libclair.descriptors import TableDescriptor, FieldDescriptor, \
+                                     FloatD, StrD
+    
+    #One can't create models without this
+    django.setup()
+
+    class TestM(models.Model):
+        "A test model"
+        foo = models.FloatField("foo data")
+        bar = models.CharField("bar data", max_length=64, 
+                               blank=True, default='')
+        #Concrete models must be inside Django-Apps, 
+        #therefore this model is abstract.
+        class Meta:
+            abstract = True
+#             app_label = "foo_app"
+
+    td = convert_model_to_descriptor(TestM)
+    print(td)
+    
+    assert isinstance(td, TableDescriptor)
+    assert td.name == 'TestM'
+    assert td.comment == 'A test model'
+    assert len(td.column_descriptors) == 2
+
+    fd = td.column_descriptors[0]
+    assert isinstance(fd, FieldDescriptor)
+    assert fd.name == 'foo'
+    assert fd.data_type is FloatD
+    assert fd.default_val == None
+    assert fd.comment == 'foo data'
+
+    fd = td.column_descriptors[1]
+    assert isinstance(fd, FieldDescriptor)
+    assert fd.name == 'bar'
+    assert fd.data_type is StrD
+    assert fd.default_val == ''
+    assert fd.comment == 'bar data'
+
+
 
 if __name__ == "__main__":
     test_make_data_series_1()
     test_make_data_series_2()
     test_make_data_frame_1()
     test_make_data_frame_2()
+    test_convert_model_to_descriptor()
     
     pass #IGNORE:W0107
