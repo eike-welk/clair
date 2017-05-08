@@ -21,8 +21,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Functions that create the ``pandas.DataFrame`` objects that store the 
-application's important data in 2D tables.
+Functions that create ``pandas.DataFrame`` objects.
+
+A ``DataFrame`` is a 2-dimensional table.  Each column has a *name* and each row
+has an *index*. The elements of a column all have the same data type. A row can
+contain elements of diffentent types.
+
+A ``DataFrame`` can repesent a table from the database in the comuter's RAM.
+Algorithms that involve multiple rows of a table are implemented with
+``DataFrame`` objects.
 """
 
 import numpy as np
@@ -66,7 +73,6 @@ def _convert_field_to_descriptor(dj_field):
         }
     
     cl_type = type_trans[type(dj_field)]
-    print(dj_field.name)
     return descriptors.FieldDescriptor(str(dj_field.name), 
                                        cl_type, 
                                        dj_field.get_default(), 
