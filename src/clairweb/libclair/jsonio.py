@@ -47,9 +47,10 @@ that can be used for all file formats.
 import logging
 import json
 import pandas as pd
+from django.db import models
 
 from libclair.descriptors import TableDescriptor, DateTimeD
-from libclair.dataframes import make_data_series
+from libclair.dataframes import make_data_series, convert_model_to_descriptor
 
 
 class JsonReadWriter(object):
@@ -62,11 +63,15 @@ class JsonReadWriter(object):
     TODO: Test if all columns in the  `DataFrame` have the right type.
     """
     def __init__(self, descriptor):
-        assert isinstance(descriptor, TableDescriptor)
+        assert isinstance(descriptor, TableDescriptor) or \
+               issubclass(descriptor, models.Model)
+    
+        if isinstance(descriptor, type) and issubclass(descriptor, models.Model):
+            descriptor = convert_model_to_descriptor(descriptor)
+
         self.descriptor = descriptor
         
     # The interface -----------------------------------------------------------
-    
     def dump(self, frame, file_object):
         """
         Write a `DataFrame` to a file object in JSON format.
@@ -76,7 +81,8 @@ class JsonReadWriter(object):
         """        
         assert isinstance(frame, pd.DataFrame)
         tmp_dict = self._convert_frame_to_dict(frame)
-        json.dump(tmp_dict, file_object, sort_keys=True, indent=2, ensure_ascii=False, check_circular=False)
+        json.dump(tmp_dict, file_object, sort_keys=True, indent=2, 
+                  ensure_ascii=False, check_circular=False)
         
     def load(self, file_object):
         """
@@ -88,6 +94,7 @@ class JsonReadWriter(object):
         tmp_dict = json.load(file_object)
         return self._convert_dict_to_frame(tmp_dict)
     
+    # Only implentation -----------------------------------------------------------
     def _convert_frame_to_dict(self, frame):
         """
         Convert a `DataFrame` to a nested `dict`.

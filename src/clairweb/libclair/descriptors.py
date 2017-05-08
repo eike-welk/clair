@@ -45,6 +45,9 @@ class SimpleTypeDescriptor(TypeDescriptor):
     def is_py_instance(self, object_):
         return isinstance(object_, self.pythonType)
 
+    def __repr__(self):
+        return "SimpleTypeDescriptor({ptype})".format(ptype=self.pythonType)
+
 
 NoneD = SimpleTypeDescriptor(type(None))
 StrD = SimpleTypeDescriptor(str)
@@ -132,6 +135,10 @@ class FieldDescriptor(object):
         self.data_type = data_type
         self.default_val = default_val
         self.comment = comment
+        
+    def __repr__(self):
+        return "FieldDescriptor('{name}', {dtype}, {default}, '{comment}')".format(
+            name=self.name, dtype=self.data_type, default=repr(self.default_val), comment=self.comment)
 
 
 class TableDescriptor(object):
@@ -165,3 +172,8 @@ class TableDescriptor(object):
                 "Column names must be unique in a table descriptor. Name: '" \
                 + descr.name + "' appears twice."
             names.add(descr.name)
+        
+    def __repr__(self):
+        return "TableDescriptor('{name}', '{version}', '{extension}', '{comment}', {column_descriptors})".format(
+            name=self.name, version=self.version, extension=self.extension, 
+            comment=self.comment, column_descriptors=repr(self.column_descriptors))

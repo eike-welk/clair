@@ -132,7 +132,7 @@ def test_JsonWriter__convert_dict_to_frame():
     assert fr['date'][2]  == pd.Timestamp('2002-02-02')
 
 
-def test_JsonWriter_dump_load():
+def test_JsonWriter_dump_load_1():
     print('Start:')
     from libclair.descriptors import TableDescriptor, FieldDescriptor as FD, \
                                   FloatD, StrD, DateTimeD
@@ -165,7 +165,7 @@ def test_JsonWriter_dump_load():
     assert_frame_equal(frame, frame1)
     
     # Read and write the frame to a file
-    file_name = relative('../../../../test-tmp', 'test_JsonWriter_dump_load.json')
+    file_name = relative('../../../../test-tmp', 'test_JsonWriter_dump_load_1.json')
     try: os.remove(file_name) 
     except: pass
     
@@ -179,10 +179,53 @@ def test_JsonWriter_dump_load():
     assert_frame_equal(frame, frame2)
 
 
+def test_JsonWriter_dump_load_2():
+    print('Start:')
+    import django
+    from django.db import models
+    
+    from libclair.dataframes import make_data_frame
+    from libclair.jsonio import JsonReadWriter
+    
+    #One can't create models without this
+    django.setup()
+
+    class TestM(models.Model):
+        'A simple table for testing.'
+        text = models.CharField("A text field.", max_length=64, 
+                               blank=True, default='')
+        num = models.FloatField('A numeric field.')
+        date = models.DateTimeField('A date and time field.')
+        #Concrete models must be inside Django-Apps, 
+        #therefore this model is abstract.
+        class Meta:
+            abstract = True
+#             app_label = "foo_app"
+
+    frame = make_data_frame(TestM, 3)
+    frame.iloc[0] = ['a-ä', 10, pd.Timestamp('2000-01-01')]
+    frame.iloc[1] = ['b-ö', 11, pd.Timestamp('2001-01-01')]
+    frame.iloc[2] = ['c-ü', None, pd.Timestamp('2002-02-02')]
+    print(frame)
+    
+    jsonrw = JsonReadWriter(TestM)
+    
+    # Read and write the Dataframe to a StringIO object.
+    fs = io.StringIO()
+    jsonrw.dump(frame, fs)
+    print(fs.getvalue())
+    fs.seek(0)
+    frame1 = jsonrw.load(fs)
+    print(frame1)
+    
+    assert_frame_equal(frame, frame1)
+    
+
         
 if __name__ == "__main__":
     test_JsonWriter__convert_frame_to_dict()
     test_JsonWriter__convert_dict_to_frame()
-    test_JsonWriter_dump_load()
+    test_JsonWriter_dump_load_1()
+    test_JsonWriter_dump_load_2()
     
     pass

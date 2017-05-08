@@ -21,56 +21,119 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
 """
-Functions that create the ``pandas.DataFrame`` objects that store the 
-application's important data in 2D tables.
+Functions that create ``pandas.DataFrame`` objects.
+
+A ``DataFrame`` is a 2-dimensional table.  Each column has a *name* and each row
+has an *index*. The elements of a column all have the same data type. A row can
+contain elements of diffentent types.
+
+A ``DataFrame`` can repesent a table from the database in the comuter's RAM.
+Algorithms that involve multiple rows of a table are implemented with
+``DataFrame`` objects.
 """
 
 import numpy as np
-import pandas as pd
+import pandas  as pd
+from django.db import models
 
-from libclair.descriptors import BoolD, IntD, FloatD, DateTimeD, \
-                              FieldDescriptor, TableDescriptor
-
-from libclair.coredata import LISTING_DESCRIPTOR, PRICE_DESCRIPTOR
+from libclair import descriptors 
 
 
 
-def make_data_series(descriptor, nrows=None, index=None):
+def convert_model_to_descriptor(dj_model):
     """
-    Create an empty ``pandas.Series``  as specified by ``descriptor``. 
+    Convert a Django database model into an equivalent Clair descriptor.
     """
-    assert isinstance(descriptor, FieldDescriptor)
+    assert issubclass(dj_model, models.Model)
+    
+    dj_fields = dj_model._meta.get_fields()
+    fields = [_convert_field_to_descriptor(f) for f in dj_fields
+              if f.auto_created == False]
+
+    return descriptors.TableDescriptor(dj_model.__name__, 
+                                       '0', 
+                                       dj_model.__name__ + '.json', 
+                                       dj_model.__doc__ if dj_model.__doc__ is not None else '', 
+                                       fields)
+
+def _convert_field_to_descriptor(dj_field):
+    """
+    Convert a Django database dj_field to an equivalent Clair descriptor.
+    """
+    assert isinstance(dj_field, models.Field)
+    
+    type_trans = {
+        models.CharField: descriptors.StrD,
+        models.FloatField: descriptors.FloatD,
+        models.IntegerField: descriptors.IntD,
+        models.BooleanField: descriptors.BoolD,
+        models.NullBooleanField: descriptors.BoolD,
+        models.DateField: descriptors.DateTimeD,
+        models.DateTimeField: descriptors.DateTimeD,
+        }
+    
+    cl_type = type_trans[type(dj_field)]
+    return descriptors.FieldDescriptor(str(dj_field.name), 
+                                       cl_type, 
+                                       dj_field.get_default(), 
+                                       dj_field.verbose_name)
+
+
+def make_data_series(descr, nrows=None, index=None):
+    """
+    Create an empty ``pandas.Series``. 
+    
+    Parameters
+    ----------
+    
+    descr: ``descriptors.FieldDescriptor``, ``models.Field``
+        Description of data type and default value
+        of the stored data.
+        
+    nrows: ``int``
+        Number of elements in the new ``pandas.Series`` object.
+        
+    index: ``list``, ``pandas.Index``
+        The index of the new series. Basically a list of primary keys.
+
+        If this argument is omitted or ``None``, a sequence of integers 
+        (``range(nrows)``) is used as index labels.
+    """
+    assert isinstance(descr, (descriptors.FieldDescriptor, models.Field))
     assert nrows is not None or index is not None, \
            "Either ``nrows`` or ``index`` must be specified."
+
+    if isinstance(descr, models.Field):
+        descr = _convert_field_to_descriptor(descr)
     
+    #Create the index if it is not given.
     if index is None:
         index=list(range(nrows))
     if nrows is not None:
         assert nrows == len(index), "Inconsistent arguments"
 
-    default_val = descriptor.default_val
+    default_val = descr.default_val
     
-    if descriptor.data_type == DateTimeD:
+    if descr.data_type == descriptors.DateTimeD:
         temp = pd.Series(data=default_val, index=index, dtype=pd.Timestamp)
         return pd.to_datetime(temp)
         
-    if   descriptor.data_type == BoolD:
+    if   descr.data_type == descriptors.BoolD:
         dtype = object
-    elif descriptor.data_type == IntD:
+    elif descr.data_type == descriptors.IntD:
         dtype = np.int32
-    elif descriptor.data_type == FloatD:
+    elif descr.data_type == descriptors.FloatD:
         dtype = np.float64
     else:
         dtype = object
-    
     return pd.Series(data=default_val, index=index, dtype=dtype)
-    
-    
-def make_data_frame(descriptor, nrows=None, index=None):
+
+
+def make_data_frame(descr, nrows=None, index=None):
     """
-    Create an empty ``pandas.DataFrame`` as specified by ``descriptor``. 
+    Create an empty ``pandas.DataFrame`` as specified by ``descr``. 
     
-    Column labels, data types, and default values are taken from ``descriptor``.
+    Column labels, data types, and default values are taken from ``descr``.
     The object contains no data, all values are ``nan`` or the column's 
     default values.
     
@@ -81,20 +144,25 @@ def make_data_frame(descriptor, nrows=None, index=None):
     Arguments
     ---------
     
-    descriptor : TableDescriptor
+    descr : TableDescriptor
         Contains column labels, data types, and default values.
         
     nrows : int 
         Number of rows.
         
     index : iterable 
-        The index labels of the new data frame. 
+        The index labels (primary keys) of the new data frame. 
+        
         If this argument is omitted or ``None``, a sequence of integers 
         (``range(nrows)``) is used as index labels.
     """
-    assert isinstance(descriptor, TableDescriptor)
+    assert isinstance(descr, descriptors.TableDescriptor) or \
+           issubclass(descr, models.Model)
     assert nrows is not None or index is not None, \
            "Either ``nrows`` or ``index`` must be specified."
+    
+    if isinstance(descr, type) and issubclass(descr, models.Model):
+        descr = convert_model_to_descriptor(descr)
            
     if index is None:
         index=list(range(nrows))
@@ -102,62 +170,11 @@ def make_data_frame(descriptor, nrows=None, index=None):
         assert nrows == len(index), "Inconsistent arguments"
     
     dframe = pd.DataFrame(index=index)
-    for fieldD in descriptor.column_descriptors:
+    for fieldD in descr.column_descriptors:
         col = make_data_series(fieldD, index=index)
         dframe[fieldD.name] = col
         
     return dframe
-
-
-def make_listing_frame(nrows=None, index=None):
-    """
-    Create empty ``pd.DataFrame`` of listings. 
-    
-    Each row represents a listing. The columns represent the listing's 
-    attributes. The object contains no data, all values are ``None`` or ``nan``.
-
-    Arguments
-    ---------
-    
-    nrows : int 
-        Number of listings/auctions. 
-        
-    index : iterable 
-        The index labels of the new data frame. 
-        If this argument is omitted or ``None``, a sequence of integers 
-        (``range(nrows)``) is used as index labels.
-    """
-    return make_data_frame(LISTING_DESCRIPTOR, nrows, index)
-
-def make_listing_id(listing):
-    """
-    Create unique ID string for a listing.
-    
-    Integrates the date into the ID, because Ebay recycles ID numbers for 
-    recurrent listings.
-    """
-    return listing["site"] + "-" + listing["date"] + "-" + listing["site_id"]
-
-
-def make_price_frame(nrows=None, index=None):
-    """
-    Create empty ``pd.DataFrame`` of prices. 
-    
-    Each row represents a price. The columns represent the price's 
-    attributes. The object contains no data, all values are ``None`` or ``nan``.
-
-    Arguments
-    ---------
-    
-    nrows : int 
-        Number of listings/auctions. 
-        
-    index : iterable 
-        The index labels of the new data frame. 
-        If this argument is omitted or ``None``, a sequence of integers 
-        (``range(nrows)``) is used as index labels.
-    """
-    return make_data_frame(PRICE_DESCRIPTOR, nrows, index)
 
 
 def make_price_id(price):
