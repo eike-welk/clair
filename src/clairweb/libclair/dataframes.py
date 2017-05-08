@@ -47,6 +47,10 @@ def make_data_series(descr, nrows=None, index=None):
         Number of elements in the new ``pandas.Series`` object.
         
     index: ``list``, ``pandas.Index``
+        The index of the new series. Basically a list of primary keys.
+
+        If this argument is omitted or ``None``, a sequence of integers 
+        (``range(nrows)``) is used as index labels.
     """
     assert isinstance(descr, (descriptors.FieldDescriptor, models.Field))
     assert nrows is not None or index is not None, \
@@ -60,13 +64,10 @@ def make_data_series(descr, nrows=None, index=None):
 
     if isinstance(descr, descriptors.FieldDescriptor):
         return _make_data_series_from_descriptor(descr, index)
-    elif isinstance(descr, models.Field):
-        return _make_data_series_from_model(descr, index)
     else:
-        raise TypeError(
-            "Unknown data type description for creation of ``pandas.series``.")
+        return _make_data_series_from_model(descr, index)
 
-def _make_data_series_from_descriptor(descr, index=None):
+def _make_data_series_from_descriptor(descr, index):
     """
     Create an empty ``pandas.Series``. 
     The data type is specified by a ``libclair.descriptors.FieldDescriptor``.
@@ -89,7 +90,7 @@ def _make_data_series_from_descriptor(descr, index=None):
         dtype = object
     return pd.Series(data=default_val, index=index, dtype=dtype)
 
-def _make_data_series_from_model(descr, index=None):
+def _make_data_series_from_model(descr, index):
     """
     Create an empty ``pandas.Series``. 
     The data type is specified by a ``django.db.models.Field``.
@@ -111,6 +112,24 @@ def _make_data_series_from_model(descr, index=None):
     return pd.Series(data=default_val, index=index, dtype=dtype)
     
  
+def get_descriptor_fields(descr):
+    """
+    Return a list of fields (columns), that are in a ``TableDescriptor`` or
+    database model.
+    """
+    assert isinstance(descr, descriptors.TableDescriptor) or \
+           issubclass(descr, models.Model)
+    
+    if isinstance(descr, descriptors.TableDescriptor):
+        return descr.column_descriptors
+    else:
+        fields = descr._meta.get_fields() 
+        fields_filt = [f for f in fields if f.auto_created == False]
+#         print(fields)
+#         print(fields_filt)
+        return fields_filt
+     
+
 def make_data_frame(descr, nrows=None, index=None):
     """
     Create an empty ``pandas.DataFrame`` as specified by ``descr``. 
@@ -133,11 +152,13 @@ def make_data_frame(descr, nrows=None, index=None):
         Number of rows.
         
     index : iterable 
-        The index labels of the new data frame. 
+        The index labels (primary keys) of the new data frame. 
+        
         If this argument is omitted or ``None``, a sequence of integers 
         (``range(nrows)``) is used as index labels.
     """
-    assert isinstance(descr, descriptors.TableDescriptor)
+    assert isinstance(descr, descriptors.TableDescriptor) or \
+           issubclass(descr, models.Model)
     assert nrows is not None or index is not None, \
            "Either ``nrows`` or ``index`` must be specified."
            
@@ -147,7 +168,7 @@ def make_data_frame(descr, nrows=None, index=None):
         assert nrows == len(index), "Inconsistent arguments"
     
     dframe = pd.DataFrame(index=index)
-    for fieldD in descr.column_descriptors:
+    for fieldD in get_descriptor_fields(descr):
         col = make_data_series(fieldD, index=index)
         dframe[fieldD.name] = col
         

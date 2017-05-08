@@ -20,7 +20,6 @@
 #    You should have received a copy of the GNU General Public License        #
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ###############################################################################
-from django.template.defaultfilters import default
 """
 Test module ``dataframes``, which contains definitions of the the 
 ``pandas.DataFrame`` objects that store the application's important data in 2D
@@ -157,7 +156,6 @@ def test_make_data_series_1():
     to describe the data type.
     """
     print("Start")
-    from django.db import models
     from libclair.descriptors import (StrD, IntD, FloatD, BoolD, DateTimeD, 
                                    ListD, FieldDescriptor)
     from libclair.dataframes import make_data_series
@@ -261,7 +259,7 @@ def test_make_data_series_2():
     assert s[1] == pd.Timestamp('2001-01-23 12:30:00')
 
 
-def test_make_data_frame():
+def test_make_data_frame_1():
     print("Start")
     from libclair.descriptors import StrD, FloatD, FieldDescriptor, TableDescriptor
     from libclair.dataframes import make_data_frame
@@ -283,6 +281,33 @@ def test_make_data_frame():
     assert df.at[2, "bar"] == "a"
 
 
+def test_make_data_frame_2():
+    print("Start")
+    import django
+    from django.db import models
+    from libclair.dataframes import make_data_frame
+    
+    django.setup()
+
+    class TestM(models.Model):
+        foo = models.FloatField("foo data")
+        bar = models.CharField("bar data", max_length=64, blank=True, default=None)
+        class Meta:
+            abstract = True
+#             app_label = "foo_app"
+
+    df = make_data_frame(TestM, 3)
+    df.at[1, "foo"] = 23
+    df.at[2, "bar"] = "a"
+    print(df)
+    print("dtypes:\n", df.dtypes)
+    
+    assert df.shape == (3, 2)
+    assert isnan(df.at[0, "bar"])
+    assert df.at[1, "foo"] == 23
+    assert df.at[2, "bar"] == "a"
+
+
 # def test_make_listing_frame():
 #     print("Start")
 #     from libclair.dataframes import make_listing_frame
@@ -292,8 +317,9 @@ def test_make_data_frame():
 
 
 if __name__ == "__main__":
-    test_make_data_series_1()
-    test_make_data_series_2()
-#     test_make_data_frame()
+#     test_make_data_series_1()
+#     test_make_data_series_2()
+    test_make_data_frame_1()
+    test_make_data_frame_2()
     
     pass #IGNORE:W0107
