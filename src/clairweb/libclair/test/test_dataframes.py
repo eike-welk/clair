@@ -42,56 +42,6 @@ import pandas as pd
 # logging.Formatter.converter = time.gmtime
 
 
- 
-# def make_test_listings():
-#     """
-#     Create a DataFrame with some data.
-#     
-#     Contains 3 listings: 
-#     row 0: contains realistic data; rows 1, 2 contain mainly None, nan.
-#     """
-#     from libclair.dataframes import make_listing_frame
-#     
-#     fr = make_listing_frame(3)
-#     #All listings need unique ids
-#     fr["id"] = ["eb-123", "eb-456", "eb-457"]
-#     
-#     fr.ix[0, "training_sample"] = True 
-#     fr.ix[0, "search_tasks"] = ["s-nikon-d90"]
-# #    fr.ix[0, "query_string"] = "Nikon D90"
-# 
-#     fr.set_value(0, "expected_products", ["nikon-d90", "nikon-sb-24"])
-#     fr.ix[0, "products"] = ["nikon-d90"]
-#     fr.ix[0, "products_absent"] = ["nikon-sb-24"]
-#     
-#     fr.ix[0, "thumbnail"] = "www.some.site/dir/to/thumb.pg"
-#     fr.ix[0, "image"] = "www.some.site/dir/to/img.pg"
-#     fr["title"] = ["Nikon D90 super duper!", "<>müäh", None]
-#     fr.ix[0, "description"] = "Buy my old Nikon D90 camera <b>now</b>!"
-#     fr.set_value(0, "prod_spec", {"Marke":"Nikon", "Modell":"D90"})
-#     fr.ix[0, "active"] = False
-#     fr.ix[0, "sold"] = False
-#     fr.ix[0, "currency"] = "EUR"
-#     fr.ix[0, "price"]    = 400.
-#     fr.ix[0, "shipping"] = 12.
-#     fr.ix[0, "type"] = "auction"
-#     fr["time"] = [datetime(2013,1,10), datetime(2013,2,2), datetime(2013,2,3)]
-#     fr.ix[0, "location"] = "Köln"
-#     fr.ix[0, "postcode"] = "50667"
-#     fr.ix[0, "country"] = "DE"
-#     fr.ix[0, "condition"] = 0.7
-#     fr.ix[0, "server"] = "Ebay-Germany"
-#     fr.ix[0, "server_id"] = "123" #ID of listing on server
-#     fr.ix[0, "final_price"] = True
-# #    fr["data_directory"] = ""
-#     fr.ix[0, "url_webui"] = "www.some.site/dir/to/web-page.html"
-# #     fr.ix[0, "server_repr"] = nan
-#     #Put our IDs into index
-#     fr.set_index("id", drop=False, inplace=True, 
-#                  verify_integrity=True)
-# #    print fr
-#     return fr
-
     
 def assert_frames_equal(fr1, fr2):
     """
@@ -121,34 +71,6 @@ def assert_frames_equal(fr1, fr2):
                     
                 raise
 
-
-#def test_make_price_frame():
-#    "Test creation of a empty data frame of prices."
-#    from libclair.coredata import PriceConstants, make_price_frame
-#    print "start"
-#    
-#    prices = make_price_frame(5)
-#    
-#    assert len(prices) == 5
-#    assert isnan(prices.ix[0, "price"])
-#    assert prices.ix[1, "currency"] is None 
-#    assert prices.ix[2, "time"] is None 
-#    assert prices.ix[3, "product"] is None 
-#    assert prices.ix[4, "listing"] is None 
-#    assert prices.ix[0, "type"] is None 
-#    assert prices.ix[1, "id"] is None 
-#    
-#    prices["price"] = 2.5
-#    prices.ix[2,"product"] = "foo-bar"
-#    prices.ix[3, "listing"] = "baz-boo"
-#    assert all(prices["price"] == 2.5)
-#    assert prices["product"][2] == "foo-bar"
-#    assert prices.ix[3, "listing"] == "baz-boo"
-#    
-#    print prices
-#    print PriceConstants.comments
-#    print "Finished"
-    
 
 def test_make_data_series_1():
     """
@@ -287,11 +209,15 @@ def test_make_data_frame_2():
     from django.db import models
     from libclair.dataframes import make_data_frame
     
+    #One can't create models without this
     django.setup()
 
     class TestM(models.Model):
         foo = models.FloatField("foo data")
-        bar = models.CharField("bar data", max_length=64, blank=True, default=None)
+        bar = models.CharField("bar data", max_length=64, 
+                               blank=True, default=None)
+        #Concrete models must be inside Django-Apps, 
+        #therefore this model is abstract.
         class Meta:
             abstract = True
 #             app_label = "foo_app"
@@ -308,17 +234,10 @@ def test_make_data_frame_2():
     assert df.at[2, "bar"] == "a"
 
 
-# def test_make_listing_frame():
-#     print("Start")
-#     from libclair.dataframes import make_listing_frame
-#     
-#     lf = make_listing_frame(10)
-#     assert len(lf.index) == 10
-
 
 if __name__ == "__main__":
-#     test_make_data_series_1()
-#     test_make_data_series_2()
+    test_make_data_series_1()
+    test_make_data_series_2()
     test_make_data_frame_1()
     test_make_data_frame_2()
     
