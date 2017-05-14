@@ -26,12 +26,10 @@ Test module ``dataframes``, which contains definitions of the the
 tables.
 """
             
+import os
+
 #import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
-
-
 from numpy import isnan #, nan #IGNORE:E0611
-#from pandas.util.testing import assert_frame_equal
-# from datetime import datetime
 import pandas as pd
 
 # import time
@@ -210,6 +208,7 @@ def test_make_data_frame_2():
     from libclair.dataframes import make_data_frame
     
     #One can't create models without this
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
     django.setup()
 
     class TestM(models.Model):
@@ -243,6 +242,7 @@ def test_convert_model_to_descriptor():
                                      FloatD, StrD
     
     #One can't create models without this
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
     django.setup()
 
     class TestM(models.Model):
@@ -279,6 +279,23 @@ def test_convert_model_to_descriptor():
     assert fd.comment == 'bar data'
 
 
+def test_write_frame():
+    print("Start")
+    import django
+#     from django.db import models
+    #One can't use models without this
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
+    django.setup()
+
+    from econdata.models import Listing
+    from libclair.dataframes import write_frame
+    
+    fr = pd.DataFrame([{'id':'foo-1', 'title':'The first record.'},
+                       {'id':'foo-2', 'title':'The second record.'}])
+#     print(fr)
+    write_frame(fr, Listing)
+    
+
 
 if __name__ == "__main__":
     test_make_data_series_1()
@@ -286,5 +303,6 @@ if __name__ == "__main__":
     test_make_data_frame_1()
     test_make_data_frame_2()
     test_convert_model_to_descriptor()
+    test_write_frame()
     
     pass #IGNORE:W0107

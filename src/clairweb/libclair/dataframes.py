@@ -34,7 +34,7 @@ Algorithms that involve multiple rows of a table are implemented with
 
 import numpy as np
 import pandas  as pd
-from django.db import models
+from django.db import models, transaction
 
 from libclair import descriptors 
 
@@ -58,7 +58,7 @@ def convert_model_to_descriptor(dj_model):
 
 def _convert_field_to_descriptor(dj_field):
     """
-    Convert a Django database dj_field to an equivalent Clair descriptor.
+    Convert a Django database field to an equivalent Clair descriptor.
     """
     assert isinstance(dj_field, models.Field)
     
@@ -144,7 +144,7 @@ def make_data_frame(descr, nrows=None, index=None):
     Arguments
     ---------
     
-    descr : TableDescriptor
+    descr : TableDescriptor or Django model class
         Contains column labels, data types, and default values.
         
     nrows : int 
@@ -177,9 +177,46 @@ def make_data_frame(descr, nrows=None, index=None):
     return dframe
 
 
-def make_price_id(price):
+def write_frame(pd_frame, db_model, fieldnames=None):
     """
-    Create unique ID string for a price.
-    """    
-    return (str(price["time"]) + "-" + price["product"] + "-"  + 
-            price["type"] + "-" + price["listing"])
+    Write a Pandas ``DataFrame`` into Django's database.
+    """
+    assert isinstance(pd_frame, pd.DataFrame)
+    assert issubclass(db_model, models.Model)
+    assert isinstance(fieldnames, (set, list, tuple, type(None)))
+    
+    # If no field names given, try to write all of the frame's columns
+    if fieldnames is None:
+        fieldnames = set(pd_frame.columns.values.tolist())
+    else:
+        fieldnames = set(fieldnames)
+    
+    # Drop all columns that have no correspondig field in the database
+    db_fields = db_model._meta.get_fields()
+    db_fieldnames = set([f.name for f in db_fields
+                         if f.auto_created == False])
+    wr_fieldnames=fieldnames.intersection(db_fieldnames)
+    wr_frame = pd_frame[list(wr_fieldnames)]
+
+    with transaction.atomic():
+        # Delete all records that are already in the database
+        # If no ID-field is written, assume ID is automatically incremented,
+        # and write all records as new records.
+        id_name = db_model._meta.pk.name
+        if id_name in wr_fieldnames:
+            delete_ids = list(wr_frame[id_name])
+            if delete_ids:
+                # Programatically create argument like: ``.filter(id__in=delete_ids)``
+                delete_kwargs = {id_name + '__in': delete_ids}
+                db_model.objects.filter(**delete_kwargs).delete()
+
+        # Create the rows in the DataFrame as new records in the database.
+        rows = []
+        for i in range(len(wr_frame)):
+            kwargs = dict(wr_frame.iloc[i])
+            rows.append(db_model(**kwargs))
+        db_model.objects.bulk_create(rows)
+
+
+def read_frame(queryset, fieldnames=None):
+    pass
