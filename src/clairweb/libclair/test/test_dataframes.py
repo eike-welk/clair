@@ -279,7 +279,7 @@ def test_convert_model_to_descriptor():
     assert fd.comment == 'bar data'
 
 
-def test_write_frame():
+def test__write_frame__read_frame():
     print("Start")
     import django
 #     from django.db import models
@@ -288,21 +288,26 @@ def test_write_frame():
     django.setup()
 
     from econdata.models import Listing
-    from libclair.dataframes import write_frame
+    from libclair.dataframes import write_frame, read_frame
     
-    fr = pd.DataFrame([{'id':'foo-1', 'title':'The first record.'},
-                       {'id':'foo-2', 'title':'The second record.'}])
-#     print(fr)
-    write_frame(fr, Listing)
+    # Create a DataFrame and write it ino the database
+    fr1 = pd.DataFrame([{'id':'foo-1', 'title':'The first record.', 'time': '2017-01-01 12:00:00+00:00'},
+                       {'id':'foo-2', 'title':'The second record.', 'time': '2017-01-02 12:00:00+00:00'}])
+    write_frame(fr1, Listing)
     
+    qset = Listing.objects.filter(id__in=['foo-1', 'foo-2'])
+#     qset = Listing.objects.all()
+    fr2 = read_frame(qset, ['id', 'time', 'title'])
+    print(fr2)
+    print(fr2['time'])
 
 
 if __name__ == "__main__":
-    test_make_data_series_1()
-    test_make_data_series_2()
-    test_make_data_frame_1()
-    test_make_data_frame_2()
-    test_convert_model_to_descriptor()
-    test_write_frame()
+#     test_make_data_series_1()
+#     test_make_data_series_2()
+#     test_make_data_frame_1()
+#     test_make_data_frame_2()
+#     test_convert_model_to_descriptor()
+    test__write_frame__read_frame()
     
     pass #IGNORE:W0107

@@ -35,6 +35,8 @@ Algorithms that involve multiple rows of a table are implemented with
 import numpy as np
 import pandas  as pd
 from django.db import models, transaction
+# from django.db.models import QuerySet
+# from django.db import models.query.QuerySet
 
 from libclair import descriptors 
 
@@ -46,8 +48,8 @@ def convert_model_to_descriptor(dj_model):
     """
     assert issubclass(dj_model, models.Model)
     
-    dj_fields = dj_model._meta.get_fields()
-    fields = [_convert_field_to_descriptor(f) for f in dj_fields
+    all_fields = dj_model._meta.get_fields()
+    fields = [_convert_field_to_descriptor(f) for f in all_fields
               if f.auto_created == False]
 
     return descriptors.TableDescriptor(dj_model.__name__, 
@@ -180,6 +182,9 @@ def make_data_frame(descr, nrows=None, index=None):
 def write_frame(pd_frame, db_model, fieldnames=None):
     """
     Write a Pandas ``DataFrame`` into Django's database.
+    
+    TODO: This algorithm destroys data when only some fieldnames are given.
+    TODO: write new algorithm with ``update_or_create()``
     """
     assert isinstance(pd_frame, pd.DataFrame)
     assert issubclass(db_model, models.Model)
@@ -219,4 +224,28 @@ def write_frame(pd_frame, db_model, fieldnames=None):
 
 
 def read_frame(queryset, fieldnames=None):
-    pass
+    """
+    Read subset of a database table from the Database.
+    """
+    assert isinstance(queryset, models.QuerySet)
+    assert isinstance(fieldnames, (list, tuple, type(None)))
+
+    all_fields = queryset.model._meta.get_fields()
+    if fieldnames is None:
+        fields = [f for f in all_fields if f.auto_created == False]
+        fieldnames = [f.name for f in fields]
+    else:
+        fields = [f for f in all_fields if f.auto_created == False and f.name in fieldnames]
+        fieldnames = list(fieldnames)
+
+    # Get data from database and construct the dataframe.
+    vals = list(queryset.values_list(*fieldnames))
+    frame = pd.DataFrame(vals, columns=fieldnames)
+
+    # Convert date and time fields to ``datetime64`` even in edge cases.
+    for field in fields:
+        if isinstance(field, (models.DateField, models.DateTimeField)):
+            frame[field.name] = pd.to_datetime(frame[field.name])
+        
+    return frame
+
