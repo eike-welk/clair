@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
@@ -28,9 +27,10 @@ tables.
             
 import os
 
-#import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
-from numpy import isnan #, nan #IGNORE:E0611
+import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
+import numpy as np
 import pandas as pd
+import pandas.api.types as pd_types
 
 # import time
 # import logging
@@ -58,7 +58,7 @@ def assert_frames_equal(fr1, fr2):
             except AssertionError:
                 if isinstance(fr1[col][i], float) and \
                    isinstance(fr2[col][i], float) and \
-                   isnan(fr1[col][i]) and isnan(fr2[col][i]):
+                   np.isnan(fr1[col][i]) and np.isnan(fr2[col][i]):
                     continue
                 
                 print("col =", repr(col), "; i =", i)
@@ -85,7 +85,7 @@ def test_make_data_series_1():
     s[1] = 1.4
     print(s)
     assert len(s) == 3 
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == 1.4
     
     fd = FieldDescriptor("foo", FloatD, 0., "foo data")
@@ -101,7 +101,7 @@ def test_make_data_series_1():
     s[1] = 23
     print(s)
     assert len(s) == 4
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == 23
     
     fd = FieldDescriptor("foo", BoolD, None, "foo data")
@@ -109,7 +109,7 @@ def test_make_data_series_1():
     s[1] = True
     print(s)
     assert len(s) == 3
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == True
 
     fd = FieldDescriptor("foo", DateTimeD, None, "foo data")
@@ -125,7 +125,7 @@ def test_make_data_series_1():
     s[1] = ["foo", "bar"]
     print(s)
     assert len(s) == 3
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == ["foo", "bar"]
 
 
@@ -143,7 +143,7 @@ def test_make_data_series_2():
     s[1] = 1.4
     print(s)
     assert len(s) == 3 
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == 1.4
     
     fd = models.FloatField("foo data", default=0.)
@@ -159,7 +159,7 @@ def test_make_data_series_2():
     s[1] = 23
     print(s)
     assert len(s) == 4
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == 23
     
     fd = models.NullBooleanField("foo data")
@@ -167,7 +167,7 @@ def test_make_data_series_2():
     s[1] = True
     print(s)
     assert len(s) == 3
-    assert isnan(s[0])
+    assert np.isnan(s[0])
     assert s[1] == True
 
     fd = models.DateTimeField("foo data")
@@ -196,7 +196,7 @@ def test_make_data_frame_1():
     print("dtypes:\n", df.dtypes)
     
     assert df.shape == (3, 2)
-    assert isnan(df.at[0, "bar"])
+    assert np.isnan(df.at[0, "bar"])
     assert df.at[1, "foo"] == 23
     assert df.at[2, "bar"] == "a"
 
@@ -228,7 +228,7 @@ def test_make_data_frame_2():
     print("dtypes:\n", df.dtypes)
     
     assert df.shape == (3, 2)
-    assert isnan(df.at[0, "bar"])
+    assert np.isnan(df.at[0, "bar"])
     assert df.at[1, "foo"] == 23
     assert df.at[2, "bar"] == "a"
 
@@ -283,31 +283,60 @@ def test__write_frame__read_frame():
     print("Start")
     import django
 #     from django.db import models
+    from django.db import utils
     #One can't use models without this
     os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
     django.setup()
 
     from econdata.models import Listing
-    from libclair.dataframes import write_frame, read_frame
+    from libclair.dataframes import write_frame_create, read_frame, write_frame
     
     # Create a DataFrame and write it ino the database
-    fr1 = pd.DataFrame([{'id':'foo-1', 'title':'The first record.', 'time': '2017-01-01 12:00:00+00:00'},
-                       {'id':'foo-2', 'title':'The second record.', 'time': '2017-01-02 12:00:00+00:00'}])
-    write_frame(fr1, Listing)
+    fr1 = pd.DataFrame([{'id':'foo-1', 'site':'a', 'id_site':'1', 'title':'The 1st record.'},
+                        {'id':'foo-2', 'site':'a', 'id_site':'2', 'title':'The 2nd record.'}])
+    print('\nfr1:\n', fr1)
+    write_frame_create(fr1, Listing, delete=True)
+    # The records already exist. Creating them again, without deleting them, 
+    # must raise an exception.
+    with pytest.raises(utils.IntegrityError):
+        write_frame_create(fr1, Listing)
     
+    # Read the records, that were just created, from the database.
+    # Read a few additional empty columns.
     qset = Listing.objects.filter(id__in=['foo-1', 'foo-2'])
-#     qset = Listing.objects.all()
-    fr2 = read_frame(qset, ['id', 'time', 'title'])
-    print(fr2)
-    print(fr2['time'])
+    fr2 = read_frame(qset, ['id', 'title', 'time', 'price'])
+    print('\nfr2:\n', fr2)
+    
+    assert pd_types.is_string_dtype(fr2['title'])
+    assert pd_types.is_datetime64_any_dtype(fr2['time'])
+    assert pd_types.is_numeric_dtype(fr2['price'])
+    assert fr2['id'][0] == 'foo-1'
+    assert fr2['id'][1] == 'foo-2'
+    assert fr2['title'][0] == 'The 1st record.'
+    assert fr2['title'][1] == 'The 2nd record.'
+    
+    # Change the dataframe
+    fr2['time'] = [pd.Timestamp('2017-01-01 12:00+0'), 
+                   pd.Timestamp('2017-01-02 12:00+0'),]
+    fr2['price'] = [101.0, 102.0,]
+    print('\nfr2:\n', fr2)
+    # Update the records in the database
+    write_frame(fr2, Listing)
+    
+    # Read the updated records from the database.
+    qset = Listing.objects.filter(id__in=['foo-1', 'foo-2'])
+    fr3 = read_frame(qset, ['id', 'title', 'time', 'price'])
+    print('\nfr3:\n', fr3)
+    assert_frames_equal(fr2, fr3)
+
 
 
 if __name__ == "__main__":
-#     test_make_data_series_1()
-#     test_make_data_series_2()
-#     test_make_data_frame_1()
-#     test_make_data_frame_2()
-#     test_convert_model_to_descriptor()
+    test_make_data_series_1()
+    test_make_data_series_2()
+    test_make_data_frame_1()
+    test_make_data_frame_2()
+    test_convert_model_to_descriptor()
     test__write_frame__read_frame()
     
     pass #IGNORE:W0107

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
@@ -179,12 +178,17 @@ def make_data_frame(descr, nrows=None, index=None):
     return dframe
 
 
-def write_frame(pd_frame, db_model, fieldnames=None):
+def write_frame_create(pd_frame, db_model, fieldnames=None, delete=False):
     """
-    Write a Pandas ``DataFrame`` into Django's database.
+    Write a Pandas ``DataFrame`` into Django's database, as new records.
     
-    TODO: This algorithm destroys data when only some fieldnames are given.
-    TODO: write new algorithm with ``update_or_create()``
+    The alorithm creates new records in the database, and if desired deletes 
+    already existing records. Deleting existing records will destroy foreign
+    key relations, if the database is not specifically designed for it. 
+    
+    Columns that are not in the database are ignored.
+    
+    The fastest way to write new records into the database.
     """
     assert isinstance(pd_frame, pd.DataFrame)
     assert issubclass(db_model, models.Model)
@@ -197,8 +201,8 @@ def write_frame(pd_frame, db_model, fieldnames=None):
         fieldnames = set(fieldnames)
     
     # Drop all columns that have no correspondig field in the database
-    db_fields = db_model._meta.get_fields()
-    db_fieldnames = set([f.name for f in db_fields
+    db_all_fields = db_model._meta.get_fields()
+    db_fieldnames = set([f.name for f in db_all_fields
                          if f.auto_created == False])
     wr_fieldnames=fieldnames.intersection(db_fieldnames)
     wr_frame = pd_frame[list(wr_fieldnames)]
@@ -206,11 +210,11 @@ def write_frame(pd_frame, db_model, fieldnames=None):
     with transaction.atomic():
         # Delete all records that are already in the database
         # If no ID-field is written, assume ID is automatically incremented,
-        # and write all records as new records.
-        id_name = db_model._meta.pk.name
-        if id_name in wr_fieldnames:
-            delete_ids = list(wr_frame[id_name])
-            if delete_ids:
+        # and don't delete anything.
+        if delete:
+            id_name = db_model._meta.pk.name
+            if id_name in wr_fieldnames:
+                delete_ids = list(wr_frame[id_name])
                 # Programatically create argument like: ``.filter(id__in=delete_ids)``
                 delete_kwargs = {id_name + '__in': delete_ids}
                 db_model.objects.filter(**delete_kwargs).delete()
@@ -221,6 +225,47 @@ def write_frame(pd_frame, db_model, fieldnames=None):
             kwargs = dict(wr_frame.iloc[i])
             rows.append(db_model(**kwargs))
         db_model.objects.bulk_create(rows)
+
+
+def write_frame(pd_frame, db_model, fieldnames=None):
+    """
+    Write a Pandas ``DataFrame`` into Django's database.
+    
+    The alorithm updates existing records, or creates new records if necesary.
+    Columns that are not in the database table are ignored.
+    """
+    assert isinstance(pd_frame, pd.DataFrame)
+    assert issubclass(db_model, models.Model)
+    assert isinstance(fieldnames, (set, list, tuple, type(None)))
+    
+    # If no field names given, try to write all of the frame's columns
+    if fieldnames is None:
+        fieldnames = set(pd_frame.columns.values.tolist())
+    else:
+        fieldnames = set(fieldnames)
+    
+    if 'defaults' in fieldnames:
+        raise KeyError('Column name "defaults" is illegal in this algorithm.')
+    
+    # Drop all columns that have no correspondig field in the database
+    db_all_fields = db_model._meta.get_fields()
+    db_fieldnames = set([f.name for f in db_all_fields
+                         if f.auto_created == False])
+    wr_fieldnames=fieldnames.intersection(db_fieldnames)
+    wr_frame = pd_frame[list(wr_fieldnames)]
+
+    id_name = db_model._meta.pk.name
+    if id_name not in wr_fieldnames:
+        raise KeyError('Argument ``pd_frame``: Missing column "{id_name}". '
+                       'The DataFrame must contain a column for the primary key.'
+                       .format(id_name=id_name))
+    
+    with transaction.atomic():
+        for i in range(len(wr_frame)):
+            record = wr_frame.iloc[i]
+            kwargs = {id_name: record[id_name],
+                      'defaults': dict(record)}
+            db_model.objects.update_or_create(**kwargs)
 
 
 def read_frame(queryset, fieldnames=None):
@@ -246,6 +291,10 @@ def read_frame(queryset, fieldnames=None):
     for field in fields:
         if isinstance(field, (models.DateField, models.DateTimeField)):
             frame[field.name] = pd.to_datetime(frame[field.name])
+        elif isinstance(field, (models.FloatField)):
+            frame[field.name] = frame[field.name].astype(np.float64)
+        elif isinstance(field, (models.IntegerField)):
+            frame[field.name] = frame[field.name].astype(np.int64)
         
     return frame
 
