@@ -31,6 +31,7 @@ import pytest #contains `skip`, `fail`, `raises`, `config` #IGNORE:W0611
 import numpy as np
 import pandas as pd
 import pandas.api.types as pd_types
+import django
 
 # import time
 # import logging
@@ -201,16 +202,12 @@ def test_make_data_frame_1():
     assert df.at[2, "bar"] == "a"
 
 
+@pytest.mark.django_db
 def test_make_data_frame_2():
     print("Start")
-    import django
     from django.db import models
     from libclair.dataframes import make_data_frame
     
-    #One can't create models without this
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
-    django.setup()
-
     class TestM(models.Model):
         foo = models.FloatField("foo data")
         bar = models.CharField("bar data", max_length=64, 
@@ -233,18 +230,14 @@ def test_make_data_frame_2():
     assert df.at[2, "bar"] == "a"
 
 
+@pytest.mark.django_db
 def test_convert_model_to_descriptor():
     print("Start")
-    import django
     from django.db import models
     from libclair.dataframes import convert_model_to_descriptor
     from libclair.descriptors import TableDescriptor, FieldDescriptor, \
                                      FloatD, StrD
     
-    #One can't create models without this
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
-    django.setup()
-
     class TestM(models.Model):
         "A test model"
         foo = models.FloatField("foo data")
@@ -279,15 +272,10 @@ def test_convert_model_to_descriptor():
     assert fd.comment == 'bar data'
 
 
+@pytest.mark.django_db
 def test__write_frame__read_frame():
     print("Start")
-    import django
-#     from django.db import models
     from django.db import utils
-    #One can't use models without this
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
-    django.setup()
-
     from econdata.models import Listing
     from libclair.dataframes import write_frame_create, read_frame, write_frame
     
@@ -332,6 +320,10 @@ def test__write_frame__read_frame():
 
 
 if __name__ == "__main__":
+    #One can't use models without this
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
+    django.setup()
+
     test_make_data_series_1()
     test_make_data_series_2()
     test_make_data_frame_1()
