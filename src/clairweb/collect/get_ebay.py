@@ -37,7 +37,8 @@ from ebaysdk.finding import Connection as FConnection
 from ebaysdk.shopping import Connection as SConnection
 from ebaysdk.exception import ConnectionError
 
-from libclair.dataframes import make_listing_frame
+from libclair.dataframes import make_data_frame
+from econdata.models import Listing
 
 
 
@@ -175,7 +176,7 @@ class EbayFindingAPIConnector(object):
         n_per_page = round(n_listings / n_pages)
         
         # Call Ebay repeatedly and concatenate results
-        listings = make_listing_frame(0)
+        listings = make_data_frame(Listing, 0)
         for i_page in range(1, int(n_pages + 1)):
             resp = self._call_find_api(keywords, n_per_page, i_page,
                                         price_min, price_max, currency, 
@@ -269,7 +270,7 @@ class EbayFindingAPIConnector(object):
         """
 #         pprint(resp_dict)
         eb_items = resp_dict['searchResult']['item']
-        listings = make_listing_frame(len(eb_items))
+        listings = make_data_frame(Listing, len(eb_items))
         for i, item in enumerate(eb_items):
             try:
                 "The ID that uniquely identifies the item listing."
@@ -519,7 +520,7 @@ class EbayShoppingAPIConnector(object):
         ids = list(set(ids))
       
         # Download information in chunks of 20 listings.
-        listings = make_listing_frame(0)
+        listings = make_data_frame(Listing, 0)
         for i_start in range(0, len(ids), 20):
             resp = self._call_shopping_api(ids[i_start:i_start + 20], ebay_site)
             listings_part = self._parse_shopping_response(resp)
@@ -576,7 +577,7 @@ class EbayShoppingAPIConnector(object):
         """
 #         pprint(resp)
         items = resp['Item']
-        listings = make_listing_frame(len(items))
+        listings = make_data_frame(Listing, len(items))
         for i, item in enumerate(items):
             try:
                 # ID --------------------------------------------------
@@ -645,9 +646,13 @@ class EbayShoppingAPIConnector(object):
     @staticmethod
     def convert_ItemSpecifics(item_specifics):
         """Convert the ``ItemSpecifics`` to a suitable JSON representation."""
-        specs = {}
-        for nvpair in item_specifics['NameValueList']:
-            specs[nvpair['Name']] = nvpair['Value']
+        try:
+            specs = {}
+            for nvpair in item_specifics['NameValueList']:
+                specs[nvpair['Name']] = nvpair['Value']
+        except TypeError as err:
+            logging.error(str(err) + '\n`item_specifics`:\n' + pformat(item_specifics))
+        
         return json.dumps(specs, ensure_ascii=False, check_circular=False, sort_keys=True)
 #         return str(specs)
 

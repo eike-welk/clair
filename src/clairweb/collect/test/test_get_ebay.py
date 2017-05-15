@@ -26,10 +26,15 @@ Test getting listings from Ebay through its API.
 
 #import pytest #contains `skip`, `fail`, `raises`, `config`
 
+import os
 from os.path import join, dirname, abspath
-
 import logging
 import time
+
+import pytest
+import django
+
+#Setup logging
 logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
                     level=logging.DEBUG)
 #Time stamps must be in UTC
@@ -42,13 +47,11 @@ def relative(*paths):
     return abspath(join(dirname(abspath(__file__)), *paths))
 
 
-
-#---- EbayConnector --------------------------------------------------------- 
-   
+@pytest.mark.django_db
 def test_EbayConnector_find_listings():
     """Test finding listings by keyword through the high level interface."""
     print('Start')
-    from libclair.get_ebay import EbayConnector
+    from collect.get_ebay import EbayConnector
     
     n = 5
     ebc = EbayConnector(relative("../../ebay-sdk.apikey"))
@@ -61,10 +64,11 @@ def test_EbayConnector_find_listings():
 #     print()
     assert 0.8 * n <= len(listings) <= n #Duplicates are removed
 
-
+ 
+@pytest.mark.django_db
 def test_EbayConnector_update_listings():
     """Test finding listings by keyword through the high level interface."""
-    from libclair.get_ebay import EbayConnector
+    from collect.get_ebay import EbayConnector
     
     n = 35
     c = EbayConnector(relative("../../ebay-sdk.apikey"))
@@ -88,6 +92,10 @@ def test_EbayConnector_update_listings():
  
 
 if __name__ == '__main__':
+    #One can't use models without this
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'clairweb.settings'
+    django.setup()
+
 #     test_EbayConnector_find_listings()
     test_EbayConnector_update_listings()
     

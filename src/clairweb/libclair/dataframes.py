@@ -65,6 +65,7 @@ def _convert_field_to_descriptor(dj_field):
     
     type_trans = {
         models.CharField: descriptors.StrD,
+        models.URLField: descriptors.StrD,
         models.FloatField: descriptors.FloatD,
         models.IntegerField: descriptors.IntD,
         models.BooleanField: descriptors.BoolD,
