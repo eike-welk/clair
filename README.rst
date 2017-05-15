@@ -54,6 +54,14 @@ Clair needs fairly many libraries to function:
     communicate with the server.
     http://www.django-rest-framework.org/
 
+**Pytest**
+	A test framework that works well for test driven development.
+	https://docs.pytest.org/en/latest/
+	
+**Pytest-Django**
+	An extesion for *Pytest* to work with Django.
+	https://pytest-django.readthedocs.io/en/latest/
+
 To communicate with Ebay over its API, you need an *Ebay developer key*, which 
 can be easily obtained through Ebay's developer website:
 
