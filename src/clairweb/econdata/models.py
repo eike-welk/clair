@@ -45,7 +45,7 @@ class Listing(models.Model):
     # Product description -----------------------------------------------------
     title = models.CharField(
             "Short description of listing.",
-            max_length=128),
+            max_length=128)
     description = models.CharField(
             "Long description of listing.",
             max_length=1024*10, blank=True, default='')

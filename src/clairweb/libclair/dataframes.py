@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ###############################################################################
 #    Clair - Project to discover prices on e-commerce sites.                  #
 #                                                                             #
@@ -34,7 +33,9 @@ Algorithms that involve multiple rows of a table are implemented with
 
 import numpy as np
 import pandas  as pd
-from django.db import models
+from django.db import models, transaction
+# from django.db.models import QuerySet
+# from django.db import models.query.QuerySet
 
 from libclair import descriptors 
 
@@ -46,8 +47,8 @@ def convert_model_to_descriptor(dj_model):
     """
     assert issubclass(dj_model, models.Model)
     
-    dj_fields = dj_model._meta.get_fields()
-    fields = [_convert_field_to_descriptor(f) for f in dj_fields
+    all_fields = dj_model._meta.get_fields()
+    fields = [_convert_field_to_descriptor(f) for f in all_fields
               if f.auto_created == False]
 
     return descriptors.TableDescriptor(dj_model.__name__, 
@@ -58,7 +59,7 @@ def convert_model_to_descriptor(dj_model):
 
 def _convert_field_to_descriptor(dj_field):
     """
-    Convert a Django database dj_field to an equivalent Clair descriptor.
+    Convert a Django database field to an equivalent Clair descriptor.
     """
     assert isinstance(dj_field, models.Field)
     
@@ -144,7 +145,7 @@ def make_data_frame(descr, nrows=None, index=None):
     Arguments
     ---------
     
-    descr : TableDescriptor
+    descr : TableDescriptor or Django model class
         Contains column labels, data types, and default values.
         
     nrows : int 
@@ -177,9 +178,123 @@ def make_data_frame(descr, nrows=None, index=None):
     return dframe
 
 
-def make_price_id(price):
+def write_frame_create(pd_frame, db_model, fieldnames=None, delete=False):
     """
-    Create unique ID string for a price.
-    """    
-    return (str(price["time"]) + "-" + price["product"] + "-"  + 
-            price["type"] + "-" + price["listing"])
+    Write a Pandas ``DataFrame`` into Django's database, as new records.
+    
+    The alorithm creates new records in the database, and if desired deletes 
+    already existing records. Deleting existing records will destroy foreign
+    key relations, if the database is not specifically designed for it. 
+    
+    Columns that are not in the database are ignored.
+    
+    The fastest way to write new records into the database.
+    """
+    assert isinstance(pd_frame, pd.DataFrame)
+    assert issubclass(db_model, models.Model)
+    assert isinstance(fieldnames, (set, list, tuple, type(None)))
+    
+    # If no field names given, try to write all of the frame's columns
+    if fieldnames is None:
+        fieldnames = set(pd_frame.columns.values.tolist())
+    else:
+        fieldnames = set(fieldnames)
+    
+    # Drop all columns that have no correspondig field in the database
+    db_all_fields = db_model._meta.get_fields()
+    db_fieldnames = set([f.name for f in db_all_fields
+                         if f.auto_created == False])
+    wr_fieldnames=fieldnames.intersection(db_fieldnames)
+    wr_frame = pd_frame[list(wr_fieldnames)]
+
+    with transaction.atomic():
+        # Delete all records that are already in the database
+        # If no ID-field is written, assume ID is automatically incremented,
+        # and don't delete anything.
+        if delete:
+            id_name = db_model._meta.pk.name
+            if id_name in wr_fieldnames:
+                delete_ids = list(wr_frame[id_name])
+                # Programatically create argument like: ``.filter(id__in=delete_ids)``
+                delete_kwargs = {id_name + '__in': delete_ids}
+                db_model.objects.filter(**delete_kwargs).delete()
+
+        # Create the rows in the DataFrame as new records in the database.
+        rows = []
+        for i in range(len(wr_frame)):
+            kwargs = dict(wr_frame.iloc[i])
+            rows.append(db_model(**kwargs))
+        db_model.objects.bulk_create(rows)
+
+
+def write_frame(pd_frame, db_model, fieldnames=None):
+    """
+    Write a Pandas ``DataFrame`` into Django's database.
+    
+    The alorithm updates existing records, or creates new records if necesary.
+    Columns that are not in the database table are ignored.
+    """
+    assert isinstance(pd_frame, pd.DataFrame)
+    assert issubclass(db_model, models.Model)
+    assert isinstance(fieldnames, (set, list, tuple, type(None)))
+    
+    # If no field names given, try to write all of the frame's columns
+    if fieldnames is None:
+        fieldnames = set(pd_frame.columns.values.tolist())
+    else:
+        fieldnames = set(fieldnames)
+    
+    if 'defaults' in fieldnames:
+        raise KeyError('Column name "defaults" is illegal in this algorithm.')
+    
+    # Drop all columns that have no correspondig field in the database
+    db_all_fields = db_model._meta.get_fields()
+    db_fieldnames = set([f.name for f in db_all_fields
+                         if f.auto_created == False])
+    wr_fieldnames=fieldnames.intersection(db_fieldnames)
+    wr_frame = pd_frame[list(wr_fieldnames)]
+
+    id_name = db_model._meta.pk.name
+    if id_name not in wr_fieldnames:
+        raise KeyError('Argument ``pd_frame``: Missing column "{id_name}". '
+                       'The DataFrame must contain a column for the primary key.'
+                       .format(id_name=id_name))
+    
+    with transaction.atomic():
+        for i in range(len(wr_frame)):
+            record = wr_frame.iloc[i]
+            kwargs = {id_name: record[id_name],
+                      'defaults': dict(record)}
+            db_model.objects.update_or_create(**kwargs)
+
+
+def read_frame(queryset, fieldnames=None):
+    """
+    Read subset of a database table from the Database.
+    """
+    assert isinstance(queryset, models.QuerySet)
+    assert isinstance(fieldnames, (list, tuple, type(None)))
+
+    all_fields = queryset.model._meta.get_fields()
+    if fieldnames is None:
+        fields = [f for f in all_fields if f.auto_created == False]
+        fieldnames = [f.name for f in fields]
+    else:
+        fields = [f for f in all_fields if f.auto_created == False and f.name in fieldnames]
+        fieldnames = list(fieldnames)
+
+    # Get data from database and construct the dataframe.
+    vals = list(queryset.values_list(*fieldnames))
+    frame = pd.DataFrame(vals, columns=fieldnames)
+
+    # Convert date and time fields to ``datetime64`` even in edge cases.
+    for field in fields:
+        if isinstance(field, (models.DateField, models.DateTimeField)):
+            frame[field.name] = pd.to_datetime(frame[field.name])
+        elif isinstance(field, (models.FloatField)):
+            frame[field.name] = frame[field.name].astype(np.float64)
+        elif isinstance(field, (models.IntegerField)):
+            frame[field.name] = frame[field.name].astype(np.int64)
+        
+    return frame
+
