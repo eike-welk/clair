@@ -39,6 +39,21 @@ class SearchTask(models.Model):
                 id=self.id, prod=self.product.name, rec=self.recurrence)
 
 
+class ListingFoundBy(models.Model):
+    "Remember which ``SearchTask`` found which ``Listing``"
+    id = models.AutoField(
+            "Internal unique ID.",
+            primary_key=True)
+    task = models.ForeignKey(
+            SearchTask,
+            verbose_name='The task that found the model',
+            on_delete=models.CASCADE, blank=True, null=True,)
+    listing = models.ForeignKey(
+            econdata.models.Listing,
+            verbose_name='The listing that was found by the model',
+            on_delete=models.CASCADE, blank=True, null=True,)
+
+
 class Event(models.Model):
     "Schedule search tasks and updates of listings."
     id = models.AutoField(
