@@ -56,8 +56,8 @@ class HtmlTool(object):
     tag = re.compile(r"<.*?>", re.DOTALL)
     #Consecutive whitespace characters
     nwhites = re.compile(r"[\s]+")
-    #<p>, <div>, <br> tags 
-    p_div = re.compile(r"<(p|div|br).*?>", 
+    #<p>, <div>, <br> tags and associated closing tags
+    p_div = re.compile(r"</?(p|div|br).*?>",
                        re.IGNORECASE | re.DOTALL)
     #Consecutive whitespace, but no newlines
     nspace = re.compile("[^\S\n]+", re.UNICODE)
