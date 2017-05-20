@@ -97,6 +97,7 @@ def relative(*path_components):
 #     print("finished!")
     
     
+@pytest.mark.django_db
 def test_MainObj_execute_tasks():
     """Test DaemonMain.execute_tasks"""
     print('Start: test_MainObj_execute_tasks')
@@ -109,10 +110,19 @@ def test_MainObj_execute_tasks():
 
     #Execute the search tasks
     m = DaemonMain()
-    task_ids = m.execute_search_task(task)
-    print('Number of listings: ', len(task_ids))
+    listing_ids = m.execute_search_task(task)
+    print('Number of listings: ', len(listing_ids))
 
-    assert len(task_ids) > 20
+#     # Show various fields from the downloaded records for debugging.
+#     from econdata.models import Listing
+#     from libclair.dataframes import read_frame
+#     fr1 = read_frame(Listing.objects.filter(id__in=listing_ids), 
+#                      ['title', 'is_real', 'is_sold', 'status', 'listing_type', 'condition', 'item_url'])
+#     print(fr1[['title', 'is_real', 'is_sold', 'status', 'listing_type']])
+#     for i, url in enumerate(fr1['item_url']):
+#         print(i, ', ', url)
+    
+    assert len(listing_ids) > 20
 
     print("Finished!")
 
