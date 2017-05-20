@@ -24,20 +24,22 @@
 Get listings from Ebay through its API.
 """
 
-
-from pprint import pformat
 import os.path
 import math
 import json
-import  logging
+import logging
 from datetime import datetime
+from pprint import pformat
 
 import pandas as pd
 from ebaysdk.finding import Connection as FConnection
 from ebaysdk.shopping import Connection as SConnection
-from ebaysdk.exception import ConnectionError
+import ebaysdk.exception
+import requests.exceptions
 
-from libclair.dataframes import make_listing_frame
+from libclair.dataframes import make_data_frame
+from libclair.textprocessing import HtmlTool
+from econdata.models import Listing
 
 
 
@@ -175,7 +177,7 @@ class EbayFindingAPIConnector(object):
         n_per_page = round(n_listings / n_pages)
         
         # Call Ebay repeatedly and concatenate results
-        listings = make_listing_frame(0)
+        listings = make_data_frame(Listing, 0)
         for i_page in range(1, int(n_pages + 1)):
             resp = self._call_find_api(keywords, n_per_page, i_page,
                                         price_min, price_max, currency, 
@@ -231,7 +233,8 @@ class EbayFindingAPIConnector(object):
                                                         'pageNumber': i_page},
                                     'itemFilter': itemFilters,
                                     })
-        except ConnectionError as err:
+        except (ebaysdk.exception.ConnectionError, 
+                requests.exceptions.ConnectionError)  as err:
             err_text = 'Finding items on Ebay failed! Error: ' + str(err)
             logging.error(err_text)
             logging.debug(err.response.dict())
@@ -269,7 +272,7 @@ class EbayFindingAPIConnector(object):
         """
 #         pprint(resp_dict)
         eb_items = resp_dict['searchResult']['item']
-        listings = make_listing_frame(len(eb_items))
+        listings = make_data_frame(Listing, len(eb_items))
         for i, item in enumerate(eb_items):
             try:
                 "The ID that uniquely identifies the item listing."
@@ -300,7 +303,7 @@ class EbayFindingAPIConnector(object):
                     logging.debug('Missing field in "shippingInfo": ' + str(err))
 
                 # https://developer.ebay.com/devzone/finding/CallRef/types/ItemFilterType.html
-                listings.loc[i, 'type'] = ltype = self.convert_listing_type(item['listingInfo']['listingType'])
+                listings.loc[i, 'listing_type'] = ltype = self.convert_listing_type(item['listingInfo']['listingType'])
                 # https://developer.ebay.com/devzone/finding/CallRef/types/SellingStatus.html
                 sstate_raw = item['sellingStatus']['sellingState']
                 listings.loc[i, 'status'] = sstate = self.convert_selling_state(sstate_raw)
@@ -519,7 +522,7 @@ class EbayShoppingAPIConnector(object):
         ids = list(set(ids))
       
         # Download information in chunks of 20 listings.
-        listings = make_listing_frame(0)
+        listings = make_data_frame(Listing, 0)
         for i_start in range(0, len(ids), 20):
             resp = self._call_shopping_api(ids[i_start:i_start + 20], ebay_site)
             listings_part = self._parse_shopping_response(resp)
@@ -537,7 +540,8 @@ class EbayShoppingAPIConnector(object):
             response = api.execute('GetMultipleItems', 
                                    {'IncludeSelector': 'Description,Details,ItemSpecifics,ShippingCosts',
                                     'ItemID': ids})
-        except ConnectionError as err:
+        except (ebaysdk.exception.ConnectionError, 
+                requests.exceptions.ConnectionError) as err:
             err_text = 'Downloading full item information from Ebay failed! ' \
                        'Error: ' + str(err)
             logging.error(err_text)
@@ -576,14 +580,14 @@ class EbayShoppingAPIConnector(object):
         """
 #         pprint(resp)
         items = resp['Item']
-        listings = make_listing_frame(len(items))
+        listings = make_data_frame(Listing, len(items))
         for i, item in enumerate(items):
             try:
                 # ID --------------------------------------------------
                 listings.loc[i, 'id_site'] = item['ItemID']
                 # Product description --------------------------------------------------
                 listings.loc[i, 'title'] = item['Title']
-                listings.loc[i, 'description'] = item['Description']
+                listings.loc[i, 'description'] = HtmlTool.to_nice_text(item['Description'])
                 try:
                     listings.loc[i, 'prod_spec'] = self.convert_ItemSpecifics(item['ItemSpecifics'])
                 except KeyError as err:
@@ -607,7 +611,7 @@ class EbayShoppingAPIConnector(object):
                 listings.loc[i, 'item_url'] = item['ViewItemURLForNaturalSearch']
                 # Status values -----------------------------------------------------------
                 listings.loc[i, 'status'] = status = self.convert_listing_status_shp(item['ListingStatus'])
-                listings.loc[i, 'type'] = lstype = self.convert_listing_type_shp(item['ListingType'])
+                listings.loc[i, 'listing_type'] = lstype = self.convert_listing_type_shp(item['ListingType'])
                 quantitySold = int(item['QuantitySold'])
                 
                 # is_real - If True: One could really buy the item for this price.
@@ -626,7 +630,7 @@ class EbayShoppingAPIConnector(object):
                     is_sold = True
                 else:
                     is_sold = False
-                listings.loc[i, 'is_sold'] = is_real
+                listings.loc[i, 'is_sold'] = is_sold
 
                 if is_sold:
                     try:
@@ -634,9 +638,9 @@ class EbayShoppingAPIConnector(object):
                     except KeyError as err:
                         logging.debug("Missing field in 'HighBidder': " + str(err))
 
-            except (KeyError, AssertionError) as err:
+            except (TypeError, KeyError, AssertionError) as err:
                 logging.error('Error while parsing Ebay shopping API result: ' + repr(err))
-                logging.debug(pformat(item))
+                logging.info(pformat(item))
 
         listings['site'] = self.ebay_name
         
@@ -645,9 +649,13 @@ class EbayShoppingAPIConnector(object):
     @staticmethod
     def convert_ItemSpecifics(item_specifics):
         """Convert the ``ItemSpecifics`` to a suitable JSON representation."""
-        specs = {}
-        for nvpair in item_specifics['NameValueList']:
-            specs[nvpair['Name']] = nvpair['Value']
+        try:
+            specs = {}
+            for nvpair in item_specifics['NameValueList']:
+                specs[nvpair['Name']] = nvpair['Value']
+        except TypeError as err:
+            logging.error(str(err) + '\n`item_specifics`:\n' + pformat(item_specifics))
+        
         return json.dumps(specs, ensure_ascii=False, check_circular=False, sort_keys=True)
 #         return str(specs)
 
@@ -782,19 +790,27 @@ class EbayConnector(object):
     Connect to Ebay over the internet and return listings.
     
     This is the class that application code should use to connect to Ebay.
-    
-    Parameters
-    -------------
-    
-    keyfile : str
-        Name of the configuration file for the ``python-ebay`` library,
-        that contains the (secret) access keys for the Ebay API.
     """
 
-    EBAY_SITE_NAME = 'ebay'
+    all_ebay_global_ids = {
+       "EBAY-AT", "EBAY-AU", "EBAY-CH", "EBAY-DE", "EBAY-ENC", "EBAY-ES",
+       "EBAY-FR", "EBAY-FRB", "EBAY-FRC", "EBAY-GB", "EBAY-HK", "EBAY-IE",
+       "EBAY-IN", "EBAY-IT", "EBAY-MOT", "EBAY-MY", "EBAY-NL", "EBAY-NLB",
+       "EBAY-PH", "EBAY-PL", "EBAY-SG", "EBAY-US", }
+    "Legal values for Ebay's global ID."
+
+    internal_site_name = 'ebay'
     "Value for the dataframe's 'site' field, to show that the listings come from Ebay."
 
     def __init__(self, keyfile):
+        """
+        Parameters
+        -------------
+        
+        keyfile : str
+            Name of the configuration file for the ``python-ebay`` library,
+            that contains the (secret) access keys for the Ebay API.
+        """
         assert isinstance(keyfile, (str, type(None)))
         assert os.path.isfile(keyfile) 
 
@@ -867,14 +883,14 @@ class EbayConnector(object):
         """
         assert isinstance(keywords, (str))
         assert isinstance(n_listings, (int))
-        assert isinstance(ebay_site, (str))
+        assert ebay_site in self.all_ebay_global_ids
         assert isinstance(price_min, (float, int, type(None)))
         assert isinstance(price_max, (float, int, type(None)))
         assert isinstance(currency,  (str, type(None)))
         assert isinstance(time_from, (datetime, pd.Timestamp, type(None)))
         assert isinstance(time_to,   (datetime, pd.Timestamp, type(None)))
 
-        fapic = EbayFindingAPIConnector(self.keyfile, ebay_site, self.EBAY_SITE_NAME)
+        fapic = EbayFindingAPIConnector(self.keyfile, ebay_site, self.internal_site_name)
         listings = fapic.find_listings(keywords, n_listings, 
                                       price_min, price_max, currency, 
                                       time_from, time_to)
@@ -907,11 +923,14 @@ class EbayConnector(object):
             New table with updated information.
         """
         assert isinstance(listings, pd.DataFrame)
-        assert isinstance(ebay_site, str)
+        assert ebay_site in self.all_ebay_global_ids
         
-        sapic = EbayShoppingAPIConnector(self.keyfile, ebay_site, self.EBAY_SITE_NAME)
+        sapic = EbayShoppingAPIConnector(self.keyfile, ebay_site, 
+                                         self.internal_site_name)
         listings = sapic.update_listings(listings, ebay_site)
+        listings.dropna(subset=['time'], inplace=True)
         self.create_ids(listings)
+        listings.drop_duplicates(['id'], keep='first', inplace=True)
         listings.set_index("id", drop=False, inplace=True,
                            verify_integrity=True)
         return listings
@@ -922,7 +941,7 @@ class EbayConnector(object):
         
         The have the form: {date}-ebay-{number}
         """
-        # Ebay reuses ``itemId`` values for recurrent listings of  professional
+        # Ebay reuses ``itemId`` values for recurrent listings of professional
         # sellers. Therefore the date is included in the listing's ID.
         dates = listings['time'].map(lambda t: t.isoformat().split('T')[0])
         listings['id'] = dates + '-' + listings['site'] + '-' + listings['id_site']

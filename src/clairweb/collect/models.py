@@ -36,7 +36,34 @@ class SearchTask(models.Model):
 
     def __str__(self):
         return "{id}, {prod}, {rec}".format(
-                id=self.id, prod=self.product.name, rec=self.recurrence)
+                id=self.id, 
+                prod=self.product.name if self.product is not None else self.query_string, 
+                rec=self.recurrence)
+
+
+class ListingFoundBy(models.Model):
+    "Remember which ``SearchTask`` found which ``Listing``"
+    id = models.AutoField(
+            "Internal unique ID.",
+            primary_key=True)
+    task = models.IntegerField(
+            'ID of the task that found the listing',)
+    listing = models.CharField(
+            'ID of the listing that was found by the task',
+            max_length=128)
+
+#     task = models.ForeignKey(
+#             SearchTask,
+#             verbose_name='The task that found the listing',
+#             on_delete=models.CASCADE, blank=True, null=True,)
+#     listing = models.ForeignKey(
+#             econdata.models.Listing,
+#             verbose_name='The listing that was found by the task',
+#             on_delete=models.CASCADE, blank=True, null=True,)
+
+    def __str__(self):
+        return "id={id}, task={task}, listing={listing}".format(
+                id=self.id, task=self.task, listing=self.listing)
 
 
 class Event(models.Model):

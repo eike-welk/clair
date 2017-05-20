@@ -49,6 +49,7 @@ class SimpleTypeDescriptor(TypeDescriptor):
         return "SimpleTypeDescriptor({ptype})".format(ptype=self.pythonType)
 
 
+ObjectD = SimpleTypeDescriptor(object)
 NoneD = SimpleTypeDescriptor(type(None))
 StrD = SimpleTypeDescriptor(str)
 BoolD = SimpleTypeDescriptor(bool)

@@ -65,12 +65,15 @@ def _convert_field_to_descriptor(dj_field):
     
     type_trans = {
         models.CharField: descriptors.StrD,
+        models.URLField: descriptors.StrD,
         models.FloatField: descriptors.FloatD,
         models.IntegerField: descriptors.IntD,
+        models.AutoField: descriptors.IntD,
         models.BooleanField: descriptors.BoolD,
         models.NullBooleanField: descriptors.BoolD,
         models.DateField: descriptors.DateTimeD,
         models.DateTimeField: descriptors.DateTimeD,
+        models.ForeignKey: descriptors.ObjectD,
         }
     
     cl_type = type_trans[type(dj_field)]
@@ -227,44 +230,58 @@ def write_frame_create(pd_frame, db_model, fieldnames=None, delete=False):
         db_model.objects.bulk_create(rows)
 
 
-def write_frame(pd_frame, db_model, fieldnames=None):
+def write_frame(pd_frame, db_model, fieldnames=None, idnames=None):
     """
     Write a Pandas ``DataFrame`` into Django's database.
     
-    The alorithm updates existing records, or creates new records if necesary.
+    The algorithm updates existing records, or creates new records if necessary.
     Columns that are not in the database table are ignored.
     """
     assert isinstance(pd_frame, pd.DataFrame)
     assert issubclass(db_model, models.Model)
     assert isinstance(fieldnames, (set, list, tuple, type(None)))
+    assert isinstance(idnames, (set, list, tuple, type(None)))
     
-    # If no field names given, try to write all of the frame's columns
+    # If no `fieldnames` given, try to write all of the frame's columns
     if fieldnames is None:
         fieldnames = set(pd_frame.columns.values.tolist())
     else:
         fieldnames = set(fieldnames)
     
+    # If no `idnames` names given, use the model's primary key to identify 
+    # already existing records.
+    if idnames is None:
+        idnames = {db_model._meta.pk.name}
+    else:
+        idnames = set(idnames)
+    
+    # 'defaults' is a special argument of Django's function `update_or_create`
     if 'defaults' in fieldnames:
         raise KeyError('Column name "defaults" is illegal in this algorithm.')
     
-    # Drop all columns that have no correspondig field in the database
+    # Drop all columns that have no corresponding field in the database
     db_all_fields = db_model._meta.get_fields()
-    db_fieldnames = set([f.name for f in db_all_fields
-                         if f.auto_created == False])
-    wr_fieldnames=fieldnames.intersection(db_fieldnames)
-    wr_frame = pd_frame[list(wr_fieldnames)]
+    db_all_fieldnames = set([f.name for f in db_all_fields
+                             if f.auto_created == False])
+    fieldnames=fieldnames.intersection(db_all_fieldnames)
+    pd_frame = pd_frame[list(fieldnames)]
 
-    id_name = db_model._meta.pk.name
-    if id_name not in wr_fieldnames:
-        raise KeyError('Argument ``pd_frame``: Missing column "{id_name}". '
-                       'The DataFrame must contain a column for the primary key.'
-                       .format(id_name=id_name))
+    if not fieldnames:
+        raise KeyError(
+            'There are no columns that can be written to the database.')
+
+    if not idnames.issubset(fieldnames):
+        raise KeyError(
+            'Argument ``idnames``: The columns for identifying duplicates '
+            'are not all in ``fieldnames`` and not all in the model.\n'
+            'Offending columns: {err_names}'
+            .format(err_names=idnames.difference(fieldnames)))
     
     with transaction.atomic():
-        for i in range(len(wr_frame)):
-            record = wr_frame.iloc[i]
-            kwargs = {id_name: record[id_name],
-                      'defaults': dict(record)}
+        for i in range(len(pd_frame)):
+            record = pd_frame.iloc[i]
+            kwargs = {name: record[name] for name in idnames}
+            kwargs['defaults'] = dict(record)
             db_model.objects.update_or_create(**kwargs)
 
 
