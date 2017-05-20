@@ -169,11 +169,19 @@ class DaemonMain(object):
             logging.error('Invalid server ID: "{sid}"'.format(sid=task.server))
             return []
 
-        #TODO: Get the keywords from the product if a product is given. 
+        # Get the keywords from the product if a product is given. 
+        if task.query_string:
+            query_string = task.query_string
+        elif task.product:
+            query_string = task.product.name + ', ' + task.product.important_words
+        else:
+            logging.error('No keywords to search for.\n'
+                          '``task.query_string`` and product are empty.')
+            return []
         
         #Get new listings from server
         listings_found = self.connector.find_listings(
-                                    keywords=task.query_string, 
+                                    keywords=query_string, 
                                     n_listings=task.n_listings, 
                                     ebay_site=task.server,
                                     price_min=task.price_min, 
