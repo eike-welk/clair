@@ -10,9 +10,32 @@ class SearchTask(models.Model):
             primary_key=True)
     recurrence = models.DurationField(
             "How frequently should the task be executed.",)
+    SERVER_CHOICES = (
+            ('EBAY-AT', 'EBAY-AT'),
+            ('EBAY-AU', 'EBAY-AU'),
+            ('EBAY-CH', 'EBAY-CH'),
+            ('EBAY-DE', 'EBAY-DE'),
+            ('EBAY-ENC', 'EBAY-ENC'),
+            ('EBAY-ES', 'EBAY-ES'),
+            ('EBAY-FR', 'EBAY-FR'),
+            ('EBAY-FRB', 'EBAY-FRB'),
+            ('EBAY-FRC', 'EBAY-FRC'),
+            ('EBAY-GB', 'EBAY-GB'),
+            ('EBAY-HK', 'EBAY-HK'),
+            ('EBAY-IE', 'EBAY-IE'),
+            ('EBAY-IN', 'EBAY-IN'),
+            ('EBAY-IT', 'EBAY-IT'),
+            ('EBAY-MOT', 'EBAY-MOT'),
+            ('EBAY-MY', 'EBAY-MY'),
+            ('EBAY-NL', 'EBAY-NL'),
+            ('EBAY-NLB', 'EBAY-NLB'),
+            ('EBAY-PH', 'EBAY-PH'),
+            ('EBAY-PL', 'EBAY-PL'),
+            ('EBAY-SG', 'EBAY-SG'),
+            ('EBAY-US', 'EBAY-US'),  )
     server = models.CharField(
             "The server where products should be searched.",
-            max_length=64,)
+            max_length=64, choices=SERVER_CHOICES)
     product = models.ForeignKey(
             econdata.models.Product,
             verbose_name="The product which is searched by this task.",

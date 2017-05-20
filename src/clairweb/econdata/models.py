@@ -40,15 +40,15 @@ class Listing(models.Model):
             "String to identify the remote site. For example 'Ebay'.", 
             max_length=8)
     id_site = models.CharField(
-            "ID of listing on the remote site.",
+            "the listing's ID on the remote site.",
             max_length=44)
     # Product description -----------------------------------------------------
     title = models.CharField(
-            "Short description of listing.",
+            "Short description of the listing.",
             max_length=128)
-    description = models.CharField(
-            "Long description of listing.",
-            max_length=1024*10, blank=True, default='')
+    description = models.TextField(
+            "Long description of the listing.",
+            blank=True, default='')
     prod_spec = models.CharField(
             "Product specific name value pairs (dict), in JSON. For example: "
             "``{'megapixel': '12'}``. The ``ItemSpecifics`` on Ebay.",
@@ -138,9 +138,9 @@ class Product(models.Model):
             "Categories for grouping products. "
             "Comma separated list of words (with dots in them).",
             max_length=256, blank=True, default='')
-    description = models.CharField(
+    description = models.TextField(
             "Description of the product. Any text.",
-            max_length=1024*2, blank=True, default='')
+            blank=True, default='')
     description_url1 = models.URLField(
             "Link to website that describes the product (1).",
             max_length=256, blank=True, default='')
