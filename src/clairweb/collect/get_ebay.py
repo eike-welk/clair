@@ -24,13 +24,12 @@
 Get listings from Ebay through its API.
 """
 
-
-from pprint import pformat
 import os.path
 import math
 import json
-import  logging
+import logging
 from datetime import datetime
+from pprint import pformat
 
 import pandas as pd
 from ebaysdk.finding import Connection as FConnection
@@ -38,6 +37,7 @@ from ebaysdk.shopping import Connection as SConnection
 from ebaysdk.exception import ConnectionError
 
 from libclair.dataframes import make_data_frame
+from libclair.textprocessing import HtmlTool
 from econdata.models import Listing
 
 
@@ -584,7 +584,7 @@ class EbayShoppingAPIConnector(object):
                 listings.loc[i, 'id_site'] = item['ItemID']
                 # Product description --------------------------------------------------
                 listings.loc[i, 'title'] = item['Title']
-                listings.loc[i, 'description'] = item['Description']
+                listings.loc[i, 'description'] = HtmlTool.to_nice_text(item['Description'])
                 try:
                     listings.loc[i, 'prod_spec'] = self.convert_ItemSpecifics(item['ItemSpecifics'])
                 except KeyError as err:
@@ -787,19 +787,27 @@ class EbayConnector(object):
     Connect to Ebay over the internet and return listings.
     
     This is the class that application code should use to connect to Ebay.
-    
-    Parameters
-    -------------
-    
-    keyfile : str
-        Name of the configuration file for the ``python-ebay`` library,
-        that contains the (secret) access keys for the Ebay API.
     """
 
-    EBAY_SITE_NAME = 'ebay'
+    all_ebay_global_ids = {
+       "EBAY-AT", "EBAY-AU", "EBAY-CH", "EBAY-DE", "EBAY-ENC", "EBAY-ES",
+       "EBAY-FR", "EBAY-FRB", "EBAY-FRC", "EBAY-GB", "EBAY-HK", "EBAY-IE",
+       "EBAY-IN", "EBAY-IT", "EBAY-MOT", "EBAY-MY", "EBAY-NL", "EBAY-NLB",
+       "EBAY-PH", "EBAY-PL", "EBAY-SG", "EBAY-US", }
+    "Legal values for Ebay's global ID."
+
+    internal_site_name = 'ebay'
     "Value for the dataframe's 'site' field, to show that the listings come from Ebay."
 
     def __init__(self, keyfile):
+        """
+        Parameters
+        -------------
+        
+        keyfile : str
+            Name of the configuration file for the ``python-ebay`` library,
+            that contains the (secret) access keys for the Ebay API.
+        """
         assert isinstance(keyfile, (str, type(None)))
         assert os.path.isfile(keyfile) 
 
@@ -872,14 +880,14 @@ class EbayConnector(object):
         """
         assert isinstance(keywords, (str))
         assert isinstance(n_listings, (int))
-        assert isinstance(ebay_site, (str))
+        assert ebay_site in self.all_ebay_global_ids
         assert isinstance(price_min, (float, int, type(None)))
         assert isinstance(price_max, (float, int, type(None)))
         assert isinstance(currency,  (str, type(None)))
         assert isinstance(time_from, (datetime, pd.Timestamp, type(None)))
         assert isinstance(time_to,   (datetime, pd.Timestamp, type(None)))
 
-        fapic = EbayFindingAPIConnector(self.keyfile, ebay_site, self.EBAY_SITE_NAME)
+        fapic = EbayFindingAPIConnector(self.keyfile, ebay_site, self.internal_site_name)
         listings = fapic.find_listings(keywords, n_listings, 
                                       price_min, price_max, currency, 
                                       time_from, time_to)
@@ -912,9 +920,9 @@ class EbayConnector(object):
             New table with updated information.
         """
         assert isinstance(listings, pd.DataFrame)
-        assert isinstance(ebay_site, str)
+        assert ebay_site in self.all_ebay_global_ids
         
-        sapic = EbayShoppingAPIConnector(self.keyfile, ebay_site, self.EBAY_SITE_NAME)
+        sapic = EbayShoppingAPIConnector(self.keyfile, ebay_site, self.internal_site_name)
         listings = sapic.update_listings(listings, ebay_site)
         self.create_ids(listings)
         listings.set_index("id", drop=False, inplace=True,

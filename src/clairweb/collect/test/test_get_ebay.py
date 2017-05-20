@@ -63,11 +63,13 @@ def test_EbayConnector_find_listings():
     print(listings[["title", "price", "currency", "type"]])
 #     print()
     assert 0.8 * n <= len(listings) <= n #Duplicates are removed
+    print('Finished.')
 
- 
+
 @pytest.mark.django_db
 def test_EbayConnector_update_listings():
     """Test finding listings by keyword through the high level interface."""
+    print('Start.')
     from collect.get_ebay import EbayConnector
     
     n = 35
@@ -89,7 +91,9 @@ def test_EbayConnector_update_listings():
 
     assert 0.95 * n <= len(listings) <= n #Duplicates are removed
     #TODO: Test that descriptions are not none
- 
+    print('Finished.')
+
+
 
 if __name__ == '__main__':
     #One can't use models without this
