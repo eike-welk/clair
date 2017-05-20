@@ -40,7 +40,7 @@ class Listing(models.Model):
             "String to identify the remote site. For example 'Ebay'.", 
             max_length=8)
     id_site = models.CharField(
-            "the listing's ID on the remote site.",
+            "The listing's ID on the remote site.",
             max_length=44)
     # Product description -----------------------------------------------------
     title = models.CharField(
