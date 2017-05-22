@@ -57,7 +57,7 @@ ROOT_URLCONF = 'clairweb.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'clairweb/templates')], #to find the main index page.
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

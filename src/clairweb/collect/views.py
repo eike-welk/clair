@@ -8,7 +8,7 @@ from .serializers import SearchTaskSerializer, EventSerializer
 
 # Regular Pages ---------------------------------------------------------------
 def index(request):
-    return HttpResponse("Hello, world. You're at the Collect index.")
+    return render(request, 'collect/index.html', {})
 
 
 # API -------------------------------------------------------------------------
