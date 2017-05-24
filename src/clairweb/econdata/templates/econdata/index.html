@@ -1,7 +1,22 @@
-{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  {% load static %}
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <!-- <link rel="stylesheet" type="text/css" href="{% static 'clairweb/style.css' %}" /> -->
+</head>
+<body>
 
-<link rel="stylesheet" type="text/css" href="{% static 'clairweb/style.css' %}" />
+  <h1>Econdata - Listings, Products and Prices</h1>
 
-<h1>Econdata - Listings, Products and Prices</h1>
+  <p>Also create training data for product recognition algorithms.</p>
 
-<p>Also create training data for product recognition algorithms.</p>
+  {% verbatim %}
+    <div ng-app="">
+      <p>Input something in the input box:</p>
+      <p>Name : <input type="text" ng-model="name" placeholder="Enter name here"></p>
+      <h2>Hello {{name}}</h2>
+    </div>
+  {% endverbatim %}
+</body>
+</html>
