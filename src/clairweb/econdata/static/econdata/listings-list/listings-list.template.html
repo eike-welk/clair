@@ -20,19 +20,38 @@
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>ID</th>
+          <th></th>
           <th>Title</th>
           <th>Price</th>
+          <th>Cond.</th>
+          <th>Time</th>
+          <th>Real</th>
+          <th>Sold</th>
+          <th>Type</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          ng-repeat="listing in $ctrl.listings | filter:$ctrl.query | orderBy:$ctrl.orderProp">
-          <td>{{listing.id}}</td>
+        <tr ng-repeat="listing in $ctrl.listings | filter:$ctrl.query | orderBy:$ctrl.orderProp">
+          <td><button data-toggle="collapse" data-target="#demo" class="btn btn-primary btn-xs">+</button></td>
           <td>{{listing.title}}</td>
           <td>{{listing.price}}</td>
+          <td>{{listing.condition}}</td>
+          <td>{{listing.time}}</td>
+          <td>{{listing.is_real}}</td>
+          <td>{{listing.is_sold}}</td>
+          <td>{{listing.listing_type}}</td>
+          <td>{{listing.status}}</td>
         </tr>
       </tbody>
     </table>
+    
+    <button ng-click="$ctrl.getListings()" type="button" class="btn btn-primary btn-xs">get more</button>
   </div>
 </div>
+
+  <!-- <button data-toggle="collapse" data-target="#demo">Collapsible</button>
+
+        <div id="demo" class="collapse">
+        Lorem ipsum dolor text....
+        </div>  -->

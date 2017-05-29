@@ -9,9 +9,16 @@ angular.
       var self = this;
       self.orderProp = 'time';
       self.listings = [];
+      self.iGet = 1;
+      
+      self.getListings = function() {
+        $http.get('/econdata/api/listings/', {params: {'page': self.iGet}})
+          .then(function(response) {
+            self.listings = self.listings.concat(response.data.results);
+          });
+        self.iGet += 1;
+      }
 
-      $http.get('/econdata/api/listings/').then(function(response) {
-        self.listings = response.data.results;
-      });
+      self.getListings();
     }]
   });
