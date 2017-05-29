@@ -32,8 +32,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="listing in $ctrl.listings | filter:$ctrl.query | orderBy:$ctrl.orderProp">
-          <td><button data-toggle="collapse" data-target="#demo" class="btn btn-primary btn-xs">+</button></td>
+        <tr ng-repeat-start="listing in $ctrl.listings 
+                             | filter:$ctrl.query | orderBy:$ctrl.orderProp">
+          <td>
+            <button data-toggle="collapse" data-target="#demo{{$index}}" 
+                    class="btn btn-primary btn-xs">+</button>
+          </td>
           <td>{{listing.title}}</td>
           <td>{{listing.price}}</td>
           <td>{{listing.condition}}</td>
@@ -42,6 +46,14 @@
           <td>{{listing.is_sold}}</td>
           <td>{{listing.listing_type}}</td>
           <td>{{listing.status}}</td>
+        </tr>
+        <tr ng-repeat-end id="demo{{$index}}" class="collapse">
+          <td></td>
+          <td colspan="8">
+            <pre class="pre-scrollable">
+              {{listing.description}}
+            </pre>
+          </td>
         </tr>
       </tbody>
     </table>
