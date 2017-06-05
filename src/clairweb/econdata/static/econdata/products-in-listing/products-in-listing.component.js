@@ -7,8 +7,12 @@ angular.
     component('productsInListing', {
         templateUrl: '/static/econdata/products-in-listing/products-in-listing.template.html',
         controller: ['$http', function productsInListingController($http) {
-            var self = this;
-            console.log("Listing ID: " + self.listingId);
+            var ctrl = this;
+//             console.log("Listing ID: " + ctrl.listingId);
+
+            ctrl.$onInit = function() {
+                console.log("Listing ID: " + ctrl.listingId);
+            };
         }],
         bindings: {
             listingId: "@"
