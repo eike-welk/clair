@@ -2,6 +2,7 @@
 
 // Define the `econdataApp` module
 angular.module('econdataApp', [
-  'ngRoute',
-  'listingsList'
+//   'ngRoute',
+  'listingsList',
+  'productsInListing'
 ]);

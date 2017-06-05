@@ -1,6 +1,6 @@
 <div>
   <div class="row">
-    <!--Sidebar content-->
+    <!--navigation content-->
     <p>
       Search: 
       <input ng-model="$ctrl.query" />
@@ -38,7 +38,7 @@
             <button data-toggle="collapse" data-target="#demo{{$index}}" 
                     class="btn btn-primary btn-xs">+</button>
           </td>
-          <td>{{listing.title}}</td>
+          <td><a href="{{listing.item_url}}" target="_blank">{{listing.title}}</a></td>
           <td>{{listing.price}}</td>
           <td>{{listing.condition}}</td>
           <td>{{listing.time}}</td>
@@ -50,7 +50,8 @@
         <tr ng-repeat-end id="demo{{$index}}" class="collapse">
           <td></td>
           <td colspan="8">
-            <pre class="pre-scrollable">
+            <products-in-listing listing-id="{{listing.id}}"></products-in-listing>
+            <pre class="pre-scrollable" style="width:1200px; white-space: pre-wrap; overflow:auto;">
               {{listing.description}}
             </pre>
           </td>
@@ -61,9 +62,3 @@
     <button ng-click="$ctrl.getListings()" type="button" class="btn btn-primary btn-xs">get more</button>
   </div>
 </div>
-
-  <!-- <button data-toggle="collapse" data-target="#demo">Collapsible</button>
-
-        <div id="demo" class="collapse">
-        Lorem ipsum dolor text....
-        </div>  -->

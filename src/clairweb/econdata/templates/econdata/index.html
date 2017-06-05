@@ -12,13 +12,15 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <!-- Angular -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.min.js"></script>
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.min.js"></script> -->
   <!-- Application script and CSS -->
   <link rel="stylesheet" type="text/css" href="{% static 'common/style.css' %}" />
   <script src="{% static 'econdata/app.module.js' %}"></script>
   <!-- <script src="app.config.js"></script> -->
   <script src="{% static 'econdata/listings-list/listings-list.module.js' %}"></script>
   <script src="{% static 'econdata/listings-list/listings-list.component.js' %}"></script>
+  <script src="{% static 'econdata/products-in-listing/products-in-listing.module.js' %}"></script>
+  <script src="{% static 'econdata/products-in-listing/products-in-listing.component.js' %}"></script>
 </head>
 <body>
   <div class="container">
@@ -27,7 +29,6 @@
 
     {% verbatim %}
     <listings-list></listings-list>
-    <!-- <div ng-view></div> -->
     {% endverbatim %}
 
   </div>
