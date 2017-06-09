@@ -6,15 +6,18 @@ angular.
     module('productsInListing').
     component('productsInListing', {
         templateUrl: '/static/econdata/products-in-listing/products-in-listing.template.html',
+        bindings: {
+            listingId: "@",
+            productsMany: "<",
+            productsFew: "<",
+        },
         controller: ['$http', function productsInListingController($http) {
             var ctrl = this;
-//             console.log("Listing ID: " + ctrl.listingId);
 
             ctrl.$onInit = function() {
                 console.log("Listing ID: " + ctrl.listingId);
+                console.log("productsMany: " + ctrl.productsMany.length);
+                console.log("productsFew: " + ctrl.productsFew.length);
             };
         }],
-        bindings: {
-            listingId: "@"
-        }
     });
