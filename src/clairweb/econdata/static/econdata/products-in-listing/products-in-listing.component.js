@@ -19,5 +19,9 @@ angular.
                 console.log("productsMany: " + ctrl.productsMany.length);
                 console.log("productsFew: " + ctrl.productsFew.length);
             };
+            
+            ctrl.addProduct = function(productName) {
+                console.log("Add product: " + productName);
+            }
         }],
     });

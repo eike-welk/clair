@@ -1,11 +1,15 @@
 <div>
-  <input ng-model="prodName" type="text" list="prod-complete">
-  <datalist id="prod-complete">
-    <option ng-repeat="product in $ctrl.productsMany">{{product.name}}</option>
-  </datalist>
-  <select ng-model="prodName" style="width:20px">
-    <option ng-repeat="product in $ctrl.productsFew" value="{{product.name}}">
-      {{product.name}}
-    </option>
-  </select> 
+  <form>
+    <input ng-model="prodName" type="text" list="prod-completer" 
+           placeholder="Product name">
+    <datalist id="prod-completer">
+      <option ng-repeat="product in $ctrl.productsMany">{{product.name}}</option>
+    </datalist>
+    <select ng-model="prodName" style="width:20px">
+      <option ng-repeat="product in $ctrl.productsFew">{{product.name}}</option>
+    </select> 
+    <input type="submit" class="btn btn-primary btn-xs" value="+"
+           ng-click="$ctrl.addProduct(prodName)">
+    <!-- <button class="btn btn-primary btn-xs">+</button> -->
+  </form>
 </div>
