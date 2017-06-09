@@ -16,11 +16,11 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from . import views
-
+import common.views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', common.views.index),
+#     url(r'^common/', include('common.urls')),
     url(r'^econdata/', include('econdata.urls')),
     url(r'^collect/', include('collect.urls')),
     url(r'^admin/', admin.site.urls),

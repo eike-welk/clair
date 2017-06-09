@@ -8,7 +8,7 @@ from .serializers import ListingSerializer, ProductSerializer, PriceSerializer
 
 # Regular Pages ---------------------------------------------------------------
 def index(request):
-    return HttpResponse("Hello, world. You're at the Econdata index.")
+    return render(request, 'econdata/index.html', {})
 
 
 # API -------------------------------------------------------------------------

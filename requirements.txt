@@ -1,0 +1,10 @@
+Django
+djangorestframework
+ebaysdk
+
+numpy
+pandas
+nltk
+
+pytest
+pytest-django
