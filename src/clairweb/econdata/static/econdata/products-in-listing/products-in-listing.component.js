@@ -9,7 +9,7 @@ angular.
         bindings: {
             listingId: "@",
             productsMany: "<",
-            productsFew: "<",
+            productsFew: "<"
         },
         controller: ['$http', function productsInListingController($http) {
             var ctrl = this;
@@ -22,6 +22,6 @@ angular.
             
             ctrl.addProduct = function(productName) {
                 console.log("Add product: " + productName);
-            }
-        }],
+            };
+        }]
     });
