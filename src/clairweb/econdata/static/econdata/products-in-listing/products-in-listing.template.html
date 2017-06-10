@@ -5,11 +5,14 @@
     <datalist id="prod-completer">
       <option ng-repeat="product in $ctrl.productsMany">{{product.name}}</option>
     </datalist>
+    
     <select ng-model="prodName" style="width:20px">
       <option ng-repeat="product in $ctrl.productsFew">{{product.name}}</option>
     </select> 
-    <input type="submit" class="btn btn-primary btn-xs" value="+"
-           ng-click="$ctrl.addProduct(prodName)">
-    <!-- <button class="btn btn-primary btn-xs">+</button> -->
+    
+    <button type="submit" class="btn btn-primary btn-xs" 
+            ng-click="$ctrl.addProduct(prodName)">
+      <span class="glyphicon glyphicon-plus-sign"></span>
+    </button> 
   </form>
 </div>

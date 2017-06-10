@@ -36,7 +36,9 @@
                              | filter:$ctrl.query | orderBy:$ctrl.orderProp">
           <td>
             <button data-toggle="collapse" data-target="#demo{{$index}}" 
-                    class="btn btn-primary btn-xs">+</button>
+                    class="btn btn-primary btn-xs">
+              <span class="glyphicon glyphicon-zoom-in"></span>
+            </button>
           </td>
           <td>
             <a href="{{listing.item_url}}" target="_blank">{{listing.title}}</a>
