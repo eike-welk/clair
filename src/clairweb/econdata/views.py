@@ -41,6 +41,18 @@ class ProductsInListingViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows prices to be viewed or edited.
     """
-    queryset = ProductsInListing.objects.all()
     serializer_class = ProductsInListingSerializer
-
+    
+    def get_queryset(self):
+        if 'listing' in self.request.GET:
+            try:
+                listing_URL = self.request.GET['listing']
+                listing_id = listing_URL.split('/')[-2]
+#                print("Listing: " + listing_id)
+                listing = Listing.objects.get(id=listing_id)
+                qs = ProductsInListing.objects.filter(listing=listing)
+                return qs
+            except (Listing.DoesNotExist, IndexError):
+                return ProductsInListing.objects.none()
+        else:
+            return ProductsInListing.objects.all()
