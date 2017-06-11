@@ -9,6 +9,7 @@ router = routers.DefaultRouter()
 router.register(r'listings', views.ListingViewSet)
 router.register(r'products', views.ProductViewSet)
 router.register(r'prices', views.PriceViewSet)
+router.register(r'products-in-listings', views.ProductsInListingViewSet)
 
 urlpatterns = [
     url(r'^$', views.index),

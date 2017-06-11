@@ -205,3 +205,28 @@ class Price(models.Model):
     def __str__(self):
         return self.id + ', ' + self.price + ' ' + self.currency + ', ' + self.time
 
+
+class ProductsInListing(models.Model):
+    """
+    Record the products that are sold in a certain listing.
+    """
+    id = models.AutoField(
+            "Internal unique ID of each record.",
+            primary_key=True)
+    product = models.ForeignKey(
+            Product,
+            verbose_name="ID of product for which the price is recorded.",
+#            related_name='related_price_record',
+            on_delete=models.CASCADE, blank=True, null=True,)
+    listing = models.ForeignKey(
+            Listing,
+            verbose_name="ID of listing from which the price is taken.",
+#            related_name='related_price_record',
+            on_delete=models.CASCADE, blank=True, null=True,)
+    is_training_data = models.BooleanField(
+            "If true this record is used for training the product recognition algortithms.",
+            default=False)
+
+    def __str__(self):
+        return str(self.id) + ', ' + self.product.name + ', ' + self.listing.title
+    

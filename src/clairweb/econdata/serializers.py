@@ -1,4 +1,4 @@
-from .models import Listing, Product, Price
+from .models import Listing, Product, Price, ProductsInListing
 from rest_framework import serializers
 
 
@@ -25,3 +25,7 @@ class PriceSerializer(serializers.HyperlinkedModelSerializer):
                   'listing', 'price_type', 'is_sold', 'avg_period', 
                   'avg_num_listings',)
 
+class ProductsInListingSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ProductsInListing
+        fields = ('id', 'product', 'listing', 'is_training_data',)
