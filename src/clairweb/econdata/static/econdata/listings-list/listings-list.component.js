@@ -22,11 +22,11 @@ angular.
 
       self.getProducts = function(iPage=1) {
         $http.get('/econdata/api/products/', {params: {'page': iPage}})
-          .then(function(response) {
-            self.products = self.products.concat(response.data.results);
-            if (response.data.next !== null) {
-                self.getProducts(iPage + 1);
-            }
+             .then(function(response) {
+                self.products = self.products.concat(response.data.results);
+                if (response.data.next !== null) {
+                    self.getProducts(iPage + 1);
+                }
           });
       };
 

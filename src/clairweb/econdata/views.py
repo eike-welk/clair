@@ -39,7 +39,7 @@ class PriceViewSet(viewsets.ModelViewSet):
 
 class ProductsInListingViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows prices to be viewed or edited.
+    API endpoint that allows ProductsInListing records to be viewed or edited.
     """
     serializer_class = ProductsInListingSerializer
     
@@ -47,7 +47,8 @@ class ProductsInListingViewSet(viewsets.ModelViewSet):
         if 'listing' in self.request.GET:
             try:
                 listing_URL = self.request.GET['listing']
-                listing_id = listing_URL.split('/')[-2]
+#                listing_id = listing_URL.split('/')[-2]
+                listing_id = listing_URL
 #                print("Listing: " + listing_id)
                 listing = Listing.objects.get(id=listing_id)
                 qs = ProductsInListing.objects.filter(listing=listing)
