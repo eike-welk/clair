@@ -43,7 +43,7 @@ angular.
                         // Replace the URL by the product, and store the 
                         // modified products-in-listing record.
                         pilRecord.product = product;
-                        ctrl.productsInListing.push(pilRecord)
+                        ctrl.productsInListing.push(pilRecord);
                     }
 
                     // Get next page if it exists.
@@ -68,11 +68,15 @@ angular.
                           {product: '/econdata/api/products/' + product.id + '/', 
                            listing: '/econdata/api/listings/' + ctrl.listingId + '/',
                            is_training_data: true})
-                    .then(function(response){
+                    .then(function(_response){
                         // After data is stored, refresh `ctrl.productsInListing`
                         ctrl.getProducts();
                     });
                 }
+            };
+            
+            ctrl.removeProduct = function(recordID) {
+                console.log("Remove product: " + recordID);
             };
         }]
     });

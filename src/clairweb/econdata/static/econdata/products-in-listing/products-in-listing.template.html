@@ -1,24 +1,36 @@
 <div>
-  <!-- Widgets to specify which products are in this listing. --> 
-  <input ng-model="inProductName" type="text" list="prod-completer" 
+  <!-- Widgets to specify which products are in this listing. -->
+  <input ng-model="inProductName" type="text" list="prod-completer"
          placeholder="Product name">
   <datalist id="prod-completer">
     <option ng-repeat="product in $ctrl.productsMany">{{product.name}}</option>
   </datalist>
 
-  <select ng-model="inProductName" style="width:10px">
+  <select ng-model="inProductName" style="width:10px"
+          title="Select a product.">
     <option ng-repeat="product in $ctrl.productsFew">{{product.name}}</option>
-  </select> 
+  </select>
 
-  <button type="submit" class="btn btn-primary btn-xs" 
-          ng-click="$ctrl.addProduct(inProductName)">
+  <button ng-click="$ctrl.addProduct(inProductName)"
+          type="submit" class="btn btn-primary btn-xs"
+          title="Add product to listing.">>
     <span class="glyphicon glyphicon-plus-sign"></span>
-  </button> 
-  
+  </button>
+
   <!-- Representations of Products in this listing. -->
-  <span ng-repeat="record in $ctrl.productsInListing" 
+  <span ng-repeat="record in $ctrl.productsInListing"
         style="border: 1px solid lightgray; border-radius: 10px;
-               padding-left: 10px;padding-right: 10px;">
+               padding-left: 10px;padding-right: 10px;"
+               title="This product is present in the listing.">
     {{record.product.name}}
+    <span ng-if="record.is_training_data"
+          class="glyphicon glyphicon-flag" style="color: green"
+          title="This is training data for product recognition algorithms.">
+    </span>
+    <button ng-click="$ctrl.removeProduct(record.id)"
+            class="btn btn-primary btn-xs"
+            title="Remove product from listing.">
+      <span class="glyphicon glyphicon-minus-sign"></span>
+    </button>
   </span>
 </div>
