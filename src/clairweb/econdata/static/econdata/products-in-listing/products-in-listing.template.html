@@ -1,5 +1,5 @@
 <div>
-  <!-- Widgets to specify which products are in this listing. -->
+  <!-- Widgets to specify which products are in this listing. ============== -->
   <input ng-model="inProductName" type="text" list="prod-completer"
          placeholder="Product name">
   <datalist id="prod-completer">
@@ -13,12 +13,14 @@
 
   <button ng-click="$ctrl.addProduct(inProductName)"
           type="submit" class="btn btn-primary btn-xs"
-          title="Add product to listing.">>
+          title="Add product to listing.">
     <span class="glyphicon glyphicon-plus-sign"></span>
   </button>
 
-  <!-- Representations of Products in this listing. -->
+  <!-- Representations of Products in this listing. ======================== -->
   <span ng-repeat="record in $ctrl.productsInListing"
+        ng-init="showButton = false"
+        ng-mouseenter="showButton = true" ng-mouseleave="showButton = false"
         style="border: 1px solid lightgray; border-radius: 10px;
                padding-left: 10px;padding-right: 10px;"
                title="This product is present in the listing.">
@@ -28,6 +30,7 @@
           title="This is training data for product recognition algorithms.">
     </span>
     <button ng-click="$ctrl.removeProduct(record.id)"
+            ng-show="showButton"
             class="btn btn-primary btn-xs"
             title="Remove product from listing.">
       <span class="glyphicon glyphicon-minus-sign"></span>

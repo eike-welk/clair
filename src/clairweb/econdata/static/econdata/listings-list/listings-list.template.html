@@ -2,12 +2,12 @@
   <div class="row">
     <!--navigation content-->
     <p>
-      Search: 
+      Search:
       <input ng-model="$ctrl.query" />
     </p>
 
     <p>
-      Sort by: 
+      Sort by:
       <select ng-model="$ctrl.orderProp">
         <option value="title">Title</option>
         <option value="time">Date</option>
@@ -32,10 +32,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat-start="listing in $ctrl.listings 
+        <tr ng-repeat-start="listing in $ctrl.listings
                              | filter:$ctrl.query | orderBy:$ctrl.orderProp">
           <td>
-            <button data-toggle="collapse" data-target="#demo{{$index}}" 
+            <button data-toggle="collapse" data-target="#details_{{$index}}"
                     class="btn btn-primary btn-xs">
               <span class="glyphicon glyphicon-zoom-in"></span>
             </button>
@@ -51,14 +51,14 @@
           <td>{{listing.listing_type}}</td>
           <td>{{listing.status}}</td>
         </tr>
-        <tr ng-repeat-end id="demo{{$index}}" class="collapse">
+        <tr ng-repeat-end id="details_{{$index}}" class="collapse">
           <td></td>
           <td colspan="8">
-            <products-in-listing listing-id="{{listing.id}}" 
-                                 products-many="$ctrl.products" 
+            <products-in-listing listing-id="{{listing.id}}"
+                                 products-many="$ctrl.products"
                                  products-few="$ctrl.products">
             </products-in-listing>
-            <pre class="pre-scrollable" style="width:100%; 
+            <pre class="pre-scrollable" style="width:100%;
                  white-space: pre-wrap; overflow:auto;">
               {{listing.description}}
             </pre>
@@ -66,7 +66,7 @@
         </tr>
       </tbody>
     </table>
-    
+
     <button ng-click="$ctrl.getListings()" type="button" class="btn btn-primary btn-xs">get more</button>
   </div>
 </div>
