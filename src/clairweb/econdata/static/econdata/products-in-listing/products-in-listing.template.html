@@ -1,41 +1,48 @@
 <div>
-  <!-- Widgets to specify which products are in this listing. ============== -->
-  <input ng-model="inProductName" type="text" list="prod-completer"
-         placeholder="Product name">
-  <datalist id="prod-completer">
-    <option ng-repeat="product in $ctrl.productsMany">{{product.name}}</option>
-  </datalist>
+  <div style="display: inline-block;">
+    <!-- Widgets to specify which products are in this listing. ============== -->
+    <form>
+      <input ng-model="inProductName" type="text" list="prod-completer"
+             placeholder="Product name">
+      <datalist id="prod-completer">
+        <option ng-repeat="product in $ctrl.productsMany">{{product.name}}</option>
+      </datalist>
 
-  <select ng-model="inProductName" style="width:10px"
-          title="Select a product.">
-    <option ng-repeat="product in $ctrl.productsFew">{{product.name}}</option>
-  </select>
+      <select ng-model="inProductName" style="width:10px"
+              title="Select a product.">
+        <option ng-repeat="product in $ctrl.productsFew">{{product.name}}</option>
+      </select>
 
-  <button ng-click="$ctrl.addProduct(inProductName)"
-          type="submit" class="btn btn-default btn-xs"
-          title="Add product to listing.">
-    <span class="glyphicon glyphicon-plus-sign text-success"></span>
-  </button>
+      <button ng-click="$ctrl.addProduct(inProductName)"
+              type="submit" class="btn btn-default btn-xs"
+              title="Add product to listing.">
+        <span class="glyphicon glyphicon-plus-sign text-success"></span>
+      </button>
+    </form>
+  </div>
 
-  <!-- Representations of Products in this listing. ======================== -->
-  <span ng-repeat="record in $ctrl.productsInListing"
-        ng-init="showButton = false"
-        ng-mouseenter="showButton = true" ng-mouseleave="showButton = false"
-        style="border: 1px solid lightgray; border-radius: 10px;
-               padding-left: 10px;padding-right: 10px;"
-               title="This product is present in the listing.">
-    {{record.product.name}}
-    <!-- Icon to show if record is training data -->
-    <span ng-if="record.is_training_data"
-          class="glyphicon glyphicon-flag text-success"
-          title="This is training data for product recognition algorithms.">
-    </span>
-    <!-- Delete Button -->
-    <button ng-click="$ctrl.removeProduct(record.id)"
-            ng-show="showButton"
-            class="btn btn-default btn-xs"
-            title="Remove product from listing.">
-      <span class="glyphicon glyphicon-minus-sign text-danger"></span>
-    </button>
-  </span>
+  <div style="display: inline-block;">
+    <!-- Representations of Products in this listing. ======================== -->
+    <div ng-repeat="record in $ctrl.productsInListing"
+          ng-init="showButton = false"
+          ng-mouseenter="showButton = true" ng-mouseleave="showButton = false"
+          style="border: 1px solid lightgray; border-radius: 10px;
+                 padding-left: 10px; padding-right: 10px;
+                 display: inline-block"
+                 title="This product is present in the listing.">
+      {{record.product.name}}
+      <!-- Icon to show if record is training data -->
+      <span ng-if="record.is_training_data"
+            class="glyphicon glyphicon-flag text-success"
+            title="This is training data for product recognition algorithms.">
+      </span>
+      <!-- Delete Button -->
+      <button ng-click="$ctrl.removeProduct(record.id)"
+              ng-show="showButton"
+              class="btn btn-default btn-xs"
+              title="Remove product from listing.">
+        <span class="glyphicon glyphicon-minus-sign text-danger"></span>
+      </button>
+    </div>
+  </div>
 </div>
