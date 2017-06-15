@@ -3,9 +3,9 @@
 
 // Register `productsInListing` component, along with its associated controller
 // and template
-angular.
-    module('productsInListing').
-    component('productsInListing', {
+angular
+    .module('productsInListing')
+    .component('productsInListing', {
         templateUrl: '/static/econdata/products-in-listing/products-in-listing.template.html',
         bindings: {
             listingId: "@",
@@ -17,7 +17,8 @@ angular.
             ctrl.productsInListing = [];
 
             ctrl.$onInit = function() {
-//                console.log("Listing ID: " + ctrl.listingId);
+                //Add entry to drop down control, for "No interesting products"
+                ctrl.productsFew = [{name: ""}].concat(ctrl.productsFew)
                 ctrl.getProducts();
             };
 
@@ -42,10 +43,18 @@ angular.
                     //   the Python side.
                     for (var pilRecord of response.data.results) {
                         // Find the product, that is associated to the URL.
-                        var urlParts = pilRecord.product.split("/");
-                        var productID = urlParts.slice(-2)[0];
-                        var product = ctrl.productsMany.find(function(product){
-                            return product.id === productID;});
+                        var product;
+                        if (pilRecord.product === null) {
+                            // If the record contains no product, create a dummy product.
+                            product = {name: "<No Products>"};
+                        } else {
+                            // Find the product in the product array for the text
+                            // completion.
+                            var urlParts = pilRecord.product.split("/");
+                            var productID = urlParts.slice(-2)[0];
+                            product = ctrl.productsMany.find(function(product){
+                                return product.id === productID;});
+                        }
                         // Replace the URL by the product, and store the
                         // modified products-in-listing record.
                         pilRecord.product = product;
@@ -62,23 +71,33 @@ angular.
             // Store (in DB) that a product appears in a listing.
             // This information will be used as training data.
             ctrl.addProduct = function(productName) {
-                console.log("Add product: " + productName);
-                // Find the product with the given name
-                var product = ctrl.productsMany.find(function(product){
-                    return product.name === productName;});
-                // Store that product is contained in listing
-                if (product !== undefined) {
+                console.log("Add product: '" + productName + "'");
+                var product;
+                if (productName === "" || productName === undefined) {
+                    // The user wants to add a record with no product.
+                    // to express that the listing contains no interesting products.
+                    product = null;
+                } else {
+                    // Find the product with the given name
+                    product = ctrl.productsMany.find(function(product){
+                        return product.name === productName;});
+                    if (product === undefined) {
+                        return;
+                    }
                     console.log('Found product: ' + product.id);
-                    $http
-                    .post('/econdata/api/products-in-listings/',
-                          {product: '/econdata/api/products/' + product.id + '/',
-                           listing: '/econdata/api/listings/' + ctrl.listingId + '/',
-                           is_training_data: true})
-                    .then(function(_response){
-                        // After data is stored, refresh `ctrl.productsInListing`
-                        ctrl.getProducts();
-                    });
                 }
+
+                // Create the `products-in-listings` record
+                $http
+                .post('/econdata/api/products-in-listings/',
+                      {product: product === null ? null :
+                                '/econdata/api/products/' + product.id + '/',
+                       listing: '/econdata/api/listings/' + ctrl.listingId + '/',
+                       is_training_data: true})
+                .then(function(_response){
+                    // After data is stored, refresh `ctrl.productsInListing`
+                    ctrl.getProducts();
+                });
             };
 
             // Remove from DB that a  product appears in a listing.
