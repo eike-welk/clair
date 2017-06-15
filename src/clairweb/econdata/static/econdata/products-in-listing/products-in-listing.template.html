@@ -12,9 +12,9 @@
   </select>
 
   <button ng-click="$ctrl.addProduct(inProductName)"
-          type="submit" class="btn btn-primary btn-xs"
+          type="submit" class="btn btn-default btn-xs"
           title="Add product to listing.">
-    <span class="glyphicon glyphicon-plus-sign"></span>
+    <span class="glyphicon glyphicon-plus-sign text-success"></span>
   </button>
 
   <!-- Representations of Products in this listing. ======================== -->
@@ -25,15 +25,17 @@
                padding-left: 10px;padding-right: 10px;"
                title="This product is present in the listing.">
     {{record.product.name}}
+    <!-- Icon to show if record is training data -->
     <span ng-if="record.is_training_data"
-          class="glyphicon glyphicon-flag" style="color: green"
+          class="glyphicon glyphicon-flag text-success"
           title="This is training data for product recognition algorithms.">
     </span>
+    <!-- Delete Button -->
     <button ng-click="$ctrl.removeProduct(record.id)"
             ng-show="showButton"
-            class="btn btn-primary btn-xs"
+            class="btn btn-default btn-xs"
             title="Remove product from listing.">
-      <span class="glyphicon glyphicon-minus-sign"></span>
+      <span class="glyphicon glyphicon-minus-sign text-danger"></span>
     </button>
   </span>
 </div>
