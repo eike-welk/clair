@@ -123,13 +123,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Settings for the Dango REST Framework, a framework for web APIs
+# Settings for the Dango REST Framework, the framework for the JSON APIs
+# http://www.django-rest-framework.org/#api-guide
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.IsAdminUser',
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
         #'rest_framework.permissions.AllowAny',
     ],
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 20
 }
 

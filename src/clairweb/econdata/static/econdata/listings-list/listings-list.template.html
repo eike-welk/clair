@@ -32,10 +32,13 @@
         </tr>
       </thead>
       <tbody>
+        <!-- Main listing information row ================================== -->
         <tr ng-repeat-start="listing in $ctrl.listings
                              | filter:$ctrl.query | orderBy:$ctrl.orderProp">
           <td>
-            <button data-toggle="collapse" data-target="#details_{{$index}}"
+            <!-- The **Show Details** Button -->
+            <button ng-init="showDetails = false"
+                    ng-click="showDetails = !showDetails"
                     class="btn btn-default btn-xs">
               <span class="glyphicon glyphicon-zoom-in text-primary"></span>
             </button>
@@ -51,7 +54,9 @@
           <td>{{listing.listing_type}}</td>
           <td>{{listing.status}}</td>
         </tr>
-        <tr ng-repeat-end id="details_{{$index}}" class="collapse">
+        <!-- Listing details row =========================================== -->
+        <tr ng-repeat-end
+            ng-if="showDetails">
           <td></td>
           <td colspan="8">
             <products-in-listing listing-id="{{listing.id}}"
