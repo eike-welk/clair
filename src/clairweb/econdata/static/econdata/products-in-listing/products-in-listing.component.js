@@ -22,9 +22,14 @@ angular
             ctrl.getProducts();
         };
 
-        // Fill `ctrl.productsInListing` from database table 'products-in-listings'.
-        // Replace the product URL with the assocated product object from
-        // `ctrl.productsMany`.
+        /**
+         * Fill `ctrl.productsInListing` from DB table 'products-in-listings'.
+         *
+         * Look up the name of the product in the DB.
+         * Fill `ctrl.productsInListing` from DB table `productsInListings`.
+         *
+         * @param {Number} iPage - Page number, the API is paginated.
+         */
         ctrl.getProducts = function(iPage=1) {
             $http
             .get("/econdata/api/products-in-listings/",
@@ -35,31 +40,26 @@ angular
                     ctrl.productsInListing = [];
                 }
 
-                // TODO: Find different solution
-                // * Either follow the `product` link in each record and get
-                //   product name from there, or...
-                // * Create an other API, which contains all the necessary
-                //   information. This would shift some of the complexity to
-                //   the Python side.
-                for (var pilRecord of response.data.results) {
-                    // Find the product, that is associated to the URL.
-                    var product;
+                // Find the product, that is associated to the `product` URL.
+                var productsInListingDB = response.data.results;
+                productsInListingDB.forEach(function(pilRecord) {
                     if (pilRecord.product === null) {
-                        // If the record contains no product, create a dummy product.
-                        product = {name: "<No Products>"};
+                        // If the record contains no product URL, create a dummy
+                        // product name
+                        pilRecord.productName = "<No Products>";
+                        ctrl.productsInListing.push(pilRecord);
                     } else {
-                        // Find the product in the product array for the text
-                        // completion.
-                        var urlParts = pilRecord.product.split("/");
-                        var productID = urlParts.slice(-2)[0];
-                        product = ctrl.productsMany.find(function(product){
-                            return product.id === productID;});
+                        // Follow the product URL and get the product from the DB
+                        $http
+                        .get(pilRecord.product)
+                        .then(function(response){
+                            // Store the product name in the `productsInListing` record
+                            var product = response.data;
+                            pilRecord.productName = product.name;
+                            ctrl.productsInListing.push(pilRecord);
+                        });
                     }
-                    // Replace the URL by the product, and store the
-                    // modified products-in-listing record.
-                    pilRecord.product = product;
-                    ctrl.productsInListing.push(pilRecord);
-                }
+                });
 
                 // Get next page if it exists.
                 if (response.data.next !== null) {
@@ -68,8 +68,13 @@ angular
             });
         };
 
-        // Store (in DB) that a product appears in a listing.
-        // This information will be used as training data.
+        /**
+         * Store that a product appears in a listing.
+         *
+         * The new record is always marked as training data.
+         *
+         * @param {String} productName
+         */
         ctrl.addProduct = function(productName) {
             console.log("Add product: '" + productName + "'");
             var product;
@@ -100,7 +105,11 @@ angular
             });
         };
 
-        // Remove from DB that a  product appears in a listing.
+        /**
+         * Remove record that a product appears in a listing.
+         *
+         * @param {String} recordID - The ID of the record in the DB table.
+         */
         ctrl.removeProduct = function(recordID) {
             console.log("Remove product: " + recordID);
             $http

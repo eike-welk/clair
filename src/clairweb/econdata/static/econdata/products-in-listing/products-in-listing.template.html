@@ -23,14 +23,14 @@
 
   <div style="display: inline-block;">
     <!-- Representations of Products in this listing. ======================== -->
-    <div ng-repeat="record in $ctrl.productsInListing"
+    <div ng-repeat="record in $ctrl.productsInListing | orderBy:'productName'"
           ng-init="showButton = false"
           ng-mouseenter="showButton = true" ng-mouseleave="showButton = false"
           style="border: 1px solid lightgray; border-radius: 10px;
                  padding-left: 10px; padding-right: 10px;
                  display: inline-block"
                  title="This product is present in the listing.">
-      {{record.product.name}}
+      {{record.productName}}
       <!-- Icon to show if record is training data -->
       <span ng-if="record.is_training_data"
             class="glyphicon glyphicon-flag text-success"
