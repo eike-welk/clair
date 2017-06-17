@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+#from django.http import HttpResponse
 from rest_framework import viewsets
 
-from .models import Listing, Product, Price
-from .serializers import ListingSerializer, ProductSerializer, PriceSerializer
+from .models import Listing, Product, Price, ProductsInListing
+from .serializers import ListingSerializer, ProductSerializer, PriceSerializer, \
+                         ProductsInListingSerializer
 
 
 # Regular Pages ---------------------------------------------------------------
@@ -35,3 +36,24 @@ class PriceViewSet(viewsets.ModelViewSet):
     queryset = Price.objects.all().order_by('-time')
     serializer_class = PriceSerializer
 
+
+class ProductsInListingViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows ProductsInListing records to be viewed or edited.
+    """
+    serializer_class = ProductsInListingSerializer
+    
+    def get_queryset(self):
+        if 'listing' in self.request.GET:
+            try:
+                listing_URL = self.request.GET['listing']
+#                listing_id = listing_URL.split('/')[-2]
+                listing_id = listing_URL
+#                print("Listing: " + listing_id)
+                listing = Listing.objects.get(id=listing_id)
+                qs = ProductsInListing.objects.filter(listing=listing)
+                return qs
+            except (Listing.DoesNotExist, IndexError):
+                return ProductsInListing.objects.none()
+        else:
+            return ProductsInListing.objects.all()

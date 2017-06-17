@@ -55,4 +55,3 @@ test-tmp/
 
 #The Sqlite database of auto generated Django sites.
 src/clairweb/db.sqlite3
-
