@@ -1,36 +1,24 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en" ng-app="econdataApp">
-<head>
-  <meta charset="utf-8">
-  <title>Cair: Econdata</title>
-  <!-- Bootstrap -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"> -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <!-- Angular -->
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.min.js"></script> -->
-  <!-- Application script and CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'common/style.css' %}" />
-  <script src="{% static 'econdata/app.module.js' %}"></script>
-  <!-- <script src="app.config.js"></script> -->
-  <script src="{% static 'econdata/listings-list/listings-list.module.js' %}"></script>
-  <script src="{% static 'econdata/listings-list/listings-list.component.js' %}"></script>
-  <script src="{% static 'econdata/products-in-listing/products-in-listing.module.js' %}"></script>
-  <script src="{% static 'econdata/products-in-listing/products-in-listing.component.js' %}"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>Econdata - Listings, Products and Prices</h1>
-    <p>Also create training data for product recognition algorithms.</p>
+{% extends "common/base_common.html" %}
 
-    {% verbatim %}
-    <listings-list></listings-list>
-    {% endverbatim %}
+{% block title %}Econdata - Clair{% endblock %}
 
-  </div>
-</body>
-</html>
+{% block content %}
+  <h1>Econdata</h1>
+
+  <p>Listings, Products and Prices</p>
+
+  <p>
+    View listings and train the recognition algorithms:
+    <a href="listings/">Listings</a>
+  </p>
+
+  <p>
+    View products:
+    <a href="#">Products</a>
+  </p>
+
+  <p>
+    View prices:
+    <a href="#">Prices</a>
+  </p>
+{% endblock %}

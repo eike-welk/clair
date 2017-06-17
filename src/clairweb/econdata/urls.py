@@ -13,6 +13,7 @@ router.register(r'products-in-listings', views.ProductsInListingViewSet, base_na
 
 urlpatterns = [
     url(r'^$', views.index),
+    url(r'^listings/$', views.listings),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

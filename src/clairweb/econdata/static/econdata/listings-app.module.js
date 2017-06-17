@@ -1,7 +1,7 @@
 'use strict';
 
-// Define the `econdataApp` module
-angular.module('econdataApp', 
+// Define the `listingsApp` module
+angular.module('listingsApp', 
                ['listingsList', 'productsInListing'])
        .config(['$httpProvider', function ($httpProvider) {
             // Configure usage of Django's CSRF token.
