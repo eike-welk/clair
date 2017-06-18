@@ -1,0 +1,22 @@
+{% extends "common/base_common.html" %}
+
+{% block page_scripts %} 
+  {% load static %}
+<!--   <script src="{% static 'econdata/search-tasks-app.module.js' %}"></script> -->
+{% endblock %}
+
+{% block title %}Search Tasks - Clair{% endblock %}
+
+{% block content %}
+  <div ng-app="searchTasksApp">
+    <h1>Search Tasks</h1>
+
+    <p>
+      View and edit search tasks.
+    </p>
+
+    {% verbatim %}
+      <!-- <search-tasks-list></search-tasks-list> -->
+    {% endverbatim %}
+  </div>
+{% endblock %}

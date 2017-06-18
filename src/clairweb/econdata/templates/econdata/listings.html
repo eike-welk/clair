@@ -1,0 +1,27 @@
+{% extends "common/base_common.html" %}
+
+{% block page_scripts %} 
+  {% load static %}
+  <script src="{% static 'econdata/listings-app.module.js' %}"></script>
+  <script src="{% static 'econdata/listings-list/listings-list.module.js' %}"></script>
+  <script src="{% static 'econdata/listings-list/listings-list.component.js' %}"></script>
+  <script src="{% static 'econdata/products-in-listing/products-in-listing.module.js' %}"></script>
+  <script src="{% static 'econdata/products-in-listing/products-in-listing.component.js' %}"></script>
+{% endblock %}
+
+{% block title %}Listings - Clair{% endblock %}
+
+{% block content %}
+  <div ng-app="listingsApp">
+    <h1>Listings</h1>
+
+    <p>
+      View listings, and create training data for the product recognition
+      algorithms.
+    </p>
+
+    {% verbatim %}
+      <listings-list></listings-list>
+    {% endverbatim %}
+  </div>
+{% endblock %}

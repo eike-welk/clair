@@ -1,5 +1,14 @@
-{% load static %}
+{% extends "common/base_common.html" %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'clairweb/style.css' %}" />
+{% block title %}Collect - Clair{% endblock %}
 
-<h1>Collect - Download data from the Internet</h1>
+{% block content %}
+  <h1>Collect</h1>
+
+  <p>Download data from the Internet</p>
+
+  <p>
+    View search tasks:
+    <a href="search-tasks/">Search Tasks</a>
+  </p>
+{% endblock %}

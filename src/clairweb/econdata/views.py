@@ -11,6 +11,16 @@ from .serializers import ListingSerializer, ProductSerializer, PriceSerializer, 
 def index(request):
     return render(request, 'econdata/index.html', {})
 
+def listings(request):
+    return render(request, 'econdata/listings.html', {})
+
+def products(request):
+    return render(request, 'econdata/products.html', {})
+
+def prices(request):
+    return render(request, 'econdata/prices.html', {})
+
+
 
 # API -------------------------------------------------------------------------
 class ListingViewSet(viewsets.ModelViewSet):
@@ -45,10 +55,10 @@ class ProductsInListingViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         if 'listing' in self.request.GET:
+            # Report the products that are in a specific listing.
             try:
-                listing_URL = self.request.GET['listing']
+                listing_id = self.request.GET['listing']
 #                listing_id = listing_URL.split('/')[-2]
-                listing_id = listing_URL
 #                print("Listing: " + listing_id)
                 listing = Listing.objects.get(id=listing_id)
                 qs = ProductsInListing.objects.filter(listing=listing)
@@ -56,4 +66,5 @@ class ProductsInListingViewSet(viewsets.ModelViewSet):
             except (Listing.DoesNotExist, IndexError):
                 return ProductsInListing.objects.none()
         else:
+            # Return all records
             return ProductsInListing.objects.all()
