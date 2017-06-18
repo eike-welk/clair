@@ -14,6 +14,13 @@ def index(request):
 def listings(request):
     return render(request, 'econdata/listings.html', {})
 
+def products(request):
+    return render(request, 'econdata/products.html', {})
+
+def prices(request):
+    return render(request, 'econdata/prices.html', {})
+
+
 
 # API -------------------------------------------------------------------------
 class ListingViewSet(viewsets.ModelViewSet):

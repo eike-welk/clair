@@ -11,6 +11,7 @@ router.register(r'events', views.EventViewSet)
 
 urlpatterns = [
     url(r'^$', views.index),
+    url(r'^search-tasks/$', views.searchTasks),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

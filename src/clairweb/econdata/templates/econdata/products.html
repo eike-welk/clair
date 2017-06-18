@@ -1,0 +1,22 @@
+{% extends "common/base_common.html" %}
+
+{% block page_scripts %} 
+  {% load static %}
+<!--   <script src="{% static 'econdata/products-app.module.js' %}"></script> -->
+{% endblock %}
+
+{% block title %}Products - Clair{% endblock %}
+
+{% block content %}
+  <div ng-app="productsApp">
+    <h1>Products</h1>
+
+    <p>
+      View and edit products.
+    </p>
+
+    {% verbatim %}
+      <!-- <products-list></products-list> -->
+    {% endverbatim %}
+  </div>
+{% endblock %}

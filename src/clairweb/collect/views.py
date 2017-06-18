@@ -10,6 +10,9 @@ from .serializers import SearchTaskSerializer, EventSerializer
 def index(request):
     return render(request, 'collect/index.html', {})
 
+def searchTasks(request):
+    return render(request, 'collect/search-tasks.html', {})
+
 
 # API -------------------------------------------------------------------------
 class SearchTaskViewSet(viewsets.ModelViewSet):
