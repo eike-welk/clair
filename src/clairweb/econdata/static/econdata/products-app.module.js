@@ -1,8 +1,8 @@
 'use strict';
 
-// Define the `listingsApp` module
-angular.module('listingsApp',
-               ['listingsList', 'productsInListing'])
+// Define the `productsApp` module
+angular.module('productsApp',
+               ['productsList'])
        .config(['$httpProvider', function ($httpProvider) {
             // Configure usage of Django's CSRF token.
             $httpProvider.defaults.xsrfCookieName = 'csrftoken';
