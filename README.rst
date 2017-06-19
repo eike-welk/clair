@@ -104,5 +104,5 @@ Some information from your Ebay developer keys must be filled into the file
 ``src/clairweb/ebay-sdk.apikey.example``. The file must then be renamed into 
 ``src/clairweb/ebay-sdk.apikey``.
 
-There is example data in the directory ``example-data/``.
+There is example data in the directory ``example-data/``, however the application currently can't read it.
 
