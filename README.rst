@@ -12,7 +12,8 @@ mainly worked empirically and collected a big database of prices.  Mitchell
 also believed that markets need to be regulated, and was influential in
 creating the New Deal.
 
-Software
+
+Development Status
 =======================================
 
 The software is currently in an alpha stage. 
@@ -23,7 +24,8 @@ Clair is written in Python (version 3) with the Django web framework, the GUI
 parts are planned to be written in Javascript with the Angular framework.  It
 can currently only communicate with Ebay.
 
-Installation and Usage
+
+Libraries
 =======================================
 
 Clair needs fairly many libraries to function:
@@ -55,12 +57,43 @@ Clair needs fairly many libraries to function:
     http://www.django-rest-framework.org/
 
 **Pytest**
-	A test framework that works well for test driven development.
-	https://docs.pytest.org/en/latest/
-	
+    A test framework that works well for test driven development.
+    https://docs.pytest.org/en/latest/
+
 **Pytest-Django**
-	An extesion for *Pytest* to work with Django.
-	https://pytest-django.readthedocs.io/en/latest/
+    An extesion for *Pytest* to work with Django.
+    https://pytest-django.readthedocs.io/en/latest/
+
+**AngularJS**
+    A framework for complex applications in Javascript, that run in the
+    browser.
+
+**Bootstrap**
+    A CSS and Javascript framework for styling applications.
+
+
+Installation and Usage
+=======================================
+
+There is currently no installation script. But there is ``requirements.txt``,
+that lists all Python libraries, that need to be installed.
+
+You can use the following commands (preferably in a ``virtualenv``) to: Clone
+the repository, install the necessary libraries, set up the server, and run
+it::
+
+    git clone https://github.com/eike-welk/clair.git
+    cd clair/
+    pip install -r requirements.txt
+
+    cd src/clairweb/
+    python manage.py migrate
+    python manage.py createsuperuser
+    python manage.py runserver
+
+The applications is run in the source directory (``src/clairweb``).
+Be sure to use Python version 3, which is named ``python3`` in
+many Linux distributions. (But it is named ``python`` in ``virtualenv``.)
 
 To communicate with Ebay over its API, you need an *Ebay developer key*, which 
 can be easily obtained through Ebay's developer website:
@@ -70,11 +103,6 @@ can be easily obtained through Ebay's developer website:
 Some information from your Ebay developer keys must be filled into the file
 ``src/clairweb/ebay-sdk.apikey.example``. The file must then be renamed into 
 ``src/clairweb/ebay-sdk.apikey``.
-
-There is currently no installation script, the applications must be run in the
-source directory (``src/clairweb``). The server is started with::
-
-    python3 manage.py runserver
 
 There is example data in the directory ``example-data/``.
 
