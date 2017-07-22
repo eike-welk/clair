@@ -1,0 +1,19 @@
+{% extends "common/base_common.html" %}
+
+{% block page_scripts %}
+  {% load static %}
+<!--    <script src="{% static 'econdata/products-app.module.js' %}"></script> -->
+{% endblock %}
+
+{% block title %}Product Details - Clair{% endblock %}
+
+{% block content %}
+  <div>
+    <h1>Product Details</h1>
+
+    <p>
+      View and edit the product with ID {{product_id}}.
+    </p>
+
+  </div>
+{% endblock %}

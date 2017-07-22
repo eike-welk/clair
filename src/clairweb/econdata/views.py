@@ -17,6 +17,10 @@ def listings(request):
 def products(request):
     return render(request, 'econdata/products.html', {})
 
+def product_details(request, product_id):
+    print('product_id: ', product_id)
+    return render(request, 'econdata/product-details.html', {'product_id': product_id})
+
 def prices(request):
     return render(request, 'econdata/prices.html', {})
 
