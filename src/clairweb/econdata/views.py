@@ -1,9 +1,10 @@
 from django.shortcuts import render
+from django.forms import ModelForm
 #from django.http import HttpResponse
 from rest_framework import viewsets
 
-from .models import Listing, Product, Price, ProductsInListing
-from .serializers import ListingSerializer, ProductSerializer, PriceSerializer, \
+from econdata.models import Listing, Product, Price, ProductsInListing
+from econdata.serializers import ListingSerializer, ProductSerializer, PriceSerializer, \
                          ProductsInListingSerializer
 
 
@@ -17,9 +18,35 @@ def listings(request):
 def products(request):
     return render(request, 'econdata/products.html', {})
 
+class ProductForm(ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'categories', 'important_words', 
+                  'description_url1', 'description_url2', 'description']
+        
 def product_details(request, product_id):
     print('product_id: ', product_id)
-    return render(request, 'econdata/product-details.html', {'product_id': product_id})
+    
+    prod = Product.objects.get(pk=product_id)
+    print('product name: ', prod.name)
+
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ProductForm(request.POST, instance=prod)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
+            form.save()
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ProductForm(instance=prod)
+
+    return render(request, 'econdata/product-details.html', 
+                  {'form': form, 'product_id': product_id})
 
 def prices(request):
     return render(request, 'econdata/prices.html', {})
