@@ -14,12 +14,37 @@
     <p>
       View and edit the product with ID {{product_id}}.
     </p>
-
-    <form action="#" method="post">
+ 
+    <form class="form-horizontal" method="post">
         {% csrf_token %}
-        {{ form.as_p }} 
-
-        <input type="submit" value="Save" />
+        <fieldset>
+            <legend>{{form.name.value}}</legend>
+            <div>ID: {{form.instance.id}}</div>
+            {% for field in form %}
+                {% if field.errors %}
+                    <div class="control-group error">
+                        <label class="control-label">{{ field.label }}</label> 
+                        <div class="controls">{{ field }}
+                            <span class="help-inline">
+                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="control-group">
+                        <label class="control-label">{{ field.label }}</label> 
+                        <div class="controls">{{ field }}
+                            {% if field.help_text %}
+                                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </fieldset>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" >Submit</button>
+        </div>
     </form>
 
   </div>
