@@ -44,7 +44,7 @@ def product_details(request, product_id):
         form = ProductForm(instance=prod)
 
     return render(request, 'econdata/product-details.html', 
-                  {'form': form, 'product_id': product_id})
+                  {'form': form})
 
 def prices(request):
     return render(request, 'econdata/prices.html', {})
