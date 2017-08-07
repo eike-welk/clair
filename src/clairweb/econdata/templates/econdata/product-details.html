@@ -2,7 +2,7 @@
 
 {% block page_scripts %}
   {% load static %}
-<!--    <script src="{% static 'econdata/products-app.module.js' %}"></script> -->
+  <!-- <script src="{% static 'econdata/products-app.module.js' %}"></script> -->
 {% endblock %}
 
 {% block title %}Product Details - Clair{% endblock %}
@@ -15,18 +15,9 @@
       View and edit all fields of a product.
     </p>
  
+    <legend>{{form.name.value}} - <small>(ID: {{form.instance.id}})</small></legend>
     {% load crispy_forms_tags %}
+    {% crispy form %}
 
-    <form class="form-horizontal" method="post">
-      {% csrf_token %}
-      <fieldset>
-        <legend>{{form.name.value}} - <small>(ID: {{form.instance.id}})</small></legend>
-        
-        {{ form|crispy }}
-      </fieldset>
-      <div class="form-actions">
-          <button type="submit" class="btn btn-primary" >Save</button>
-      </div>
-    </form>
   </div>
 {% endblock %}

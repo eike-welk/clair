@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.forms import ModelForm
 #from django.http import HttpResponse
 from rest_framework import viewsets
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
 
 from econdata.models import Listing, Product, Price, ProductsInListing
 from econdata.serializers import ListingSerializer, ProductSerializer, PriceSerializer, \
@@ -18,11 +20,22 @@ def listings(request):
 def products(request):
     return render(request, 'econdata/products.html', {})
 
+
 class ProductForm(ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'categories', 'important_words', 
                   'description_url1', 'description_url2', 'description']
+    
+    helper = FormHelper()
+    helper.form_id = 'id-ProductForm'
+    helper.form_method = 'post'
+    helper.form_action = '#'
+    helper.form_class = 'form-horizontal'
+    helper.label_class = 'col-lg-2'
+    helper.field_class = 'col-lg-8'
+#     helper.form_tag = False # Don't render `<form>` tags.
+    helper.add_input(Submit('submit', 'Submit'))
         
 def product_details(request, product_id):
     print('product_id: ', product_id)
@@ -45,6 +58,7 @@ def product_details(request, product_id):
 
     return render(request, 'econdata/product-details.html', 
                   {'form': form})
+
 
 def prices(request):
     return render(request, 'econdata/prices.html', {})

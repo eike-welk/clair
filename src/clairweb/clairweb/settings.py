@@ -145,3 +145,4 @@ REST_FRAMEWORK = {
 # https://django-crispy-forms.readthedocs.io/en/latest/index.html
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = not DEBUG
