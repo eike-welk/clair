@@ -1,5 +1,6 @@
 Django
 djangorestframework
+django-crispy-forms
 ebaysdk
 
 numpy

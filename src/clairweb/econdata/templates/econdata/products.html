@@ -1,8 +1,10 @@
 {% extends "common/base_common.html" %}
 
-{% block page_scripts %} 
+{% block page_scripts %}
   {% load static %}
-<!--   <script src="{% static 'econdata/products-app.module.js' %}"></script> -->
+   <script src="{% static 'econdata/products-app.module.js' %}"></script>
+   <script src="{% static 'econdata/products-list/products-list.module.js' %}"></script>
+   <script src="{% static 'econdata/products-list/products-list.component.js' %}"></script>
 {% endblock %}
 
 {% block title %}Products - Clair{% endblock %}
@@ -16,7 +18,7 @@
     </p>
 
     {% verbatim %}
-      <!-- <products-list></products-list> -->
+       <products-list></products-list>
     {% endverbatim %}
   </div>
 {% endblock %}

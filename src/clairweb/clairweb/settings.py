@@ -31,16 +31,20 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    #--- parts of this application -------------------------
     'econdata.apps.EcondataConfig',
     'collect.apps.CollectConfig',
     'common.apps.CommonConfig',
+    #--- additional libraries ------------------------------
+    'rest_framework',
+    'crispy_forms',
+    #--- standard apps -------------------------------------
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -123,8 +127,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
 # Settings for the Dango REST Framework, the framework for the JSON APIs
 # http://www.django-rest-framework.org/#api-guide
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.IsAdminUser',
@@ -134,3 +140,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
+
+# Settings for Crispy Forms template helper
+# https://django-crispy-forms.readthedocs.io/en/latest/index.html
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = not DEBUG

@@ -126,26 +126,33 @@ class Product(models.Model):
     Description of a Product.
     """
     id = models.CharField(
-            "Internal unique ID of each product.",
+            "ID",
+            help_text = "Internal unique ID of each product.",
             max_length=64, primary_key=True)
     name = models.CharField(
-            "Product name. A single line of text.",
+            "Product name",
+            help_text = "The product name. A single line of text.",
             max_length=256, default='')
     important_words = models.CharField(
-            "Important words for the text recognition algorithms.",
+            "Important words",
+            help_text = "Important words for the text recognition algorithms.",
             max_length=256, blank=True, default='')
     categories = models.CharField(
-            "Categories for grouping products. "
-            "Comma separated list of words (with dots in them).",
+            "Categories",
+            help_text = "Categories for grouping products. "
+                        "A comma separated list of words, each word may contain dots.",
             max_length=256, blank=True, default='')
     description = models.TextField(
-            "Description of the product. Any text.",
+            "Description",
+            help_text = "A description of the product.",
             blank=True, default='')
     description_url1 = models.URLField(
-            "Link to website that describes the product (1).",
+            "URL 1",
+            help_text = "Link to website that describes the product (1).",
             max_length=256, blank=True, default='')
     description_url2 = models.URLField(
-            "Link to website that describes the product (2).",
+            "URL 2",
+            help_text = "Link to website that describes the product (2).",
             max_length=256, blank=True, default='')
 
     def __str__(self):
