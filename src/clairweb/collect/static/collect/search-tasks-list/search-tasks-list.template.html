@@ -22,14 +22,18 @@
       <thead>
         <tr>
           <th></th>
-          <th>Name</th>
-          <th>Links</th>
-          <th>Categories</th>
+          <th>Product</th>
+          <th>Query String</th>
+          <th>Recurrence</th>
+          <th>Price Min</th>
+          <th>Price Max</th>
+          <th>Number</th>
+          <th>Server</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Main product information row ================================== -->
-        <tr ng-repeat-start="product in $ctrl.searchTasks
+        <!-- Main task information row ================================== -->
+        <tr ng-repeat-start="task in $ctrl.searchTasks
                              | filter:$ctrl.query | orderBy:$ctrl.orderProp">
           <td>
             <!-- The **Show Details** Button -->
@@ -40,15 +44,42 @@
             </button>
           </td>
           <td>
-            <a href="/econdata/searchTasks/{{product.id}}/" target="_blank">{{product.name}}</a>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.product}}
+            </a>
           </td>
           <td>
-            <a href="{{product.description_url1}}" target="_blank">*1</a>
-            <a href="{{product.description_url2}}" target="_blank">*2</a>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.query_string}}
+            </a>
           </td>
-          <td>{{product.categories}}</td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.recurrence}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.price_min}} {{task.currency}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.price_max}} {{task.currency}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.n_listings}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.server}}
+            </a>
+          </td>
         </tr>
-        <!-- Product details row =========================================== -->
+        <!-- Task details row =========================================== -->
         <tr ng-repeat-end
             ng-if="showDetails">
           <td></td>

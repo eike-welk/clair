@@ -53,9 +53,14 @@ class SearchTask(models.Model):
     price_max = models.FloatField(
             "Maximum price for searched items.",
             blank=True, null=True,)
+    CURRENCY_CHOICES = (
+            ('', ''),
+            ('EUR', 'EUR'),
+            ('USD', 'USD'), )
     currency = models.CharField(
             "Currency of the prices.",
-            max_length=3, blank=True, default='')
+            max_length=3, choices=CURRENCY_CHOICES,
+            blank=True, default='')
 
     def __str__(self):
         return "{id}, {prod}, {rec}".format(
