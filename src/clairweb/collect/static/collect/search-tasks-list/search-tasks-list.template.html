@@ -1,0 +1,64 @@
+<div>
+  <div class="row">
+    <!--navigation content-->
+    <p>
+      Search:
+      <input ng-model="$ctrl.query" />
+    </p>
+
+    <p>
+      Sort by:
+      <select ng-model="$ctrl.orderProp">
+        <option value="">&lt;None&gt;</option>
+        <option value="name">Title</option>
+        <option value="categories">Categories</option>
+      </select>
+    </p>
+  </div>
+
+  <div class="row">
+    <!--Body content-->
+    <table class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Links</th>
+          <th>Categories</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Main product information row ================================== -->
+        <tr ng-repeat-start="product in $ctrl.searchTasks
+                             | filter:$ctrl.query | orderBy:$ctrl.orderProp">
+          <td>
+            <!-- The **Show Details** Button -->
+            <button ng-init="showDetails = false"
+                    ng-click="showDetails = !showDetails"
+                    class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon-zoom-in text-primary"></span>
+            </button>
+          </td>
+          <td>
+            <a href="/econdata/searchTasks/{{product.id}}/" target="_blank">{{product.name}}</a>
+          </td>
+          <td>
+            <a href="{{product.description_url1}}" target="_blank">*1</a>
+            <a href="{{product.description_url2}}" target="_blank">*2</a>
+          </td>
+          <td>{{product.categories}}</td>
+        </tr>
+        <!-- Product details row =========================================== -->
+        <tr ng-repeat-end
+            ng-if="showDetails">
+          <td></td>
+          <td colspan="3">
+            Details...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button ng-click="$ctrl.getListings()" type="button" class="btn btn-primary btn-xs">get more</button>
+  </div>
+</div>
