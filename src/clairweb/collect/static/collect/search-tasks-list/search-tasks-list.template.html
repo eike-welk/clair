@@ -33,15 +33,15 @@
       </thead>
       <tbody>
         <!-- Main task information row ================================== -->
-        <tr ng-repeat-start="task in $ctrl.searchTasks
+        <tr ng-repeat="task in $ctrl.searchTasks
                              | filter:$ctrl.query | orderBy:$ctrl.orderProp">
           <td>
             <!-- The **Show Details** Button -->
-            <button ng-init="showDetails = false"
+      <!--  <button ng-init="showDetails = false"
                     ng-click="showDetails = !showDetails"
                     class="btn btn-default btn-xs">
               <span class="glyphicon glyphicon-zoom-in text-primary"></span>
-            </button>
+            </button> -->
           </td>
           <td>
             <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
@@ -78,15 +78,18 @@
               {{task.server}}
             </a>
           </td>
+          <td>
+            <button type="button" class="btn btn-primary btn-xs">Run</button>
+          </td>
         </tr>
         <!-- Task details row =========================================== -->
-        <tr ng-repeat-end
+   <!-- <tr ng-repeat-end
             ng-if="showDetails">
           <td></td>
           <td colspan="3">
             Details...
           </td>
-        </tr>
+        </tr> -->
       </tbody>
     </table>
 
