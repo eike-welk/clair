@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode
+import Debug exposing (log)
 
 
 main =
@@ -22,19 +23,21 @@ main =
 
 type alias SearchTask =
     { id : String
-    , name : String
+    , queryString : String
 
     --, search_words : String
     }
 
 
 type alias Model =
-    List SearchTask
+    { tasks : List SearchTask
+    , error : String
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( [ SearchTask "1" "foo", SearchTask "2" "bar" ]
+    ( Model [ SearchTask "1" "foo", SearchTask "2" "bar" ] ""
     , Cmd.none
     )
 
@@ -45,27 +48,23 @@ init =
 
 type Msg
     = MorePlease
-
-
-
---    | NewGif (Result Http.Error String)
+    | NewTasks (Result Http.Error (List SearchTask))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         MorePlease ->
-            ( model, Cmd.none )
+            ( model, getTaskList )
+
+        NewTasks (Ok newTasks) ->
+            ( { model | tasks = newTasks }, Cmd.none )
+
+        NewTasks (Err err) ->
+            ( { model | error = (toString err) }, Cmd.none )
 
 
 
-{--
-        NewGif (Ok newUrl) ->
-            ( { model | gifUrl = newUrl, errorMsg = "" }, Cmd.none )
-
-        NewGif (Err _) ->
-            ( { model | errorMsg = "A network error occurred" }, Cmd.none )
-            --}
 -- VIEW
 
 
@@ -76,10 +75,13 @@ view model =
         , br [] []
         , table []
             [ thead []
-                [ tr [] [ th [] [ text "name" ] ]
+                [ tr []
+                    [ th [] [ text "ID" ]
+                    , th [] [ text "Query String" ]
+                    ]
                 ]
             , tbody []
-                (List.map viewSearchTask model)
+                (List.map viewSearchTask model.tasks)
             ]
         , button [ onClick MorePlease ] [ text "More Please!" ]
         ]
@@ -87,7 +89,10 @@ view model =
 
 viewSearchTask : SearchTask -> Html Msg
 viewSearchTask task =
-    tr [] [ td [] [ text task.name ] ]
+    tr []
+        [ td [] [ text task.id ]
+        , td [] [ text task.queryString ]
+        ]
 
 
 
@@ -101,17 +106,28 @@ subscriptions model =
 
 
 -- HTTP
-{--
-getRandomGif : String -> Cmd Msg
-getRandomGif topic =
+
+
+getTaskList : Cmd Msg
+getTaskList =
     let
         url =
-            "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=" ++ topic
+            "http://localhost:8000/collect/api/search_tasks/"
     in
-        Http.send NewGif (Http.get url decodeGifUrl)
+        Http.send NewTasks (Http.get url decodeGifUrl)
 
 
-decodeGifUrl : Decode.Decoder String
+decodeGifUrl : Decode.Decoder (List SearchTask)
 decodeGifUrl =
-    Decode.at [ "data", "image_url" ] Decode.string
-    --}
+    Decode.at [ "results" ]
+        (Decode.list
+            (Decode.map2 makeSearchTask
+                (Decode.at [ "id" ] Decode.int)
+                (Decode.at [ "query_string" ] Decode.string)
+            )
+        )
+
+
+makeSearchTask : Int -> String -> SearchTask
+makeSearchTask id queryString =
+    SearchTask (log "id" (toString id)) (log "queryString" queryString)
