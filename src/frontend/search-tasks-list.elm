@@ -22,6 +22,16 @@ main =
 -- MODEL
 
 
+type alias IDType =
+    String
+
+
+type UsageMode
+    = MRun
+    | MChange
+    | MEdit IDType
+
+
 type alias SearchTask =
     { expanded : Bool
     , id : String
@@ -38,13 +48,14 @@ type alias SearchTask =
 
 type alias Model =
     { tasks : List SearchTask
-    , error : String
+    , errorMsg : String
+    , mode : UsageMode
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [] ""
+    ( Model [] "" MRun
     , getTaskList
     )
 
@@ -56,6 +67,7 @@ init =
 type Msg
     = ReloadTasks
     | NewTasks (Result Http.Error (List SearchTask))
+    | ChangeMode UsageMode
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -65,10 +77,18 @@ update msg model =
             ( { model | tasks = [] }, getTaskList )
 
         NewTasks (Ok newTasks) ->
-            ( { model | tasks = List.append model.tasks newTasks }, Cmd.none )
+            ( { model
+                | tasks = List.append model.tasks newTasks
+                , errorMsg = ""
+              }
+            , Cmd.none
+            )
 
         NewTasks (Err err) ->
-            ( { model | error = (toString err) }, Cmd.none )
+            ( { model | errorMsg = (toString err) }, Cmd.none )
+
+        ChangeMode newMode ->
+            ( { model | mode = newMode }, Cmd.none )
 
 
 
@@ -80,10 +100,15 @@ view model =
     div []
         [ h2 [] [ text "Search Tasks" ]
         , br [] []
+        , div []
+            [ button [ onClick (ChangeMode MRun) ] [ text "Run" ]
+            , button [ onClick (ChangeMode MChange) ] [ text "Change" ]
+            , button [ onClick ReloadTasks ] [ text "Reload" ]
+            ]
         , table []
             [ thead []
                 [ tr []
-                    [ th [] [ text "ID" ]
+                    [ th [] [ text "Controls" ]
                     , th [] [ text "Product" ]
                     , th [] [ text "Query String" ]
                     , th [] [ text "Server" ]
@@ -95,16 +120,16 @@ view model =
                     ]
                 ]
             , tbody []
-                (List.map viewSearchTask model.tasks)
+                (List.map (viewSearchTask model.mode) model.tasks)
             ]
         , viewError model
         ]
 
 
-viewSearchTask : SearchTask -> Html Msg
-viewSearchTask task =
+viewSearchTask : UsageMode -> SearchTask -> Html Msg
+viewSearchTask mode task =
     tr []
-        [ td [] [ text task.id ]
+        [ td [] [ viewRowControls mode task.id ]
         , td [] [ text "-" ] --"product": null,
         , td [] [ text task.queryString ]
         , td [] [ text task.server ]
@@ -116,9 +141,33 @@ viewSearchTask task =
         ]
 
 
+viewRowControls : UsageMode -> IDType -> Html Msg
+viewRowControls mode currentID =
+    case mode of
+        MRun ->
+            div []
+                [ button [{- onClick ReloadTasks -}] [ text "Run" ]
+                ]
+
+        MChange ->
+            div []
+                [ button [{- onClick ReloadTasks -}] [ text "Delete" ]
+                , button [ onClick (ChangeMode (MEdit currentID)) ] [ text "Edit" ]
+                ]
+
+        MEdit id ->
+            if id == currentID then
+                div []
+                    [ button [{- onClick ReloadTasks -}] [ text "Save" ]
+                    , button [ onClick (ChangeMode MChange) ] [ text "Revert" ]
+                    ]
+            else
+                div [] []
+
+
 viewError : Model -> Html Msg
 viewError model =
-    if model.error == "" then
+    if model.errorMsg == "" then
         div [] []
     else
         div
@@ -127,7 +176,7 @@ viewError model =
                 , ( "font-weight", "bold" )
                 ]
             ]
-            [ text ("Error: " ++ model.error) ]
+            [ text ("Error: " ++ model.errorMsg) ]
 
 
 
