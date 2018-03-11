@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Array exposing (Array)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -19,11 +20,7 @@ main =
 
 
 
--- MODEL
-
-
-type alias IDType =
-    String
+-- MODEL ----------------------------------------------------------------------
 
 
 {-| Different states of the App.
@@ -34,7 +31,7 @@ Different buttons are shown in these states.
 type UsageMode
     = MRun
     | MChange
-    | MEdit IDType
+    | MEdit Int
 
 
 {-| A Search Task roughly as it is represented in JSON.
@@ -72,7 +69,7 @@ type alias SearchTaskRaw =
 
 
 type alias Model =
-    { tasks : List SearchTask
+    { tasks : Array SearchTask
     , errorMsg : String
     , mode : UsageMode
     , editTask : SearchTaskRaw
@@ -81,13 +78,13 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [] "" MRun (SearchTaskRaw "" "" "" "" "" "" "" "" "")
+    ( Model Array.empty "" MRun (SearchTaskRaw "" "" "" "" "" "" "" "" "")
     , getTaskList
     )
 
 
 
--- UPDATE
+-- UPDATE ---------------------------------------------------------------------
 
 
 type FormField
@@ -112,11 +109,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ReloadTasks ->
-            ( { model | tasks = [] }, getTaskList )
+            ( { model | tasks = Array.empty }, getTaskList )
 
         NewTasks (Ok newTasks) ->
             ( { model
-                | tasks = List.append model.tasks newTasks
+                | tasks = Array.append model.tasks (Array.fromList newTasks)
                 , errorMsg = ""
               }
             , Cmd.none
@@ -124,6 +121,19 @@ update msg model =
 
         NewTasks (Err err) ->
             ( { model | errorMsg = (toString err) }, Cmd.none )
+
+        ChangeMode (MEdit taskIndex) ->
+            ( { model
+                | mode = MEdit taskIndex
+                , editTask =
+                    toSearchTaskRaw
+                        (Maybe.withDefault
+                            (SearchTask "" "" "" "" Nothing 0 0 0 "")
+                            (Array.get taskIndex model.tasks)
+                        )
+              }
+            , Cmd.none
+            )
 
         ChangeMode newMode ->
             ( { model | mode = newMode }, Cmd.none )
@@ -134,6 +144,20 @@ update msg model =
               }
             , Cmd.none
             )
+
+
+toSearchTaskRaw : SearchTask -> SearchTaskRaw
+toSearchTaskRaw inTask =
+    { id = inTask.id
+    , queryString = inTask.queryString
+    , recurrence = inTask.recurrence
+    , server = inTask.server
+    , product = "" -- inTask.product
+    , nListings = toString inTask.nListings
+    , priceMin = toString inTask.priceMin
+    , priceMax = toString inTask.priceMax
+    , currency = inTask.currency
+    }
 
 
 updateField : FormField -> String -> SearchTaskRaw -> SearchTaskRaw
@@ -165,7 +189,7 @@ updateField field newContents task =
 
 
 
--- VIEW
+-- VIEW ----------------------------------------------------------------------
 
 
 view : Model -> Html Msg
@@ -193,29 +217,38 @@ view model =
                     ]
                 ]
             , tbody []
-                (List.map (viewSearchTask model model.mode) model.tasks)
+                (let
+                    indexedTasks =
+                        Array.toIndexedList model.tasks
+
+                    callViewFunc : ( Int, SearchTask ) -> Html Msg
+                    callViewFunc ( i, task ) =
+                        viewSearchTask model model.mode i task
+                 in
+                    (List.map callViewFunc indexedTasks)
+                )
             ]
         , viewError model
         ]
 
 
-viewSearchTask : Model -> UsageMode -> SearchTask -> Html Msg
-viewSearchTask model mode task =
+viewSearchTask : Model -> UsageMode -> Int -> SearchTask -> Html Msg
+viewSearchTask model mode index task =
     case mode of
         MEdit id ->
-            if id == task.id then
-                viewSearchTaskEdit mode model.editTask
+            if id == index then
+                viewSearchTaskEdit mode index model.editTask
             else
-                viewSearchTaskSimple mode task
+                viewSearchTaskSimple mode index task
 
         _ ->
-            viewSearchTaskSimple mode task
+            viewSearchTaskSimple mode index task
 
 
-viewSearchTaskSimple : UsageMode -> SearchTask -> Html Msg
-viewSearchTaskSimple mode task =
+viewSearchTaskSimple : UsageMode -> Int -> SearchTask -> Html Msg
+viewSearchTaskSimple mode index task =
     tr []
-        [ td [] [ viewRowControls mode task.id ]
+        [ td [] [ viewRowControls mode index ]
         , td [] [ text "-" ] --"product": null,
         , td [] [ text task.queryString ]
         , td [] [ text task.server ]
@@ -227,10 +260,10 @@ viewSearchTaskSimple mode task =
         ]
 
 
-viewSearchTaskEdit : UsageMode -> SearchTaskRaw -> Html Msg
-viewSearchTaskEdit mode task =
+viewSearchTaskEdit : UsageMode -> Int -> SearchTaskRaw -> Html Msg
+viewSearchTaskEdit mode index task =
     tr []
-        [ td [] [ viewRowControls mode task.id ]
+        [ td [] [ viewRowControls mode index ]
         , td [] [ text "-" ] --"product": null,
         , td [] [ input [ onInput (ChangeField FQueryString), value task.queryString ] [] ]
         , td [] [ input [ onInput (ChangeField FServer), value task.server ] [] ]
@@ -242,7 +275,7 @@ viewSearchTaskEdit mode task =
         ]
 
 
-viewRowControls : UsageMode -> IDType -> Html Msg
+viewRowControls : UsageMode -> Int -> Html Msg
 viewRowControls mode currentID =
     case mode of
         MRun ->
@@ -281,7 +314,7 @@ viewError model =
 
 
 
--- SUBSCRIPTIONS
+-- SUBSCRIPTIONS --------------------------------------------------------------
 
 
 subscriptions : Model -> Sub Msg
@@ -290,7 +323,7 @@ subscriptions model =
 
 
 
--- HTTP
+-- HTTP ----------------------------------------------------------------------
 
 
 {-| The API URL for accessing search tasks.
