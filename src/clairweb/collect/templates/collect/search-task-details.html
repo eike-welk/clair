@@ -1,0 +1,23 @@
+{% extends "common/base_common.html" %}
+
+{% block page_scripts %}
+  {% load static %}
+  <!-- <script src="{% static 'econdata/products-app.module.js' %}"></script> -->
+{% endblock %}
+
+{% block title %}Search Task Details - Clair{% endblock %}
+
+{% block content %}
+  <div>
+    <h1>Search Task Details</h1>
+
+    <p>
+      View and edit details of a search task.
+    </p>
+ 
+    <legend>{{form.name.value}} - <small>(ID: {{form.instance.id}})</small></legend>
+    {% load crispy_forms_tags %}
+    {% crispy form %}
+
+  </div>
+{% endblock %}

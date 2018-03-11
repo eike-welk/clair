@@ -1,0 +1,98 @@
+<div>
+  <div class="row">
+    <!--navigation content-->
+    <p>
+      Search:
+      <input ng-model="$ctrl.query" />
+    </p>
+
+    <p>
+      Sort by:
+      <select ng-model="$ctrl.orderProp">
+        <option value="">&lt;None&gt;</option>
+        <option value="name">Title</option>
+        <option value="categories">Categories</option>
+      </select>
+    </p>
+  </div>
+
+  <div class="row">
+    <!--Body content-->
+    <table class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Product</th>
+          <th>Query String</th>
+          <th>Recurrence</th>
+          <th>Price Min</th>
+          <th>Price Max</th>
+          <th>Number</th>
+          <th>Server</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Main task information row ================================== -->
+        <tr ng-repeat="task in $ctrl.searchTasks
+                             | filter:$ctrl.query | orderBy:$ctrl.orderProp">
+          <td>
+            <!-- The **Show Details** Button -->
+      <!--  <button ng-init="showDetails = false"
+                    ng-click="showDetails = !showDetails"
+                    class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon-zoom-in text-primary"></span>
+            </button> -->
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.product}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.query_string}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.recurrence}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.price_min}} {{task.currency}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.price_max}} {{task.currency}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.n_listings}}
+            </a>
+          </td>
+          <td>
+            <a href="/collect/search-tasks/{{task.id}}/" target="_blank">
+              {{task.server}}
+            </a>
+          </td>
+          <td>
+            <button type="button" class="btn btn-primary btn-xs">Run</button>
+          </td>
+        </tr>
+        <!-- Task details row =========================================== -->
+   <!-- <tr ng-repeat-end
+            ng-if="showDetails">
+          <td></td>
+          <td colspan="3">
+            Details...
+          </td>
+        </tr> -->
+      </tbody>
+    </table>
+
+    <button ng-click="$ctrl.getListings()" type="button" class="btn btn-primary btn-xs">get more</button>
+  </div>
+</div>

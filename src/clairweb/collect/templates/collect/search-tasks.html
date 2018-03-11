@@ -1,8 +1,10 @@
 {% extends "common/base_common.html" %}
 
-{% block page_scripts %} 
+{% block page_scripts %}
   {% load static %}
-<!--   <script src="{% static 'econdata/search-tasks-app.module.js' %}"></script> -->
+   <script src="{% static 'collect/search-tasks-app.module.js' %}"></script>
+   <script src="{% static 'collect/search-tasks-list/search-tasks-list.module.js' %}"></script>
+   <script src="{% static 'collect/search-tasks-list/search-tasks-list.component.js' %}"></script>
 {% endblock %}
 
 {% block title %}Search Tasks - Clair{% endblock %}
@@ -16,7 +18,7 @@
     </p>
 
     {% verbatim %}
-      <!-- <search-tasks-list></search-tasks-list> -->
+      <search-tasks-list></search-tasks-list>
     {% endverbatim %}
   </div>
 {% endblock %}
