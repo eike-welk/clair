@@ -26,15 +26,25 @@ type alias IDType =
     String
 
 
+{-| Different states of the App.
+
+Different buttons are shown in these states.
+
+-}
 type UsageMode
     = MRun
     | MChange
     | MEdit IDType
 
 
+{-| A Search Task roughly as it is represented in JSON.
+
+`SearchTask` represents a search with certain keywords on a specific
+server.
+
+-}
 type alias SearchTask =
-    { expanded : Bool
-    , id : String
+    { id : String
     , queryString : String
     , recurrence : String
     , server : String
@@ -46,16 +56,32 @@ type alias SearchTask =
     }
 
 
+{-| The contents of all input fields for editing the `SearchTask`.
+-}
+type alias SearchTaskRaw =
+    { id : String
+    , queryString : String
+    , recurrence : String
+    , server : String
+    , product : String
+    , nListings : String
+    , priceMin : String
+    , priceMax : String
+    , currency : String
+    }
+
+
 type alias Model =
     { tasks : List SearchTask
     , errorMsg : String
     , mode : UsageMode
+    , editTask : SearchTaskRaw
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [] "" MRun
+    ( Model [] "" MRun (SearchTaskRaw "" "" "" "" "" "" "" "" "")
     , getTaskList
     )
 
@@ -64,10 +90,22 @@ init =
 -- UPDATE
 
 
+type FormField
+    = FRecurrence
+    | FServer
+    | FProduct
+    | FQueryString
+    | FNListings
+    | FPriceMin
+    | FPriceMax
+    | FCurrency
+
+
 type Msg
     = ReloadTasks
     | NewTasks (Result Http.Error (List SearchTask))
     | ChangeMode UsageMode
+    | ChangeField FormField String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,6 +127,41 @@ update msg model =
 
         ChangeMode newMode ->
             ( { model | mode = newMode }, Cmd.none )
+
+        ChangeField field newContents ->
+            ( { model
+                | editTask = updateField field newContents model.editTask
+              }
+            , Cmd.none
+            )
+
+
+updateField : FormField -> String -> SearchTaskRaw -> SearchTaskRaw
+updateField field newContents task =
+    case field of
+        FRecurrence ->
+            { task | recurrence = newContents }
+
+        FServer ->
+            { task | server = newContents }
+
+        FProduct ->
+            { task | product = newContents }
+
+        FQueryString ->
+            { task | queryString = newContents }
+
+        FNListings ->
+            { task | nListings = newContents }
+
+        FPriceMin ->
+            { task | priceMin = newContents }
+
+        FPriceMax ->
+            { task | priceMax = newContents }
+
+        FCurrency ->
+            { task | currency = newContents }
 
 
 
@@ -120,14 +193,27 @@ view model =
                     ]
                 ]
             , tbody []
-                (List.map (viewSearchTask model.mode) model.tasks)
+                (List.map (viewSearchTask model model.mode) model.tasks)
             ]
         , viewError model
         ]
 
 
-viewSearchTask : UsageMode -> SearchTask -> Html Msg
-viewSearchTask mode task =
+viewSearchTask : Model -> UsageMode -> SearchTask -> Html Msg
+viewSearchTask model mode task =
+    case mode of
+        MEdit id ->
+            if id == task.id then
+                viewSearchTaskEdit mode model.editTask
+            else
+                viewSearchTaskSimple mode task
+
+        _ ->
+            viewSearchTaskSimple mode task
+
+
+viewSearchTaskSimple : UsageMode -> SearchTask -> Html Msg
+viewSearchTaskSimple mode task =
     tr []
         [ td [] [ viewRowControls mode task.id ]
         , td [] [ text "-" ] --"product": null,
@@ -138,6 +224,21 @@ viewSearchTask mode task =
         , td [] [ text (toString task.priceMin) ]
         , td [] [ text (toString task.priceMax) ]
         , td [] [ text task.currency ]
+        ]
+
+
+viewSearchTaskEdit : UsageMode -> SearchTaskRaw -> Html Msg
+viewSearchTaskEdit mode task =
+    tr []
+        [ td [] [ viewRowControls mode task.id ]
+        , td [] [ text "-" ] --"product": null,
+        , td [] [ input [ onInput (ChangeField FQueryString), value task.queryString ] [] ]
+        , td [] [ input [ onInput (ChangeField FServer), value task.server ] [] ]
+        , td [] [ input [ onInput (ChangeField FRecurrence), value task.recurrence ] [] ]
+        , td [] [ input [ onInput (ChangeField FNListings), value task.nListings ] [] ]
+        , td [] [ input [ onInput (ChangeField FPriceMin), value task.priceMin ] [] ]
+        , td [] [ input [ onInput (ChangeField FPriceMax), value task.priceMax ] [] ]
+        , td [] [ input [ onInput (ChangeField FCurrency), value task.currency ] [] ]
         ]
 
 
@@ -237,7 +338,6 @@ parseSearchTaskList =
     JD.at [ "results" ]
         (JD.list
             (PL.decode SearchTask
-                |> PL.hardcoded False
                 |> PL.required "id" (JD.map toString JD.int)
                 |> PL.required "query_string" JD.string
                 |> PL.required "recurrence" JD.string
