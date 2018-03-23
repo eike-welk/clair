@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Array exposing (Array)
+import Maybe exposing (withDefault)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -21,6 +22,7 @@ main =
 
 
 -- MODEL ----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 
 {-| Different states of the App.
@@ -36,19 +38,36 @@ type UsageMode
 
 {-| A Search Task roughly as it is represented in JSON.
 
-`SearchTask` represents a search with certain keywords on a specific
-server.
+A `SearchTask` represents a search with certain keywords on a specific server.
+A search task is a record in the data base.
 
 -}
 type alias SearchTask =
-    { id : String
+    { -- The data base ID
+      id : String
+
+    -- The words used in the search query.
     , queryString : String
+
+    -- Time between two searches. Format: "days hh:mm:ss"
     , recurrence : String
+
+    -- String representing the Server where the search is executed.
     , server : String
+
+    -- API URL of the product
     , product : Maybe String
+
+    -- The desired number of listings that should be returned.
     , nListings : Int
+
+    -- The minimum price of each listing.
     , priceMin : Float
+
+    -- The maximum price of each listing.
     , priceMax : Float
+
+    -- The currency for the maximum- and minimum prices.
     , currency : String
     }
 
@@ -68,23 +87,90 @@ type alias SearchTaskRaw =
     }
 
 
+
+-- Errors for the individual fields of the `SearchTask`
+
+
+type ErrorQueryString
+    = QueryStringMissing
+
+
+type ErrorRecurrence
+    = RecurrenceMissing
+    | RecurrenceWrongFormat
+
+
+type ErrorServer
+    = ServerMissing
+
+
+type ErrorProduct
+    = ProductMissing
+
+
+type ErrorNListings
+    = NListingsMissing
+    | NListingsWrongFormat
+    | NListingsNegative
+
+
+type ErrorPriceMin
+    = PriceMinMissing
+    | PriceMinWrongFormat
+    | PriceMinNegative
+    | PriceMin_MinGTMax
+
+
+type ErrorPriceMax
+    = PriceMaxMissing
+    | PriceMaxWrongFormat
+    | PriceMaxNegative
+    | PriceMax_MinGTMax
+
+
+type ErrorCurrency
+    = CurrencyMissing
+    | CurrencyUnknown
+
+
+{-| Errors for all input fields for editing the `SearchTask`.
+-}
+type alias SearchTaskError =
+    { --id : String
+      queryString : Maybe ErrorQueryString
+    , recurrence : Maybe ErrorRecurrence
+    , server : Maybe ErrorServer
+    , product : Maybe ErrorProduct
+    , nListings : Maybe ErrorNListings
+    , priceMin : Maybe ErrorPriceMin
+    , priceMax : Maybe ErrorPriceMax
+    , currency : Maybe ErrorCurrency
+    }
+
+
 type alias Model =
     { tasks : Array SearchTask
     , errorMsg : String
     , mode : UsageMode
     , editTask : SearchTaskRaw
+    , editError : SearchTaskError
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model Array.empty "" MRun (SearchTaskRaw "" "" "" "" "" "" "" "" "")
+    ( Model Array.empty
+        ""
+        MRun
+        (SearchTaskRaw "" "" "" "" "" "" "" "" "")
+        (SearchTaskError Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing)
     , getTaskList
     )
 
 
 
 -- UPDATE ---------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 
 type FormField
@@ -122,28 +208,42 @@ update msg model =
         NewTasks (Err err) ->
             ( { model | errorMsg = (toString err) }, Cmd.none )
 
-        ChangeMode (MEdit taskIndex) ->
-            ( { model
-                | mode = MEdit taskIndex
-                , editTask =
+        ChangeMode (MEdit iTask) ->
+            let
+                newEditTask =
                     toSearchTaskRaw
-                        (Maybe.withDefault
-                            (SearchTask "" "" "" "" Nothing 0 0 0 "")
-                            (Array.get taskIndex model.tasks)
+                        (Array.get iTask model.tasks
+                            |> withDefault (SearchTask "" "" "" "" Nothing 0 0 0 "")
                         )
-              }
-            , Cmd.none
-            )
+
+                newEditError =
+                    validateEditTask newEditTask
+            in
+                ( { model
+                    | mode = MEdit iTask
+                    , editTask = newEditTask
+                    , editError = newEditError
+                  }
+                , Cmd.none
+                )
 
         ChangeMode newMode ->
             ( { model | mode = newMode }, Cmd.none )
 
         ChangeField field newContents ->
-            ( { model
-                | editTask = updateField field newContents model.editTask
-              }
-            , Cmd.none
-            )
+            let
+                newEditTask =
+                    updateField field newContents model.editTask
+
+                newEditError =
+                    validateEditTask newEditTask
+            in
+                ( { model
+                    | editTask = newEditTask
+                    , editError = newEditError
+                  }
+                , Cmd.none
+                )
 
 
 toSearchTaskRaw : SearchTask -> SearchTaskRaw
@@ -152,7 +252,7 @@ toSearchTaskRaw inTask =
     , queryString = inTask.queryString
     , recurrence = inTask.recurrence
     , server = inTask.server
-    , product = "" -- inTask.product
+    , product = inTask.product |> withDefault ""
     , nListings = toString inTask.nListings
     , priceMin = toString inTask.priceMin
     , priceMax = toString inTask.priceMax
@@ -188,8 +288,92 @@ updateField field newContents task =
             { task | currency = newContents }
 
 
+trimStringsEditTask : SearchTaskRaw -> SearchTaskRaw
+trimStringsEditTask task =
+    { task
+        | id = String.trim task.id
+        , queryString = String.trim task.queryString
+        , recurrence = String.trim task.recurrence
+        , server = String.trim task.server
+        , product = String.trim task.product
+        , nListings = String.trim task.nListings
+        , priceMin = String.trim task.priceMin
+        , priceMax = String.trim task.priceMax
+        , currency = String.trim task.currency
+    }
+
+
+validateEditTask : SearchTaskRaw -> SearchTaskError
+validateEditTask taskIn =
+    let
+        task =
+            trimStringsEditTask taskIn
+    in
+        { queryString =
+            if task.product == "" && task.queryString == "" then
+                Just QueryStringMissing
+            else
+                Nothing
+        , product =
+            if task.product == "" && task.queryString == "" then
+                Just ProductMissing
+            else
+                -- TODO: Test if product exists
+                Nothing
+        , recurrence =
+            if task.recurrence == "" then
+                Just RecurrenceMissing
+            else
+                Nothing
+        , server =
+            if task.server == "" then
+                Just ServerMissing
+            else
+                Nothing
+        , nListings =
+            let
+                rawNum =
+                    task.nListings
+
+                convNum =
+                    String.toInt rawNum
+            in
+                case ( rawNum, convNum ) of
+                    ( "", _ ) ->
+                        Just NListingsMissing
+
+                    ( "-", _ ) ->
+                        Just NListingsWrongFormat
+
+                    ( _, Err _ ) ->
+                        Just NListingsWrongFormat
+
+                    ( _, Ok num ) ->
+                        if num < 0 then
+                            Just NListingsNegative
+                        else
+                            Nothing
+        , priceMin =
+            if task.priceMin == "" then
+                Just PriceMinMissing
+            else
+                Nothing
+        , priceMax =
+            if task.priceMax == "" then
+                Just PriceMaxMissing
+            else
+                Nothing
+        , currency =
+            if task.currency == "" then
+                Just CurrencyMissing
+            else
+                Nothing
+        }
+
+
 
 -- VIEW ----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 
 view : Model -> Html Msg
@@ -249,7 +433,7 @@ viewSearchTaskSimple : UsageMode -> Int -> SearchTask -> Html Msg
 viewSearchTaskSimple mode index task =
     tr []
         [ td [] [ viewRowControls mode index ]
-        , td [] [ text "-" ] --"product": null,
+        , td [] [ text "-" ] -- API URL of the product
         , td [] [ text task.queryString ]
         , td [] [ text task.server ]
         , td [] [ text task.recurrence ]
@@ -264,7 +448,7 @@ viewSearchTaskEdit : UsageMode -> Int -> SearchTaskRaw -> Html Msg
 viewSearchTaskEdit mode index task =
     tr []
         [ td [] [ viewRowControls mode index ]
-        , td [] [ text "-" ] --"product": null,
+        , td [] [ text "-" ] -- API URL of the product
         , td [] [ input [ onInput (ChangeField FQueryString), value task.queryString ] [] ]
         , td [] [ input [ onInput (ChangeField FServer), value task.server ] [] ]
         , td [] [ input [ onInput (ChangeField FRecurrence), value task.recurrence ] [] ]
@@ -315,6 +499,7 @@ viewError model =
 
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 
 subscriptions : Model -> Sub Msg
@@ -324,6 +509,7 @@ subscriptions model =
 
 
 -- HTTP ----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 
 {-| The API URL for accessing search tasks.
