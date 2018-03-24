@@ -89,8 +89,7 @@ type alias SearchTaskRaw =
 
 
 -- Errors for the individual fields of the `SearchTask`
-
-
+{--
 type ErrorQueryString
     = QueryStringMissing
 
@@ -146,11 +145,25 @@ type alias SearchTaskError =
     , priceMax : Maybe ErrorPriceMax
     , currency : Maybe ErrorCurrency
     }
+    --}
+
+
+type alias SearchTaskError =
+    { --id : String
+      queryString : Maybe String
+    , recurrence : Maybe String
+    , server : Maybe String
+    , product : Maybe String
+    , nListings : Maybe String
+    , priceMin : Maybe String
+    , priceMax : Maybe String
+    , currency : Maybe String
+    }
 
 
 type alias Model =
     { tasks : Array SearchTask
-    , errorMsg : String
+    , generalError : String
     , mode : UsageMode
     , editTask : SearchTaskRaw
     , editError : SearchTaskError
@@ -200,13 +213,13 @@ update msg model =
         NewTasks (Ok newTasks) ->
             ( { model
                 | tasks = Array.append model.tasks (Array.fromList newTasks)
-                , errorMsg = ""
+                , generalError = ""
               }
             , Cmd.none
             )
 
         NewTasks (Err err) ->
-            ( { model | errorMsg = (toString err) }, Cmd.none )
+            ( { model | generalError = (toString err) }, Cmd.none )
 
         ChangeMode (MEdit iTask) ->
             let
@@ -311,23 +324,23 @@ validateEditTask taskIn =
     in
         { queryString =
             if task.product == "" && task.queryString == "" then
-                Just QueryStringMissing
+                Just "A query string is required."
             else
                 Nothing
         , product =
             if task.product == "" && task.queryString == "" then
-                Just ProductMissing
+                Just "A product or query string is required."
             else
                 -- TODO: Test if product exists
                 Nothing
         , recurrence =
             if task.recurrence == "" then
-                Just RecurrenceMissing
+                Just "The recurrence must be specified."
             else
                 Nothing
         , server =
             if task.server == "" then
-                Just ServerMissing
+                Just "The server must be specified."
             else
                 Nothing
         , nListings =
@@ -340,32 +353,70 @@ validateEditTask taskIn =
             in
                 case ( rawNum, convNum ) of
                     ( "", _ ) ->
-                        Just NListingsMissing
+                        Just "The number of listings must be specified."
+
+                    ( "+", _ ) ->
+                        Just "A positive whole number is required."
 
                     ( "-", _ ) ->
-                        Just NListingsWrongFormat
+                        Just "A positive whole number is required."
 
                     ( _, Err _ ) ->
-                        Just NListingsWrongFormat
+                        Just "A positive whole number is required."
 
                     ( _, Ok num ) ->
                         if num < 0 then
-                            Just NListingsNegative
+                            Just "The number must be positive."
                         else
                             Nothing
         , priceMin =
-            if task.priceMin == "" then
-                Just PriceMinMissing
-            else
-                Nothing
+            let
+                rawNum =
+                    task.priceMin
+
+                convNum =
+                    String.toFloat rawNum
+            in
+                case ( rawNum, convNum ) of
+                    ( "", _ ) ->
+                        Just "The minimum price must be specified."
+
+                    ( _, Err _ ) ->
+                        Just "A positive number is required."
+
+                    ( _, Ok num ) ->
+                        if num < 0 then
+                            Just "The number must be positive."
+                        else
+                            Nothing
         , priceMax =
-            if task.priceMax == "" then
-                Just PriceMaxMissing
-            else
-                Nothing
+            let
+                rawNum =
+                    task.priceMax
+
+                convNum =
+                    String.toFloat rawNum
+
+                convMin =
+                    String.toFloat task.priceMin |> Result.withDefault 0
+            in
+                case ( rawNum, convNum ) of
+                    ( "", _ ) ->
+                        Just "The maximum price must be specified."
+
+                    ( _, Err _ ) ->
+                        Just "A positive number is required."
+
+                    ( _, Ok num ) ->
+                        if num < 0 then
+                            Just "The number must be positive."
+                        else if num < convMin then
+                            Just "The minimum value must be <= the maximum value."
+                        else
+                            Nothing
         , currency =
             if task.currency == "" then
-                Just CurrencyMissing
+                Just "The currency must be specified."
             else
                 Nothing
         }
@@ -401,15 +452,9 @@ view model =
                     ]
                 ]
             , tbody []
-                (let
-                    indexedTasks =
-                        Array.toIndexedList model.tasks
-
-                    callViewFunc : ( Int, SearchTask ) -> Html Msg
-                    callViewFunc ( i, task ) =
-                        viewSearchTask model model.mode i task
-                 in
-                    (List.map callViewFunc indexedTasks)
+                (List.map
+                    (\( i, task ) -> viewSearchTask model model.mode i task)
+                    (Array.toIndexedList model.tasks)
                 )
             ]
         , viewError model
@@ -421,7 +466,7 @@ viewSearchTask model mode index task =
     case mode of
         MEdit id ->
             if id == index then
-                viewSearchTaskEdit mode index model.editTask
+                viewSearchTaskEdit index model.editTask model.editError
             else
                 viewSearchTaskSimple mode index task
 
@@ -444,19 +489,39 @@ viewSearchTaskSimple mode index task =
         ]
 
 
-viewSearchTaskEdit : UsageMode -> Int -> SearchTaskRaw -> Html Msg
-viewSearchTaskEdit mode index task =
+viewSearchTaskEdit : Int -> SearchTaskRaw -> SearchTaskError -> Html Msg
+viewSearchTaskEdit index task error =
     tr []
-        [ td [] [ viewRowControls mode index ]
+        [ td [] [ viewRowControls (MEdit index) index ]
         , td [] [ text "-" ] -- API URL of the product
-        , td [] [ input [ onInput (ChangeField FQueryString), value task.queryString ] [] ]
-        , td [] [ input [ onInput (ChangeField FServer), value task.server ] [] ]
-        , td [] [ input [ onInput (ChangeField FRecurrence), value task.recurrence ] [] ]
-        , td [] [ input [ onInput (ChangeField FNListings), value task.nListings ] [] ]
-        , td [] [ input [ onInput (ChangeField FPriceMin), value task.priceMin ] [] ]
-        , td [] [ input [ onInput (ChangeField FPriceMax), value task.priceMax ] [] ]
-        , td [] [ input [ onInput (ChangeField FCurrency), value task.currency ] [] ]
+        , td [] [ viewInputWithError (ChangeField FQueryString) task.queryString error.queryString ]
+        , td [] [ viewInputWithError (ChangeField FServer) task.server error.server ]
+        , td [] [ viewInputWithError (ChangeField FRecurrence) task.recurrence error.recurrence ]
+        , td [] [ viewInputWithError (ChangeField FNListings) task.nListings error.nListings ]
+        , td [] [ viewInputWithError (ChangeField FPriceMin) task.priceMin error.priceMin ]
+        , td [] [ viewInputWithError (ChangeField FPriceMax) task.priceMax error.priceMax ]
+        , td [] [ viewInputWithError (ChangeField FCurrency) task.currency error.currency ]
         ]
+
+
+viewInputWithError : (String -> Msg) -> String -> Maybe String -> Html Msg
+viewInputWithError callBack currentValue error =
+    case error of
+        Nothing ->
+            div []
+                [ input [ onInput callBack, value currentValue ] [] ]
+
+        Just errorMessage ->
+            div []
+                [ input
+                    [ style [ ( "background-color", "#ffe6ea" ) ]
+                    , onInput callBack
+                    , value currentValue
+                    ]
+                    []
+                , br [] []
+                , label [ style [ ( "color", "red" ) ] ] [ text errorMessage ]
+                ]
 
 
 viewRowControls : UsageMode -> Int -> Html Msg
@@ -485,7 +550,7 @@ viewRowControls mode currentID =
 
 viewError : Model -> Html Msg
 viewError model =
-    if model.errorMsg == "" then
+    if model.generalError == "" then
         div [] []
     else
         div
@@ -494,7 +559,7 @@ viewError model =
                 , ( "font-weight", "bold" )
                 ]
             ]
-            [ text ("Error: " ++ model.errorMsg) ]
+            [ text ("Error: " ++ model.generalError) ]
 
 
 

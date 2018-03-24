@@ -41,6 +41,9 @@ nosetests.xml
 
 # Vim swap files
 *.swp
+# Vim session files
+Session.vim
+
 #Kate trash files
 *~
 
