@@ -8,7 +8,9 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as JD
 import Json.Decode.Pipeline as PL
-import Debug exposing (log)
+
+
+--import Debug exposing (log)
 
 
 main =
@@ -87,67 +89,8 @@ type alias SearchTaskRaw =
     }
 
 
-
--- Errors for the individual fields of the `SearchTask`
-{--
-type ErrorQueryString
-    = QueryStringMissing
-
-
-type ErrorRecurrence
-    = RecurrenceMissing
-    | RecurrenceWrongFormat
-
-
-type ErrorServer
-    = ServerMissing
-
-
-type ErrorProduct
-    = ProductMissing
-
-
-type ErrorNListings
-    = NListingsMissing
-    | NListingsWrongFormat
-    | NListingsNegative
-
-
-type ErrorPriceMin
-    = PriceMinMissing
-    | PriceMinWrongFormat
-    | PriceMinNegative
-    | PriceMin_MinGTMax
-
-
-type ErrorPriceMax
-    = PriceMaxMissing
-    | PriceMaxWrongFormat
-    | PriceMaxNegative
-    | PriceMax_MinGTMax
-
-
-type ErrorCurrency
-    = CurrencyMissing
-    | CurrencyUnknown
-
-
 {-| Errors for all input fields for editing the `SearchTask`.
 -}
-type alias SearchTaskError =
-    { --id : String
-      queryString : Maybe ErrorQueryString
-    , recurrence : Maybe ErrorRecurrence
-    , server : Maybe ErrorServer
-    , product : Maybe ErrorProduct
-    , nListings : Maybe ErrorNListings
-    , priceMin : Maybe ErrorPriceMin
-    , priceMax : Maybe ErrorPriceMax
-    , currency : Maybe ErrorCurrency
-    }
-    --}
-
-
 type alias SearchTaskError =
     { --id : String
       queryString : Maybe String
@@ -202,6 +145,8 @@ type Msg
     | NewTasks (Result Http.Error (List SearchTask))
     | ChangeMode UsageMode
     | ChangeField FormField String
+    | SaveEdit
+    | SaveResponse (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -257,6 +202,15 @@ update msg model =
                   }
                 , Cmd.none
                 )
+
+        SaveEdit ->
+            ( model, saveEditTask )
+
+        SaveResponse (Ok msg) ->
+            ( { model | mode = MChange }, Cmd.none )
+
+        SaveResponse (Err err) ->
+            ( { model | generalError = (toString err) }, Cmd.none )
 
 
 toSearchTaskRaw : SearchTask -> SearchTaskRaw
@@ -541,7 +495,7 @@ viewRowControls mode currentID =
         MEdit id ->
             if id == currentID then
                 div []
-                    [ button [{- onClick ReloadTasks -}] [ text "Save" ]
+                    [ button [ onClick SaveEdit ] [ text "Save" ]
                     , button [ onClick (ChangeMode MChange) ] [ text "Revert" ]
                     ]
             else
@@ -633,3 +587,13 @@ parseSearchTaskList =
                 |> PL.required "currency" JD.string
             )
         )
+
+
+saveEditTask : Cmd Msg
+saveEditTask =
+    Http.send SaveResponse (Http.post url_SEARCH_TASKS Http.emptyBody parsePostResponse)
+
+
+parsePostResponse : JD.Decoder String
+parsePostResponse =
+    JD.string
