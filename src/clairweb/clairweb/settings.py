@@ -134,10 +134,11 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.IsAdminUser',
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-        #'rest_framework.permissions.AllowAny',
+        #'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ],
-    'PAGE_SIZE': 20
+    'PAGE_SIZE': 50,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
 }
 
 
